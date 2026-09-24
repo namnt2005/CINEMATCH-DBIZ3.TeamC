@@ -1,0 +1,14 @@
+# Mixed macOS and Windows team: store every text file with LF line endings,
+# so a Windows checkout does not rewrite whole files and cause false conflicts.
+* text=auto eol=lf
+*.ps1 text eol=crlf
+*.cmd text eol=crlf
+*.bat text eol=crlf
+
+# Binary files: never merge line by line
+*.docx binary
+*.xlsx binary
+*.pptx binary
+*.pdf binary
+*.png binary
+*.jpg binary
