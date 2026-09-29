@@ -1,44 +1,44 @@
 # System Configuration Diagram — CINEMATCH
 
-> Nguồn: System Design v2.0, sheet *1. Schematic*, mục 1.4, Hình 2.
-> Ảnh gốc: `diagrams/CFG-01_System-configuration.png`.
-> Quy tắc áp dụng (Pattern 2): **một subgraph cho mỗi tier**. Không thêm bất kỳ thành phần nào
-> không có trong ảnh gốc, kể cả khi trông như đang thiếu.
+> Source: System Design v2.0, sheet *1. Schematic*, section 1.4, Figure 2.
+> Diagram image: `diagrams/CFG-01_System-configuration.png` (to be redrawn from the Mermaid source below).
+> Rule applied (Pattern 2): **one subgraph per tier**. Do not add any component
+> that is not in the original image, even if it looks as though it is missing.
 
 ```mermaid
 flowchart TB
-    subgraph Client["Lớp người dùng"]
-        UF["Nhà làm phim quốc tế"]
-        USUP["Nhà cung ứng Việt Nam"]
-        UADM["Cán bộ VFDA (/admin)"]
-        UGUEST["Khách chưa đăng nhập"]
+    subgraph Client["User tier"]
+        UF["International producer"]
+        USUP["Vietnamese service partner"]
+        UADM["VFDA staff (/admin)"]
+        UGUEST["Guest (not signed in)"]
     end
 
-    subgraph App["Lớp ứng dụng — Vercel"]
-        PUB["Trang công khai<br/>Thư viện bối cảnh · Cẩm nang"]
-        USER["Khu người dùng<br/>Dự án · Bảng sẵn sàng"]
-        ADMIN["Khu quản trị /admin<br/>Duyệt · Xác thực · Báo cáo"]
-        RH["Route Handlers<br/>+ Middleware phân quyền"]
-        EF1["Edge Function<br/>Trích thuộc tính cảnh quay"]
-        EF2["Edge Function<br/>Rà soát chủ đề theo quy tắc"]
-        EF3["Edge Function<br/>Sinh hồ sơ song ngữ"]
-        EF4["Edge Function<br/>Sinh PDF · báo cáo quý"]
+    subgraph App["Application tier — Vercel"]
+        PUB["Public pages<br/>Location library · Guide"]
+        USER["User area<br/>Projects · Readiness dashboard"]
+        ADMIN["Admin area /admin<br/>Approval · Verification · Reports"]
+        RH["Route Handlers<br/>+ Authorisation middleware"]
+        EF1["Edge Function<br/>Extract scene attributes"]
+        EF2["Edge Function<br/>Rule-based topic review"]
+        EF3["Edge Function<br/>Generate bilingual dossier"]
+        EF4["Edge Function<br/>Generate PDF · quarterly report"]
     end
 
-    subgraph Data["Lớp dữ liệu — Supabase"]
+    subgraph Data["Data tier — Supabase"]
         PG[("PostgreSQL + RLS")]
-        AUTH["Auth — 6 vai trò"]
-        STORE[("Storage — ảnh, tài liệu")]
-        VEC["pgvector — tìm theo ngữ nghĩa"]
-        GIS["PostGIS — khoảng cách, bán kính"]
+        AUTH["Auth — 6 roles"]
+        STORE[("Storage — images, documents")]
+        VEC["pgvector — semantic search"]
+        GIS["PostGIS — distance, radius"]
         RT["Realtime + Webhooks"]
-        CRON["pg_cron — ảnh chụp định kỳ"]
+        CRON["pg_cron — periodic snapshots"]
     end
 
-    subgraph External["Dịch vụ ngoài"]
-        LLM["API mô hình ngôn ngữ"]
-        MAIL["Resend — email giao dịch"]
-        OSM["OpenStreetMap — ảnh nền bản đồ"]
+    subgraph External["External services"]
+        LLM["Language model API"]
+        MAIL["Resend — transactional email"]
+        OSM["OpenStreetMap — map tiles"]
         OBS["PostHog · Sentry"]
     end
 
@@ -71,32 +71,32 @@ flowchart TB
     USER --> OBS
 ```
 
-## Ghi chú kiến trúc
+## Architecture notes
 
-* Dịch vụ ngoài **chỉ được gọi ra**, không nhận kết nối vào — giảm bề mặt rủi ro.
-* Phân quyền thực thi bằng Row Level Security ngay tại PostgreSQL, không phải ở tầng giao diện.
-* Triển khai và quay lui qua Vercel; kiểm tra tự động qua GitHub Actions. Hai thành phần này
-  nằm ngoài sơ đồ runtime nên **không** vẽ thành node.
+* External services are **called outbound only** and accept no inbound connections — this reduces the risk surface.
+* Authorisation is enforced with Row Level Security inside PostgreSQL itself, not in the interface layer.
+* Deployment and rollback go through Vercel; automated checks run on GitHub Actions. These two components
+  sit outside the runtime diagram, so they are **not** drawn as nodes.
 
 ---
 
-## Kiểm chứng (Step 3, mục 5.6)
+## Verification (Step 3, section 5.6)
 
-| # | Kiểm tra | Kết quả |
+| # | Check | Result |
 |---|---|---|
-| 1 | Đếm số node: ảnh gốc và khối Mermaid | Ảnh gốc 4 tier / 23 thành phần; Mermaid 4 subgraph / 23 node — **khớp** |
-| 2 | Truy vết từng mũi tên, kể cả chiều | Ảnh gốc vẽ 12 mũi tên gộp giữa các tier; Mermaid tách thành 22 cạnh chi tiết hơn — **có chênh lệch có chủ đích**, xem ghi chú bên dưới |
-| 3 | Mọi nhánh quyết định giữ đủ nhánh và đúng nhãn gốc | Không áp dụng — sơ đồ cấu hình không có nhánh quyết định |
-| 4 | Không đổi tên, không dịch, không "dọn dẹp" | Đạt — tên node lấy nguyên văn từ ảnh gốc |
-| 5 | Render khối Mermaid và đặt cạnh ảnh gốc | Ảnh gốc: `diagrams/CFG-01_System-configuration.png` |
-| 6 | Hỏi cái gì còn thiếu | Ảnh gốc không vẽ hàng đợi công việc nền và cơ chế sao lưu. Cả hai đều tồn tại trong vận hành. Ghi nhận là câu hỏi mở. |
+| 1 | Count the nodes: original image and Mermaid block | Original image 4 tiers / 23 components; Mermaid 4 subgraphs / 23 nodes — **match** |
+| 2 | Trace every arrow, including direction | The original image draws 12 grouped arrows between tiers; Mermaid splits them into 24 more detailed edges — **deliberate difference**, see the note below |
+| 3 | Every decision keeps all its branches with the original labels | Not applicable — the configuration diagram has no decision branches |
+| 4 | Labels translated, nothing renamed or "tidied up" | Labels translated into English from the Vietnamese original; nodes, edges and branch labels otherwise unchanged. |
+| 5 | Render the Mermaid block and place it next to the original image | Diagram image: `diagrams/CFG-01_System-configuration.png` |
+| 6 | Ask what is missing | The original image does not draw the background job queue or the backup mechanism. Both exist in operation. Recorded as a known gap. |
 
-**Người kiểm chứng:** _(chưa ký — cần một thành viên nhóm C đối chiếu node-by-node với ảnh gốc rồi ghi tên vào đây)_
+**Verified by:** _(not signed yet — a Group C member must compare the diagram with the original image node by node and sign here)_
 
-> Các con số ở dòng 1–3 do script đối chiếu tự động giữa dữ liệu vẽ ảnh và khối Mermaid.
-> Theo hướng dẫn Step 3 mục 5.6, **một con người vẫn phải xác nhận lần cuối** trước khi coi là đã kiểm chứng.
+> The figures in rows 1–3 come from a script that automatically compares the image drawing data with the Mermaid block.
+> Under the Step 3 guidance, section 5.6, **a human must still give final confirmation** before this counts as verified.
 
 
-> **Về chênh lệch số mũi tên:** ảnh gốc vẽ mũi tên gộp giữa các tier cho dễ nhìn.
-> Khối Mermaid tách ra theo từng cặp thành phần vì coding agent cần biết thành phần nào gọi thành phần nào.
-> Đây là **làm rõ**, không phải thêm thành phần mới — số node vẫn khớp tuyệt đối.
+> **On the difference in arrow count:** the original image draws grouped arrows between tiers to keep it readable.
+> The Mermaid block splits them by component pair because the coding agent needs to know which component calls which.
+> This is **clarification**, not the addition of new components — the node count still matches exactly.

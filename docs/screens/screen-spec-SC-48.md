@@ -104,11 +104,7 @@
 
 ## 9. Open questions
 
-| # | Question | Blocking? | Status |
-|---|---|---|---|
-| 1 | [NEEDS CLARIFICATION: team to confirm that content uses Article 9 (prohibited content) instead of Article 13 as stated in the screen list file] | Yes | Open |
-| 2 | [NEEDS CLARIFICATION: the specific clause of Article 9 for each rule is to be filled in `rules.citation` by the VFDA Legal Board; the mockup only goes to Article level] | No | Open |
-| 3 | [NEEDS CLARIFICATION: thresholds for mapping number of findings × severity to Low / Medium / High] | Yes | Open |
+_Open questions are tracked outside this repository until they are resolved._
 
 ## Completion checklist
 

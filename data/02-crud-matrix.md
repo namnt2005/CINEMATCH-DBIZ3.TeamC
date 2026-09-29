@@ -63,8 +63,8 @@ Long form: one row per (function, entity) pair that interacts — 141 rows over 
 | F-M2-10 | `DOSSIER_CHECK` | R | M2 §5.1 FR-010 |
 | F-M2-10 | `READINESS_VIEW` | R | M2 §5.1 FR-010 (gauge_compliance) |
 | F-M2-11 | `LEGAL_RULE` | R | M2 §5.1 FR-011 (codes of approved rules) |
-| F-M2-12 | `PRECHECK_FINDING` | C | M2 §5.1 FR-012 (verified_findings) — see open question 3 |
-| F-M2-12 | `COMPLIANCE_FINDING` | C | M2 §5.1 FR-012 (verified_findings) — see open question 3 |
+| F-M2-12 | `PRECHECK_FINDING` | C | M2 §5.1 FR-012 (verified_findings)
+| F-M2-12 | `COMPLIANCE_FINDING` | C | M2 §5.1 FR-012 (verified_findings)
 | F-M2-12 | `LEGAL_RULE` | R | M2 §5.1 FR-012 ("rule code is unknown") |
 | F-M2-13 | `PRECHECK_FINDING` | R | M2 §5.1 FR-013 |
 | F-M2-13 | `COMPLIANCE_FINDING` | R | M2 §5.1 FR-013 |
@@ -251,18 +251,4 @@ Reported only — no function or entity was added to make the matrix look comple
 
 ## Open questions
 
-| # | Question | Blocking? | Owner | Default applied | Consequence if the default is wrong |
-|---|---|---|---|---|---|
-| 1 | [NEEDS CLARIFICATION: Which function writes COMPLIANCE_RUN? No function runs the content check on a project; F-M2-06/11/12 only speak of a synopsis.] | Yes | M2 owner | F-M2-12 writes COMPLIANCE_FINDING when the synopsis belongs to a project | Project content checks (M2 US-2, SC-48 for members) cannot be traced to a stored run and version. |
-| 2 | [NEEDS CLARIFICATION: Is LOCATION_QUERY stored (F-M3-10/11), and for how long?] | No | M3 owner | Not stored; entity kept as declared, no rows written | If stored, it holds user text (privacy) and becomes a demand signal for M10. |
-| 3 | [NEEDS CLARIFICATION: Does F-M2-12 verify findings for both the guest pre-check and the project check?] | No | M2 owner | Yes, both | If only the pre-check, project findings would be shown unverified — breaks M2 BR-001. |
-| 4 | [NEEDS CLARIFICATION: Who loads SEGMENT_RULE, SEGMENT_REQUIREMENT, DOCUMENT_TYPE, PROVINCE and PUBLIC_HOLIDAY? No function creates them.] | Yes | Nam + VFDA | Loaded by seed script; VFDA edits through the database until M10 exists | The M1 decision table and the M5 kit are VFDA-approved content; without an edit function every change needs a developer. |
-| 5 | [NEEDS CLARIFICATION: Which function creates DOCUMENT_SLOT rows, and which sets their state?] | Yes | M5 owner | F-M5-01 creates one slot per required document type when the kit first opens; state derived by rules | Without slots, F-M2-08 has nothing to count and component status cannot be stored. |
-| 6 | [NEEDS CLARIFICATION: Is COLLAB_MESSAGE in scope? No function writes or reads messages (SC-25 shows none).] | No | M4 owner | Out of scope; entity left unused | If in scope, a send/read function and a Screen Spec section are missing. |
-| 7 | [NEEDS CLARIFICATION: Is PROJECT_GLOSSARY in scope? No function writes or reads it.] | No | M5 owner | Out of scope; entity left unused | Translation consistency across paragraphs (SC-28) would rely on the model alone. |
-| 8 | [NEEDS CLARIFICATION: Who reads CONSENT, SEGMENT_DECISION, RULE_SET_VERSION, PROJECT_PROVINCE and EMAIL_DELIVERY? Each is written but never read by a function.] | No | Owners of SYS, M1, M2, M0 | Kept for audit and for M10 reports | Write-only data costs storage and privacy review without a user; M10's spec must claim them. |
-| 9 | [NEEDS CLARIFICATION: Does F-M1-01 read segment labels from the display dictionary (F-SYS-06) or from SEGMENT_REQUIREMENT?] | No | M1 owner | Display dictionary | If from SEGMENT_REQUIREMENT, labels need columns there. |
-
-
----
-*Human gate 2: fill the Resolution column. Kinds 1 and 4 go back to the module owner as spec defects; kind 3 (ownership) must be settled before Session 10. Signed: ____________________  Date: __________*
+_Open questions are tracked outside this repository until they are resolved._

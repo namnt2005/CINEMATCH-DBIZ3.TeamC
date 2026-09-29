@@ -102,10 +102,7 @@
 
 ## 9. Open questions
 
-| # | Question | Blocking? | Status |
-|---|---|---|---|
-| 1 | [NEEDS CLARIFICATION: will VFDA provide a standard NDA template, or does each partner use its own NDA] | Yes | Open |
-| 2 | [NEEDS CLARIFICATION: after how many days without a response does a request expire automatically] | No | Open |
+_Open questions are tracked outside this repository until they are resolved._
 
 ## Completion checklist
 

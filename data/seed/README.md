@@ -81,9 +81,9 @@ Every table has ordinary rows (1). The other three kinds:
 | province_notice | — | `i5`, `i7`: drafted, not reviewed | `bounced`; `cannot_support` |
 | consultation_booking | time zone `America/Argentina/ComodRivadavia` | `b4`: no officer yet | `rescheduled` |
 
-**Header-only tables — `location_query`, `collab_message`, `project_glossary`.** No function creates their rows (`02-crud-matrix.md`, anomalies kind 1 and 5). Writing rows would invent behaviour the spec does not have, which is exactly what the process forbids; they stay empty until their open questions are answered.
+**Header-only tables — `location_query`, `collab_message`, `project_glossary`.** No function creates their rows (`02-crud-matrix.md`, anomalies kind 1 and 5). Writing rows would invent behaviour the spec does not have, which is exactly what the process forbids; they stay empty until the owning module decides which function writes them.
 
-## Proposed values for enums the spec never declares (OQ-04-15)
+## Proposed values for enums the spec never declares
 
 Used in the seed so the rows can be written; each needs the owner's confirmation.
 
@@ -111,7 +111,7 @@ Used in the seed so the rows can be written; each needs the owner's confirmation
 | M1 US-3 | *Rice and Salt*: decision A then B, documents kept | Yes |
 | M0 US-1 | *Monsoon Signal*: new project, owner only | Yes |
 | M0 US-2 | *The Last Ferry* dossier slots; *Monsoon Signal* (segment C, no dossier gauge) | Yes |
-| M0 US-3 | project_member invitation `pending` | Partly — no function accepts an invitation (OQ-04-10) |
+| M0 US-3 | project_member invitation `pending` | Partly — no function accepts an invitation |
 | M2 US-1 | precheck_run `g-us`, `g-vi` with findings; `g-fr` none; `g-dropped` | Yes |
 | M2 US-2 | *Rice and Salt*: application only (1 / 4); *The Last Ferry*: script `needs_fix` | Yes |
 | M2 US-3 | legal_rule `A9-DRUG` (draft, no citation); approved rules with versions | Yes |
@@ -133,4 +133,4 @@ Used in the seed so the rows can be written; each needs the owner's confirmation
 | M7 US-2 | notice `i3` `info_needed` + notification `n4` | Yes |
 | M7 US-3 | booking `b1` (Asia/Seoul) + reminder `n8` | Yes |
 
-**30 scenarios: 25 covered, 4 partly, 1 not covered.** The partial and missing ones point at open questions, not at thin data.
+**30 scenarios: 25 covered, 4 partly, 1 not covered.** The partial and missing ones point at points still to be decided, not at thin data.

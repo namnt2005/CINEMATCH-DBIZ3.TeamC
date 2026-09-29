@@ -1,407 +1,408 @@
 # Sequence Diagrams — CINEMATCH
 
-> Nguồn: System Design v2.0. Ảnh gốc: `diagrams/SEQ-01..SEQ-12`.
-> Quy tắc áp dụng (Pattern 4): **participant phải là bộ phận thật của hệ thống, không phải chức danh**.
-> Mũi tên liền `->>` là lời gọi, mũi tên đứt `-->>` là giá trị trả về, `Note over` là quy tắc gắn với một bước.
+> Source: System Design v2.0. Diagram images: `diagrams/SEQ-01_Sign-up-and-log-in.png` to `diagrams/SEQ-12_Demand-index-and-quarterly-report.png` (see `diagrams/README.md`).
+> Rule applied (Pattern 4): **a participant must be a real part of the system, not a job title**.
+> A solid arrow `->>` is a call, a dashed arrow `-->>` is a return value, and `Note over` is a rule attached to a step.
 >
-> Hướng dẫn Step 3 mục 5.4 yêu cầu dùng `alt / else` cho nhánh lỗi. Các sequence dưới đây **giữ nguyên
-> cấu trúc tuần tự của ảnh gốc** vì ảnh gốc không vẽ nhánh lỗi. Chỗ nào thiếu nhánh lỗi đã được ghi
-> vào bảng kiểm chứng ở cuối file để đưa vào mục 10 của Spec Document ở Step 5.
+> Step 3 guidance, section 5.4, requires `alt / else` for error branches. The sequences below **keep the
+> sequential structure of the original images** because the original images do not draw error branches. Where error
+> branches are missing, this is recorded in the verification table at the end of this file so it can go into
+> section 10 of the Spec Document in Step 5.
 
 
 ---
 
-## SEQ-01 — Đăng ký và đăng nhập
+## SEQ-01 — Sign up and log in
 
-*Ảnh gốc: `diagrams/SEQ-01_Dang-ky-Dang-nhap.png` (Hình 4). Participant: 5 · Message: 11.*
+*Diagram image: `diagrams/SEQ-01_Sign-up-and-log-in.png` (to be redrawn from the Mermaid source below). DBIZ2 Figure 4. Participants: 5 · Messages: 11.*
 
 ```mermaid
 sequenceDiagram
-    actor GU as Khách chưa đăng nhập
-    participant FE as Ứng dụng Next.js
+    actor GU as Guest
+    participant FE as Next.js app
     participant AU as Supabase Auth
     participant DB as Supabase PostgreSQL + RLS
     participant MAIL as Resend
 
-    GU->>FE: Nhập email, mật khẩu, tên tổ chức
-    FE->>FE: Kiểm tra định dạng bằng Zod
+    GU->>FE: Enter email, password, organisation name
+    FE->>FE: Validate the format with Zod
     FE->>AU: signUp(email, password)
-    AU->>MAIL: Gửi email xác thực
-    AU-->>FE: Trả về user chưa xác thực
-    GU->>FE: Bấm liên kết xác thực trong email
+    AU->>MAIL: Send the verification email
+    AU-->>FE: Return an unverified user
+    GU->>FE: Click the verification link in the email
     FE->>AU: verifyOtp(token)
-    AU->>DB: Tạo bản ghi profiles, role = member
+    AU->>DB: Create a profiles record, role = member
     DB-->>AU: Profile ID
-    AU-->>FE: Phiên đăng nhập
-    FE-->>GU: Chuyển tới màn hình chọn phân khúc
-    Note over DB: Không tự sinh JWT, không tự băm mật khẩu — dùng Supabase Auth
+    AU-->>FE: Session
+    FE-->>GU: Go to the segment selection screen
+    Note over DB: No home-made JWT, no home-made password hashing — use Supabase Auth
 ```
 
-> Vai trò được gán ở tầng CSDL và thực thi bằng RLS, không kiểm soát ở giao diện.
+> The role is assigned at the database layer and enforced with RLS, not controlled in the user interface.
 
 
 ---
 
-## SEQ-02 — Tiền kiểm nội dung 200 chữ (không cần đăng ký)
+## SEQ-02 — 200-word content pre-check (no sign-up needed)
 
-*Ảnh gốc: `diagrams/SEQ-02_Tien-kiem-200-chu.png` (Hình 5). Participant: 5 · Message: 11.*
+*Diagram image: `diagrams/SEQ-02_200-word-pre-check.png` (to be redrawn from the Mermaid source below). DBIZ2 Figure 5. Participants: 5 · Messages: 11.*
 
 ```mermaid
 sequenceDiagram
-    actor GU as Khách chưa đăng nhập
-    participant FE as Ứng dụng Next.js
+    actor GU as Guest
+    participant FE as Next.js app
     participant EF as Edge Function
     participant DB as Supabase PostgreSQL + RLS
-    participant AI as API mô hình ngôn ngữ
+    participant AI as Language model API
 
-    GU->>FE: Dán tóm tắt tối đa 200 chữ
-    FE->>FE: Kiểm tra giới hạn số lần gọi
+    GU->>FE: Paste a summary of up to 200 words
+    FE->>FE: Check the rate limit
     FE->>EF: preCheck(text)
-    EF->>DB: Đọc legal_rules đã duyệt
-    DB-->>EF: Danh sách quy tắc + trích dẫn
-    EF->>AI: Gọi mô hình kèm bộ quy tắc, structured output
+    EF->>DB: Read approved legal_rules
+    DB-->>EF: Rules + citations
+    EF->>AI: Call the model with the rule set, structured output
     AI-->>EF: findings[] (rule_code, quoted_text)
-    EF->>EF: Loại bỏ phát hiện có trích dẫn không tồn tại
-    EF->>DB: Ghi bản ghi vào briefs
-    EF-->>FE: Danh sách chủ đề cần lưu ý
-    FE-->>GU: Hiển thị cảnh báo kèm điều khoản
-    Note over EF: Không kết luận được duyệt hay không — chỉ nêu vấn đề để con người xem xét
+    EF->>EF: Drop findings whose quote does not exist
+    EF->>DB: Write a record to briefs
+    EF-->>FE: Topics needing attention
+    FE-->>GU: Show warnings with the cited article
+    Note over EF: Never concludes approved or not — only raises points for a human to consider
 ```
 
-> Mỗi lượt tiền kiểm là một điểm dữ liệu cho chỉ số nhu cầu của VFDA.
+> Every pre-check is a data point for VFDA's demand index.
 
 
 ---
 
-## SEQ-03 — Tìm bối cảnh từ mô tả cảnh quay
+## SEQ-03 — Find locations from a scene description
 
-*Ảnh gốc: `diagrams/SEQ-03_Tim-boi-canh-tu-mo-ta.png` (Hình 6). Participant: 5 · Message: 10.*
+*Diagram image: `diagrams/SEQ-03_Find-locations-from-scene-description.png` (to be redrawn from the Mermaid source below). DBIZ2 Figure 6. Participants: 5 · Messages: 10.*
 
 ```mermaid
 sequenceDiagram
-    actor U as Nhà làm phim
-    participant FE as Ứng dụng Next.js
+    actor U as Producer
+    participant FE as Next.js app
     participant EF as Edge Function
-    participant AI as API mô hình ngôn ngữ
+    participant AI as Language model API
     participant DB as Supabase PostgreSQL + RLS
 
-    U->>FE: Nhập mô tả cảnh quay tự do
+    U->>FE: Type a free-text scene description
     FE->>EF: extractSceneAttributes(text)
-    EF->>AI: Trích thuộc tính theo khuôn định sẵn
-    AI-->>EF: {scene_types, era, time_of_day, ...}
-    EF->>EF: Kiểm chứng theo danh mục loại bối cảnh
-    EF->>DB: search_locations(thuộc tính)
-    DB->>DB: Chấm điểm 100 thang theo 6 tiêu chí
-    DB-->>EF: Danh sách xếp hạng + match_reasons[]
-    EF-->>FE: Kết quả kèm lý do khớp
-    FE-->>U: Lưới thẻ địa điểm, mỗi thẻ nêu vì sao khớp
-    Note over DB: Chỉ trả về địa điểm published = true và điểm từ 40 trở lên
+    EF->>AI: Extract attributes into a fixed template
+    AI-->>EF: {scene_types, era, time_of_day...}
+    EF->>EF: Validate against the location-type catalogue
+    EF->>DB: search_locations(attributes)
+    DB->>DB: Score out of 100 on 6 criteria
+    DB-->>EF: Ranked list + match_reasons[]
+    EF-->>FE: Results with match reasons
+    FE-->>U: Grid of location cards, each saying why it matches
+    Note over DB: Only returns locations with published = true and a score of 40 or more
 ```
 
-> AI là bộ phân tích đầu vào; bộ chấm điểm tất định trong CSDL mới quyết định thứ hạng.
+> The AI parses the input; the deterministic scorer in the database decides the ranking.
 
 
 ---
 
-## SEQ-04 — Xem đầu mối chính quyền — kiểm soát bằng RLS
+## SEQ-04 — View the local authority contact — gated by RLS
 
-*Ảnh gốc: `diagrams/SEQ-04_Xem-dau-moi-chinh-quyen.png` (Hình 7). Participant: 4 · Message: 12.*
+*Diagram image: `diagrams/SEQ-04_View-local-authority-contact.png` (to be redrawn from the Mermaid source below). DBIZ2 Figure 7. Participants: 4 · Messages: 12.*
 
 ```mermaid
 sequenceDiagram
-    actor GU as Khách chưa đăng nhập
-    actor U as Nhà làm phim
-    participant FE as Ứng dụng Next.js
+    actor GU as Guest
+    actor U as Producer
+    participant FE as Next.js app
     participant DB as Supabase PostgreSQL + RLS
 
-    GU->>FE: Mở trang chi tiết địa điểm
+    GU->>FE: Open a location detail page
     FE->>DB: SELECT locations WHERE slug = ?
-    DB-->>FE: Dữ liệu địa điểm công khai
+    DB-->>FE: Public location data
     FE->>DB: SELECT location_authority_contacts
-    DB->>DB: RLS: vai trò anon → 0 dòng
-    DB-->>FE: Rỗng
-    FE-->>GU: Hiển thị khối mời đăng ký thay cho đầu mối
-    U->>FE: Đăng nhập rồi mở lại trang
+    DB->>DB: RLS: role anon → 0 rows
+    DB-->>FE: Empty
+    FE-->>GU: Show a sign-up prompt instead of the contact
+    U->>FE: Sign in and reopen the page
     FE->>DB: SELECT location_authority_contacts
-    DB->>DB: RLS: đã đăng nhập → trả dữ liệu
-    DB-->>FE: Tên, điện thoại, email đầu mối
-    FE-->>U: Hiển thị đầy đủ thông tin liên hệ
-    Note over DB: Dữ liệu nhạy cảm không bao giờ rời CSDL với người chưa đủ quyền
+    DB->>DB: RLS: signed in → return data
+    DB-->>FE: Name, phone, email of the contact
+    FE-->>U: Show full contact details
+    Note over DB: Sensitive data never leaves the database for a user without the right role
 ```
 
-> Kiểm chứng: xem nguồn trang ở cửa sổ ẩn danh, không được tìm thấy số điện thoại.
+> Verification: view the page source in a private window — no phone number may be found.
 
 
 ---
 
-## SEQ-05 — So sánh bối cảnh và chốt danh sách rút gọn
+## SEQ-05 — Compare locations and confirm the shortlist
 
-*Ảnh gốc: `diagrams/SEQ-05_So-sanh-chot-shortlist.png` (Hình 8). Participant: 3 · Message: 10.*
+*Diagram image: `diagrams/SEQ-05_Compare-and-shortlist.png` (to be redrawn from the Mermaid source below). DBIZ2 Figure 8. Participants: 3 · Messages: 10.*
 
 ```mermaid
 sequenceDiagram
-    actor U as Nhà làm phim
-    participant FE as Ứng dụng Next.js
+    actor U as Producer
+    participant FE as Next.js app
     participant DB as Supabase PostgreSQL + RLS
 
-    U->>FE: Chọn tối đa 4 địa điểm để so sánh
-    FE->>FE: Lưu lựa chọn tạm trong trình duyệt
-    FE->>DB: Lấy dữ liệu 4 địa điểm
-    DB-->>FE: Thuộc tính đầy đủ từng địa điểm
-    FE-->>U: Bảng so sánh 8 hàng tiêu chí
-    U->>FE: Bấm Chốt vào danh sách rút gọn
+    U->>FE: Pick up to 4 locations to compare
+    FE->>FE: Keep the selection temporarily in the browser
+    FE->>DB: Fetch data for the 4 locations
+    DB-->>FE: Full attributes of each location
+    FE-->>U: Comparison table with 8 criteria rows
+    U->>FE: Click Add to shortlist
     FE->>DB: INSERT project_shortlist
-    DB->>DB: Tính lại mặt đồng hồ Bối cảnh
-    DB-->>FE: Điểm mức sẵn sàng mới
-    FE-->>U: Bảng điều khiển cập nhật ngay
+    DB->>DB: Recalculate the Locations gauge
+    DB-->>FE: New readiness score
+    FE-->>U: Dashboard updates at once
 ```
 
-> Mỗi ô trong bảng so sánh là đạt, cảnh báo, hoặc cần kiểm tra — không để trống.
+> Every cell in the comparison table is pass, warning or needs checking — never left blank.
 
 
 ---
 
-## SEQ-06 — Yêu cầu hợp tác và vòng phản hồi hai chiều
+## SEQ-06 — Collaboration request and two-way response
 
-*Ảnh gốc: `diagrams/SEQ-06_Yeu-cau-hop-tac.png` (Hình 9). Participant: 5 · Message: 13.*
+*Diagram image: `diagrams/SEQ-06_Collaboration-request.png` (to be redrawn from the Mermaid source below). DBIZ2 Figure 9. Participants: 5 · Messages: 13.*
 
 ```mermaid
 sequenceDiagram
-    actor U as Nhà làm phim
-    participant FE as Ứng dụng Next.js
+    actor U as Producer
+    participant FE as Next.js app
     participant DB as Supabase PostgreSQL + RLS
     participant MAIL as Resend
-    actor PT as Nhà cung ứng Việt Nam
+    actor PT as Vietnamese service partner
 
-    U->>FE: Chọn đối tác, chọn dự án, viết ghi chú
+    U->>FE: Pick a partner and a project, write a note
     FE->>DB: INSERT collab_requests (status = pending)
-    DB->>MAIL: Webhook: gửi email thông báo
-    MAIL->>PT: Bạn có một yêu cầu hợp tác mới
-    PT->>FE: Mở hộp thư yêu cầu
-    FE->>DB: SELECT chi tiết yêu cầu + dự án
-    DB-->>FE: Thông tin yêu cầu
-    PT->>FE: Chấp nhận / Từ chối / Cần thêm thông tin
+    DB->>MAIL: Webhook: send notification email
+    MAIL->>PT: You have a new collaboration request
+    PT->>FE: Open the request inbox
+    FE->>DB: SELECT request details + project
+    DB-->>FE: Request information
+    PT->>FE: Accept / Decline / Need more information
     FE->>DB: UPDATE status + response_note
-    DB->>DB: Mở lớp organization_private cho hai bên
-    DB->>MAIL: Webhook: thông báo kết quả
-    MAIL->>U: Đối tác đã chấp nhận yêu cầu của bạn
-    DB->>DB: Cập nhật mặt đồng hồ Đối tác = 100%
-    Note over DB: Năm trạng thái: pending, under_review, info_requested, accepted, declined
+    DB->>DB: Open the organization_private layer for both parties
+    DB->>MAIL: Webhook: notify the result
+    MAIL->>U: The partner accepted your request
+    DB->>DB: Update the Partners gauge to 100%
+    Note over DB: Five statuses: pending, under_review, info_requested, accepted, declined
 ```
 
-> Theo Điều 13 Luật Điện ảnh 2022, hồ sơ bắt buộc kèm thỏa thuận với đơn vị Việt Nam.
+> Under Article 13 of the Cinema Law 2022, the dossier must include an agreement with a Vietnamese entity.
 
 
 ---
 
-## SEQ-07 — Quy trình xác thực VFDA Verified
+## SEQ-07 — VFDA Verified verification process
 
-*Ảnh gốc: `diagrams/SEQ-07_VFDA-Verified.png` (Hình 10). Participant: 6 · Message: 14.*
+*Diagram image: `diagrams/SEQ-07_VFDA-Verified.png` (to be redrawn from the Mermaid source below). DBIZ2 Figure 10. Participants: 6 · Messages: 14.*
 
 ```mermaid
 sequenceDiagram
-    actor PT as Nhà cung ứng Việt Nam
-    participant FE as Ứng dụng Next.js
+    actor PT as Vietnamese service partner
+    participant FE as Next.js app
     participant ST as Supabase Storage
     participant DB as Supabase PostgreSQL + RLS
-    actor VF as Cán bộ VFDA
+    actor VF as VFDA staff
     participant MAIL as Resend
 
-    PT->>FE: Nộp giấy ĐKKD + 2 dự án tham chiếu
-    FE->>ST: Tải tài liệu lên Storage
-    ST-->>FE: Đường dẫn tài liệu
+    PT->>FE: Submit business registration + 2 reference projects
+    FE->>ST: Upload documents to Storage
+    ST-->>FE: Document paths
     FE->>DB: INSERT verification_request
-    DB->>MAIL: Thông báo cho cán bộ VFDA
-    MAIL->>VF: Có hồ sơ xác thực mới
-    VF->>FE: Mở hàng đợi xác thực
-    FE->>DB: SELECT hồ sơ chờ duyệt
-    DB-->>FE: Danh sách hồ sơ
-    VF->>FE: Duyệt hoặc từ chối kèm lý do
+    DB->>MAIL: Notify VFDA staff
+    MAIL->>VF: A new verification request
+    VF->>FE: Open the verification queue
+    FE->>DB: SELECT pending requests
+    DB-->>FE: List of requests
+    VF->>FE: Approve or reject with a reason
     FE->>DB: UPDATE verified, verified_by, verified_at
-    DB->>DB: Ghi audit_log
-    DB->>MAIL: Thông báo kết quả cho tổ chức
-    MAIL->>PT: Tổ chức của bạn đã được VFDA xác thực
-    Note over DB: Hệ thống tự nhắc xác thực lại sau 12 tháng
+    DB->>DB: Write audit_log
+    DB->>MAIL: Notify the organisation of the result
+    MAIL->>PT: Your organisation is now VFDA Verified
+    Note over DB: The system reminds to re-verify after 12 months
 ```
 
-> Đây là cơ chế biến VFDA thành bên kiểm định của ngành mà không cần văn bản pháp lý mới.
+> This is the mechanism that makes VFDA the industry's verifying body without any new legal instrument.
 
 
 ---
 
-## SEQ-08 — Kiểm tra tính đầy đủ hồ sơ theo Điều 13
+## SEQ-08 — Dossier completeness check under Article 13
 
-*Ảnh gốc: `diagrams/SEQ-08_Kiem-tra-day-du-ho-so.png` (Hình 11). Participant: 4 · Message: 12.*
+*Diagram image: `diagrams/SEQ-08_Dossier-completeness-check.png` (to be redrawn from the Mermaid source below). DBIZ2 Figure 11. Participants: 4 · Messages: 12.*
 
 ```mermaid
 sequenceDiagram
-    actor U as Nhà làm phim
-    participant FE as Ứng dụng Next.js
+    actor U as Producer
+    participant FE as Next.js app
     participant ST as Supabase Storage
     participant DB as Supabase PostgreSQL + RLS
 
-    U->>FE: Mở bộ hồ sơ của dự án
-    FE->>DB: SELECT required_documents theo phân khúc
-    DB-->>FE: Danh mục 4 thành phần bắt buộc
-    FE-->>U: Hiển thị danh mục và trạng thái từng mục
-    U->>FE: Tải lên văn bản đề nghị và hợp đồng dịch vụ
-    FE->>ST: Lưu tài liệu
-    ST-->>FE: Đường dẫn
+    U->>FE: Open the project's dossier kit
+    FE->>DB: SELECT required_documents for the segment
+    DB-->>FE: The four required components
+    FE-->>U: Checklist with the status of each item
+    U->>FE: Upload the application form and the service agreement
+    FE->>ST: Store the documents
+    ST-->>FE: Paths
     FE->>DB: INSERT documents
     FE->>DB: check_dossier_completeness(project_id)
-    DB->>DB: Đối chiếu tài liệu đã có với danh mục
-    DB-->>FE: Đã có 2/4 · Thiếu: kịch bản tiếng Việt, cam kết Điều 9
-    FE-->>U: Danh sách thành phần còn thiếu
-    Note over DB: Logic tất định, không dùng mô hình ngôn ngữ — rủi ro gần bằng không
+    DB->>DB: Compare documents present with the checklist
+    DB-->>FE: 2 of 4 present · missing: Vietnamese script, Article 9 commitment
+    FE-->>U: List of missing components
+    Note over DB: Deterministic logic, no language model — risk close to zero
 ```
 
-> Bốn thành phần theo Điều 13 khoản 3 Luật Điện ảnh 2022 (Luật số 05/2022/QH15).
+> The four components under Article 13, clause 3 of the Cinema Law 2022 (Law No. 05/2022/QH15).
 
 
 ---
 
-## SEQ-09 — Rà soát chủ đề theo bộ quy tắc của VFDA
+## SEQ-09 — Topic screening against VFDA's rule set
 
-*Ảnh gốc: `diagrams/SEQ-09_Ra-soat-chu-de.png` (Hình 12). Participant: 5 · Message: 12.*
+*Diagram image: `diagrams/SEQ-09_Topic-screening.png` (to be redrawn from the Mermaid source below). DBIZ2 Figure 12. Participants: 5 · Messages: 12.*
 
 ```mermaid
 sequenceDiagram
-    actor U as Nhà làm phim
-    participant FE as Ứng dụng Next.js
+    actor U as Producer
+    participant FE as Next.js app
     participant EF as Edge Function
     participant DB as Supabase PostgreSQL + RLS
-    participant AI as API mô hình ngôn ngữ
+    participant AI as Language model API
 
-    U->>FE: Chạy kiểm tra nội dung cho dự án
+    U->>FE: Run a content check for the project
     FE->>EF: reviewTopics(project_id)
     EF->>DB: SELECT legal_rules WHERE approved_by IS NOT NULL
-    DB-->>EF: Bộ quy tắc + số phiên bản
-    EF->>AI: Đối chiếu tóm tắt với danh mục quy tắc
-    AI-->>EF: findings[] kèm quoted_text
-    EF->>EF: Loại phát hiện có rule_code lạ hoặc trích dẫn không có thật
+    DB-->>EF: Rule set + version number
+    EF->>AI: Compare the synopsis with the rule catalogue
+    AI-->>EF: findings[] with quoted_text
+    EF->>EF: Drop findings with an unknown rule_code or a quote that does not exist
     EF->>DB: INSERT compliance_runs (rule_version)
     EF->>DB: INSERT compliance_findings
-    EF-->>FE: Danh sách phát hiện đã lọc
-    FE-->>U: Hiển thị kèm điều khoản và tuyên bố miễn trừ
-    U->>FE: Đánh dấu đã xem xét từng phát hiện
-    Note over EF: Không hiển thị bất kỳ cảnh báo nào thiếu trích dẫn điều khoản
+    EF-->>FE: Filtered findings
+    FE-->>U: Show with the cited article and the disclaimer
+    U->>FE: Mark each finding as reviewed
+    Note over EF: No warning is ever shown without a cited article
 ```
 
-> Hệ thống không diễn giải luật — chỉ vận hành bộ quy tắc do VFDA soạn và ký duyệt.
+> The system does not interpret the law — it only runs the rule set written and signed off by VFDA.
 
 
 ---
 
-## SEQ-10 — Sinh hồ sơ song ngữ
+## SEQ-10 — Bilingual dossier generation
 
-*Ảnh gốc: `diagrams/SEQ-10_Sinh-ho-so-song-ngu.png` (Hình 13). Participant: 6 · Message: 12.*
+*Diagram image: `diagrams/SEQ-10_Bilingual-dossier-generation.png` (to be redrawn from the Mermaid source below). DBIZ2 Figure 13. Participants: 6 · Messages: 12.*
 
 ```mermaid
 sequenceDiagram
-    actor U as Nhà làm phim
-    participant FE as Ứng dụng Next.js
+    actor U as Producer
+    participant FE as Next.js app
     participant EF as Edge Function
-    participant AI as API mô hình ngôn ngữ
+    participant AI as Language model API
     participant ST as Supabase Storage
-    actor PT as Nhà cung ứng Việt Nam
+    actor PT as Vietnamese service partner
 
-    U->>FE: Yêu cầu sinh kịch bản tóm tắt tiếng Việt
+    U->>FE: Request a Vietnamese script synopsis
     FE->>EF: generateBilingual(project_id)
-    EF->>AI: Dịch và định dạng theo cấu trúc quy định
-    AI-->>EF: Bản tiếng Việt có cấu trúc
-    EF->>EF: Dựng PDF hai cột đối chiếu Anh–Việt
-    EF->>EF: Đóng dấu BẢN NHÁP — CẦN HIỆU ĐÍNH mọi trang
-    EF->>ST: Lưu tệp PDF
-    ST-->>EF: Đường dẫn tệp
-    EF-->>FE: Tệp đã sẵn sàng
-    FE-->>U: Tải bản nháp về
-    U->>PT: Gửi cho đối tác Việt Nam hiệu đính
-    PT->>FE: Đánh dấu đã hiệu đính
-    Note over EF: Không bao giờ tự động nộp — sản phẩm cuối là tệp để con người xử lý tiếp
+    EF->>AI: Translate and format to the required structure
+    AI-->>EF: Structured Vietnamese version
+    EF->>EF: Build a two-column English–Vietnamese PDF
+    EF->>EF: Stamp DRAFT — REQUIRES PROOFREADING on every page
+    EF->>ST: Store the PDF file
+    ST-->>EF: File path
+    EF-->>FE: File ready
+    FE-->>U: Download the draft
+    U->>PT: Send to the Vietnamese partner for editing
+    PT->>FE: Mark as edited
+    Note over EF: Never submits automatically — the end product is a file for a human to take forward
 ```
 
-> Luật yêu cầu kịch bản tóm tắt và kịch bản chi tiết phần quay tại Việt Nam bằng tiếng Việt.
+> The law requires the script synopsis and the detailed script of the parts shot in Vietnam to be in Vietnamese.
 
 
 ---
 
-## SEQ-11 — Thông báo UBND tỉnh khi có quan tâm bối cảnh
+## SEQ-11 — Notify the Provincial People's Committee of interest in a location
 
-*Ảnh gốc: `diagrams/SEQ-11_Thong-bao-UBND-tinh.png` (Hình 14). Participant: 5 · Message: 11.*
+*Diagram image: `diagrams/SEQ-11_Provincial-committee-notice.png` (to be redrawn from the Mermaid source below). DBIZ2 Figure 14. Participants: 5 · Messages: 11.*
 
 ```mermaid
 sequenceDiagram
-    actor U as Nhà làm phim
-    participant FE as Ứng dụng Next.js
+    actor U as Producer
+    participant FE as Next.js app
     participant DB as Supabase PostgreSQL + RLS
     participant MAIL as Resend
-    actor PV as UBND tỉnh / Sở VHTTDL
+    actor PV as Provincial People's Committee / Department of Culture, Sports and Tourism
 
-    U->>FE: Bấm Quan tâm địa điểm này
+    U->>FE: Click Interested in this location
     FE->>DB: INSERT location_interest (project_id, location_id)
-    DB->>DB: Database webhook kích hoạt
-    DB->>MAIL: Soạn thư kèm tóm tắt dự án
-    MAIL->>PV: Có đoàn phim quan tâm bối cảnh tại địa phương
-    PV->>FE: Mở liên kết phản hồi
-    PV->>FE: Đã tiếp nhận / Cần thêm thông tin / Chưa hỗ trợ được
-    FE->>DB: UPDATE trạng thái phản hồi
-    DB->>MAIL: Thông báo cho nhà làm phim
-    MAIL->>U: Địa phương đã phản hồi
-    U->>FE: Xem trang theo dõi phối hợp địa phương
-    Note over DB: Chi tiết này nằm trong Executive Summary của BA Report nhưng bị bỏ sót ở MVP v1
+    DB->>DB: Database webhook fires
+    DB->>MAIL: Compose an email with the project summary
+    MAIL->>PV: A film crew is interested in a location in your province
+    PV->>FE: Open the response link
+    PV->>FE: Received / Need more information / Cannot support yet
+    FE->>DB: UPDATE response status
+    DB->>MAIL: Notify the producer
+    MAIL->>U: The province has responded
+    U->>FE: View the local coordination tracking page
+    Note over DB: This detail is in the BA Report Executive Summary but was left out of MVP v1
 ```
 
-> Đây là chức năng duy nhất mà một sàn giao dịch tư nhân không thể sao chép.
+> This is the one function a private marketplace cannot copy.
 
 
 ---
 
-## SEQ-12 — Chỉ số nhu cầu và báo cáo quý
+## SEQ-12 — Demand index and quarterly report
 
-*Ảnh gốc: `diagrams/SEQ-12_Chi-so-nhu-cau-Bao-cao-quy.png` (Hình 15). Participant: 5 · Message: 13.*
+*Diagram image: `diagrams/SEQ-12_Demand-index-and-quarterly-report.png` (to be redrawn from the Mermaid source below). DBIZ2 Figure 15. Participants: 5 · Messages: 13.*
 
 ```mermaid
 sequenceDiagram
-    actor VF as Cán bộ VFDA
-    participant FE as Ứng dụng Next.js
+    actor VF as VFDA staff
+    participant FE as Next.js app
     participant DB as Supabase PostgreSQL + RLS
     participant EF as Edge Function
-    participant AI as API mô hình ngôn ngữ
+    participant AI as Language model API
 
-    VF->>FE: Mở bảng chỉ số nhu cầu
-    FE->>DB: SELECT view demand_index (kỳ báo cáo)
-    DB->>DB: Tổng hợp 6 chỉ số từ briefs và collab_requests
-    DB-->>FE: Bộ số liệu
-    FE-->>VF: Bảng số liệu và biểu đồ
-    VF->>FE: Yêu cầu sinh báo cáo quý
+    VF->>FE: Open the demand index dashboard
+    FE->>DB: SELECT view demand_index (reporting period)
+    DB->>DB: Aggregate 6 indicators from briefs and collab_requests
+    DB-->>FE: Data set
+    FE-->>VF: Data table and charts
+    VF->>FE: Request the quarterly report
     FE->>EF: generateQuarterlyReport(period)
-    EF->>DB: Truy vấn số liệu nguồn
-    DB-->>EF: Số liệu có truy vết
-    EF->>AI: Soạn phần diễn giải từ số liệu
-    AI-->>EF: Bản diễn giải
-    EF->>EF: Dựng PDF mang thương hiệu VFDA
-    EF-->>VF: Tệp báo cáo để cán bộ đọc lại trước khi gửi
-    Note over EF: Mọi con số phải truy vết được về truy vấn CSDL, và một người phải đọc trước khi gửi
+    EF->>DB: Query the source data
+    DB-->>EF: Traceable figures
+    EF->>AI: Draft the commentary from the figures
+    AI-->>EF: Commentary draft
+    EF->>EF: Build a VFDA-branded PDF
+    EF-->>VF: Report file for staff to reread before sending
+    Note over EF: Every figure must trace back to a database query, and a person must read it before sending
 ```
 
-> Đây là tài sản thể chế VFDA chưa từng có — bằng chứng để đề nghị công nhận vai trò đầu mối.
+> This is an institutional asset VFDA has never had — evidence to support recognition of its role as focal point.
 
 
 ---
 
-## Kiểm chứng (Step 3, mục 5.6)
+## Verification (Step 3, section 5.6)
 
-| # | Kiểm tra | Kết quả |
+| # | Check | Result |
 |---|---|---|
-| 1 | Đếm participant | Tổng 58 participant trên 12 sequence — sinh trực tiếp từ cùng nguồn dữ liệu vẽ ảnh, **khớp tuyệt đối** |
-| 2 | Đếm và truy vết message, kể cả chiều | Tổng 141 message — sinh trực tiếp từ cùng nguồn dữ liệu, **khớp tuyệt đối** |
-| 3 | Nhánh quyết định | Ảnh gốc không vẽ nhánh `alt / else`. Bản Mermaid cũng không có — **giữ đúng nguyên tắc không tự thêm** |
-| 4 | Tên participant | Không đổi tên, không dịch. Chức danh đã được thay bằng bộ phận hệ thống ngay từ ảnh gốc |
-| 5 | Render và đặt cạnh ảnh gốc | Ảnh gốc trong thư mục `diagrams/` |
-| 6 | Cái gì còn thiếu | **Toàn bộ 12 sequence đều thiếu nhánh lỗi.** Ví dụ: SEQ-02 không vẽ trường hợp API mô hình trả lỗi; SEQ-06 không vẽ trường hợp email không gửi được; SEQ-08 không vẽ trường hợp tệp tải lên vượt dung lượng. Đây là **câu hỏi mở**, phải vào mục 10 của Spec Document ở Step 5 |
+| 1 | Count participants | 58 participants in total across 12 sequences — generated directly from the same data source used to draw the images, **exact match** |
+| 2 | Count and trace messages, including direction | 141 messages in total — generated directly from the same data source, **exact match** |
+| 3 | Decision branches | The original images draw no `alt / else` branches. The Mermaid version has none either — **keeping to the rule of not adding anything** |
+| 4 | Participant names | Labels translated into English from the Vietnamese original; participants, messages and their order unchanged. Job titles were already replaced by system parts in the original images |
+| 5 | Render and place next to the original image | Diagram images in `diagrams/` (`SEQ-01_Sign-up-and-log-in.png` to `SEQ-12_Demand-index-and-quarterly-report.png`) |
+| 6 | What is missing | **All 12 sequences lack error branches.** For example: SEQ-02 does not draw the case where the model API returns an error, SEQ-06 does not draw the case where the email cannot be sent, SEQ-08 does not draw the case where an uploaded file exceeds the size limit. Recorded as a known gap. |
 
-**Người kiểm chứng:** _(chưa ký — cần một thành viên nhóm C đối chiếu rồi ghi tên vào đây)_
+**Verified by:** _(not signed yet — a Group C member must compare the diagrams with the original images and sign here)_
 
-> Khối Mermaid ở file này được **sinh tự động từ đúng cấu trúc dữ liệu đã dùng để vẽ ảnh PNG**,
-> nên rủi ro "AI đọc ảnh rồi bỏ sót một bước" bằng không ở bước chuyển đổi.
-> Rủi ro còn lại nằm ở chỗ khác: **ảnh gốc có đúng không**. Đó mới là thứ con người phải kiểm.
+> The Mermaid blocks in this file were **generated automatically from the same data structure used to draw the PNG images**,
+> so the risk of "the AI reads an image and misses a step" is zero at the conversion step.
+> The remaining risk lies elsewhere: **whether the original images are correct**. That is what a human must check.

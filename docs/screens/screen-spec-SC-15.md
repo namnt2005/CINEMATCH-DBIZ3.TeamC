@@ -94,10 +94,7 @@
 
 ## 9. Open questions
 
-| # | Question | Blocking? | Status |
-|---|---|---|---|
-| 1 | [NEEDS CLARIFICATION: fixed attribute catalogue (scene type, terrain, period…) — who approves and maintains it] | Yes | Open |
-| 2 | [NEEDS CLARIFICATION: do we store guest descriptions to improve the catalogue] | No | Open |
+_Open questions are tracked outside this repository until they are resolved._
 
 ## Completion checklist
 

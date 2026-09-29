@@ -102,10 +102,7 @@
 
 ## 9. Open questions
 
-| # | Question | Blocking? | Status |
-|---|---|---|---|
-| 1 | [NEEDS CLARIFICATION: should the production organisation be verified (e.g. via IMDb Pro or a business licence) before local authority contacts are shown] | Yes | Open |
-| 2 | [NEEDS CLARIFICATION: allow Google / Apple sign-in — less friction, but the organisation name is not captured up front] | No | Open |
+_Open questions are tracked outside this repository until they are resolved._
 
 ## Completion checklist
 

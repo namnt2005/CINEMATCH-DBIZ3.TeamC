@@ -100,10 +100,7 @@
 
 ## 9. Open questions
 
-| # | Question | Blocking? | Status |
-|---|---|---|---|
-| 1 | [NEEDS CLARIFICATION: are the "20 days" in Article 13 cl.4 working days or calendar days — this directly affects the countdown] | Yes | Open |
-| 2 | [NEEDS CLARIFICATION: which application form is currently in force, and may VFDA provide a bilingual version of it] | Yes | Open |
+_Open questions are tracked outside this repository until they are resolved._
 
 ## Completion checklist
 

@@ -25,7 +25,8 @@ CINEMATCH-DBIZ3.TeamC/
 │   │   ├── system-configuration.md
 │   │   ├── usage-flow.md
 │   │   ├── sequence-diagrams.md
-│   │   └── use-case.md
+│   │   ├── use-case.md
+│   │   └── diagrams/          ← picture versions (to be added)
 │   ├── spec/
 │   │   ├── README.md
 │   │   ├── spec-document.md   ← index of the eight module specs
@@ -50,13 +51,14 @@ CINEMATCH-DBIZ3.TeamC/
 │       ├── README.md  schema.json  generate_seed.py  check_seed.py
 │       └── <table>.csv  (43 files)
 └── tools/
+    ├── README.md              ← what each script does and what it needs
     ├── check_env.py           ← Session 6 environment check
     └── build_docs.py, build_data.py, make_word.py, … (generators)
 ```
 
 | Folder | What it holds | How many |
 |---|---|---|
-| `docs/` | MVP scope, the full Function List and Screen List, five textualized architecture diagrams | 95 subfunctions · 48 screens |
+| `docs/` | MVP scope, the full Function List and Screen List, five textualized architecture diagrams | 119 subfunctions · 48 screens |
 | `docs/spec/` | One Spec Document per module, plus an index | 8 specs · 95 functional requirements |
 | `docs/screens/` | One Screen Spec and one annotated mockup per screen | 20 specs · 20 images |
 | `docs/word/` | Word copies for submission — same content as the Markdown | 34 files + ERD views |
@@ -81,7 +83,6 @@ Four rules govern the structure: one module per spec file, one screen per image 
 | Success criterion | `SC-<nnn>` inside one spec file | `SC-002` |
 | Entity / table | `UPPER_SNAKE`, singular; CSV file in lower case | `COLLAB_REQUEST` · `collab_request.csv` |
 | Data-model citation | `<MODULE> §<section> <ID>` | `M3 §5.1 FR-008` |
-| Open question | `[NEEDS CLARIFICATION: …]`, numbered per file | `OQ-04-6` |
 
 Functional requirement IDs restart in every module, so always quote them with the file name: “`FR-008` in `spec-M3.md`”. Success criteria use the prefix `SC-` inside a spec file, while `SC-nn` in `docs/screen-list.md` and in file names is a Screen ID — the surrounding file tells you which is meant.
 
@@ -116,7 +117,7 @@ Because of this chain a reader can start anywhere — a badge on a picture, a ro
 
 ## 5. Using the repository
 
-**Viewing.** GitHub and VS Code (with the extension *Markdown Preview Mermaid Support*) render every Markdown file and every Mermaid diagram, including `data/03-erd.mmd`.
+**Viewing.** GitHub and the Antigravity IDE or VS Code Markdown preview (with a Mermaid preview extension) render every Markdown file and every Mermaid diagram, including `data/03-erd.mmd`.
 
 **Reading the mockups.** All 20 mockups follow a single fictional project, so the numbers on different screens can be checked against each other:
 
@@ -141,14 +142,13 @@ The generators are deterministic: running them on an unchanged repository leaves
 
 ## 6. What this package does and does not settle
 
-The package was checked so that a reader can rely on it: all 95 Function List rows are covered by a functional requirement, all 256 callout badges match their inventory rows, every navigation target named in a Screen Spec exists in the Screen List, every input and output field has a type and a required mark, every diagram renders, and the seed data passes its integrity check.
+The package was checked so that a reader can rely on it: all 95 Function List rows of the eight specified modules are covered by a functional requirement, all 256 callout badges match their inventory rows, every navigation target named in a Screen Spec exists in the Screen List, every input and output field has a type and a required mark, every diagram renders, and the seed data passes its integrity check.
 
-Some things are open on purpose, and each is written down where it belongs rather than hidden:
+Some things are deliberately not settled yet:
 
-- **48 blocking open questions** for VFDA, listed in section 10 of each Spec Document — scoring weights, the criteria behind *VFDA Verified*, whether the 20 days of Article 13 are calendar or working days, VFDA's mandate to notify Provincial People's Committees, and whether the content pre-check screens against Article 9 or Article 13.
-- **39 data-model questions (17 blocking)**, consolidated in `data/05-review.md` — above all, what happens when an account, project or location is deleted, and the types of 70 columns the specs never declare.
+- **Open questions** — for VFDA and for the team — are tracked outside this repository until they are answered. When an answer arrives, the document it concerns is updated; section 10 of each Spec Document and section 9 of each Screen Spec say so.
 - **Gaps in coverage:** no Screen Spec yet for the admin screens `SC-35`, `SC-36`, `SC-37`, and no Spec Document for module `M10`; modules `M6`, `M8`, `M9` are *Won't* for this release.
-- **Human gates:** checklist items left unticked with their reason, the “Checked by a person” lines, and the *Decision* and *Resolution* columns of the data files are left for a person to fill.
+- **Human gates:** checklist items left unticked with their reason, the “Checked by a person” and “Verified by” lines, and the *Decision* and *Resolution* columns of the data files are left for a person to fill.
 
 Where the screen design differs from the DBIZ2 Function List, nothing was changed silently: every divergence is recorded in §11.1 *Reconciliation* of the module spec concerned.
 

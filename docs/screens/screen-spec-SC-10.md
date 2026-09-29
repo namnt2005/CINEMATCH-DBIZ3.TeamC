@@ -102,10 +102,7 @@
 
 ## 9. Open questions
 
-| # | Question | Blocking? | Status |
-|---|---|---|---|
-| 1 | [NEEDS CLARIFICATION: can a project change segment after dossier data exists, and how is the old data handled] | No | Open |
-| 2 | [NEEDS CLARIFICATION: can people outside the organisation (e.g. lawyers, freelance line producers) be invited to a project] | No | Open |
+_Open questions are tracked outside this repository until they are resolved._
 
 ## Completion checklist
 

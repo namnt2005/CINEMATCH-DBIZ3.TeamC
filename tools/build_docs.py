@@ -359,18 +359,18 @@ def mvp_md():
 
 # =====================================================================  MERMAID CHECK
 def check_mermaid():
-    mmdc = shutil.which("mmdc") or "/home/claude/.npm-global/bin/mmdc"
-    chrome = next((os.path.join(r, f) for r, _, fs in os.walk("/opt/pw-browsers") for f in fs if f == "chrome" and "chrome-linux" in r), None)
+    import toolpaths
     tmp = tempfile.mkdtemp()
-    cfg = os.path.join(tmp, "p.json")
-    open(cfg, "w").write('{"executablePath":"%s","args":["--no-sandbox"]}' % chrome)
+    if not toolpaths.mmdc():
+        print("mermaid check skipped: mermaid-cli (mmdc) not installed")
+        return {m["id"]: False for m in MODS}
     res = {}
     for m in MODS:
         ok = True
         for i, (_, code, _) in enumerate(m["flows"] + m["seqs"]):
             f = os.path.join(tmp, f"{m['id']}_{i}.mmd")
             open(f, "w", encoding="utf-8").write(code)
-            r = subprocess.run([mmdc, "-p", cfg, "-i", f, "-o", f + ".svg"], capture_output=True, text=True, timeout=120)
+            r = subprocess.run(toolpaths.mmdc_cmd(f, f + ".svg", tmp), capture_output=True, text=True, timeout=120)
             if r.returncode != 0 or not os.path.exists(f + ".svg"):
                 ok = False
                 print("MERMAID FAIL", m["id"], i, r.stderr[-400:])
@@ -412,6 +412,9 @@ def main():
     if "--img" in sys.argv:
         from base import render
         render([(s["sid"], h) for s, h in SCREENS], f"{ROOT}/docs/screens/img")
+    import strip_questions  # open questions are tracked outside the repository
+    for p in strip_questions.targets(ROOT):
+        strip_questions.strip_file(p)
     print("OK:", len(MODS), "specs,", len(SCREENS), "screen specs; mermaid:", mer)
 
 

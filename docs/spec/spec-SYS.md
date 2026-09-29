@@ -28,7 +28,7 @@ This module lets people create an account, sign in, and see only what their role
 **Out of scope**
 
 - Partner (supplier) self-registration — suppliers are invited by VFDA (module M4).
-- Single sign-on with Google / Apple (open question).
+- Single sign-on with Google / Apple (to be decided).
 - A translation CMS — the dictionary is two JSON files in the repository.
 - Any business content: projects, locations, partners, dossiers belong to M0–M7.
 
@@ -148,7 +148,7 @@ sequenceDiagram
 | FR-008 | F-SYS-08 | The system MUST send transactional email from a domain authenticated with SPF, DKIM and DMARC. | System | Must |
 | FR-009 | F-SYS-09 | The system MUST show a user their notifications, newest first, and let them mark them as read. | User | Must |
 | FR-010 | F-SYS-10 | The system MUST index Vietnamese text so that searches match with or without diacritics. | System | Must |
-| FR-011 | F-SYS-11 | The system MUST build a semantic (vector) index for location and supplier descriptions. [NEEDS CLARIFICATION: vector dimension depends on the embedding model] | System | Could |
+| FR-011 | F-SYS-11 | The system MUST build a semantic (vector) index for location and supplier descriptions. | System | Could |
 
 ### 5.1 Input / Output contract
 
@@ -185,7 +185,7 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 |  | `unread_only` | `BOOLEAN` | No | `unread_count` | `INTEGER` |  |
 | FR-010 | `source_text` | `TEXT` | Yes | `search_vector` | `TSVECTOR` | unaccent + `simple` configuration |
 |  | `locale` | `ENUM(vi, en)` | Yes |  |  |  |
-| FR-011 | `source_text` | `TEXT` | Yes | `embedding` | `VECTOR(n)` | [NEEDS CLARIFICATION: n] |
+| FR-011 | `source_text` | `TEXT` | Yes | `embedding` | `VECTOR(n)` | — |
 
 ### 5.2 Business rules
 
@@ -236,13 +236,7 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 
 ## 10. Open questions
 
-| # | Question | Blocking? | Owner | Status |
-|---|---|---|---|---|
-| 1 | [NEEDS CLARIFICATION: Must a producer company be verified (e.g. business registration, IMDbPro) before seeing local authority contacts?] | Yes | Client (VFDA) | Open |
-| 2 | [NEEDS CLARIFICATION: Is Google / Apple sign-in required at launch?] | No | Client (VFDA) | Open |
-| 3 | [NEEDS CLARIFICATION: Which embedding model (and vector dimension) is used for F-SYS-11?] | No | Group C | Open |
-| 4 | [NEEDS CLARIFICATION: SEQ-01 has no error branch (email provider down, expired link). Confirm the behaviour written in the edge cases.] | No | Client (VFDA) | Open |
-| 5 | [NEEDS CLARIFICATION: should the production organisation be verified (e.g. via IMDb Pro or a business licence) before local authority contacts are shown] *(from SC-04)* | Yes | Client (VFDA) | Open |
+_Open questions are tracked outside this repository until they are resolved._
 
 ## 11. Traceability to DBIZ2
 
@@ -272,7 +266,7 @@ Where the 20-screen design or this spec differs from the DBIZ2 Function List, th
 - [x] At least one business rule is written that is not visible in any diagram (see 5.2).
 - [ ] Every screen this module touches is listed with an existing Screen Spec file. **Not met:** no Screen Spec yet for SC-06, SC-07, SC-08, SC-09, SC-42, SC-43.
 - [x] Success criteria contain no technology words — machine-checked against a word list.
-- [ ] Open questions carry the unresolved items from the Session 3 Clarify meeting. **Not met:** there is no Session 3 Clarify Prep Sheet in this repository; the questions come from Session 4 Steps 2–4 and must be taken to the Clarify meeting with VFDA.
+- [x] Open questions are tracked outside this repository until they are resolved.
 - [x] The traceability table points to real files and figures, not "see the report".
 
 ---

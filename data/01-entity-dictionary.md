@@ -36,7 +36,7 @@ CITATION SCHEME = <MODULE> §<section> <ID>
   e.g. "M3 §5.1 FR-008" (field row of F-M3-08) | "M3 §5.2 BR-004" | "M3 §3 US-2" | "M3 §6"
 ```
 
-**Count:** 47 declared in the specs' section 6 — 43 stored (24 THING, 19 EVENT) and 4 that the specs themselves define as *derived* (computed, not stored). Derived entities stay in this dictionary so that nothing declared disappears, but they are not drawn in the ERD (open question 2).
+**Count:** 47 declared in the specs' section 6 — 43 stored (24 THING, 19 EVENT) and 4 that the specs themselves define as *derived* (computed, not stored). Derived entities stay in this dictionary so that nothing declared disappears, but they are not drawn in the ERD.
 
 ## Entities
 
@@ -132,15 +132,4 @@ Nouns the FIELDS or RULES need the system to remember, with no declared entity. 
 
 ## Open questions
 
-| # | Question | Blocking? | Owner | Default applied | Consequence if the default is wrong |
-|---|---|---|---|---|---|
-| 1 | [NEEDS CLARIFICATION: Keep PRODUCER_ORGANISATION and ORGANISATION as two entities, or merge with an organisation type?] | Yes | Nam + VFDA | Two entities | Merging later rewrites Profile, Project, COLLAB_REQUEST foreign keys and RLS policies. |
-| 2 | [NEEDS CLARIFICATION: Are READINESS_VIEW, DOSSIER_CHECK, LICENSING_TIMELINE and PROVINCE_READINESS computed on read, never stored?] | No | Group C (M0/M2/M3 owners) | Computed on read (database views); excluded from the ERD | If any must be stored (e.g. for audit), a table and its refresh rule must be added. |
-| 3 | [NEEDS CLARIFICATION: Declare ORGANISATION_SERVICE and ORGANISATION_PROVINCE, or keep arrays on ORGANISATION?] | No | M4 owner | Arrays as declared in FR-001 | Arrays break 1NF: filtering by province and counting per service group (M3 index) becomes slower and harder to constrain. |
-| 4 | [NEEDS CLARIFICATION: Which entity records that a partner account may edit an organisation?] | Yes | M4 owner | None modelled; flagged | Without it RLS cannot decide who edits an organisation profile (F-M4-01). |
-| 5 | [NEEDS CLARIFICATION: How is an invitation to an email without an account stored until accepted?] | Yes | M0 owner | invitee_email kept on PROJECT_MEMBER with user_id empty | A member row without a user breaks the "belongs to UserAccount" relationship. |
-| 6 | [NEEDS CLARIFICATION: Where does the audit log live before M10 has a Spec Document?] | Yes | Nam (M10) | Not modelled in this package | SYS BR-002 and M4 depend on it; RLS for grants cannot be audited. |
-
-
----
-*Human gate 1 (not delegable): fill the Decision column, review the implied entities, and rewrite each definition in your own words. Signed: ____________________  Date: __________*
+_Open questions are tracked outside this repository until they are resolved._

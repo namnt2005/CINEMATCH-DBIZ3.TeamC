@@ -94,10 +94,7 @@
 
 ## 9. Open questions
 
-| # | Question | Blocking? | Status |
-|---|---|---|---|
-| 1 | [NEEDS CLARIFICATION: decision table for the *co-production* case (question 3) — classify as A or B, and is a separate segment needed] | Yes | Open |
-| 2 | [NEEDS CLARIFICATION: does segment C really need no permit at all when a foreign crew only hires Vietnamese cast to shoot abroad] | Yes | Open |
+_Open questions are tracked outside this repository until they are resolved._
 
 ## Completion checklist
 

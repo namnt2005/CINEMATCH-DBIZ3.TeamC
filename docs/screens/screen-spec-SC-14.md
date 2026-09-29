@@ -103,10 +103,7 @@
 
 ## 9. Open questions
 
-| # | Question | Blocking? | Status |
-|---|---|---|---|
-| 1 | [NEEDS CLARIFICATION: criterion weights in the scoring formula — VFDA to approve before configuring `scoring_weights`] | Yes | Open |
-| 2 | [NEEDS CLARIFICATION: the 40-point threshold is a proposal and needs tuning once real data is available] | No | Open |
+_Open questions are tracked outside this repository until they are resolved._
 
 ## Completion checklist
 

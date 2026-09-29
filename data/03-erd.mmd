@@ -63,13 +63,8 @@
 %% USER_ACCOUNT PROVINCE_NOTICE | Each user account reviews zero or more province notices | Each province notice is reviewed by zero or one user account | both sides | M7 §6 (reviewed_by); M7 §3 US-1 (notice drafted before review)
 %% USER_ACCOUNT CONSULTATION_BOOKING | Each user account books zero or more consultations | Each consultation is booked by exactly one user account | CONSULTATION_BOOKING side | M7 §6 (member_id; "belongs to UserAccount")
 %% USER_ACCOUNT CONSULTATION_BOOKING | Each user account is assigned zero or more consultations as officer | Each consultation is assigned to zero or one officer | both sides | M7 §6 (officer_id); M7 §5.1 FR-006 (officer assigned after booking)
-%% SEGMENT_REQUIREMENT (no relationship drawn) | belongs to a segment (M1 §6) — segment is an enum, not an entity; link to DOCUMENT_TYPE (M5 BR-004) not declared | see 02 open questions and OQ-03-5
-%% PUBLIC_HOLIDAY (no relationship drawn) | "used by the timeline" (M5 §6) — the timeline is derived; no stored entity references it | see 02 open questions and OQ-03-5
-%% OQ-03-1 [NEEDS CLARIFICATION: Is LEGAL_RULE ↔ RULE_SET_VERSION one-to-many (as M2 §6 says) or many-to-many (every version re-includes all active rules)?] | blocking: Yes | owner: M2 owner | default: One-to-many as declared; a rule points to the version that activated it
-%% OQ-03-2 [NEEDS CLARIFICATION: Do VFDA staff, partner and admin accounts also need a PRODUCER_ORGANISATION? The diagram says every profile works for exactly one.] | blocking: Yes | owner: SYS owner | default: Exactly one, as sign-up requires org_name (SYS FR-001)
-%% OQ-03-3 [NEEDS CLARIFICATION: Is a province notice drafted at the moment the interest is saved (1:1), or can an interest exist without a notice?] | blocking: No | owner: M7 owner | default: 1:1, per M7 US-1
-%% OQ-03-4 [NEEDS CLARIFICATION: Is an email delivery linked to at most one notification, or can one digest email carry several?] | blocking: No | owner: SYS owner | default: At most one
-%% OQ-03-5 [NEEDS CLARIFICATION: Which entity links SEGMENT_REQUIREMENT to DOCUMENT_TYPE (M5 BR-004 builds the kit from segment_requirements)?] | blocking: Yes | owner: M1 + M5 owners | default: No link drawn
+%% SEGMENT_REQUIREMENT (no relationship drawn) | belongs to a segment (M1 §6) — segment is an enum, not an entity; link to DOCUMENT_TYPE (M5 BR-004) not declared
+%% PUBLIC_HOLIDAY (no relationship drawn) | "used by the timeline" (M5 §6) — the timeline is derived; no stored entity references it
 erDiagram
     USER_ACCOUNT ||--|| PROFILE : "has"
     PRODUCER_ORGANISATION ||..|{ PROFILE : "employs"

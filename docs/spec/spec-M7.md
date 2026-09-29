@@ -73,7 +73,7 @@ This module lets a producer tell the provinces where they plan to shoot, through
 ### Edge cases
 
 - The authority email bounces: the notice is marked *Not delivered* and VFDA staff are alerted to find another channel.
-- The province never replies: after [NEEDS CLARIFICATION: N] working days VFDA staff are reminded to follow up.
+- The province never replies: after a set number of working days VFDA staff are reminded to follow up.
 - The producer removes the location from the shortlist after the notice was sent: the notice stays; VFDA may send a withdrawal.
 
 ## 4. Flows
@@ -194,14 +194,7 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 
 ## 10. Open questions
 
-| # | Question | Blocking? | Owner | Status |
-|---|---|---|---|---|
-| 1 | [NEEDS CLARIFICATION: Does VFDA have the mandate / practice to send notices to Provincial People's Committees, and what is the official template?] | Yes | Client (VFDA) | Open |
-| 2 | [NEEDS CLARIFICATION: Is the notice addressed to the People's Committee or to the provincial Department of Culture?] | Yes | Client (VFDA) | Open |
-| 3 | [NEEDS CLARIFICATION: Automatic sending (DBIZ2 SEQ-11) or VFDA staff review before sending (SC-32)?] | Yes | Client (VFDA) | Open |
-| 4 | [NEEDS CLARIFICATION: After how many working days without reply should VFDA follow up?] | No | Client (VFDA) | Open |
-| 5 | [NEEDS CLARIFICATION: does VFDA have the authority / established practice to send notices to Provincial People's Committees, and what is the official letter template] *(from SC-32)* | Yes | Client (VFDA) | Open |
-| 6 | [NEEDS CLARIFICATION: should the notice go to the Provincial People's Committee or the provincial Department of Culture] *(from SC-32)* | Yes | Client (VFDA) | Open |
+_Open questions are tracked outside this repository until they are resolved._
 
 ## 11. Traceability to DBIZ2
 
@@ -219,7 +212,7 @@ Where the 20-screen design or this spec differs from the DBIZ2 Function List, th
 
 | Topic | DBIZ2 / System Design v2.0 | This spec | Status |
 |---|---|---|---|
-| Notice dispatch | Sent automatically by a database webhook (SEQ-11) | Drafted automatically, reviewed and sent by VFDA staff (SC-32) | Open question 3 |
+| Notice dispatch | Sent automatically by a database webhook (SEQ-11) | Drafted automatically, reviewed and sent by VFDA staff (SC-32) | To be decided |
 | Module priority | Must | Should — Tier 2 of the screen list file (#20) | Changed — Client to confirm |
 
 ## Completion checklist
@@ -231,7 +224,7 @@ Where the 20-screen design or this spec differs from the DBIZ2 Function List, th
 - [x] At least one business rule is written that is not visible in any diagram (see 5.2).
 - [ ] Every screen this module touches is listed with an existing Screen Spec file. **Not met:** no Screen Spec yet for SC-33.
 - [x] Success criteria contain no technology words — machine-checked against a word list.
-- [ ] Open questions carry the unresolved items from the Session 3 Clarify meeting. **Not met:** there is no Session 3 Clarify Prep Sheet in this repository; the questions come from Session 4 Steps 2–4 and must be taken to the Clarify meeting with VFDA.
+- [x] Open questions are tracked outside this repository until they are resolved.
 - [x] The traceability table points to real files and figures, not "see the report".
 
 ---

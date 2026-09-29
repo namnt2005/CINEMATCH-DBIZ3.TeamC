@@ -6,7 +6,7 @@ This report proves that every member of the team can open this repository, run t
 
 ## 1. Setup path
 
-> **Path A, VS Code.** IDE: Visual Studio Code with the Claude Code extension, instead of Antigravity IDE. Agent: Claude Code (paid plan). Spec Kit initialized with `--integration claude --script py`; skills installed in `.claude/skills/`. The agent contract is `AGENTS.md`, read automatically by Claude Code, so no IDE-specific rule file was created and no `CLAUDE.md` exists. Permission policy: Initial Permission Mode set to `plan`; project-level `defaultMode` set to `default` (Manual) with deny rules committed in `.claude/settings.json`; Bypass Permissions never used.
+> **Path A.** IDE: Antigravity IDE. Agents: Claude Code CLI (paid Claude plan) run in the Antigravity terminal, plus the Antigravity agent. Spec Kit v1.0.1 initialized with `--integration agy --script py --ignore-agent-tools`, then `specify integration install claude --script py --force`; skills in `.agents/skills/` and `.claude/skills/`. The always-on workspace rule `project-context` is in `.agents/rules/`. Claude Code reads `AGENTS.md` automatically; no `CLAUDE.md` exists. Antigravity permission policy: Default (sandbox) or Request Review, never Turbo. Claude Code runs in its default mode (asks before editing) and in Plan mode for T3.
 
 Members on another path (B: Antigravity, C: other) write one line here saying which path and why.
 
@@ -14,10 +14,12 @@ Members on another path (B: Antigravity, C: other) write one line here saying wh
 
 Copy the versions from the output of `uv run tools/check_env.py --repo --path A`.
 
-| Member | OS | Path | Git | Python | uv | Node | Spec Kit | VS Code | Claude Code | Model (`/model`) | Quota (`/usage`) |
+| Member | OS | Path | Git | Python | uv | Node | Spec Kit | Antigravity | Claude Code | Models seen (picker / `/model`) | Quota (`/usage`) |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| Nam | macOS … | A | … | … | … | … | 1.0.1 | … | … | … | … |
+| Nam | macOS 26.5 (Apple Silicon) | A | 2.55.0 | 3.14.7 (via uv) | 0.12.18 | 26.0.0 ¹ | 1.0.1 | installed | 2.1.281 | … | … |
 | … | … | … | … | … | … | … | … | … | … | … | … |
+
+¹ The course recommends Node.js 24 LTS; 26.0.0 is newer and `check_env.py` passes it. Recorded here as a known difference.
 
 ## 3. Repository check
 
@@ -40,9 +42,10 @@ Copy the versions from the output of `uv run tools/check_env.py --repo --path A`
 
 | Question in the T3 prompt | Expected (from the repository) | Nam | … |
 |---|---|---|---|
-| Number of entities | 47 (43 stored tables) — `data/01-entity-dictionary.md`, `data/04-data-model.md` | … | … |
-| Number of seed rows | 374 across 43 CSV files — `data/seed/` | … | … |
-| … | … | … | … |
+| 1. Entity names in section 5.1 of `docs/spec/spec-document.md` | 47 names, `USER_ACCOUNT` … (43 stored + 4 derived) | … | … |
+| 2. Records per seed file under `data/` | 43 CSV files, 374 records in total (3 files have 0) | … | … |
+| 3. Business rule in section 6, in one sentence | CINEMATCH prepares and advises, but a person decides | … | … |
+| 4. First hard rule in `AGENTS.md` | "Never edit files under `docs/spec/`, `docs/screens/` or `data/` unless the human asks for that exact change in the current prompt." | … | … |
 
 **Disagreements between agents** (the repository wins; write what differed and which file settled it):
 

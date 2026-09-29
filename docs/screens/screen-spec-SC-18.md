@@ -96,10 +96,7 @@
 
 ## 9. Open questions
 
-| # | Question | Blocking? | Status |
-|---|---|---|---|
-| 1 | [NEEDS CLARIFICATION: does VFDA agree to publish the provincial index — it may be sensitive for low-scoring provinces] | Yes | Open |
-| 2 | [NEEDS CLARIFICATION: minimum data threshold for showing the index] | No | Open |
+_Open questions are tracked outside this repository until they are resolved._
 
 ## Completion checklist
 

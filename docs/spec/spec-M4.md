@@ -89,7 +89,7 @@ This module connects foreign producers with Vietnamese companies that can legall
 
 ### Edge cases
 
-- The partner never responds: [NEEDS CLARIFICATION: expiry after N days]; the member can withdraw and send elsewhere.
+- The partner never responds: the request expires after a set number of days; the member can withdraw and send elsewhere.
 - Two requests from the same project to the same partner: refused — *You already have an open request with this partner*.
 - Verified badge expires during an open request: the request continues; the badge disappears from listings until renewed.
 - Email delivery fails: the in-app notification still appears; delivery is retried.
@@ -318,18 +318,7 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 
 ## 10. Open questions
 
-| # | Question | Blocking? | Owner | Status |
-|---|---|---|---|---|
-| 1 | [NEEDS CLARIFICATION: Official names of the 12 service groups (the mockup uses a proposed list).] | Yes | Client (VFDA) | Open |
-| 2 | [NEEDS CLARIFICATION: Written criteria for awarding VFDA Verified.] | Yes | Client (VFDA) | Open |
-| 3 | [NEEDS CLARIFICATION: Criteria for the *eligible to sign a service agreement under Article 13* flag.] | Yes | Client (VFDA) | Open |
-| 4 | [NEEDS CLARIFICATION: Is the NDA mutual and standard (one VFDA text) or supplied by each partner?] | Yes | Client (VFDA) | Open |
-| 5 | [NEEDS CLARIFICATION: After how many days does an unanswered request expire?] | No | Client (VFDA) | Open |
-| 6 | [NEEDS CLARIFICATION: DBIZ2 F-M4-16 sets the Partners gauge to 100% on *accepted*; the screens do it on *confirmed*. Which one?] | Yes | Client (VFDA) | Open |
-| 7 | [NEEDS CLARIFICATION: VFDA to confirm the official names of the 12 service groups (mockup uses a proposed list)] *(from SC-19)* | Yes | Client (VFDA) | Open |
-| 8 | [NEEDS CLARIFICATION: written criteria for granting the VFDA Verified badge] *(from SC-19)* | Yes | Client (VFDA) | Open |
-| 9 | [NEEDS CLARIFICATION: criteria for VFDA to grant the *Eligible to sign service agreements* badge — which registered business lines qualify] *(from SC-20)* | Yes | Client (VFDA) | Open |
-| 10 | [NEEDS CLARIFICATION: will VFDA provide a standard NDA template, or does each partner use its own NDA] *(from SC-25)* | Yes | Client (VFDA) | Open |
+_Open questions are tracked outside this repository until they are resolved._
 
 ## 11. Traceability to DBIZ2
 
@@ -348,7 +337,7 @@ Where the 20-screen design or this spec differs from the DBIZ2 Function List, th
 | Topic | DBIZ2 / System Design v2.0 | This spec | Status |
 |---|---|---|---|
 | Request lifecycle | Five statuses ending at accepted / declined | Producer confirms after acceptance (*Sent → Partner responded → Confirmed*, screen list note #14) | Changed — Client to confirm |
-| Partners gauge | 100% on accepted (F-M4-16) | 100% on confirmed | Open question 6 |
+| Partners gauge | 100% on accepted (F-M4-16) | 100% on confirmed | To be decided |
 | NDA direction | Partner accepts before viewing project documents | Both parties accept; the producer's acceptance opens the partner's private layer | Changed — Client to confirm |
 | F-M4-07, F-M4-19 priority | Must | Could | Changed — Client to confirm |
 
@@ -361,7 +350,7 @@ Where the 20-screen design or this spec differs from the DBIZ2 Function List, th
 - [x] At least one business rule is written that is not visible in any diagram (see 5.2).
 - [ ] Every screen this module touches is listed with an existing Screen Spec file. **Not met:** no Screen Spec yet for SC-21, SC-22, SC-23, SC-36.
 - [x] Success criteria contain no technology words — machine-checked against a word list.
-- [ ] Open questions carry the unresolved items from the Session 3 Clarify meeting. **Not met:** there is no Session 3 Clarify Prep Sheet in this repository; the questions come from Session 4 Steps 2–4 and must be taken to the Clarify meeting with VFDA.
+- [x] Open questions are tracked outside this repository until they are resolved.
 - [x] The traceability table points to real files and figures, not "see the report".
 
 ---

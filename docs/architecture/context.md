@@ -1,59 +1,59 @@
 # Context Diagram — CINEMATCH
 
-> Nguồn: System Design v2.0, sheet *1. Schematic*, mục 1.3, Hình 1.
-> Ảnh gốc: `diagrams/CTX-01_Context-diagram.png`.
-> Quy tắc áp dụng (Pattern 1): hệ thống là **một** node; mọi thứ còn lại là actor hoặc hệ thống ngoài;
-> nhãn trên mũi tên là **thông tin di chuyển**, không phải động từ.
+> Source: System Design v2.0, sheet *1. Schematic*, section 1.3, Figure 1.
+> Diagram image: `diagrams/CTX-01_Context-diagram.png` (to be redrawn from the Mermaid source below).
+> Rule applied (Pattern 1): the system is **one** node; everything else is an actor or an external system;
+> the labels on the arrows are **the information that moves**, not verbs.
 
 ```mermaid
 flowchart LR
-    PA["Nhà làm phim quốc tế — PK A<br/>Quay tại VN, chiếu nước ngoài"]
-    PB["Nhà làm phim quốc tế — PK B<br/>Quay và chiếu tại VN"]
-    PC["Nhà làm phim quốc tế — PK C<br/>Chỉ thuê dịch vụ / diễn viên"]
-    SUP["Nhà cung ứng Việt Nam<br/>12 nhóm dịch vụ sản xuất"]
-    DOM["Nhà làm phim trong nước<br/>Nguồn cung đối tác"]
+    PA["International producer — Segment A<br/>Shoots in Vietnam, releases abroad"]
+    PB["International producer — Segment B<br/>Shoots and releases in Vietnam"]
+    PC["International producer — Segment C<br/>Hires services / actors only"]
+    SUP["Vietnamese service partner<br/>12 production service groups"]
+    DOM["Domestic producer<br/>Source of partners"]
 
-    SYS["CINEMATCH<br/>Cổng xúc tiến điện ảnh quốc gia (VFDA)"]
+    SYS["CINEMATCH<br/>National film promotion portal (VFDA)"]
 
-    STAFF["Cán bộ VFDA<br/>Quản trị, xác thực, duyệt"]
-    LEGAL["Ban Pháp chế VFDA<br/>Soạn và duyệt bộ quy tắc"]
-    PROV["UBND tỉnh / Sở VHTTDL<br/>Đầu mối bối cảnh địa phương"]
-    DOC["Cục Điện ảnh — Bộ VHTTDL<br/>Nhận báo cáo · GĐ3: liên thông"]
-    EXT["Dịch vụ ngoài<br/>API mô hình · Email · Bản đồ"]
+    STAFF["VFDA staff<br/>Administration, verification, approval"]
+    LEGAL["VFDA Legal Board<br/>Drafts and approves the rule set"]
+    PROV["Provincial People's Committee / Department of Culture, Sports and Tourism<br/>Local location contact"]
+    DOC["Cinema Department — Ministry of Culture, Sports and Tourism<br/>Receives reports · Phase 3: system integration"]
+    EXT["External services<br/>Model API · Email · Maps"]
 
-    PA -->|"tóm tắt kịch bản, hồ sơ dự án, mô tả cảnh quay"| SYS
-    PB -->|"như PK A, thêm hồ sơ phân loại phim"| SYS
-    PC -->|"nhu cầu dịch vụ, yêu cầu hợp tác"| SYS
-    SUP -->|"hồ sơ năng lực, phản hồi yêu cầu hợp tác"| SYS
-    DOM -->|"mô tả nhu cầu bối cảnh"| SYS
+    PA -->|"script synopsis, project dossier, scene description"| SYS
+    PB -->|"as Segment A, plus film classification dossier"| SYS
+    PC -->|"service needs, collaboration request"| SYS
+    SUP -->|"capability profile, collaboration request responses"| SYS
+    DOM -->|"location needs description"| SYS
 
-    SYS <-->|"dữ liệu địa điểm, hàng đợi xác thực, hàng đợi duyệt"| STAFF
-    SYS <-->|"bộ quy tắc pháp lý, trạng thái duyệt"| LEGAL
-    SYS <-->|"thông báo quan tâm bối cảnh, trạng thái phản hồi"| PROV
-    SYS -->|"báo cáo nhu cầu quốc tế theo quý"| DOC
-    SYS <-->|"văn bản cần rà soát, email giao dịch, ảnh nền bản đồ"| EXT
+    SYS <-->|"location data, verification queue, approval queue"| STAFF
+    SYS <-->|"legal rule set, approval status"| LEGAL
+    SYS <-->|"location interest notice, response status"| PROV
+    SYS -->|"quarterly report on international demand"| DOC
+    SYS <-->|"text to review, transactional email, map tiles"| EXT
 ```
 
-## Ranh giới hệ thống
+## System boundary
 
-CINEMATCH **không phải** kênh nộp hồ sơ chính thức. Hồ sơ được chuẩn bị trên hệ thống và nộp
-theo quy trình của cơ quan có thẩm quyền. Liên thông với hệ thống cấp phép là mục tiêu **giai đoạn 3**,
-không nằm trong phạm vi này.
+CINEMATCH is **not** an official submission channel. Dossiers are prepared on the system and submitted
+through the competent authority's procedure. Integration with the licensing system is a **phase 3** goal
+and is outside this scope.
 
 ---
 
-## Kiểm chứng (Step 3, mục 5.6)
+## Verification (Step 3, section 5.6)
 
-| # | Kiểm tra | Kết quả |
+| # | Check | Result |
 |---|---|---|
-| 1 | Đếm số node: ảnh gốc và khối Mermaid | Ảnh gốc 10 actor + 1 hệ thống = 11; Mermaid 11 node — **khớp** |
-| 2 | Truy vết từng mũi tên, kể cả chiều | Ảnh gốc 10 mũi tên; Mermaid 10 cạnh — **khớp** (5 một chiều vào, 1 một chiều ra, 4 hai chiều) |
-| 3 | Mọi nhánh quyết định giữ đủ nhánh và đúng nhãn gốc | Không áp dụng — sơ đồ ngữ cảnh không có nhánh quyết định |
-| 4 | Không đổi tên, không dịch, không "dọn dẹp" | Đạt — tên node lấy nguyên văn từ ảnh gốc |
-| 5 | Render khối Mermaid và đặt cạnh ảnh gốc | Ảnh gốc: `diagrams/CTX-01_Context-diagram.png` |
-| 6 | Hỏi cái gì còn thiếu | Ảnh gốc không vẽ luồng lỗi. Mermaid cũng không có. Ghi nhận là câu hỏi mở, xem mục 10 của Spec Document tương ứng ở Step 5. |
+| 1 | Count the nodes: original image and Mermaid block | Original image 10 actors + 1 system = 11; Mermaid 11 nodes — **match** |
+| 2 | Trace every arrow, including direction | Original image 10 arrows; Mermaid 10 edges — **match** (5 one-way inbound, 1 one-way outbound, 4 two-way) |
+| 3 | Every decision keeps all its branches with the original labels | Not applicable — the context diagram has no decision branches |
+| 4 | Labels translated, nothing renamed or "tidied up" | Labels translated into English from the Vietnamese original; nodes, edges and branch labels otherwise unchanged. |
+| 5 | Render the Mermaid block and place it next to the original image | Diagram image: `diagrams/CTX-01_Context-diagram.png` |
+| 6 | Ask what is missing | The original image does not draw error flows. The Mermaid block does not either. Recorded as a known gap. |
 
-**Người kiểm chứng:** _(chưa ký — cần một thành viên nhóm C đối chiếu node-by-node với ảnh gốc rồi ghi tên vào đây)_
+**Verified by:** _(not signed yet — a Group C member must compare the diagram with the original image node by node and sign here)_
 
-> Các con số ở dòng 1–3 do script đối chiếu tự động giữa dữ liệu vẽ ảnh và khối Mermaid.
-> Theo hướng dẫn Step 3 mục 5.6, **một con người vẫn phải xác nhận lần cuối** trước khi coi là đã kiểm chứng.
+> The figures in rows 1–3 come from a script that automatically compares the image drawing data with the Mermaid block.
+> Under the Step 3 guidance, section 5.6, **a human must still give final confirmation** before this counts as verified.

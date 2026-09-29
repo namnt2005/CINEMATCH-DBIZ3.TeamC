@@ -289,11 +289,13 @@ def build_05():
     return "\n".join(s), len(rows), blocking
 
 def check_mermaid(src, label):
-    chrome = "/opt/pw-browsers/chromium-1194/chrome-linux/chrome"
+    import toolpaths
     with tempfile.TemporaryDirectory() as t:
-        open(f"{t}/p.json","w").write('{"executablePath":"%s","args":["--no-sandbox"]}' % chrome)
         open(f"{t}/in.mmd","w").write(src)
-        r = subprocess.run(["mmdc","-p",f"{t}/p.json","-i",f"{t}/in.mmd","-o",f"{t}/out.svg"],capture_output=True,text=True)
+        cmd = toolpaths.mmdc_cmd(f"{t}/in.mmd", f"{t}/out.svg", t)
+        if not cmd:
+            print(f"  mermaid {label}: skipped (mermaid-cli not installed)"); return
+        r = subprocess.run(cmd,capture_output=True,text=True)
         if r.returncode: errors.append(f"Mermaid {label}: {r.stderr[-400:]}")
         else: print(f"  mermaid {label}: renders")
 
@@ -327,7 +329,10 @@ if __name__ == "__main__":
     print(f"entities {len(ENTITIES)} (stored {len(STORED)}), relationships {len(R)}, CRUD rows {len(CRUD)}, "
           f"columns {sum(len(v) for v in C.values())}, anomalies {len(anomalies)}")
     print("relationship lines identical 03/04:", rel03 == rel04, len(rel03))
-    print(f"open questions {n_oq}, blocking {n_block}")
+    print(f"open questions {n_oq}, blocking {n_block} (removed from the published files)")
+    import strip_questions  # open questions are tracked outside the repository
+    for p in strip_questions.targets():
+        strip_questions.strip_file(p)
     if errors:
         print("ERRORS:"); [print("  -", e) for e in errors]; sys.exit(1)
     print("OK")

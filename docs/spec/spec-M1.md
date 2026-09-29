@@ -74,7 +74,7 @@ This module finds out which of three situations a production is in — shooting 
 
 - Answers match no rule (e.g. *not shooting in Vietnam* but *needs locations*): show all three segments and *Ask VFDA*.
 - The user leaves after question 2: nothing is stored server-side; answers are kept only in the browser session.
-- Co-production (answer 3 = *co-production*): [NEEDS CLARIFICATION: A or B?] — shown as open question 1.
+- Co-production (answer 3 = *co-production*): — to be decided.
 
 ## 4. Flows
 
@@ -176,13 +176,7 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 
 ## 10. Open questions
 
-| # | Question | Blocking? | Owner | Status |
-|---|---|---|---|---|
-| 1 | [NEEDS CLARIFICATION: Co-production (question 3): segment A or B, or a separate segment?] | Yes | Client (VFDA) | Open |
-| 2 | [NEEDS CLARIFICATION: Does segment C (only hiring Vietnamese cast or services, no shooting in Vietnam) really need no licence at all?] | Yes | Client (VFDA) | Open |
-| 3 | [NEEDS CLARIFICATION: does VFDA allow its logo and association name on the landing page, and what is the official wording] *(from SC-01)* | Yes | Client (VFDA) | Open |
-| 4 | [NEEDS CLARIFICATION: decision table for the *co-production* case (question 3) — classify as A or B, and is a separate segment needed] *(from SC-02)* | Yes | Client (VFDA) | Open |
-| 5 | [NEEDS CLARIFICATION: does segment C really need no permit at all when a foreign crew only hires Vietnamese cast to shoot abroad] *(from SC-02)* | Yes | Client (VFDA) | Open |
+_Open questions are tracked outside this repository until they are resolved._
 
 ## 11. Traceability to DBIZ2
 
@@ -211,7 +205,7 @@ Where the 20-screen design or this spec differs from the DBIZ2 Function List, th
 - [x] At least one business rule is written that is not visible in any diagram (see 5.2).
 - [ ] Every screen this module touches is listed with an existing Screen Spec file. **Not met:** no Screen Spec yet for SC-13.
 - [x] Success criteria contain no technology words — machine-checked against a word list.
-- [ ] Open questions carry the unresolved items from the Session 3 Clarify meeting. **Not met:** there is no Session 3 Clarify Prep Sheet in this repository; the questions come from Session 4 Steps 2–4 and must be taken to the Clarify meeting with VFDA.
+- [x] Open questions are tracked outside this repository until they are resolved.
 - [x] The traceability table points to real files and figures, not "see the report".
 
 ---

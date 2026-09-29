@@ -19,7 +19,7 @@ short, factual and current.
 
 ## 3. Commands that are safe to run
 
-- `uv run tools/check_env.py --repo --path A` : environment and repository check (Path A = VS Code + Claude Code).
+- `uv run tools/check_env.py --repo --path A` : environment and repository check (Path A = Claude Code; members on Path B run it without `--path A`).
 - `python3 data/seed/generate_seed.py && python3 data/seed/check_seed.py` : regenerates the seed data; must end with `PASS` and leave `git status` clean.
 - `git status`, `git diff` : always allowed.
 
@@ -43,15 +43,16 @@ short, factual and current.
 | `.gitignore`, `.gitattributes` | humans | Files Git ignores; line-ending rules for a mixed macOS/Windows team |
 | `docs/README.md` | humans | Guide to the `docs/` folder |
 | `docs/mvp-scope.md` | humans | MVP scope and MoSCoW priorities (Session 1) |
-| `docs/function-list.md` | humans | Full Function List: 95 subfunctions (read-only for agents) |
+| `docs/function-list.md` | humans | Full Function List: 119 subfunctions (read-only for agents) |
 | `docs/screen-list.md` | humans | Full Screen List: 48 screens (read-only for agents) |
 | `docs/architecture/` | humans | Context, system configuration, usage flow, sequence diagrams, use cases |
+| `docs/architecture/diagrams/` | humans | Picture versions of the architecture diagrams, redrawn from the Markdown |
 | `docs/spec/` | humans | Spec Documents, one per module, and the index `spec-document.md` (read-only for agents) |
 | `docs/screens/` | humans | 20 Screen Specs and their mockups in `img/` (read-only for agents) |
 | `docs/word/` | generated | Word copies for submission, rebuilt by `tools/make_word.py` |
 | `docs/env/` | humans | Environment Readiness Report (Session 6) |
 | `data/` | humans | Data model, seed generator, seed files (read-only for agents) |
-| `tools/` | humans | `check_env.py` and the generators that rebuild `docs/` and `data/` |
+| `tools/` | humans | `check_env.py` and the generators that rebuild `docs/` and `data/` (see `tools/README.md`) |
 | `.specify/` | Spec Kit | Templates, scripts, constitution (created in step C5) |
 | `.claude/` | Claude Code | Spec Kit skills and shared settings (created in step C5) |
 | `.agents/rules/` | humans | Always-on workspace rule pointing to this file (created in step C6) |
@@ -68,8 +69,10 @@ short, factual and current.
 
 | File or folder | Owner (member) |
 |---|---|
-| `AGENTS.md` | `Nam` |
-| `docs/spec/` | `Nam` |
-| `docs/screens/` | `Nam` |
-| `data/` | `Nam` |
-| `docs/env/` | `Nam` |
+| `AGENTS.md`, `README.md` | `Nam` |
+| `docs/spec/`, `docs/mvp-scope.md` | `Nam` |
+| `.specify/`, `.claude/`, `.agents/` (setup only) | `Nam` |
+| `docs/screens/`, `docs/screen-list.md` | `Member 2` |
+| `data/`, `tools/` | `Member 3` |
+| `docs/architecture/`, `docs/function-list.md` | `Member 4` |
+| `docs/env/` | `Member 4` |

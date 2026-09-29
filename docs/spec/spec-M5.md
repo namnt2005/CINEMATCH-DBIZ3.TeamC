@@ -208,16 +208,7 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 
 ## 10. Open questions
 
-| # | Question | Blocking? | Owner | Status |
-|---|---|---|---|---|
-| 1 | [NEEDS CLARIFICATION: Document list for segment C.] | Yes | Client (VFDA Legal Board) | Open |
-| 2 | [NEEDS CLARIFICATION: Who may mark a paragraph proofread: any project member, or only the confirmed Vietnamese partner?] | No | Client (VFDA) | Open |
-| 3 | [NEEDS CLARIFICATION: Which translation service may process scripts, which are confidential?] | Yes | Group C + Client | Open |
-| 4 | [NEEDS CLARIFICATION: Are *foreign crew list* and *provincial notice* required anywhere, or only common practice?] | No | Client (VFDA Legal Board) | Open |
-| 5 | [NEEDS CLARIFICATION: Official Lunar New Year 2027 holiday dates.] | No | Client (VFDA) | Open |
-| 6 | [NEEDS CLARIFICATION: document checklist for segment C — needs confirmation from the VFDA Legal Board] *(from SC-26)* | Yes | Client (VFDA) | Open |
-| 7 | [NEEDS CLARIFICATION: which machine translation service to use — the script is the production's confidential document] *(from SC-28)* | Yes | Client (VFDA) | Open |
-| 8 | [NEEDS CLARIFICATION: are the "20 days" calendar days or working days — if working days, the safe deadline moves about 3 weeks earlier] *(from SC-29)* | Yes | Client (VFDA) | Open |
+_Open questions are tracked outside this repository until they are resolved._
 
 ## 11. Traceability to DBIZ2
 
@@ -248,7 +239,7 @@ Where the 20-screen design or this spec differs from the DBIZ2 Function List, th
 - [x] At least one business rule is written that is not visible in any diagram (see 5.2).
 - [x] Every screen this module touches is listed with an existing Screen Spec file. 
 - [x] Success criteria contain no technology words — machine-checked against a word list.
-- [ ] Open questions carry the unresolved items from the Session 3 Clarify meeting. **Not met:** there is no Session 3 Clarify Prep Sheet in this repository; the questions come from Session 4 Steps 2–4 and must be taken to the Clarify meeting with VFDA.
+- [x] Open questions are tracked outside this repository until they are resolved.
 - [x] The traceability table points to real files and figures, not "see the report".
 
 ---

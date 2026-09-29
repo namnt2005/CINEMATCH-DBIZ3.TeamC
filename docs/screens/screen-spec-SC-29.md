@@ -74,7 +74,7 @@
 | SR-172 | Always show the consequence of submitting late (e.g. *result after the first shooting day*). Never soften bad news. | Honesty principle |
 | SR-173 | The **same calculation function** is used by `SC-12`, `SC-27` and this screen. | Consistency principle |
 | SR-174 | Public holidays are read from the `public_holidays` table; dates without an official calendar are clearly marked *expected*. | No-guessing principle |
-| SR-175 | Calculated in **calendar days** until the VFDA Legal Board confirms the method (see open questions). | Interim assumption |
+| SR-175 | Calculated in **calendar days** until the VFDA Legal Board confirms the method. | Interim assumption |
 
 ## 7. Linked requirements
 
@@ -95,10 +95,7 @@
 
 ## 9. Open questions
 
-| # | Question | Blocking? | Status |
-|---|---|---|---|
-| 1 | [NEEDS CLARIFICATION: are the "20 days" calendar days or working days — if working days, the safe deadline moves about 3 weeks earlier] | Yes | Open |
-| 2 | [NEEDS CLARIFICATION: official Lunar New Year (Tết) 2027 holiday dates — update once announced] | No | Open |
+_Open questions are tracked outside this repository until they are resolved._
 
 ## Completion checklist
 

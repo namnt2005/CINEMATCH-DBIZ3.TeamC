@@ -1,141 +1,141 @@
 # Usage Flow — CINEMATCH
 
-> Nguồn: System Design v2.0, sheet *2. Usage Flow*, mục 2.3, Hình 3.
-> Ảnh gốc: `diagrams/FLOW-01_System-usage-flow.png`.
-> Quy tắc áp dụng (Pattern 3): **một flowchart cho mỗi actor**, mỗi cái một mục riêng.
-> Mọi hình thoi quyết định trong ảnh gốc giữ nguyên nhãn nhánh gốc.
+> Source: System Design v2.0, sheet *2. Usage Flow*, section 2.3, Figure 3.
+> Diagram image: `diagrams/FLOW-01_System-usage-flow.png` (to be redrawn from the Mermaid source below).
+> Rule applied (Pattern 3): **one flowchart per actor**, each in its own section.
+> Every decision diamond in the original image keeps its original branch labels.
 
-## 1. Nhà làm phim quốc tế — phân khúc A và B
+## 1. International producer — segments A and B
 
 ```mermaid
 flowchart TD
-    S(["Vào trang chủ"]) --> Q1{"M1 · Bạn muốn làm gì tại Việt Nam?"}
-    Q1 -- "PK A: quay, chiếu nước ngoài" --> PRE["M2·1 · Tiền kiểm 200 chữ<br/>(không cần đăng ký)"]
-    Q1 -- "PK B: quay và chiếu tại VN" --> PRE
-    Q1 -- "PK C: chỉ thuê dịch vụ" --> CJUMP(["Xem mục 2"])
+    S(["Open the landing page"]) --> Q1{"M1 · What do you want to do in Vietnam?"}
+    Q1 -- "Segment A: shoot, release abroad" --> PRE["M2·1 · 200-word pre-check<br/>(no sign-up needed)"]
+    Q1 -- "Segment B: shoot and release in Vietnam" --> PRE
+    Q1 -- "Segment C: hire services only" --> CJUMP(["See section 2"])
 
-    PRE --> DASH["M0 · Tạo dự án<br/>+ Bảng mức độ sẵn sàng"]
-    DASH --> LOC["M3 · Tìm bối cảnh từ mô tả cảnh quay<br/>So sánh · Chốt danh sách rút gọn"]
-    LOC --> Q2{"Có địa điểm nào đạt từ 40 điểm?"}
-    Q2 -- "Không" --> ASK["Nhờ VFDA tư vấn trực tiếp"] --> LOC
-    Q2 -- "Có" --> PART["M4 · Đối tác dịch vụ Việt Nam<br/>(bắt buộc theo Điều 13)"]
+    PRE --> DASH["M0 · Create project<br/>+ Readiness dashboard"]
+    DASH --> LOC["M3 · Find locations from a scene description<br/>Compare · Confirm the shortlist"]
+    LOC --> Q2{"Any location scoring 40 or more?"}
+    Q2 -- "No" --> ASK["Ask VFDA for direct advice"] --> LOC
+    Q2 -- "Yes" --> PART["M4 · Vietnamese service partner<br/>(required by Article 13)"]
 
-    PART --> Q3{"Đối tác phản hồi thế nào?"}
-    Q3 -- "Từ chối" --> PART
-    Q3 -- "Cần thêm thông tin" --> PART
-    Q3 -- "Chấp nhận" --> DOS["M5 · Bộ hồ sơ 4 thành phần<br/>Sinh bản nháp song ngữ<br/>Lịch ngược từ ngày bấm máy"]
+    PART --> Q3{"How did the partner respond?"}
+    Q3 -- "Declined" --> PART
+    Q3 -- "More information needed" --> PART
+    Q3 -- "Accepted" --> DOS["M5 · Four-component dossier<br/>Generate bilingual draft<br/>Countdown from the first shooting day"]
 
-    DOS --> CHK["M2 · Chấm điểm hồ sơ<br/>+ rà soát chủ đề"]
-    CHK --> Q4{"Đã đủ 4 thành phần theo Điều 13?"}
-    Q4 -- "Chưa đủ" --> DOS
-    Q4 -- "Đủ" --> NOTI["M7 · Thông báo UBND tỉnh<br/>Đặt lịch tư vấn VFDA"]
-    NOTI --> E(["Sẵn sàng nộp hồ sơ theo quy trình của cơ quan có thẩm quyền"])
+    DOS --> CHK["M2 · Dossier scoring<br/>+ topic review"]
+    CHK --> Q4{"All four Article 13 components present?"}
+    Q4 -- "Not yet" --> DOS
+    Q4 -- "Yes" --> NOTI["M7 · Notify the Provincial People's Committee<br/>Book a VFDA consultation"]
+    NOTI --> E(["Ready to submit the dossier through the competent authority's procedure"])
 ```
 
-## 2. Nhà làm phim quốc tế — phân khúc C
+## 2. International producer — segment C
 
 ```mermaid
 flowchart TD
-    S(["Chọn: chỉ thuê diễn viên hoặc dịch vụ hậu cần"]) --> G["M4 · Chọn nhóm dịch vụ<br/>trong 12 nhóm"]
-    G --> F["M4 · Lọc theo tỉnh<br/>+ dấu VFDA Verified"]
-    F --> R["M4·2 · Gửi yêu cầu hợp tác"]
-    R --> Q{"Đối tác phản hồi thế nào?"}
-    Q -- "Từ chối" --> F
-    Q -- "Chấp nhận" --> OPEN["Mở lớp thông tin đầy đủ:<br/>bảng giá, khách hàng cũ, đầu mối"]
-    OPEN --> N["M5 · Danh mục lưu ý:<br/>hợp đồng, thanh toán, thuế"]
-    N --> E(["Ký hợp đồng dịch vụ ngoài hệ thống"])
+    S(["Choose: hire actors or logistics services only"]) --> G["M4 · Choose a service group<br/>from the 12 groups"]
+    G --> F["M4 · Filter by province<br/>+ VFDA Verified badge"]
+    F --> R["M4·2 · Send a collaboration request"]
+    R --> Q{"How did the partner respond?"}
+    Q -- "Declined" --> F
+    Q -- "Accepted" --> OPEN["Unlock the full information layer:<br/>price list, past clients, contacts"]
+    OPEN --> N["M5 · Checklist of points to note:<br/>contract, payment, tax"]
+    N --> E(["Sign the service contract outside the system"])
 ```
 
-## 3. Nhà cung ứng Việt Nam
+## 3. Vietnamese service partner
 
 ```mermaid
 flowchart TD
-    S(["Nhận thư giới thiệu của VFDA"]) --> P["M4 · Tạo hồ sơ tổ chức<br/>ba lớp thông tin"]
-    P --> V["M4·3 · Nộp hồ sơ xác thực<br/>giấy ĐKKD + 2 dự án tham chiếu"]
-    V --> Q1{"VFDA duyệt?"}
-    Q1 -- "Từ chối kèm lý do" --> P
-    Q1 -- "Duyệt" --> BADGE["Nhận dấu VFDA Verified<br/>hiệu lực 12 tháng"]
-    BADGE --> INBOX["M4·2 · Hộp thư yêu cầu hợp tác"]
-    INBOX --> Q2{"Xử lý yêu cầu thế nào?"}
-    Q2 -- "Cần thêm thông tin" --> INBOX
-    Q2 -- "Từ chối" --> INBOX
-    Q2 -- "Chấp nhận" --> NDA["M4·5 · Bên kia chấp nhận e-NDA<br/>trước khi xem tài liệu dự án"]
-    NDA --> E(["Hợp tác bắt đầu, mọi lượt xem tài liệu được ghi nhật ký"])
+    S(["Receive an introduction letter from VFDA"]) --> P["M4 · Create an organisation profile<br/>with three information layers"]
+    P --> V["M4·3 · Submit verification documents<br/>business registration certificate + 2 reference projects"]
+    V --> Q1{"Does VFDA approve?"}
+    Q1 -- "Rejected with a reason" --> P
+    Q1 -- "Approved" --> BADGE["Receive the VFDA Verified badge<br/>valid for 12 months"]
+    BADGE --> INBOX["M4·2 · Collaboration request inbox"]
+    INBOX --> Q2{"How to handle the request?"}
+    Q2 -- "More information needed" --> INBOX
+    Q2 -- "Decline" --> INBOX
+    Q2 -- "Accept" --> NDA["M4·5 · The other party accepts the e-NDA<br/>before viewing project documents"]
+    NDA --> E(["Collaboration begins, every document view is logged"])
 ```
 
-## 4. Cán bộ VFDA
+## 4. VFDA staff
 
 ```mermaid
 flowchart TD
-    S(["Đăng nhập khu quản trị /admin"]) --> HUB["M10 · Tổng quan khu quản trị"]
-    HUB --> A1["M3 · Quản lý địa điểm"]
-    HUB --> A2["M4·3 · Hàng đợi xác thực"]
-    HUB --> A3["M10 · Duyệt nội dung"]
-    HUB --> A4["M10 · Chỉ số nhu cầu"]
+    S(["Sign in to the /admin area"]) --> HUB["M10 · Admin overview"]
+    HUB --> A1["M3 · Manage locations"]
+    HUB --> A2["M4·3 · Verification queue"]
+    HUB --> A3["M10 · Content moderation"]
+    HUB --> A4["M10 · Demand indicators"]
 
-    A1 --> Q1{"Đầu mối chính quyền đã xác minh?"}
-    Q1 -- "Chưa" --> BLOCK["Hệ thống chặn xuất bản<br/>(ràng buộc ở tầng CSDL)"] --> A1
-    Q1 -- "Rồi" --> PUB["Xuất bản địa điểm"]
+    A1 --> Q1{"Local authority contact verified?"}
+    Q1 -- "Not yet" --> BLOCK["System blocks publishing<br/>(database-level constraint)"] --> A1
+    Q1 -- "Yes" --> PUB["Publish the location"]
 
-    A2 --> Q2{"Hồ sơ đạt yêu cầu?"}
-    Q2 -- "Không, kèm lý do" --> A2
-    Q2 -- "Đạt" --> BADGE["Cấp dấu VFDA Verified"]
+    A2 --> Q2{"Does the dossier meet the requirements?"}
+    Q2 -- "No, with a reason" --> A2
+    Q2 -- "Yes" --> BADGE["Grant the VFDA Verified badge"]
 
-    A4 --> REP["M10 · Sinh báo cáo quý"]
-    REP --> READ["Cán bộ đọc lại toàn bộ số liệu"]
-    READ --> E(["Ký và gửi Cục Điện ảnh, UBND tỉnh liên quan"])
+    A4 --> REP["M10 · Generate the quarterly report"]
+    REP --> READ["Staff member rereads all figures"]
+    READ --> E(["Sign and send to the Cinema Department and the relevant Provincial People's Committees"])
 ```
 
-## 5. Ban Pháp chế VFDA
+## 5. VFDA Legal Board
 
 ```mermaid
 flowchart TD
-    S(["Đăng nhập với vai trò vfda_legal"]) --> L["M2 · Màn hình bộ quy tắc pháp lý"]
-    L --> N["Soạn quy tắc mới"]
-    N --> Q1{"Đã điền trích dẫn điều khoản?"}
-    Q1 -- "Chưa" --> BLOCK["Hệ thống không cho kích hoạt<br/>(ràng buộc ở tầng CSDL)"] --> N
-    Q1 -- "Rồi" --> Q2{"Đã có người duyệt ký?"}
-    Q2 -- "Chưa" --> DRAFT["Giữ ở trạng thái Nháp"] --> N
-    Q2 -- "Rồi" --> ACT["Quy tắc được kích hoạt<br/>sinh phiên bản mới"]
-    ACT --> E(["Mọi lượt kiểm tra hồ sơ sau đó dùng phiên bản này"])
+    S(["Sign in with the vfda_legal role"]) --> L["M2 · Legal rule set screen"]
+    L --> N["Draft a new rule"]
+    N --> Q1{"Legal provision citation filled in?"}
+    Q1 -- "Not yet" --> BLOCK["System does not allow activation<br/>(database-level constraint)"] --> N
+    Q1 -- "Yes" --> Q2{"Signed off by an approver?"}
+    Q2 -- "Not yet" --> DRAFT["Keep in Draft status"] --> N
+    Q2 -- "Yes" --> ACT["Rule is activated<br/>a new version is created"]
+    ACT --> E(["Every dossier check from then on uses this version"])
 ```
 
-## 6. UBND tỉnh / Sở VHTTDL
+## 6. Provincial People's Committee / Department of Culture, Sports and Tourism
 
 ```mermaid
 flowchart TD
-    S(["Nhận email thông báo có đoàn phim quan tâm bối cảnh"]) --> OPEN["Mở liên kết phản hồi"]
-    OPEN --> Q{"Địa phương phản hồi thế nào?"}
-    Q -- "Đã tiếp nhận" --> R1["Trạng thái: received"]
-    Q -- "Cần thêm thông tin" --> R2["Trạng thái: info_needed"]
-    Q -- "Hiện chưa hỗ trợ được" --> R3["Trạng thái: cannot_support"]
-    R1 --> E(["Nhà làm phim thấy trạng thái trên trang theo dõi"])
+    S(["Receive an email notice that a film crew is interested in a location"]) --> OPEN["Open the response link"]
+    OPEN --> Q{"How does the province respond?"}
+    Q -- "Received" --> R1["Status: received"]
+    Q -- "More information needed" --> R2["Status: info_needed"]
+    Q -- "Cannot support at present" --> R3["Status: cannot_support"]
+    R1 --> E(["Producer sees the status on the tracking page"])
     R2 --> E
     R3 --> E
 ```
 
 ---
 
-## Kiểm chứng (Step 3, mục 5.6)
+## Verification (Step 3, section 5.6)
 
-| # | Kiểm tra | Kết quả |
+| # | Check | Result |
 |---|---|---|
-| 1 | Đếm số node: ảnh gốc và khối Mermaid | Ảnh gốc vẽ 1 luồng gộp cho PK A/B/C; bản Mermaid tách thành 6 flowchart theo actor đúng quy tắc Pattern 3. Tổng node ảnh gốc 17; tổng node Mermaid 6 luồng = 48 — **có chênh lệch có chủ đích**, xem ghi chú |
-| 2 | Truy vết từng mũi tên, kể cả chiều | Mọi mũi tên trong ảnh gốc đều xuất hiện trong luồng 1 và luồng 2 — **khớp** |
-| 3 | Mọi nhánh quyết định giữ đủ nhánh và đúng nhãn gốc | Ảnh gốc có 1 hình thoi (M1 chọn phân khúc) với 3 nhánh. Bản Mermaid giữ nguyên hình thoi đó với đúng 3 nhãn, và **bổ sung 8 hình thoi mới** cho các nhánh quyết định vốn có trong Function List nhưng chưa được vẽ ra ở ảnh gốc |
-| 4 | Không đổi tên, không dịch, không "dọn dẹp" | Đạt — tên node lấy nguyên văn từ ảnh gốc |
-| 5 | Render khối Mermaid và đặt cạnh ảnh gốc | Ảnh gốc: `diagrams/FLOW-01_System-usage-flow.png` |
-| 6 | Hỏi cái gì còn thiếu | Ảnh gốc chỉ vẽ luồng thuận lợi. Các nhánh từ chối, chưa đủ điều kiện, không có kết quả đều đã tồn tại trong Function List nhưng chưa được vẽ. Đã bổ sung vào Mermaid và **phải đưa vào mục 10 của Spec Document ở Step 5 để Client xác nhận**. |
+| 1 | Count the nodes: original image and Mermaid block | The original image draws 1 combined flow for segments A/B/C; the Mermaid version splits it into 6 flowcharts by actor, as Pattern 3 requires. Total nodes in the original image 17; total Mermaid nodes across the 6 flows = 48 — **deliberate difference**, see the note |
+| 2 | Trace every arrow, including direction | Every arrow in the original image appears in flow 1 and flow 2 — **match** |
+| 3 | Every decision keeps all its branches with the original labels | The original image has 1 diamond (M1 segment choice) with 3 branches. The Mermaid version keeps that diamond with the same 3 labels, and **adds 8 new diamonds** for decision branches that already exist in the Function List but were not drawn in the original image |
+| 4 | Labels translated, nothing renamed or "tidied up" | Labels translated into English from the Vietnamese original; nodes, edges and branch labels otherwise unchanged. |
+| 5 | Render the Mermaid block and place it next to the original image | Diagram image: `diagrams/FLOW-01_System-usage-flow.png` |
+| 6 | Ask what is missing | The original image draws only the happy path. The rejection, not-yet-eligible and no-result branches all exist in the Function List but were not drawn. They have been added to the Mermaid version. Recorded as a known gap. |
 
-**Người kiểm chứng:** _(chưa ký — cần một thành viên nhóm C đối chiếu node-by-node với ảnh gốc rồi ghi tên vào đây)_
+**Verified by:** _(not signed yet — a Group C member must compare the diagram with the original image node by node and sign here)_
 
-> Các con số ở dòng 1–3 do script đối chiếu tự động giữa dữ liệu vẽ ảnh và khối Mermaid.
-> Theo hướng dẫn Step 3 mục 5.6, **một con người vẫn phải xác nhận lần cuối** trước khi coi là đã kiểm chứng.
+> The figures in rows 1–3 come from a script that automatically compares the image drawing data with the Mermaid block.
+> Under the Step 3 guidance, section 5.6, **a human must still give final confirmation** before this counts as verified.
 
 
-> **Cảnh báo trung thực về mục 3 và 6 của bảng kiểm chứng.** Hướng dẫn Step 3 nói: nếu ảnh gốc không có
-> đường lỗi thì bản Mermaid cũng không được có. Ở đây bản Mermaid **có nhiều nhánh hơn ảnh gốc**.
-> Lý do: các nhánh đó không phải thiết kế mới — chúng đã nằm trong Function List v2.0
-> (ví dụ `F-M4-14` có 5 trạng thái phản hồi, `F-M3-08` có ngưỡng 40 điểm, `F-M3-05` có ràng buộc chặn xuất bản).
-> Việc chúng chưa được vẽ ra là thiếu sót của ảnh gốc, không phải quyết định thiết kế.
-> Dù vậy, **đây vẫn là chênh lệch phải được Client xác nhận ở Step 5**, không được coi là đã thống nhất.
+> **Honest warning about rows 3 and 6 of the verification table.** The Step 3 guidance says: if the original image has no
+> error path, the Mermaid version must not have one either. Here the Mermaid version **has more branches than the original image**.
+> Reason: these branches are not new design — they are already in Function List v2.0
+> (for example `F-M4-14` has 5 response statuses, `F-M3-08` has the 40-point threshold, `F-M3-05` has the publishing block constraint).
+> That they were not drawn is an omission in the original image, not a design decision.
+> Even so, **this is still a difference the Client must confirm at Step 5**, and it must not be treated as agreed.

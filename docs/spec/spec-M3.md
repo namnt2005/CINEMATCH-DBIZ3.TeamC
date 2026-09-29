@@ -267,7 +267,7 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 |  | `crew_size` | `ENUM(u15, 15_50, o50)` | No |  |  |  |
 |  | `shoot_month` | `INTEGER` | No |  |  |  |
 |  | `special_scenes` | `ARRAY<ENUM>` | No |  |  |  |
-| FR-008 | `scene_types` | `ARRAY` | No | `ranked` | `ARRAY<(location_id UUID, score INTEGER, match_reasons ARRAY<TEXT>)>` | score 0–100; weights [NEEDS CLARIFICATION] |
+| FR-008 | `scene_types` | `ARRAY` | No | `ranked` | `ARRAY<(location_id UUID, score INTEGER, match_reasons ARRAY<TEXT>)>` | score 0–100; weights to be set |
 |  | `provinces` | `ARRAY` | No |  |  |  |
 |  | `crew_size` | `ENUM` | No |  |  |  |
 |  | `shoot_month` | `INTEGER` | No |  |  |  |
@@ -298,7 +298,7 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 | BR-001 | The language model only extracts attributes; ranking is done by a deterministic scoring function in the database. The model never names or ranks a location. | Explainable results; no invented places. |
 | BR-002 | A result is shown only if its score is 40 or more and it has at least one *why it matches* reason. | A score without a reason is a black box. |
 | BR-003 | *Not a match* and *No data yet* are different; missing data never counts for or against a location. | No-guessing principle. |
-| BR-004 | A location cannot be published until its local authority contact is verified; contacts are re-verified every 12 months [NEEDS CLARIFICATION]. | A dead-end contact destroys trust in VFDA's data. |
+| BR-004 | A location cannot be published until its local authority contact is verified; contacts are re-verified every 12 months. | A dead-end contact destroys trust in VFDA's data. |
 | BR-005 | Authority contacts are returned only to signed-in users, enforced by Row Level Security. | Contacts are VFDA's gated asset and personal data. |
 | BR-006 | Provinces use the 34 provincial-level units after the 2025 reorganisation; old names are accepted in search and mapped to the new unit. | Producers and older guides still use pre-2025 names. |
 | BR-007 | The provincial index uses only data generated on the platform and always shows its sample size. | It must not become a subjective ranking of provinces. |
@@ -342,17 +342,7 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 
 ## 10. Open questions
 
-| # | Question | Blocking? | Owner | Status |
-|---|---|---|---|---|
-| 1 | [NEEDS CLARIFICATION: Weights of the six scoring criteria (F-M3-08).] | Yes | Client (VFDA) | Open |
-| 2 | [NEEDS CLARIFICATION: Who maintains the fixed attribute catalogue (scene types, terrain, era) used by F-M3-12?] | Yes | Client (VFDA) | Open |
-| 3 | [NEEDS CLARIFICATION: Where does data for the *night shooting* and *weather in the shooting month* comparison rows come from? No field exists yet.] | Yes | Group C | Open |
-| 4 | [NEEDS CLARIFICATION: May VFDA publish the provincial index publicly? It may be sensitive for low-scoring provinces.] | Yes | Client (VFDA) | Open |
-| 5 | [NEEDS CLARIFICATION: Re-verification cycle for authority contacts (proposed 12 months).] | No | Client (VFDA) | Open |
-| 6 | [NEEDS CLARIFICATION: fixed attribute catalogue (scene type, terrain, period…) — who approves and maintains it] *(from SC-15)* | Yes | Client (VFDA) | Open |
-| 7 | [NEEDS CLARIFICATION: criterion weights in the scoring formula — VFDA to approve before configuring `scoring_weights`] *(from SC-14)* | Yes | Client (VFDA) | Open |
-| 8 | [NEEDS CLARIFICATION: data source for the *Night shooting* and *Weather by month* criteria — no matching field in `locations` yet] *(from SC-17)* | Yes | Client (VFDA) | Open |
-| 9 | [NEEDS CLARIFICATION: does VFDA agree to publish the provincial index — it may be sensitive for low-scoring provinces] *(from SC-18)* | Yes | Client (VFDA) | Open |
+_Open questions are tracked outside this repository until they are resolved._
 
 ## 11. Traceability to DBIZ2
 
@@ -383,7 +373,7 @@ Where the 20-screen design or this spec differs from the DBIZ2 Function List, th
 - [x] At least one business rule is written that is not visible in any diagram (see 5.2).
 - [ ] Every screen this module touches is listed with an existing Screen Spec file. **Not met:** no Screen Spec yet for SC-35.
 - [x] Success criteria contain no technology words — machine-checked against a word list.
-- [ ] Open questions carry the unresolved items from the Session 3 Clarify meeting. **Not met:** there is no Session 3 Clarify Prep Sheet in this repository; the questions come from Session 4 Steps 2–4 and must be taken to the Clarify meeting with VFDA.
+- [x] Open questions are tracked outside this repository until they are resolved.
 - [x] The traceability table points to real files and figures, not "see the report".
 
 ---

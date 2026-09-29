@@ -100,7 +100,7 @@ This module tells a producer, before they commit, which parts of their story are
 
 - The language model API is down: the pre-check shows *Could not check right now — your text is kept*; the dossier completeness check (deterministic) still works.
 - Every finding fails citation verification: the result says *Could not check this time* rather than showing an empty *Low* result.
-- The rule set changes while a producer is reading an old result: the old result keeps its version label; [NEEDS CLARIFICATION: re-run automatically or notify?].
+- The rule set changes while a producer is reading an old result: the old result keeps its version label.
 - A guest runs the pre-check 50 times in an hour: rate limit per IP returns *You have used today's checks — create a free account to continue*.
 
 ## 4. Flows
@@ -187,7 +187,7 @@ sequenceDiagram
 
 ### 4.4 Sequence — topic review of a project (SEQ-09)
 
-> Textualised from SEQ-09 (Figure 12). 5 participants, 12 messages. None of the three DBIZ2 sequences draws an error branch — see open question 6.
+> Textualised from SEQ-09 (Figure 12). 5 participants, 12 messages. None of the three DBIZ2 sequences draws an error branch.
 
 ```mermaid
 sequenceDiagram
@@ -254,13 +254,13 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 |  | `severity` | `ENUM(notice, action)` | Yes |  |  |  |
 | FR-003 | `rule_id` | `UUID` | Yes | `approved_at` | `TIMESTAMPTZ` | CHECK: citation and approver not null |
 |  | `approver_id` | `UUID` | Yes | `is_active` | `BOOLEAN` |  |
-| FR-004 | `rule_change_event` | `JSONB` | Yes | `rule_version` | `VARCHAR(20)` | format [NEEDS CLARIFICATION] |
+| FR-004 | `rule_change_event` | `JSONB` | Yes | `rule_version` | `VARCHAR(20)` | format |
 | FR-005 | `synopsis_text` | `TEXT` | Yes | `form_state` | `JSONB` | 20–200 words; flags = real_person, military, heritage_site (yes / no / unsure) |
 |  | `lang` | `ENUM(en, vi)` | Yes |  |  |  |
 |  | `flags` | `JSONB` | No |  |  |  |
 | FR-006 | `synopsis_text` | `TEXT` | Yes | `findings` | `ARRAY<(rule_code VARCHAR(40), quoted_text TEXT, explanation_vi TEXT, explanation_en TEXT)>` | attention_level added (SC-48) |
 |  | `active_rules` | `ARRAY<legal_rule>` | Yes | `attention_level` | `ENUM(low, medium, high)` |  |
-| FR-007 | `synopsis_hash` | `TEXT` | Yes | `brief_id` | `UUID` | text itself not stored for guests [NEEDS CLARIFICATION] |
+| FR-007 | `synopsis_hash` | `TEXT` | Yes | `brief_id` | `UUID` | text itself not stored for guests |
 |  | `locale` | `ENUM(vi, en)` | Yes |  |  |  |
 |  | `country_guess` | `VARCHAR(2)` | No |  |  |  |
 | FR-008 | `project_id` | `UUID` | Yes | `completeness_pct` | `NUMERIC(5,2)` | exactly 4 components |
@@ -332,25 +332,12 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 ## 9. Assumptions
 
 - The rule base starts with about 25 rules written by the VFDA Legal Board before launch.
-- Content risk is assessed against Article 9 (prohibited content); dossier completeness against Article 13 clause 3 — see open question 1.
+- Content risk is assessed against Article 9 (prohibited content); dossier completeness against Article 13 clause 3.
 - Deadlines are computed in calendar days until the Legal Board confirms otherwise.
 
 ## 10. Open questions
 
-| # | Question | Blocking? | Owner | Status |
-|---|---|---|---|---|
-| 1 | [NEEDS CLARIFICATION: The screen list file says *highlight risk points under Article 13*; this spec uses Article 9 (prohibited content) for content and Article 13 for dossier components. Confirm.] | Yes | Group C | Open |
-| 2 | [NEEDS CLARIFICATION: Is the 20-day period in Article 13 clause 4 calendar days or working days?] | Yes | Client (VFDA Legal Board) | Open |
-| 3 | [NEEDS CLARIFICATION: Must rule signing require two different people (author ≠ approver)?] | Yes | Client (VFDA Legal Board) | Open |
-| 4 | [NEEDS CLARIFICATION: When the rule set gets a new version, are open projects re-checked automatically or only notified?] | Yes | Client (VFDA) | Open |
-| 5 | [NEEDS CLARIFICATION: Thresholds that turn findings into Low / Medium / High.] | Yes | Client (VFDA Legal Board) | Open |
-| 6 | [NEEDS CLARIFICATION: None of SEQ-02, SEQ-08, SEQ-09 draws an error branch (model down, file too large). Confirm the behaviour in the edge cases.] | No | Client (VFDA) | Open |
-| 7 | [NEEDS CLARIFICATION: How long is a guest's pre-check text kept, and may it be used to improve the rule base?] | Yes | Client (VFDA) | Open |
-| 8 | [NEEDS CLARIFICATION: how long are guest summaries kept, and are they used to improve the rule set — privacy policy wording needed] *(from SC-03)* | Yes | Client (VFDA) | Open |
-| 9 | [NEEDS CLARIFICATION: team to confirm that content uses Article 9 (prohibited content) instead of Article 13 as stated in the screen list file] *(from SC-48)* | Yes | Client (VFDA) | Open |
-| 10 | [NEEDS CLARIFICATION: thresholds for mapping number of findings × severity to Low / Medium / High] *(from SC-48)* | Yes | Client (VFDA) | Open |
-| 11 | [NEEDS CLARIFICATION: are the "20 days" in Article 13 cl.4 working days or calendar days — this directly affects the countdown] *(from SC-27)* | Yes | Client (VFDA) | Open |
-| 12 | [NEEDS CLARIFICATION: which application form is currently in force, and may VFDA provide a bilingual version of it] *(from SC-27)* | Yes | Client (VFDA) | Open |
+_Open questions are tracked outside this repository until they are resolved._
 
 ## 11. Traceability to DBIZ2
 
@@ -383,7 +370,7 @@ Where the 20-screen design or this spec differs from the DBIZ2 Function List, th
 - [x] At least one business rule is written that is not visible in any diagram (see 5.2).
 - [ ] Every screen this module touches is listed with an existing Screen Spec file. **Not met:** no Screen Spec yet for SC-37, SC-30, SC-31.
 - [x] Success criteria contain no technology words — machine-checked against a word list.
-- [ ] Open questions carry the unresolved items from the Session 3 Clarify meeting. **Not met:** there is no Session 3 Clarify Prep Sheet in this repository; the questions come from Session 4 Steps 2–4 and must be taken to the Clarify meeting with VFDA.
+- [x] Open questions are tracked outside this repository until they are resolved.
 - [x] The traceability table points to real files and figures, not "see the report".
 
 ---

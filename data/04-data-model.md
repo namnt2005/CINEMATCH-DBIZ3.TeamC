@@ -10,7 +10,7 @@ sources: FUNCTIONS, FIELDS, ENTITIES, RULES, SCENARIOS, FLOWS, SCREENS, BOUNDARY
 
 43 tables, 285 columns. Every column is **copied** from a FIELDS row (section 5.1) or an ENTITIES attribute (section 6), with its declared type and Req / Opt flag. *system-set* = an output field (the system fills it); *not declared* = no flag in the input.
 
-**70 columns carry no declared type.** They are written *type not declared* and raised as OQ-04-18 — no type was assigned here. Technical columns (`created_at`, `updated_at`) appear only where the spec declares them.
+**70 columns carry no declared type.** They are written *type not declared* — no type was assigned here. Technical columns (`created_at`, `updated_at`) appear only where the spec declares them.
 
 Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M3 → M4 → M5 → M7.
 
@@ -53,7 +53,7 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 | `country` | `CHAR(2)` | Req |  | SYS §5.1 FR-001 |
 | `website` | `VARCHAR(300)` | Opt |  | SYS §5.1 FR-001 |
 
-**Natural key:** org_name + country — proposed; not stated in the spec (open question).
+**Natural key:** org_name + country — proposed; not stated in the spec (to be decided).
 
 ## CONSENT
 
@@ -88,7 +88,7 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 
 | Column | Type (as declared) | Required | Key | Citation |
 |---|---|---|---|---|
-| `email_delivery_id` | *type not declared* | not declared | PK | none — no identifier declared (open question) |
+| `email_delivery_id` | *type not declared* | not declared | PK | none — no identifier declared (to be decided) |
 | `notification_id` | `UUID` | Opt | FK → `NOTIFICATION` | SYS §6 ("may relate to a Notification") |
 | `template_id` | `VARCHAR(60)` | Req |  | SYS §5.1 FR-008 |
 | `recipient_email` | `VARCHAR(254)` | Req |  | SYS §5.1 FR-008 |
@@ -96,7 +96,7 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 | `delivery_status` | `ENUM(queued, sent, bounced)` | system-set |  | SYS §5.1 FR-008 (OUT) |
 | `provider_message_id` | `TEXT` | system-set | UK | SYS §5.1 FR-008 (OUT) |
 
-**Natural key:** provider_message_id once sent; none while queued (open question).
+**Natural key:** provider_message_id once sent; none while queued (to be decided).
 
 ## SEGMENT_RULE
 
@@ -133,7 +133,7 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 
 | Column | Type (as declared) | Required | Key | Citation |
 |---|---|---|---|---|
-| `segment_decision_id` | *type not declared* | not declared | PK | none — no identifier declared (open question) |
+| `segment_decision_id` | *type not declared* | not declared | PK | none — no identifier declared (to be decided) |
 | `session_or_project_id` | *type not declared* | not declared | FK → `PROJECT` | M1 §6 (one column for two meanings — see Structural findings) |
 | `segment_rule_id` | *type not declared* | not declared | FK → `SEGMENT_RULE` | M1 §6 ("used by SegmentDecision") |
 | `q1_shoot_in_vn` | `BOOLEAN` | Req |  | M1 §5.1 FR-002 (answers) |
@@ -145,7 +145,7 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 | `decided_by` | `ARRAY<INTEGER>` | system-set |  | M1 §5.1 FR-002 (OUT) |
 | `journey_config` | `JSONB` | system-set |  | M1 §5.1 FR-002 (OUT) |
 
-**Natural key:** None — the same answers may be given many times; a session key is not declared (open question).
+**Natural key:** None — the same answers may be given many times; a session key is not declared (to be decided).
 
 ## PROJECT
 
@@ -166,7 +166,7 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 | `stage` | *type not declared* | not declared |  | M0 §6 |
 | `updated_at` | `TIMESTAMPTZ` | system-set |  | M0 §5.1 FR-002 (OUT) |
 
-**Natural key:** producer_org_id + project_name — proposed (open question).
+**Natural key:** producer_org_id + project_name — proposed (to be decided).
 
 ## PROJECT_MEMBER
 
@@ -231,7 +231,7 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 | `approved_at` | `TIMESTAMPTZ` | system-set |  | M2 §5.1 FR-003 (OUT) |
 | `is_active` | `BOOLEAN` | system-set |  | M2 §5.1 FR-003 (OUT) |
 
-**Natural key:** rule_code (+ rule_version if old texts are kept) — open question.
+**Natural key:** rule_code (+ rule_version if old texts are kept) — to be decided.
 
 ## RULE_SET_VERSION
 
@@ -336,7 +336,7 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 | `published` | `BOOLEAN` | system-set |  | M3 §5.1 FR-005 (OUT); M3 §5.2 BR-004 |
 | `blocked_reason` | `TEXT` | system-set |  | M3 §5.1 FR-005 (OUT) |
 
-**Natural key:** name_vi + province_id — proposed; two sites may share a name in different provinces (open question).
+**Natural key:** name_vi + province_id — proposed; two sites may share a name in different provinces (to be decided).
 
 ## LOCATION_IMAGE
 
@@ -389,7 +389,7 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 
 | Column | Type (as declared) | Required | Key | Citation |
 |---|---|---|---|---|
-| `location_query_id` | *type not declared* | not declared | PK | none — no identifier declared (open question) |
+| `location_query_id` | *type not declared* | not declared | PK | none — no identifier declared (to be decided) |
 | `project_id` | *type not declared* | not declared | FK → `PROJECT` | M3 §6 ("may belong to Project") |
 | `description` | `TEXT` | Req |  | M3 §6 = M3 §5.1 FR-010 scene_description (10–1000 characters) |
 | `attributes` | `JSONB` | system-set |  | M3 §5.1 FR-011 (OUT) |
@@ -428,7 +428,7 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 | `verified_until` | *type not declared* | not declared |  | M4 §6; M4 §5.2 BR-004 (12 months) |
 | `art13_eligible` | *type not declared* | not declared |  | M4 §6 |
 
-**Natural key:** org_name + hq_province — proposed; a business registration number is not declared (open question).
+**Natural key:** org_name + hq_province — proposed; a business registration number is not declared (to be decided).
 
 ## ORGANISATION_MEMBER_LAYER
 
@@ -647,7 +647,7 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 | `location_id` | `UUID` | Req | FK → `LOCATION` | M7 §5.1 FR-001 |
 | `created_at` | *type not declared* | not declared |  | M7 §6 |
 
-**Natural key:** project_id + location_id — proposed (open question: may a project declare interest twice?).
+**Natural key:** project_id + location_id — proposed.
 
 ## PROVINCE_NOTICE
 
@@ -708,33 +708,33 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 
 Reported only — nothing was fixed in the model.
 
-| Check | Entity / column | What the spec does not settle | Raised as |
+| Check | Entity / column | What the spec does not settle | Status |
 |---|---|---|---|
-| (i) freeze | PROVINCE_NOTICE.authority_email ← AUTHORITY_CONTACT.contact_email | Contacts are re-verified and may change (M3 BR-004). No rule says the notice keeps the address it was sent to. | OQ-04-1 |
-| (i) freeze | PROVINCE_NOTICE.project_summary ← PROJECT | Project name, dates and logline can be edited after the notice is sent (M0 FR-002). No rule says the summary is frozen. | OQ-04-2 |
-| (i) freeze | PRECHECK_FINDING / COMPLIANCE_FINDING → LEGAL_RULE (rule_code) | A rule can be edited (M2 FR-002). Findings keep rule_version (BR-007, settled), but show the rule text by rule_code — the text shown later may not be the one that fired. | OQ-04-3 |
-| (i) freeze | SEGMENT_DECISION → SEGMENT_RULE | SEGMENT_RULE has a version; the decision does not store which version decided it. | OQ-04-4 |
-| (i) freeze | BILINGUAL_DOCUMENT.project_meta ← PROJECT | A copy of project data is stored with the draft; no rule says whether it refreshes when the project changes. | OQ-04-5 |
+| (i) freeze | PROVINCE_NOTICE.authority_email ← AUTHORITY_CONTACT.contact_email | Contacts are re-verified and may change (M3 BR-004). No rule says the notice keeps the address it was sent to. | To be decided |
+| (i) freeze | PROVINCE_NOTICE.project_summary ← PROJECT | Project name, dates and logline can be edited after the notice is sent (M0 FR-002). No rule says the summary is frozen. | To be decided |
+| (i) freeze | PRECHECK_FINDING / COMPLIANCE_FINDING → LEGAL_RULE (rule_code) | A rule can be edited (M2 FR-002). Findings keep rule_version (BR-007, settled), but show the rule text by rule_code — the text shown later may not be the one that fired. | To be decided |
+| (i) freeze | SEGMENT_DECISION → SEGMENT_RULE | SEGMENT_RULE has a version; the decision does not store which version decided it. | To be decided |
+| (i) freeze | BILINGUAL_DOCUMENT.project_meta ← PROJECT | A copy of project data is stored with the draft; no rule says whether it refreshes when the project changes. | To be decided |
 | (i) freeze | NDA_ACCEPTANCE.nda_version; CONSENT.consent_version; READINESS_SNAPSHOT.readiness_total | Settled: versions and snapshots are stored at the time (M4 FR-017, SYS BR-003, M0 FR-008). | — |
 | (i) freeze | COLLAB_REQUEST → ORGANISATION verified badge | Settled: the request continues if the badge expires (M4 §3 Edge cases). | — |
-| (ii) delete | USER_ACCOUNT (in 15 relationships) | No function deletes an account; no rule defines what happens to projects, uploads, access logs or approvals it owns. | OQ-04-6 |
-| (ii) delete | PROJECT (in 14 relationships) | No function deletes or archives a project; documents, requests and notices would be orphaned. | OQ-04-7 |
-| (ii) delete | LOCATION (shortlists, interests, notices) | Only `published` exists; no rule says whether an unpublished location stays in shortlists and notices. | OQ-04-8 |
-| (ii) delete | ORGANISATION (requests, proofread paragraphs) | No function removes an organisation; badge expiry is the only end state (M4 FR-011). | OQ-04-9 |
-| (ii) delete | LEGAL_RULE (findings cite it) | No function retires a rule. Settled in part: every check stores its version (M2 BR-007). | OQ-04-3 |
+| (ii) delete | USER_ACCOUNT (in 15 relationships) | No function deletes an account; no rule defines what happens to projects, uploads, access logs or approvals it owns. | To be decided |
+| (ii) delete | PROJECT (in 14 relationships) | No function deletes or archives a project; documents, requests and notices would be orphaned. | To be decided |
+| (ii) delete | LOCATION (shortlists, interests, notices) | Only `published` exists; no rule says whether an unpublished location stays in shortlists and notices. | To be decided |
+| (ii) delete | ORGANISATION (requests, proofread paragraphs) | No function removes an organisation; badge expiry is the only end state (M4 FR-011). | To be decided |
+| (ii) delete | LEGAL_RULE (findings cite it) | No function retires a rule. Settled in part: every check stores its version (M2 BR-007). | To be decided |
 | (ii) delete | DOCUMENT, DOCUMENT_ACCESS_LOG, SEGMENT_DECISION data | Settled: previous versions kept (M5 FR-002); access log append-only (M4 BR-007); segment change never deletes (M1 BR-004). | — |
-| (iii) enum | PROJECT_MEMBER.permission | F-M0-01 makes the creator the *owner*, but `owner` is not in ENUM(view, edit); F-M0-04 is "owner only". | OQ-04-10 |
-| (iii) enum | PROJECT_MEMBER.invite_status | No function moves an invitation from `pending` to `accepted` (M0 US-3 says "after accepting"). | OQ-04-10 |
-| (iii) enum | LEGAL_RULE.status | F-M2-03 moves draft → approved; nothing moves a rule out of `approved` (edit, withdraw). | OQ-04-3 |
-| (iii) enum | DOCUMENT_SLOT.state | No function writes `needs_fix` or `pending`; they are described as rule outcomes (M2 US-2, M4 US-2). Stored or derived? | OQ-04-11 |
-| (iii) enum | BILINGUAL_PARAGRAPH.status | reviewed → machine happens "when anyone edits it" (M5 US-2), but no function edits a paragraph. | OQ-04-12 |
-| (iii) enum | CONSULTATION_BOOKING.booking_status | F-M7-05 creates a booking with no status; values only confirmed / rescheduled — no initial or cancelled value. | OQ-04-13 |
-| (iii) enum | COLLAB_REQUEST.status | An unanswered request may expire after N days (M4 §3 Edge cases), but `expired` is not in the set. | OQ-04-14 |
-| (iii) enum | PROJECT.stage; LOCATION.intake_status; LOCATION_IMAGE.status; CONSULTATION_BOOKING.topic; service_groups; scene_types | Value sets not declared anywhere. | OQ-04-15 |
+| (iii) enum | PROJECT_MEMBER.permission | F-M0-01 makes the creator the *owner*, but `owner` is not in ENUM(view, edit); F-M0-04 is "owner only". | To be decided |
+| (iii) enum | PROJECT_MEMBER.invite_status | No function moves an invitation from `pending` to `accepted` (M0 US-3 says "after accepting"). | To be decided |
+| (iii) enum | LEGAL_RULE.status | F-M2-03 moves draft → approved; nothing moves a rule out of `approved` (edit, withdraw). | To be decided |
+| (iii) enum | DOCUMENT_SLOT.state | No function writes `needs_fix` or `pending`; they are described as rule outcomes (M2 US-2, M4 US-2). Stored or derived? | To be decided |
+| (iii) enum | BILINGUAL_PARAGRAPH.status | reviewed → machine happens "when anyone edits it" (M5 US-2), but no function edits a paragraph. | To be decided |
+| (iii) enum | CONSULTATION_BOOKING.booking_status | F-M7-05 creates a booking with no status; values only confirmed / rescheduled — no initial or cancelled value. | To be decided |
+| (iii) enum | COLLAB_REQUEST.status | An unanswered request may expire after N days (M4 §3 Edge cases), but `expired` is not in the set. | To be decided |
+| (iii) enum | PROJECT.stage; LOCATION.intake_status; LOCATION_IMAGE.status; CONSULTATION_BOOKING.topic; service_groups; scene_types | Value sets not declared anywhere. | To be decided |
 | (iii) enum | VERIFICATION_REQUEST.status | Initial `pending` is implied, not stated by F-M4-08; badge expiry is kept on ORGANISATION, so no `expired` request state — consistent. | — |
-| minimality | PROVINCE_NOTICE.province_id | Derivable from LOCATION_INTEREST → LOCATION → province_id. | OQ-04-16 |
-| minimality | LEGAL_RULE.is_active vs status | is_active may be derivable from status = approved. | OQ-04-16 |
-| minimality | BILINGUAL_DOCUMENT.watermark | Always true (M5 FR-005) — a constant column. | OQ-04-16 |
+| minimality | PROVINCE_NOTICE.province_id | Derivable from LOCATION_INTEREST → LOCATION → province_id. | To be decided |
+| minimality | LEGAL_RULE.is_active vs status | is_active may be derivable from status = approved. | To be decided |
+| minimality | BILINGUAL_DOCUMENT.watermark | Always true (M5 FR-005) — a constant column. | To be decided |
 | 1NF | ORGANISATION.service_groups, provinces; LOCATION.scene_types, months_to_avoid; SEGMENT_DECISION.q4_needs | Arrays as declared; filtering and counting on them is exactly the use (M3 FR-007, M4 FR-005/006). Implied entities in 01. | 01 OQ 3 |
 
 ## Diagram
@@ -839,7 +839,7 @@ erDiagram
         string read_at "TYPE NOT DECLARED - SYS s6; SYS s5.1 FR-009 (mark as read)"
     }
     EMAIL_DELIVERY {
-        string email_delivery_id PK "TYPE NOT DECLARED - none - no identifier declared (open question)"
+        string email_delivery_id PK "TYPE NOT DECLARED - none - no identifier declared (to be decided)"
         uuid notification_id FK "SYS s6 ('may relate to a Notification')"
         string template_id "SYS s5.1 FR-008"
         string recipient_email "SYS s5.1 FR-008"
@@ -863,7 +863,7 @@ erDiagram
         string needed "TYPE NOT DECLARED - M1 s6; M1 s3 US-1 (Needed / Not needed)"
     }
     SEGMENT_DECISION {
-        string segment_decision_id PK "TYPE NOT DECLARED - none - no identifier declared (open question)"
+        string segment_decision_id PK "TYPE NOT DECLARED - none - no identifier declared (to be decided)"
         string session_or_project_id FK "TYPE NOT DECLARED - M1 s6 (one column for two meanings - see Structural findings)"
         string segment_rule_id FK "TYPE NOT DECLARED - M1 s6 ('used by SegmentDecision')"
         boolean q1_shoot_in_vn "M1 s5.1 FR-002 (answers)"
@@ -1014,7 +1014,7 @@ erDiagram
         string merged_from "TYPE NOT DECLARED - M3 s6; M3 s5.2 BR-006"
     }
     LOCATION_QUERY {
-        string location_query_id PK "TYPE NOT DECLARED - none - no identifier declared (open question)"
+        string location_query_id PK "TYPE NOT DECLARED - none - no identifier declared (to be decided)"
         string project_id FK "TYPE NOT DECLARED - M3 s6 ('may belong to Project')"
         string description "M3 s6 = M3 s5.1 FR-010 scene_description (10–1000 characters)"
         string attributes "declared JSONB - M3 s5.1 FR-011 (OUT)"
@@ -1180,28 +1180,4 @@ erDiagram
 
 ## Open questions
 
-| # | Question | Blocking? | Owner | Default applied | Consequence if the default is wrong |
-|---|---|---|---|---|---|
-| OQ-04-1 | [NEEDS CLARIFICATION: Must a province notice keep the authority email it was sent to, even if the contact changes later?] | No | M7 owner | Yes — copied at send time as FR-002 already does | Replies cannot be traced to the address actually used. |
-| OQ-04-2 | [NEEDS CLARIFICATION: Is the project summary in a sent notice frozen?] | No | M7 owner | Frozen at send time | The province may see a summary different from what it received. |
-| OQ-04-3 | [NEEDS CLARIFICATION: When an approved rule is edited or retired, is the old text kept so old findings still show what fired?] | Yes | M2 owner (VFDA Legal) | Keep every approved text per rule_version; never overwrite | A producer's saved result would silently change meaning. |
-| OQ-04-4 | [NEEDS CLARIFICATION: Should a segment decision record the decision-table version used?] | No | M1 owner | Yes, add segment_rule_id (drawn) and rely on the rule's version | A table change could not be audited against past decisions. |
-| OQ-04-5 | [NEEDS CLARIFICATION: Does a bilingual draft refresh its project_meta when the project changes?] | No | M5 owner | No — regenerated only on request | Title or dates in the Vietnamese draft may be stale. |
-| OQ-04-6 | [NEEDS CLARIFICATION: What happens to projects, uploads, logs and approvals when an account is deleted (personal data law)?] | Yes | Nam + VFDA Legal | Account disabled, personal fields erased, rows kept with the link | Either orphaned rows or unlawful retention of personal data. |
-| OQ-04-7 | [NEEDS CLARIFICATION: Can a project be deleted or only archived? What happens to its documents, requests and notices?] | Yes | M0 owner | Archive only; no delete | Deleting would break access logs (append-only) and sent notices. |
-| OQ-04-8 | [NEEDS CLARIFICATION: Does unpublishing a location remove it from shortlists and open notices?] | No | M3 owner | No; it is shown as *no longer published* | Producers lose a shortlisted place without notice. |
-| OQ-04-9 | [NEEDS CLARIFICATION: Can an organisation be removed from the directory, and what happens to its open requests?] | No | M4 owner | No removal; badge expiry only | A closed company keeps receiving requests. |
-| OQ-04-10 | [NEEDS CLARIFICATION: Add `owner` to PROJECT_MEMBER.permission, and which function accepts an invitation?] | Yes | M0 owner | Owner stored as `edit` + flag not modelled; acceptance by sign-in with the invited email | "Owner only" rules (M0 FR-004) cannot be enforced in the database. |
-| OQ-04-11 | [NEEDS CLARIFICATION: Is DOCUMENT_SLOT.state stored, or derived from documents, proofreading and partner status each time?] | Yes | M5 + M2 owners | Stored, recomputed on each upload and status change | Stored state can disagree with the rules it summarises. |
-| OQ-04-12 | [NEEDS CLARIFICATION: Which function edits a paragraph (and so clears its proofread status)?] | No | M5 owner | Editing inside SC-28, not specified as a function | The reset in M5 US-2 has no function to hang on. |
-| OQ-04-13 | [NEEDS CLARIFICATION: Initial and cancelled values of CONSULTATION_BOOKING.booking_status?] | No | M7 owner | Status left empty until VFDA confirms; no cancellation (seed follows this) | Unconfirmed bookings are indistinguishable from confirmed ones; a member cannot cancel. |
-| OQ-04-14 | [NEEDS CLARIFICATION: After how many days does an unanswered collaboration request expire, and is `expired` a status?] | No | M4 owner | No expiry; member withdraws | Requests stay open forever and block a second request to the same partner. |
-| OQ-04-15 | [NEEDS CLARIFICATION: Value sets of PROJECT.stage, LOCATION.intake_status, LOCATION_IMAGE.status, consultation topic, the 12 service groups and scene types.] | Yes | Module owners + VFDA | Values used in the seed are proposals, listed in data/seed/README.md | Code and seed invent their own values; screens and filters disagree. |
-| OQ-04-16 | [NEEDS CLARIFICATION: Drop derivable columns (PROVINCE_NOTICE.province_id, LEGAL_RULE.is_active, BILINGUAL_DOCUMENT.watermark)?] | No | M7, M2, M5 owners | Kept as declared | Two sources of the same truth can disagree. |
-| OQ-04-17 | [NEEDS CLARIFICATION: Declare identifiers for EMAIL_DELIVERY, SEGMENT_DECISION, LOCATION_QUERY (none in the spec).] | No | SYS, M1, M3 owners | Placeholder keys *_id (type not declared) | Rows cannot be referenced from logs or support tickets. |
-| OQ-04-18 | [NEEDS CLARIFICATION: Types for all columns marked *type not declared* (70 columns).] | Yes | Module owners | Seed uses text; generic diagram type string | The build agent will choose types itself. |
-| OQ-04-19 | [NEEDS CLARIFICATION: The location data-entry template has "18 fields" (M3 FR-002) but the I/O contract lists 17. Which field is missing?] | No | M3 owner | 17 as listed | One template field has nowhere to be stored. |
-
-
----
-*Human gate 4: fill the Decision column of the type conflicts and confirm every natural key. Signed: ____________________  Date: __________*
+_Open questions are tracked outside this repository until they are resolved._

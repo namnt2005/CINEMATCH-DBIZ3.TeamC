@@ -63,7 +63,7 @@ International film producers (production companies and line producers) planning 
 | 3 | Textualise architecture diagrams to Mermaid (Step 3) | Must | Group C | Done — human verification signatures pending |
 | 4 | 20 screen mockups + Screen Specs (Step 4) | Must | Group C | Done |
 | 5 | 8 module Spec Documents (Step 5): SYS, M0, M1, M2, M3, M4, M5, M7 | Must | Group C | Draft — ready for Client review |
-| 6 | Clarify the blocking questions with VFDA (scoring weights, Verified criteria, rule sign-off, calendar vs working days, notice mandate) | Must | Nam + VFDA | Open |
+| 6 | Clarify the open points with VFDA (tracked outside this repository) | Must | Nam + VFDA | Open |
 | 7 | Mockups and Screen Specs for the admin screens SC-35, SC-36, SC-37 | Must | Group C | Not started |
 | 8 | Development environment: GitHub, Supabase, Vercel, Claude Code | Must | Group C | Not started |
 

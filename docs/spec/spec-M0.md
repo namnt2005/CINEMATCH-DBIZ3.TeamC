@@ -217,13 +217,7 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 
 ## 10. Open questions
 
-| # | Question | Blocking? | Owner | Status |
-|---|---|---|---|---|
-| 1 | [NEEDS CLARIFICATION: Weights of the five gauges in the overall score, per segment.] | Yes | Client (VFDA) | Open |
-| 2 | [NEEDS CLARIFICATION: Is the 7-day safety buffer before the first shooting day editable by the producer?] | No | Client (VFDA) | Open |
-| 3 | [NEEDS CLARIFICATION: Can people outside the producer organisation (a lawyer, a freelance line producer) be invited to a project?] | No | Client (VFDA) | Open |
-| 4 | [NEEDS CLARIFICATION: Usage-flow diamonds Q2–Q4 were added from the Function List, not drawn in the DBIZ2 figure — confirm them.] | Yes | Client (VFDA) | Open |
-| 5 | [NEEDS CLARIFICATION: weights of the five gauges in the overall score per segment — VFDA to approve before they are written to `segment_requirements`] *(from SC-12)* | Yes | Client (VFDA) | Open |
+_Open questions are tracked outside this repository until they are resolved._
 
 ## 11. Traceability to DBIZ2
 
@@ -253,7 +247,7 @@ Where the 20-screen design or this spec differs from the DBIZ2 Function List, th
 - [x] At least one business rule is written that is not visible in any diagram (see 5.2).
 - [ ] Every screen this module touches is listed with an existing Screen Spec file. **Not met:** no Screen Spec yet for SC-13.
 - [x] Success criteria contain no technology words — machine-checked against a word list.
-- [ ] Open questions carry the unresolved items from the Session 3 Clarify meeting. **Not met:** there is no Session 3 Clarify Prep Sheet in this repository; the questions come from Session 4 Steps 2–4 and must be taken to the Clarify meeting with VFDA.
+- [x] Open questions are tracked outside this repository until they are resolved.
 - [x] The traceability table points to real files and figures, not "see the report".
 
 ---

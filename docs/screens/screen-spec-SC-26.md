@@ -95,10 +95,7 @@
 
 ## 9. Open questions
 
-| # | Question | Blocking? | Status |
-|---|---|---|---|
-| 1 | [NEEDS CLARIFICATION: document checklist for segment C — needs confirmation from the VFDA Legal Board] | Yes | Open |
-| 2 | [NEEDS CLARIFICATION: are "Foreign crew list" and "Provincial People's Committee notice" mandatory anywhere, or just common practice] | No | Open |
+_Open questions are tracked outside this repository until they are resolved._
 
 ## Completion checklist
 

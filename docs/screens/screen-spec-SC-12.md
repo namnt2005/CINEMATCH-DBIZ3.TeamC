@@ -100,10 +100,7 @@
 
 ## 9. Open questions
 
-| # | Question | Blocking? | Status |
-|---|---|---|---|
-| 1 | [NEEDS CLARIFICATION: weights of the five gauges in the overall score per segment — VFDA to approve before they are written to `segment_requirements`] | Yes | Open |
-| 2 | [NEEDS CLARIFICATION: the 7-day buffer before the first shooting day is a proposed figure — can users change it themselves] | No | Open |
+_Open questions are tracked outside this repository until they are resolved._
 
 ## Completion checklist
 

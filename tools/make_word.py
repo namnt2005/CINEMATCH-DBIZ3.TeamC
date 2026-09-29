@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """Convert docs/spec/*.md and docs/screens/*.md to Word (docs/word/specs, docs/word/screens) with a consistent style."""
+import toolpaths
 import glob, os, subprocess, sys
 from docx import Document
 from docx.shared import Pt, RGBColor, Cm
@@ -12,7 +13,7 @@ NAVY, TEAL, GREY = RGBColor(0x1F, 0x2A, 0x5C), RGBColor(0x1F, 0x5F, 0x8B), RGBCo
 
 
 def build_reference():
-    subprocess.run(["pandoc", "-o", TMP, "--print-default-data-file", "reference.docx"], check=True)
+    subprocess.run([toolpaths.pandoc(), "-o", TMP, "--print-default-data-file", "reference.docx"], check=True)
     d = Document(TMP)
     st = d.styles
     def font(name, size, color=None, bold=None, italic=None, face="Calibri"):
@@ -84,7 +85,7 @@ def post(path):
 
 def convert(md, out, resource):
     os.makedirs(os.path.dirname(out), exist_ok=True)
-    r = subprocess.run(["pandoc", md, "-f", "gfm", "-o", out, "--reference-doc", TMP, "--resource-path", resource], capture_output=True, text=True)
+    r = subprocess.run([toolpaths.pandoc(), md, "-f", "gfm", "-o", out, "--reference-doc", TMP, "--resource-path", resource], capture_output=True, text=True)
     if r.returncode:
         print("FAIL", md, r.stderr[:300]); return
     post(out)
