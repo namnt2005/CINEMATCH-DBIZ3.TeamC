@@ -1,0 +1,10 @@
+org_id,slug,org_name,legal_form,founded_year,hq_province,service_groups,provinces,verified_at,verified_until,art13_eligible
+0ab609da-d252-524e-8d29-fe3c650e6f04,hoiancasting,Hội An Casting House,Hộ kinh doanh,2020,21,"[""casting"",""interpreting""]",[21],,,false
+35683fa1-af07-55a0-8bdd-276a37becc29,mekong,Mekong Frame Co.,Công ty TNHH,2019,30,"[""full_production"",""transport_logistics""]","[30,27]",,,false
+42686fb9-acaf-5285-a364-b1b900a96f41,dongang,Đò Ngang Film Services,Công ty cổ phần,2015,2,"[""full_production"",""location_management""]","[2,21,20]",2026-03-20T11:00:00+07:00,2027-03-20,true
+67fc4355-67c0-55f3-a64b-1ad3381c6fdf,benxua,Bến Xưa Production Services,Công ty TNHH,2012,1,"[""full_production"",""permits_paperwork"",""crew""]","[1,19,18]",2026-06-12T11:00:00+07:00,2027-06-12,true
+97ad811f-325f-571b-a3bb-c35519cfd15c,long,"Công ty Cổ phần Dịch vụ Sản xuất Phim, Truyền hình, Quảng cáo, Âm nhạc và Tổ chức Sự kiện Quốc tế Đồng bằng sông Cửu Long – Chi nhánh Thành phố Hồ Chí Minh và các tỉnh và các tỉnh và các tỉnh và các t",Công ty cổ phần,1990,27,"[""full_production"",""permits_paperwork"",""casting"",""crew"",""camera_lighting"",""studios_interiors"",""location_management"",""transport_logistics"",""lodging_catering"",""interpreting"",""insurance_legal"",""post_production""]","[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34]",2026-09-01T11:00:00+07:00,2027-09-01,true
+c507b080-6d27-5dd8-8bb1-fe75ea2176b8,hanoigrip,Hanoi Grip & Light,Công ty TNHH,2021,1,"[""camera_lighting"",""studios_interiors""]",[1],,,false
+e6e8e5aa-0428-517d-9432-f03f98f612a8,halongmarine,Hạ Long Marine Logistics,Công ty TNHH,2011,7,"[""transport_logistics"",""lodging_catering""]","[7,18]",2026-04-02T11:00:00+07:00,2027-04-02,false
+f6218fa2-afe1-5d13-8851-312e145b3399,songhau,Sông Hậu Film Services,Công ty TNHH,2014,30,"[""full_production"",""location_management""]","[30,31]",2025-08-15T11:00:00+07:00,2026-08-15,true
+fe417755-4e37-5f18-bebe-f23e2293ff55,saigonline,Saigon Line Crew,Công ty TNHH,2016,27,"[""crew"",""camera_lighting""]","[27,28]",2026-02-10T11:00:00+07:00,2027-02-10,false

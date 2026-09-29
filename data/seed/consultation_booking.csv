@@ -1,0 +1,7 @@
+booking_id,member_id,topic,slot_start,timezone,officer_id,booking_status
+13b8366c-2e97-5322-a100-b4708f3da7b0,2985398f-7372-5d92-a85d-117c3a4b91e4,general,2026-10-13T16:00:00+07:00,Europe/London,515529a9-46d9-559c-aab4-e5fb31eedeea,confirmed
+267c8308-ca72-555b-9fdf-c1c010204526,95f36904-6141-5469-8c63-712a80a4295e,locations,2026-10-08T15:00:00+07:00,Europe/Paris,515529a9-46d9-559c-aab4-e5fb31eedeea,rescheduled
+315b44ab-8392-5d79-8dba-7eb73289c7a2,f438b0ab-932f-5687-9e92-e2c6484142f8,dossier,2026-10-14T09:00:00+07:00,America/Argentina/ComodRivadavia,74749444-a35e-5c4b-892b-2f8cb8cf80b9,confirmed
+595a9a0a-57d1-582b-9a3c-15761b9120a6,18557ae8-32fa-5e30-9f76-295c73953f1d,provincial_notice,2026-10-09T07:00:00+07:00,Australia/Sydney,74749444-a35e-5c4b-892b-2f8cb8cf80b9,confirmed
+5a3b9b27-d07f-504f-8251-63df09ae2837,4ef79de6-8efb-58f7-8514-9c0532345ac4,dossier,2026-10-06T08:00:00+07:00,Asia/Seoul,74749444-a35e-5c4b-892b-2f8cb8cf80b9,confirmed
+a6282ff9-7e69-51aa-a327-109f3c922643,118de3c8-88eb-5003-a2f9-26bbdd0186ae,partners,2026-10-12T10:00:00+07:00,Asia/Tokyo,,

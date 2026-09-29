@@ -7,11 +7,16 @@
 .DS_Store
 Thumbs.db
 *.swp
+.Rhistory
+.RData
+.Rproj.user/
+~$*
 
 # Python
 __pycache__/
 *.pyc
 .venv/
+tools/_anomalies.pkl
 
 # Node
 node_modules/

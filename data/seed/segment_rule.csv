@@ -1,0 +1,8 @@
+segment_rule_id,q1_shoot_in_vn,q2_release,q3_producer,result_segment,version
+322e3ab0-7f91-5f83-b348-79c5eae97821,true,vietnam,vietnamese,B,2026.1
+339d6907-7c3f-5959-bd2e-f9fd733557ab,true,abroad,coproduction,A,2026.1
+587f40e0-a8a4-5a0b-90a2-e29dd769413d,true,vietnam,foreign,B,2026.1
+96c5cf45-c10e-5a23-a7ee-ab11fc6b54ea,true,abroad,foreign,A,2025.12
+9bd25b94-2ecc-5ad3-b911-1bf51746b604,false,,,C,2026.1
+bfc3aa20-4f48-5eb7-98b6-f07cb86713ed,true,abroad,foreign,A,2026.1
+f97fa65e-5604-5fd1-b14e-c0a67c246eaf,true,both,foreign,B,2026.1

@@ -1,0 +1,9 @@
+segment,requirement_code,label_vi,label_en,needed
+A,ART13_LICENCE,Giấy phép quay phim sử dụng bối cảnh tại Việt Nam,Filming licence (Article 13),true
+A,FILM_CLASSIFICATION,Phân loại phim để phổ biến tại Việt Nam,Classification for release in Vietnam,false
+A,VN_SERVICE_AGREEMENT,Thỏa thuận với tổ chức cung cấp dịch vụ Việt Nam,Agreement with a Vietnamese service provider,true
+B,ART13_LICENCE,Giấy phép quay phim sử dụng bối cảnh tại Việt Nam,Filming licence (Article 13),true
+B,FILM_CLASSIFICATION,Phân loại phim để phổ biến tại Việt Nam,Classification for release in Vietnam,true
+B,VN_SERVICE_AGREEMENT,Thỏa thuận với tổ chức cung cấp dịch vụ Việt Nam,Agreement with a Vietnamese service provider,true
+C,ART13_LICENCE,Giấy phép quay phim sử dụng bối cảnh tại Việt Nam,Filming licence (Article 13),false
+C,SERVICE_CONTRACT,Hợp đồng dịch vụ với đối tác Việt Nam,Service contract with a Vietnamese partner,true

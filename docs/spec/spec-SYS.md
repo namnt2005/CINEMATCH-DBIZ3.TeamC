@@ -1,7 +1,9 @@
 # Spec Document: Platform foundation — accounts, roles, bilingual UI, notifications, search
 
+> DBIZ3 Session 4 template — one file per module. Written for a reader who has never seen the DBIZ2 report.
+
 | Field | Value |
-| :---- | :---- |
+|---|---|
 | Module ID | SYS |
 | Module name | Platform foundation — accounts, roles, bilingual UI, notifications, search |
 | Spec version | v0.1 |
@@ -11,38 +13,38 @@
 | Approved by (Client role) | *Not yet — VFDA project lead (and VFDA Legal Board for legal rules)* |
 | DBIZ2 source | Function List rows 1–11 (F-SYS-01 .. F-SYS-11); Use Case: none of its own (used by every UC); Screens SC-04, SC-05, SC-06, SC-07, SC-08, SC-09, SC-42, SC-43 |
 
-1\. Purpose and scope
+## 1. Purpose and scope
 
 This module lets people create an account, sign in, and see only what their role allows, in Vietnamese or English. It also delivers in-app and email notifications and provides the search indexes the other modules rely on.
 
 **In scope**
 
-- Sign-up, sign-in, password reset and email verification.  
-- Six roles (guest, member, partner, vfda\_staff, vfda\_legal, admin) enforced at the database layer.  
-- Vietnamese / English interface switching and the display dictionary.  
-- In-app notifications, the notification centre and transactional email.  
+- Sign-up, sign-in, password reset and email verification.
+- Six roles (guest, member, partner, vfda_staff, vfda_legal, admin) enforced at the database layer.
+- Vietnamese / English interface switching and the display dictionary.
+- In-app notifications, the notification centre and transactional email.
 - Accent-insensitive Vietnamese full-text index and the semantic (vector) index.
 
 **Out of scope**
 
-- Partner (supplier) self-registration — suppliers are invited by VFDA (module M4).  
-- Single sign-on with Google / Apple (open question).  
-- A translation CMS — the dictionary is two JSON files in the repository.  
+- Partner (supplier) self-registration — suppliers are invited by VFDA (module M4).
+- Single sign-on with Google / Apple (open question).
+- A translation CMS — the dictionary is two JSON files in the repository.
 - Any business content: projects, locations, partners, dossiers belong to M0–M7.
 
 **Depends on**
 
 - External: Supabase Auth, Supabase PostgreSQL (RLS, unaccent, pgvector), Resend (email).
 
-## 2\. Actors
+## 2. Actors
 
 | Actor | Role in this module | Where it comes from |
-| :---- | :---- | :---- |
+|---|---|---|
 | Guest | Primary — signs up, signs in, resets a password | Function List Actor column (F-SYS-01) |
-| Member / Partner / VFDA roles | Secondary — sign in, switch language, read notifications | Function List (F-SYS-02, 05, 09\) |
-| System | Assigns roles, sends notifications and email, builds indexes | Function List (F-SYS-04, 07, 08, 10, 11\) |
+| Member / Partner / VFDA roles | Secondary — sign in, switch language, read notifications | Function List (F-SYS-02, 05, 09) |
+| System | Assigns roles, sends notifications and email, builds indexes | Function List (F-SYS-04, 07, 08, 10, 11) |
 
-## 3\. User scenarios and acceptance criteria
+## 3. User scenarios and acceptance criteria
 
 ### US-1 (P1): Producer creates an account with company details
 
@@ -50,8 +52,8 @@ This module lets people create an account, sign in, and see only what their role
 
 **Acceptance scenarios**
 
-1. **Given** a guest on the sign-up tab, **When** they submit full name, work email, a password of at least 10 characters, company name, country and crew role and tick the terms box, **Then** an unverified account is created and a verification email is sent.  
-2. **Given** an unverified account, **When** the user opens the verification link, **Then** a session starts, the role is `member`, and the user lands on the segment router (SC-02).  
+1. **Given** a guest on the sign-up tab, **When** they submit full name, work email, a password of at least 10 characters, company name, country and crew role and tick the terms box, **Then** an unverified account is created and a verification email is sent.
+2. **Given** an unverified account, **When** the user opens the verification link, **Then** a session starts, the role is `member`, and the user lands on the segment router (SC-02).
 3. **Given** an email that already has an account, **When** the guest submits the form, **Then** the form shows *This email already has an account — Log in?* and no second account is created.
 
 ### US-2 (P1): A role sees only what it is allowed to see
@@ -60,7 +62,7 @@ This module lets people create an account, sign in, and see only what their role
 
 **Acceptance scenarios**
 
-1. **Given** a guest session, **When** any page queries `location_authority_contacts`, **Then** the database returns 0 rows (BR-001).  
+1. **Given** a guest session, **When** any page queries `location_authority_contacts`, **Then** the database returns 0 rows (BR-001).
 2. **Given** a member session, **When** the same query runs, **Then** the contacts for published locations are returned.
 
 ### US-3 (P2): Switch language
@@ -77,17 +79,17 @@ This module lets people create an account, sign in, and see only what their role
 
 **Acceptance scenarios**
 
-1. **Given** a partner responds to my request, **When** the response is saved, **Then** I receive one in-app notification and one email within 1 minute.  
+1. **Given** a partner responds to my request, **When** the response is saved, **Then** I receive one in-app notification and one email within 1 minute.
 2. **Given** unread notifications, **When** I open the notification centre, **Then** I see them newest first with an unread count.
 
 ### Edge cases
 
-- Email provider is down during sign-up: the account is created, the verification email is queued and retried; the user sees *Resend email* after 60 seconds.  
-- The same user signs up twice in two tabs: only one account exists; the second submit gets the *already has an account* error.  
-- A verification link is opened after it expired: the user sees *Link expired* and can request a new one.  
+- Email provider is down during sign-up: the account is created, the verification email is queued and retried; the user sees *Resend email* after 60 seconds.
+- The same user signs up twice in two tabs: only one account exists; the second submit gets the *already has an account* error.
+- A verification link is opened after it expired: the user sees *Link expired* and can request a new one.
 - A user types a Vietnamese search term without accents (e.g. *trang an*): it still matches *Tràng An* (F-SYS-10).
 
-## 4\. Flows
+## 4. Flows
 
 ### 4.1 Usage flow — sign-up and first sign-in
 
@@ -95,15 +97,15 @@ This module lets people create an account, sign in, and see only what their role
 
 ```mermaid
 flowchart TD
-&nbsp;&nbsp;&nbsp;&nbsp;A([Guest opens Sign up]) --> B[Fill name, work email, password, company, country, crew role]
-&nbsp;&nbsp;&nbsp;&nbsp;B --> C{Form valid?}
-&nbsp;&nbsp;&nbsp;&nbsp;C -- No --> B
-&nbsp;&nbsp;&nbsp;&nbsp;C -- Yes --> D[Account created, verification email sent]
-&nbsp;&nbsp;&nbsp;&nbsp;D --> E[Guest opens the verification link]
-&nbsp;&nbsp;&nbsp;&nbsp;E --> F{Link still valid?}
-&nbsp;&nbsp;&nbsp;&nbsp;F -- No --> G[Request a new link] --> D
-&nbsp;&nbsp;&nbsp;&nbsp;F -- Yes --> H[Profile created with role member]
-&nbsp;&nbsp;&nbsp;&nbsp;H --> I([Segment router SC-02])
+    A([Guest opens Sign up]) --> B[Fill name, work email, password, company, country, crew role]
+    B --> C{Form valid?}
+    C -- No --> B
+    C -- Yes --> D[Account created, verification email sent]
+    D --> E[Guest opens the verification link]
+    E --> F{Link still valid?}
+    F -- No --> G[Request a new link] --> D
+    F -- Yes --> H[Profile created with role member]
+    H --> I([Segment router SC-02])
 ```
 
 ### 4.2 Sequence — sign-up and sign-in (SEQ-01)
@@ -112,32 +114,30 @@ flowchart TD
 
 ```mermaid
 sequenceDiagram
-&nbsp;&nbsp;&nbsp;&nbsp;actor GU as Guest
-&nbsp;&nbsp;&nbsp;&nbsp;participant FE as Next.js app
-&nbsp;&nbsp;&nbsp;&nbsp;participant AU as Supabase Auth
-&nbsp;&nbsp;&nbsp;&nbsp;participant DB as Supabase PostgreSQL + RLS
-&nbsp;&nbsp;&nbsp;&nbsp;participant MAIL as Resend
+    actor GU as Guest
+    participant FE as Next.js app
+    participant AU as Supabase Auth
+    participant DB as Supabase PostgreSQL + RLS
+    participant MAIL as Resend
 
-&nbsp;
-
-&nbsp;&nbsp;&nbsp;&nbsp;GU->>FE: Enter email, password, company name
-&nbsp;&nbsp;&nbsp;&nbsp;FE->>FE: Validate format with Zod
-&nbsp;&nbsp;&nbsp;&nbsp;FE->>AU: signUp(email, password)
-&nbsp;&nbsp;&nbsp;&nbsp;AU->>MAIL: Send verification email
-&nbsp;&nbsp;&nbsp;&nbsp;AU-->>FE: Unverified user returned
-&nbsp;&nbsp;&nbsp;&nbsp;GU->>FE: Click verification link in email
-&nbsp;&nbsp;&nbsp;&nbsp;FE->>AU: verifyOtp(token)
-&nbsp;&nbsp;&nbsp;&nbsp;AU->>DB: Create profiles record, role = member
-&nbsp;&nbsp;&nbsp;&nbsp;DB-->>AU: Profile ID
-&nbsp;&nbsp;&nbsp;&nbsp;AU-->>FE: Session
-&nbsp;&nbsp;&nbsp;&nbsp;FE-->>GU: Redirect to the segment router
-&nbsp;&nbsp;&nbsp;&nbsp;Note over DB: No home-made JWT or password hashing — Supabase Auth only
+    GU->>FE: Enter email, password, company name
+    FE->>FE: Validate format with Zod
+    FE->>AU: signUp(email, password)
+    AU->>MAIL: Send verification email
+    AU-->>FE: Unverified user returned
+    GU->>FE: Click verification link in email
+    FE->>AU: verifyOtp(token)
+    AU->>DB: Create profiles record, role = member
+    DB-->>AU: Profile ID
+    AU-->>FE: Session
+    FE-->>GU: Redirect to the segment router
+    Note over DB: No home-made JWT or password hashing — Supabase Auth only
 ```
 
-## 5\. Functional requirements
+## 5. Functional requirements
 
 | FR ID | DBIZ2 Subfunction ID | Requirement (system MUST ...) | Actor | Priority |
-| :---- | :---- | :---- | :---- | :---- |
+|---|---|---|---|---|
 | FR-001 | F-SYS-01 | The system MUST let a guest create an account with full name, work email, password, company name, country and crew role, and MUST verify the email before the account is active. | Guest | Must |
 | FR-002 | F-SYS-02 | The system MUST sign users in with email and password through Supabase Auth and return to the page that required sign-in. | User | Must |
 | FR-003 | F-SYS-03 | The system MUST send a single-use password reset link and let the user set a new password. | User | Must |
@@ -148,15 +148,15 @@ sequenceDiagram
 | FR-008 | F-SYS-08 | The system MUST send transactional email from a domain authenticated with SPF, DKIM and DMARC. | System | Must |
 | FR-009 | F-SYS-09 | The system MUST show a user their notifications, newest first, and let them mark them as read. | User | Must |
 | FR-010 | F-SYS-10 | The system MUST index Vietnamese text so that searches match with or without diacritics. | System | Must |
-| FR-011 | F-SYS-11 | The system MUST build a semantic (vector) index for location and supplier descriptions. \[NEEDS CLARIFICATION: vector dimension depends on the embedding model\] | System | Could |
+| FR-011 | F-SYS-11 | The system MUST build a semantic (vector) index for location and supplier descriptions. [NEEDS CLARIFICATION: vector dimension depends on the embedding model] | System | Could |
 
 ### 5.1 Input / Output contract
 
 Types and required flags come from `docs/function-list.md` (columns *Input — type and required* and *Output — type*). Changes made in Session 4 are stated in *Notes* and listed in 11.1.
 
 | FR ID | Input field | Type | Required | Output field | Type | Notes / validation |
-| :---- | :---- | :---- | :---- | :---- | :---- | :---- |
-| FR-001 | `full_name` | `VARCHAR(120)` | Yes | `user_id` | `UUID` | org\_name changed from Opt (DBIZ2) to Req; country, crew\_role, website, consent\_version added — see §11 reconciliation |
+|---|---|---|---|---|---|---|
+| FR-001 | `full_name` | `VARCHAR(120)` | Yes | `user_id` | `UUID` | org_name changed from Opt (DBIZ2) to Req; country, crew_role, website, consent_version added — see §11 reconciliation |
 |  | `email` | `VARCHAR(254)` | Yes | `email_verified` | `BOOLEAN` |  |
 |  | `password` | `VARCHAR(72)` | Yes |  |  |  |
 |  | `org_name` | `VARCHAR(200)` | Yes |  |  |  |
@@ -167,7 +167,7 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 | FR-002 | `email` | `VARCHAR(254)` | Yes | `session_token` | `TEXT` | `next` accepts internal paths only |
 |  | `password` | `VARCHAR(72)` | Yes | `expires_at` | `TIMESTAMPTZ` |  |
 |  | `next` | `VARCHAR(300)` | No |  |  |  |
-| FR-003 | `email` | `VARCHAR(254)` | Yes | `reset_status` | `ENUM(sent, ok, expired)` | new\_password ≥ 10 characters |
+| FR-003 | `email` | `VARCHAR(254)` | Yes | `reset_status` | `ENUM(sent, ok, expired)` | new_password ≥ 10 characters |
 |  | `reset_token` | `TEXT` | Yes |  |  |  |
 |  | `new_password` | `VARCHAR(72)` | Yes |  |  |  |
 | FR-004 | `user_id` | `UUID` | Yes | `access_granted` | `BOOLEAN` | role set in the database, never from the client |
@@ -183,35 +183,35 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 |  | `variables` | `JSONB` | Yes |  |  |  |
 | FR-009 | `user_id` | `UUID` | Yes | `notifications` | `ARRAY<notification>` | a user reads only their own |
 |  | `unread_only` | `BOOLEAN` | No | `unread_count` | `INTEGER` |  |
-| FR-010 | `source_text` | `TEXT` | Yes | `search_vector` | `TSVECTOR` | unaccent \+ `simple` configuration |
+| FR-010 | `source_text` | `TEXT` | Yes | `search_vector` | `TSVECTOR` | unaccent + `simple` configuration |
 |  | `locale` | `ENUM(vi, en)` | Yes |  |  |  |
-| FR-011 | `source_text` | `TEXT` | Yes | `embedding` | `VECTOR(n)` | \[NEEDS CLARIFICATION: n\] |
+| FR-011 | `source_text` | `TEXT` | Yes | `embedding` | `VECTOR(n)` | [NEEDS CLARIFICATION: n] |
 
 ### 5.2 Business rules
 
 | Rule ID | Rule | Why it exists |
-| :---- | :---- | :---- |
+|---|---|---|
 | BR-001 | Sensitive data (authority contacts, partner private layer, project documents) is filtered by Row Level Security in the database. Hiding it in the interface does not count. | A page's HTML source is public; only the database can guarantee a guest never receives the data. |
 | BR-002 | A new account is always `member`. The roles `partner`, `vfda_staff`, `vfda_legal` and `admin` are granted only by an admin, and every grant is written to the audit log. | Supplier accounts carry the VFDA Verified trust; they cannot be self-declared. |
 | BR-003 | Acceptance of the terms is stored with the document version and timestamp. | To prove later which terms a user agreed to. |
 | BR-004 | Passwords, password hashing and tokens are handled only by Supabase Auth. | Home-made authentication is the most common source of security bugs. |
 
-## 6\. Key entities
+## 6. Key entities
 
 | Entity | Attributes (from Input/Output fields) | Relationships |
-| :---- | :---- | :---- |
-| UserAccount | user\_id, email, email\_verified, role, created\_at | has one Profile |
-| Profile | full\_name, crew\_role, locale, producer\_org\_id | belongs to UserAccount; belongs to ProducerOrganisation |
-| ProducerOrganisation | org\_name, country, website | has many Profiles; has many Projects (M0) |
-| Consent | user\_id, consent\_version, accepted\_at | belongs to UserAccount |
-| Notification | notification\_id, recipient\_id, event\_type, payload, read\_at | belongs to UserAccount |
-| EmailDelivery | template\_id, recipient\_email, delivery\_status, provider\_message\_id | may relate to a Notification |
+|---|---|---|
+| UserAccount | user_id, email, email_verified, role, created_at | has one Profile |
+| Profile | full_name, crew_role, locale, producer_org_id | belongs to UserAccount; belongs to ProducerOrganisation |
+| ProducerOrganisation | org_name, country, website | has many Profiles; has many Projects (M0) |
+| Consent | user_id, consent_version, accepted_at | belongs to UserAccount |
+| Notification | notification_id, recipient_id, event_type, payload, read_at | belongs to UserAccount |
+| EmailDelivery | template_id, recipient_email, delivery_status, provider_message_id | may relate to a Notification |
 
-## 7\. Screens involved
+## 7. Screens involved
 
 | Screen ID | Screen name | Priority | Screen Spec file |
-| :---- | :---- | :---- | :---- |
-| SC-04 | Sign up / Log in | Must | `screens/screen-spec-SC-04.md` |
+|---|---|---|---|
+| SC-04 | Sign up / Log in | Must | `docs/screens/screen-spec-SC-04.md` |
 | SC-06 | Forgot password | Must | *Not written yet — screen not in the 20-screen set* |
 | SC-07 | Reset password | Must | *Not written yet — screen not in the 20-screen set* |
 | SC-08 | My account | Must | *Not written yet — screen not in the 20-screen set* |
@@ -219,48 +219,61 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 | SC-42 | Privacy policy | Must | *Not written yet — screen not in the 20-screen set* |
 | SC-43 | Terms of use | Must | *Not written yet — screen not in the 20-screen set* |
 
-## 8\. Success criteria
+## 8. Success criteria
 
 | SC ID | Criterion | How it is measured |
-| :---- | :---- | :---- |
+|---|---|---|
 | SC-001 | A first-time producer completes sign-up, including company details, in under 3 minutes. | Timed walkthrough with 5 non-Vietnamese testers. |
 | SC-002 | A visitor who has not signed in can never obtain a local authority phone number or email from the site. | Private-window check of the full page content on 10 location pages. |
 | SC-003 | Every interface string on the 20 MVP screens is available in both languages. | Switch language on each screen; count untranslated strings (target 0). |
 | SC-004 | A member learns that a partner has replied within 5 minutes of the reply. | Timestamp of reply vs timestamp of notification on 10 test requests. |
 
-## 9\. Assumptions
+## 9. Assumptions
 
-- Email \+ password is enough for the MVP; social sign-in is not required at launch.  
-- Six roles are enough; there is no per-province VFDA staff role in the MVP.  
+- Email + password is enough for the MVP; social sign-in is not required at launch.
+- Six roles are enough; there is no per-province VFDA staff role in the MVP.
 - Country is recorded as ISO 3166-1 alpha-2.
 
-## 10\. Open questions
+## 10. Open questions
 
-| \# | Question | Blocking? | Owner | Status |
-| :---- | :---- | :---- | :---- | :---- |
-| 1 | \[NEEDS CLARIFICATION: Must a producer company be verified (e.g. business registration, IMDbPro) before seeing local authority contacts?\] | Yes | Client (VFDA) | Open |
-| 2 | \[NEEDS CLARIFICATION: Is Google / Apple sign-in required at launch?\] | No | Client (VFDA) | Open |
-| 3 | \[NEEDS CLARIFICATION: Which embedding model (and vector dimension) is used for F-SYS-11?\] | No | Group C | Open |
-| 4 | \[NEEDS CLARIFICATION: SEQ-01 has no error branch (email provider down, expired link). Confirm the behaviour written in the edge cases.\] | No | Client (VFDA) | Open |
-| 5 | \[NEEDS CLARIFICATION: should the production organisation be verified (e.g. via IMDb Pro or a business licence) before local authority contacts are shown\] *(from SC-04)* | Yes | Client (VFDA) | Open |
+| # | Question | Blocking? | Owner | Status |
+|---|---|---|---|---|
+| 1 | [NEEDS CLARIFICATION: Must a producer company be verified (e.g. business registration, IMDbPro) before seeing local authority contacts?] | Yes | Client (VFDA) | Open |
+| 2 | [NEEDS CLARIFICATION: Is Google / Apple sign-in required at launch?] | No | Client (VFDA) | Open |
+| 3 | [NEEDS CLARIFICATION: Which embedding model (and vector dimension) is used for F-SYS-11?] | No | Group C | Open |
+| 4 | [NEEDS CLARIFICATION: SEQ-01 has no error branch (email provider down, expired link). Confirm the behaviour written in the edge cases.] | No | Client (VFDA) | Open |
+| 5 | [NEEDS CLARIFICATION: should the production organisation be verified (e.g. via IMDb Pro or a business licence) before local authority contacts are shown] *(from SC-04)* | Yes | Client (VFDA) | Open |
 
-## 11\. Traceability to DBIZ2
+## 11. Traceability to DBIZ2
 
 | Spec section | DBIZ2 source | Location |
-| :---- | :---- | :---- |
-| 1\. Purpose | System Design v2.0 — 1\. Schematic, §1.1–1.2 | `docs/architecture/context.md` |
-| 4.1 Usage flow | Derived from SEQ-01 \+ F-SYS-01..03 (no DBIZ2 figure) | this document |
-| 4.2 Sequence | Sequence diagram SEQ-01 (Figure 4\) | `docs/architecture/sequence-diagrams.md` — SEQ-01 |
-| 5\. Functional requirements | Function List rows 1–11 | `docs/function-list.md` rows 1–11 |
-| 7\. Screens | Screen List SC-04..SC-09, SC-42, SC-43 | `docs/screen-list.md` §1 |
+|---|---|---|
+| 1. Purpose | System Design v2.0 — 1. Schematic, §1.1–1.2 | `docs/architecture/context.md` |
+| 4.1 Usage flow | Derived from SEQ-01 + F-SYS-01..03 (no DBIZ2 figure) | this document |
+| 4.2 Sequence | Sequence diagram SEQ-01 (Figure 4) | `docs/architecture/sequence-diagrams.md` — SEQ-01 |
+| 5. Functional requirements | Function List rows 1–11 | `docs/function-list.md` rows 1–11 |
+| 7. Screens | Screen List SC-04..SC-09, SC-42, SC-43 | `docs/screen-list.md` §1 |
 
 ### 11.1 Reconciliation with DBIZ2 (System Design v2.0)
 
 Where the 20-screen design or this spec differs from the DBIZ2 Function List, the difference is written here instead of being silently changed.
 
 | Topic | DBIZ2 / System Design v2.0 | This spec | Status |
-| :---- | :---- | :---- | :---- |
-| Sign-up fields | F-SYS-01: org\_name optional; no country / crew role | org\_name, country, crew\_role required (screen list note \#2: *collect organisation / production company details*) | Changed — Client to confirm |
+|---|---|---|---|
+| Sign-up fields | F-SYS-01: org_name optional; no country / crew role | org_name, country, crew_role required (screen list note #2: *collect organisation / production company details*) | Changed — Client to confirm |
 | F-SYS-11 priority | Must | Could — only used by semantic partner search (F-M4-07), itself Could in the MVP Scope | Changed — Client to confirm |
 
-&nbsp;
+## Completion checklist
+
+- [x] Every subfunction of this module in the DBIZ2 Function List appears as an FR row (11 of 11, rows 1–11) — machine-checked.
+- [x] Every Input and Output field has a type and a required flag — machine-checked.
+- [x] Every Mermaid block renders without an error — rendered with mermaid-cli 11.14 on 22/09/2026.
+- [ ] Every node and arrow in the Mermaid flow exists in the original DBIZ2 diagram, and nothing was invented. **Not met:** some diagrams are marked *Derived* (no DBIZ2 figure exists); each is labelled above and listed in section 10 for Client confirmation.
+- [x] At least one business rule is written that is not visible in any diagram (see 5.2).
+- [ ] Every screen this module touches is listed with an existing Screen Spec file. **Not met:** no Screen Spec yet for SC-06, SC-07, SC-08, SC-09, SC-42, SC-43.
+- [x] Success criteria contain no technology words — machine-checked against a word list.
+- [ ] Open questions carry the unresolved items from the Session 3 Clarify meeting. **Not met:** there is no Session 3 Clarify Prep Sheet in this repository; the questions come from Session 4 Steps 2–4 and must be taken to the Clarify meeting with VFDA.
+- [x] The traceability table points to real files and figures, not "see the report".
+
+---
+*Template source: adapted from GitHub Spec Kit `templates/spec-template.md`, mapped onto the DBIZ2 Product Design Package. DBIZ3, VJCBI College — FTU. Group C · CINEMATCH.*

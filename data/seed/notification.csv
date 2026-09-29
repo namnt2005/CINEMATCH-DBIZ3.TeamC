@@ -1,0 +1,9 @@
+notification_id,recipient_id,event_type,payload,created_at,read_at
+119caed4-2485-5430-a536-f6033ab19b7c,51cb9dcd-186a-5a75-86a7-83164edf55c4,verification.expiring,"{""days_left"":30}",2026-02-18T08:00:00+07:00,
+470cabae-052f-5ddb-a279-4345900be257,95f36904-6141-5469-8c63-712a80a4295e,province_notice.info_needed,"{""province"":""Cần Thơ""}",2026-09-17T14:06:00+07:00,
+4e9e47bd-c4c3-5eaa-bb17-1d25e4a75162,4ef79de6-8efb-58f7-8514-9c0532345ac4,consultation.reminder,"{""booking"":""b1""}",2026-10-05T08:00:00+07:00,
+5ba90d85-cb4b-5dc9-a87a-1f622ec2df1b,4ef79de6-8efb-58f7-8514-9c0532345ac4,collab_request.accepted,"{""request"":""c1"",""org"":""Bến Xưa Production Services""}",2026-09-22T15:11:00+07:00,2026-09-22T18:00:00+07:00
+628c92ee-8409-52b1-bf76-bbc514516157,515529a9-46d9-559c-aab4-e5fb31eedeea,province_notice.bounced,"{""interest"":""i6""}",2026-08-23T09:05:00+07:00,2026-08-23T09:30:00+07:00
+7255187b-fb16-5249-afb3-038258f77a36,ccc2764e-7734-5390-9c71-46963d2f7820,collab_request.new,"{""request"":""c1"",""project"":""The Last Ferry""}",2026-09-18T09:31:00+07:00,2026-09-18T09:40:00+07:00
+99774bb2-dcc7-5718-ab03-90fbf533ce2d,118de3c8-88eb-5003-a2f9-26bbdd0186ae,collab_request.declined,"{""request"":""c5""}",2026-09-11T15:11:00+07:00,
+decabb62-e2d5-5647-8ac5-18d96e63b641,4ef79de6-8efb-58f7-8514-9c0532345ac4,province_notice.received,"{""province"":""Ninh Bình""}",2026-09-18T14:06:00+07:00,2026-09-18T20:12:00+07:00

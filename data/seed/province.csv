@@ -1,0 +1,35 @@
+province_id,name,slug,region,merged_from
+1,Hà Nội,ha-noi,north,
+2,Huế,hue,central,
+3,Lai Châu,lai-chau,north,
+4,Điện Biên,dien-bien,north,
+5,Sơn La,son-la,north,
+6,Lạng Sơn,lang-son,north,
+7,Quảng Ninh,quang-ninh,north,
+8,Thanh Hóa,thanh-hoa,central,
+9,Nghệ An,nghe-an,central,
+10,Hà Tĩnh,ha-tinh,central,
+11,Cao Bằng,cao-bang,north,
+12,Tuyên Quang,tuyen-quang,north,"[""Tuyên Quang"",""Hà Giang""]"
+13,Lào Cai,lao-cai,north,"[""Lào Cai"",""Yên Bái""]"
+14,Thái Nguyên,thai-nguyen,north,"[""Thái Nguyên"",""Bắc Kạn""]"
+15,Phú Thọ,phu-tho,north,"[""Phú Thọ"",""Vĩnh Phúc"",""Hòa Bình""]"
+16,Bắc Ninh,bac-ninh,north,"[""Bắc Ninh"",""Bắc Giang""]"
+17,Hưng Yên,hung-yen,north,"[""Hưng Yên"",""Thái Bình""]"
+18,Hải Phòng,hai-phong,north,"[""Hải Phòng"",""Hải Dương""]"
+19,Ninh Bình,ninh-binh,north,"[""Ninh Bình"",""Hà Nam"",""Nam Định""]"
+20,Quảng Trị,quang-tri,central,"[""Quảng Trị"",""Quảng Bình""]"
+21,Đà Nẵng,da-nang,central,"[""Đà Nẵng"",""Quảng Nam""]"
+22,Quảng Ngãi,quang-ngai,central,"[""Quảng Ngãi"",""Kon Tum""]"
+23,Gia Lai,gia-lai,central,"[""Gia Lai"",""Bình Định""]"
+24,Khánh Hòa,khanh-hoa,central,"[""Khánh Hòa"",""Ninh Thuận""]"
+25,Lâm Đồng,lam-dong,central,"[""Lâm Đồng"",""Đắk Nông"",""Bình Thuận""]"
+26,Đắk Lắk,dak-lak,central,"[""Đắk Lắk"",""Phú Yên""]"
+27,Thành phố Hồ Chí Minh,ho-chi-minh,south,"[""Thành phố Hồ Chí Minh"",""Bình Dương"",""Bà Rịa - Vũng Tàu""]"
+28,Đồng Nai,dong-nai,south,"[""Đồng Nai"",""Bình Phước""]"
+29,Tây Ninh,tay-ninh,south,"[""Tây Ninh"",""Long An""]"
+30,Cần Thơ,can-tho,south,"[""Cần Thơ"",""Sóc Trăng"",""Hậu Giang""]"
+31,Vĩnh Long,vinh-long,south,"[""Vĩnh Long"",""Bến Tre"",""Trà Vinh""]"
+32,Đồng Tháp,dong-thap,south,"[""Đồng Tháp"",""Tiền Giang""]"
+33,Cà Mau,ca-mau,south,"[""Cà Mau"",""Bạc Liêu""]"
+34,An Giang,an-giang,south,"[""An Giang"",""Kiên Giang""]"

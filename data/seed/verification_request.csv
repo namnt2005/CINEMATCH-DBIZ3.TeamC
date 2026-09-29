@@ -1,0 +1,9 @@
+request_id,org_id,business_license,reference_projects,status,decided_by,reason
+04073a2d-56fe-5806-b57f-b2d64684990e,0ab609da-d252-524e-8d29-fe3c650e6f04,private/verification/v5/business-registration.pdf,"[""Student short film (2025)""]",rejected,515529a9-46d9-559c-aab4-e5fb31eedeea,Only one reference project; two are required (M4 FR-008).
+1c6903f3-60c3-52ec-8da2-18152c67cafd,67fc4355-67c0-55f3-a64b-1ad3381c6fdf,private/verification/v1/business-registration.pdf,"[""Seoul Night (KR, 2024)"",""Blue River (FR, 2025)""]",approved,515529a9-46d9-559c-aab4-e5fb31eedeea,
+1e79632d-b580-55d0-a22f-03041cf346cf,35683fa1-af07-55a0-8bdd-276a37becc29,private/verification/v7/business-registration.pdf,"[""Mangrove Song (VN, 2025)"",""Floating Market (KR, 2026)""]",pending,,
+3f837198-4a68-5a70-8750-2be824c4d82a,97ad811f-325f-571b-a3bb-c35519cfd15c,private/verification/v8/business-registration.pdf,"[""Ref 1"",""Ref 2"",""Ref 3""]",approved,dffdeb6f-0d86-5bd0-8d0e-85962427b1d2,
+5f71efe1-e1ef-52e5-89a0-0f98f017bd13,e6e8e5aa-0428-517d-9432-f03f98f612a8,private/verification/v4/business-registration.pdf,"[""Bay of Dragons (CN, 2023)"",""Travel series (UK, 2024)""]",approved,74749444-a35e-5c4b-892b-2f8cb8cf80b9,
+73209de5-662c-5c29-b337-e33edc205cc5,f6218fa2-afe1-5d13-8851-312e145b3399,private/verification/v6/business-registration.pdf,"[""River Voices (FR, 2024)"",""Delta Life (DE, 2025)""]",approved,74749444-a35e-5c4b-892b-2f8cb8cf80b9,
+ebef6d51-c0b1-5583-a611-9c8eca0c6a5a,fe417755-4e37-5f18-bebe-f23e2293ff55,private/verification/v3/business-registration.pdf,"[""Neon Delta (US, 2024)"",""Commercial for a Korean airline (2025)""]",approved,74749444-a35e-5c4b-892b-2f8cb8cf80b9,
+f869685b-20c4-5713-8f55-7fb7d6203ee9,42686fb9-acaf-5285-a364-b1b900a96f41,private/verification/v2/business-registration.pdf,"[""Imperial City (JP, 2023)"",""The Pass (AU, 2025)""]",approved,515529a9-46d9-559c-aab4-e5fb31eedeea,

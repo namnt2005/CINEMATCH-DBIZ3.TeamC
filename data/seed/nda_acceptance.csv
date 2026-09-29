@@ -1,0 +1,7 @@
+nda_acceptance_id,request_id,party,nda_version,accepted,accepted_at
+2306347e-5bac-5631-b8fa-b81c45948cde,f971c1ed-7b3d-599e-ac1b-ffdc9342a2b6,partner,NDA-2026.1,true,2026-08-24T16:00:00+07:00
+5c477da2-bcf3-53cc-80cb-f2c1bbbade66,e038d4d1-88c3-5daf-8867-17eb872ce971,producer,NDA-2026.1,true,2026-09-21T16:00:00+07:00
+8db414b9-9020-58b8-b852-b60b4de771f0,0bf889da-e22c-5f2d-964f-50993f13e6c7,producer,NDA-2026.1,true,2026-09-23T16:00:00+07:00
+a2e4ebfd-a4e7-513b-94c5-a343a3c1960b,0bf889da-e22c-5f2d-964f-50993f13e6c7,partner,NDA-2026.1,true,2026-09-22T16:00:00+07:00
+ab5c2c28-38f3-5d22-bbea-7ec96672a362,f971c1ed-7b3d-599e-ac1b-ffdc9342a2b6,producer,NDA-2026.1,true,2026-08-24T16:00:00+07:00
+ae1731e5-f7fa-5e2f-8c3e-c9be51730fb4,7cde0a0f-fe83-5e9e-852a-10bdf8333422,producer,NDA-2026.1,false,

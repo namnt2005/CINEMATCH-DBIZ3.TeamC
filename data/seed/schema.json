@@ -1,0 +1,1451 @@
+{
+ "USER_ACCOUNT": {
+  "table": "user_account",
+  "columns": [
+   "user_id",
+   "email",
+   "email_verified",
+   "role",
+   "created_at"
+  ],
+  "pk": [
+   "user_id"
+  ],
+  "required": [
+   "email",
+   "role"
+  ],
+  "fk": [],
+  "enums": {
+   "role": [
+    "guest",
+    "member",
+    "partner",
+    "vfda_staff",
+    "vfda_legal",
+    "admin"
+   ]
+  }
+ },
+ "PROFILE": {
+  "table": "profile",
+  "columns": [
+   "user_id",
+   "full_name",
+   "crew_role",
+   "locale",
+   "producer_org_id"
+  ],
+  "pk": [
+   "user_id"
+  ],
+  "required": [
+   "user_id",
+   "full_name",
+   "crew_role",
+   "locale"
+  ],
+  "fk": [
+   {
+    "column": "user_id",
+    "references": "USER_ACCOUNT",
+    "ref_column": "user_id"
+   },
+   {
+    "column": "producer_org_id",
+    "references": "PRODUCER_ORGANISATION",
+    "ref_column": "producer_org_id"
+   }
+  ],
+  "enums": {
+   "crew_role": [
+    "producer",
+    "director",
+    "production_coordinator",
+    "line_producer",
+    "other"
+   ],
+   "locale": [
+    "vi",
+    "en"
+   ]
+  }
+ },
+ "PRODUCER_ORGANISATION": {
+  "table": "producer_organisation",
+  "columns": [
+   "producer_org_id",
+   "org_name",
+   "country",
+   "website"
+  ],
+  "pk": [
+   "producer_org_id"
+  ],
+  "required": [
+   "org_name",
+   "country"
+  ],
+  "fk": [],
+  "enums": {}
+ },
+ "CONSENT": {
+  "table": "consent",
+  "columns": [
+   "user_id",
+   "consent_version",
+   "accepted_at"
+  ],
+  "pk": [
+   "user_id",
+   "consent_version"
+  ],
+  "required": [
+   "user_id",
+   "consent_version"
+  ],
+  "fk": [
+   {
+    "column": "user_id",
+    "references": "USER_ACCOUNT",
+    "ref_column": "user_id"
+   }
+  ],
+  "enums": {}
+ },
+ "NOTIFICATION": {
+  "table": "notification",
+  "columns": [
+   "notification_id",
+   "recipient_id",
+   "event_type",
+   "payload",
+   "created_at",
+   "read_at"
+  ],
+  "pk": [
+   "notification_id"
+  ],
+  "required": [
+   "recipient_id",
+   "event_type",
+   "payload"
+  ],
+  "fk": [
+   {
+    "column": "recipient_id",
+    "references": "USER_ACCOUNT",
+    "ref_column": null
+   }
+  ],
+  "enums": {}
+ },
+ "EMAIL_DELIVERY": {
+  "table": "email_delivery",
+  "columns": [
+   "email_delivery_id",
+   "notification_id",
+   "template_id",
+   "recipient_email",
+   "variables",
+   "delivery_status",
+   "provider_message_id"
+  ],
+  "pk": [
+   "email_delivery_id"
+  ],
+  "required": [
+   "template_id",
+   "recipient_email",
+   "variables"
+  ],
+  "fk": [
+   {
+    "column": "notification_id",
+    "references": "NOTIFICATION",
+    "ref_column": "notification_id"
+   }
+  ],
+  "enums": {
+   "delivery_status": [
+    "queued",
+    "sent",
+    "bounced"
+   ]
+  }
+ },
+ "SEGMENT_RULE": {
+  "table": "segment_rule",
+  "columns": [
+   "segment_rule_id",
+   "q1_shoot_in_vn",
+   "q2_release",
+   "q3_producer",
+   "result_segment",
+   "version"
+  ],
+  "pk": [
+   "segment_rule_id"
+  ],
+  "required": [
+   "q1_shoot_in_vn"
+  ],
+  "fk": [],
+  "enums": {
+   "q2_release": [
+    "abroad",
+    "vietnam",
+    "both"
+   ],
+   "q3_producer": [
+    "foreign",
+    "vietnamese",
+    "coproduction"
+   ],
+   "result_segment": [
+    "A",
+    "B",
+    "C"
+   ]
+  }
+ },
+ "SEGMENT_REQUIREMENT": {
+  "table": "segment_requirement",
+  "columns": [
+   "segment",
+   "requirement_code",
+   "label_vi",
+   "label_en",
+   "needed"
+  ],
+  "pk": [
+   "segment",
+   "requirement_code"
+  ],
+  "required": [],
+  "fk": [],
+  "enums": {
+   "segment": [
+    "A",
+    "B",
+    "C"
+   ]
+  }
+ },
+ "SEGMENT_DECISION": {
+  "table": "segment_decision",
+  "columns": [
+   "segment_decision_id",
+   "session_or_project_id",
+   "segment_rule_id",
+   "q1_shoot_in_vn",
+   "q2_release",
+   "q3_producer",
+   "q4_needs",
+   "segment",
+   "segment_override",
+   "decided_by",
+   "journey_config"
+  ],
+  "pk": [
+   "segment_decision_id"
+  ],
+  "required": [
+   "q1_shoot_in_vn"
+  ],
+  "fk": [
+   {
+    "column": "session_or_project_id",
+    "references": "PROJECT",
+    "ref_column": null
+   },
+   {
+    "column": "segment_rule_id",
+    "references": "SEGMENT_RULE",
+    "ref_column": "segment_rule_id"
+   }
+  ],
+  "enums": {
+   "q2_release": [
+    "abroad",
+    "vietnam",
+    "both"
+   ],
+   "q3_producer": [
+    "foreign",
+    "vietnamese",
+    "coproduction"
+   ],
+   "segment": [
+    "A",
+    "B",
+    "C"
+   ],
+   "segment_override": [
+    "A",
+    "B",
+    "C"
+   ]
+  }
+ },
+ "PROJECT": {
+  "table": "project",
+  "columns": [
+   "project_id",
+   "producer_org_id",
+   "project_name",
+   "format",
+   "segment",
+   "shoot_date",
+   "buffer_days",
+   "shoot_days_vn",
+   "crew_size_band",
+   "logline",
+   "stage",
+   "updated_at"
+  ],
+  "pk": [
+   "project_id"
+  ],
+  "required": [
+   "project_name",
+   "format",
+   "segment",
+   "buffer_days"
+  ],
+  "fk": [
+   {
+    "column": "producer_org_id",
+    "references": "PRODUCER_ORGANISATION",
+    "ref_column": "producer_org_id"
+   }
+  ],
+  "enums": {
+   "format": [
+    "feature",
+    "documentary",
+    "commercial",
+    "tv",
+    "music_video"
+   ],
+   "segment": [
+    "A",
+    "B",
+    "C"
+   ],
+   "crew_size_band": [
+    "u15",
+    "15_50",
+    "o50"
+   ]
+  }
+ },
+ "PROJECT_MEMBER": {
+  "table": "project_member",
+  "columns": [
+   "member_id",
+   "project_id",
+   "user_id",
+   "invitee_email",
+   "permission",
+   "invite_status"
+  ],
+  "pk": [
+   "member_id"
+  ],
+  "required": [
+   "project_id",
+   "invitee_email",
+   "permission"
+  ],
+  "fk": [
+   {
+    "column": "project_id",
+    "references": "PROJECT",
+    "ref_column": "project_id"
+   },
+   {
+    "column": "user_id",
+    "references": "USER_ACCOUNT",
+    "ref_column": "user_id"
+   }
+  ],
+  "enums": {
+   "permission": [
+    "view",
+    "edit"
+   ],
+   "invite_status": [
+    "pending",
+    "accepted"
+   ]
+  }
+ },
+ "PROJECT_PROVINCE": {
+  "table": "project_province",
+  "columns": [
+   "project_id",
+   "province_id"
+  ],
+  "pk": [
+   "project_id",
+   "province_id"
+  ],
+  "required": [
+   "project_id"
+  ],
+  "fk": [
+   {
+    "column": "project_id",
+    "references": "PROJECT",
+    "ref_column": "project_id"
+   },
+   {
+    "column": "province_id",
+    "references": "PROVINCE",
+    "ref_column": "province_id"
+   }
+  ],
+  "enums": {}
+ },
+ "READINESS_SNAPSHOT": {
+  "table": "readiness_snapshot",
+  "columns": [
+   "snapshot_id",
+   "project_id",
+   "snapshot_date",
+   "readiness_total"
+  ],
+  "pk": [
+   "snapshot_id"
+  ],
+  "required": [
+   "project_id",
+   "snapshot_date"
+  ],
+  "fk": [
+   {
+    "column": "project_id",
+    "references": "PROJECT",
+    "ref_column": "project_id"
+   }
+  ],
+  "enums": {}
+ },
+ "LEGAL_RULE": {
+  "table": "legal_rule",
+  "columns": [
+   "rule_id",
+   "rule_code",
+   "rule_version",
+   "title_vi",
+   "title_en",
+   "description_vi",
+   "description_en",
+   "guidance_vi",
+   "guidance_en",
+   "citation",
+   "severity",
+   "topic",
+   "rule_slug",
+   "status",
+   "approved_by",
+   "approved_at",
+   "is_active"
+  ],
+  "pk": [
+   "rule_id"
+  ],
+  "required": [
+   "rule_code",
+   "title_vi",
+   "title_en",
+   "description_vi",
+   "description_en",
+   "guidance_vi",
+   "guidance_en",
+   "citation",
+   "severity",
+   "rule_slug",
+   "approved_by"
+  ],
+  "fk": [
+   {
+    "column": "rule_version",
+    "references": "RULE_SET_VERSION",
+    "ref_column": "rule_version"
+   },
+   {
+    "column": "approved_by",
+    "references": "USER_ACCOUNT",
+    "ref_column": null
+   }
+  ],
+  "enums": {
+   "severity": [
+    "notice",
+    "action"
+   ],
+   "status": [
+    "draft",
+    "approved"
+   ]
+  }
+ },
+ "RULE_SET_VERSION": {
+  "table": "rule_set_version",
+  "columns": [
+   "rule_version",
+   "created_at",
+   "created_by"
+  ],
+  "pk": [
+   "rule_version"
+  ],
+  "required": [],
+  "fk": [
+   {
+    "column": "created_by",
+    "references": "USER_ACCOUNT",
+    "ref_column": null
+   }
+  ],
+  "enums": {}
+ },
+ "PRECHECK_RUN": {
+  "table": "precheck_run",
+  "columns": [
+   "brief_id",
+   "project_id",
+   "rule_version",
+   "synopsis_hash",
+   "lang",
+   "flags",
+   "country_guess",
+   "attention_level",
+   "created_at"
+  ],
+  "pk": [
+   "brief_id"
+  ],
+  "required": [
+   "synopsis_hash",
+   "lang"
+  ],
+  "fk": [
+   {
+    "column": "project_id",
+    "references": "PROJECT",
+    "ref_column": "project_id"
+   },
+   {
+    "column": "rule_version",
+    "references": "RULE_SET_VERSION",
+    "ref_column": "rule_version"
+   }
+  ],
+  "enums": {
+   "lang": [
+    "en",
+    "vi"
+   ],
+   "attention_level": [
+    "low",
+    "medium",
+    "high"
+   ]
+  }
+ },
+ "PRECHECK_FINDING": {
+  "table": "precheck_finding",
+  "columns": [
+   "brief_id",
+   "rule_code",
+   "span_start",
+   "span_end",
+   "quoted_text",
+   "explanation_vi",
+   "explanation_en"
+  ],
+  "pk": [
+   "brief_id",
+   "rule_code",
+   "span_start"
+  ],
+  "required": [
+   "brief_id"
+  ],
+  "fk": [
+   {
+    "column": "brief_id",
+    "references": "PRECHECK_RUN",
+    "ref_column": "brief_id"
+   },
+   {
+    "column": "rule_code",
+    "references": "LEGAL_RULE",
+    "ref_column": "rule_code"
+   }
+  ],
+  "enums": {}
+ },
+ "COMPLIANCE_RUN": {
+  "table": "compliance_run",
+  "columns": [
+   "run_id",
+   "project_id",
+   "rule_version",
+   "run_at"
+  ],
+  "pk": [
+   "run_id"
+  ],
+  "required": [],
+  "fk": [
+   {
+    "column": "project_id",
+    "references": "PROJECT",
+    "ref_column": "project_id"
+   },
+   {
+    "column": "rule_version",
+    "references": "RULE_SET_VERSION",
+    "ref_column": "rule_version"
+   }
+  ],
+  "enums": {}
+ },
+ "COMPLIANCE_FINDING": {
+  "table": "compliance_finding",
+  "columns": [
+   "finding_id",
+   "run_id",
+   "rule_code",
+   "quoted_text",
+   "finding_status",
+   "reviewer_note"
+  ],
+  "pk": [
+   "finding_id"
+  ],
+  "required": [
+   "finding_id"
+  ],
+  "fk": [
+   {
+    "column": "run_id",
+    "references": "COMPLIANCE_RUN",
+    "ref_column": "run_id"
+   },
+   {
+    "column": "rule_code",
+    "references": "LEGAL_RULE",
+    "ref_column": "rule_code"
+   }
+  ],
+  "enums": {
+   "finding_status": [
+    "open",
+    "reviewed"
+   ]
+  }
+ },
+ "LOCATION": {
+  "table": "location",
+  "columns": [
+   "location_id",
+   "slug",
+   "province_id",
+   "name_vi",
+   "name_en",
+   "district",
+   "lat",
+   "lng",
+   "airport_km",
+   "scene_types",
+   "desc_vi",
+   "desc_en",
+   "crew_capacity",
+   "lodging_20km",
+   "grid_power",
+   "truck_access",
+   "months_to_avoid",
+   "permit_complexity",
+   "restriction_note",
+   "intake_status",
+   "published",
+   "blocked_reason"
+  ],
+  "pk": [
+   "location_id"
+  ],
+  "required": [
+   "province_id",
+   "name_vi",
+   "name_en",
+   "lat",
+   "lng",
+   "scene_types",
+   "desc_vi",
+   "desc_en",
+   "crew_capacity",
+   "lodging_20km",
+   "grid_power",
+   "truck_access",
+   "permit_complexity"
+  ],
+  "fk": [
+   {
+    "column": "province_id",
+    "references": "PROVINCE",
+    "ref_column": "province_id"
+   }
+  ],
+  "enums": {
+   "crew_capacity": [
+    "u15",
+    "15_50",
+    "o50"
+   ],
+   "permit_complexity": [
+    "low",
+    "medium",
+    "high"
+   ]
+  }
+ },
+ "LOCATION_IMAGE": {
+  "table": "location_image",
+  "columns": [
+   "image_url",
+   "location_id",
+   "image_source",
+   "usage_right",
+   "status"
+  ],
+  "pk": [
+   "image_url"
+  ],
+  "required": [
+   "image_source",
+   "usage_right"
+  ],
+  "fk": [
+   {
+    "column": "location_id",
+    "references": "LOCATION",
+    "ref_column": "location_id"
+   }
+  ],
+  "enums": {}
+ },
+ "AUTHORITY_CONTACT": {
+  "table": "authority_contact",
+  "columns": [
+   "location_id",
+   "authority_name",
+   "contact_name",
+   "contact_phone",
+   "contact_email",
+   "verified_by",
+   "verified_at",
+   "contact_verified"
+  ],
+  "pk": [
+   "location_id"
+  ],
+  "required": [
+   "location_id",
+   "authority_name",
+   "contact_name",
+   "contact_phone",
+   "verified_by"
+  ],
+  "fk": [
+   {
+    "column": "location_id",
+    "references": "LOCATION",
+    "ref_column": "location_id"
+   },
+   {
+    "column": "verified_by",
+    "references": "USER_ACCOUNT",
+    "ref_column": null
+   }
+  ],
+  "enums": {}
+ },
+ "PROVINCE": {
+  "table": "province",
+  "columns": [
+   "province_id",
+   "name",
+   "slug",
+   "region",
+   "merged_from"
+  ],
+  "pk": [
+   "province_id"
+  ],
+  "required": [
+   "province_id",
+   "slug"
+  ],
+  "fk": [],
+  "enums": {}
+ },
+ "LOCATION_QUERY": {
+  "table": "location_query",
+  "columns": [
+   "location_query_id",
+   "project_id",
+   "description",
+   "attributes",
+   "month"
+  ],
+  "pk": [
+   "location_query_id"
+  ],
+  "required": [
+   "description"
+  ],
+  "fk": [
+   {
+    "column": "project_id",
+    "references": "PROJECT",
+    "ref_column": "project_id"
+   }
+  ],
+  "enums": {}
+ },
+ "PROJECT_SHORTLIST": {
+  "table": "project_shortlist",
+  "columns": [
+   "shortlist_id",
+   "project_id",
+   "location_id",
+   "role"
+  ],
+  "pk": [
+   "shortlist_id"
+  ],
+  "required": [
+   "project_id",
+   "location_id",
+   "role"
+  ],
+  "fk": [
+   {
+    "column": "project_id",
+    "references": "PROJECT",
+    "ref_column": "project_id"
+   },
+   {
+    "column": "location_id",
+    "references": "LOCATION",
+    "ref_column": "location_id"
+   }
+  ],
+  "enums": {
+   "role": [
+    "primary",
+    "backup"
+   ]
+  }
+ },
+ "ORGANISATION": {
+  "table": "organisation",
+  "columns": [
+   "org_id",
+   "slug",
+   "org_name",
+   "legal_form",
+   "founded_year",
+   "hq_province",
+   "service_groups",
+   "provinces",
+   "verified_at",
+   "verified_until",
+   "art13_eligible"
+  ],
+  "pk": [
+   "org_id"
+  ],
+  "required": [
+   "org_name",
+   "service_groups",
+   "provinces"
+  ],
+  "fk": [
+   {
+    "column": "hq_province",
+    "references": "PROVINCE",
+    "ref_column": null
+   }
+  ],
+  "enums": {}
+ },
+ "ORGANISATION_MEMBER_LAYER": {
+  "table": "organisation_member_layer",
+  "columns": [
+   "org_id",
+   "capability_desc_vi",
+   "capability_desc_en",
+   "portfolio",
+   "intl_project_count",
+   "working_languages"
+  ],
+  "pk": [
+   "org_id"
+  ],
+  "required": [
+   "org_id"
+  ],
+  "fk": [
+   {
+    "column": "org_id",
+    "references": "ORGANISATION",
+    "ref_column": "org_id"
+   }
+  ],
+  "enums": {}
+ },
+ "ORGANISATION_PRIVATE_LAYER": {
+  "table": "organisation_private_layer",
+  "columns": [
+   "org_id",
+   "rate_card",
+   "past_clients",
+   "direct_contact"
+  ],
+  "pk": [
+   "org_id"
+  ],
+  "required": [
+   "org_id"
+  ],
+  "fk": [
+   {
+    "column": "org_id",
+    "references": "ORGANISATION",
+    "ref_column": "org_id"
+   }
+  ],
+  "enums": {}
+ },
+ "VERIFICATION_REQUEST": {
+  "table": "verification_request",
+  "columns": [
+   "request_id",
+   "org_id",
+   "business_license",
+   "reference_projects",
+   "status",
+   "decided_by",
+   "reason"
+  ],
+  "pk": [
+   "request_id"
+  ],
+  "required": [
+   "org_id",
+   "business_license",
+   "reference_projects"
+  ],
+  "fk": [
+   {
+    "column": "org_id",
+    "references": "ORGANISATION",
+    "ref_column": "org_id"
+   },
+   {
+    "column": "decided_by",
+    "references": "USER_ACCOUNT",
+    "ref_column": null
+   }
+  ],
+  "enums": {
+   "status": [
+    "pending",
+    "approved",
+    "rejected"
+   ]
+  }
+ },
+ "COLLAB_REQUEST": {
+  "table": "collab_request",
+  "columns": [
+   "request_id",
+   "project_id",
+   "org_id",
+   "services",
+   "note",
+   "status",
+   "response_note",
+   "sent_at",
+   "responded_at",
+   "confirmed_at"
+  ],
+  "pk": [
+   "request_id"
+  ],
+  "required": [
+   "project_id",
+   "org_id",
+   "services"
+  ],
+  "fk": [
+   {
+    "column": "project_id",
+    "references": "PROJECT",
+    "ref_column": "project_id"
+   },
+   {
+    "column": "org_id",
+    "references": "ORGANISATION",
+    "ref_column": "org_id"
+   }
+  ],
+  "enums": {
+   "status": [
+    "pending",
+    "under_review",
+    "info_requested",
+    "accepted",
+    "declined",
+    "confirmed",
+    "withdrawn"
+   ]
+  }
+ },
+ "COLLAB_MESSAGE": {
+  "table": "collab_message",
+  "columns": [
+   "request_id",
+   "author_id",
+   "created_at",
+   "body"
+  ],
+  "pk": [
+   "request_id",
+   "author_id",
+   "created_at"
+  ],
+  "required": [],
+  "fk": [
+   {
+    "column": "request_id",
+    "references": "COLLAB_REQUEST",
+    "ref_column": "request_id"
+   },
+   {
+    "column": "author_id",
+    "references": "USER_ACCOUNT",
+    "ref_column": null
+   }
+  ],
+  "enums": {}
+ },
+ "NDA_ACCEPTANCE": {
+  "table": "nda_acceptance",
+  "columns": [
+   "nda_acceptance_id",
+   "request_id",
+   "party",
+   "nda_version",
+   "accepted",
+   "accepted_at"
+  ],
+  "pk": [
+   "nda_acceptance_id"
+  ],
+  "required": [
+   "request_id",
+   "party",
+   "nda_version",
+   "accepted"
+  ],
+  "fk": [
+   {
+    "column": "request_id",
+    "references": "COLLAB_REQUEST",
+    "ref_column": "request_id"
+   }
+  ],
+  "enums": {
+   "party": [
+    "producer",
+    "partner"
+   ]
+  }
+ },
+ "DOCUMENT_ACCESS_LOG": {
+  "table": "document_access_log",
+  "columns": [
+   "access_log_id",
+   "document_id",
+   "viewer_id",
+   "viewed_at"
+  ],
+  "pk": [
+   "access_log_id"
+  ],
+  "required": [
+   "document_id",
+   "viewer_id"
+  ],
+  "fk": [
+   {
+    "column": "document_id",
+    "references": "DOCUMENT",
+    "ref_column": "document_id"
+   },
+   {
+    "column": "viewer_id",
+    "references": "USER_ACCOUNT",
+    "ref_column": null
+   }
+  ],
+  "enums": {}
+ },
+ "DOCUMENT_TYPE": {
+  "table": "document_type",
+  "columns": [
+   "doc_code",
+   "name_vi",
+   "name_en",
+   "basis",
+   "template_url",
+   "segments"
+  ],
+  "pk": [
+   "doc_code"
+  ],
+  "required": [],
+  "fk": [],
+  "enums": {
+   "basis": [
+    "law",
+    "common",
+    "location"
+   ]
+  }
+ },
+ "DOCUMENT_SLOT": {
+  "table": "document_slot",
+  "columns": [
+   "project_id",
+   "doc_code",
+   "state"
+  ],
+  "pk": [
+   "project_id",
+   "doc_code"
+  ],
+  "required": [
+   "project_id",
+   "doc_code"
+  ],
+  "fk": [
+   {
+    "column": "project_id",
+    "references": "PROJECT",
+    "ref_column": "project_id"
+   },
+   {
+    "column": "doc_code",
+    "references": "DOCUMENT_TYPE",
+    "ref_column": "doc_code"
+   }
+  ],
+  "enums": {
+   "state": [
+    "present",
+    "needs_fix",
+    "pending",
+    "missing"
+   ]
+  }
+ },
+ "DOCUMENT": {
+  "table": "document",
+  "columns": [
+   "document_id",
+   "project_id",
+   "doc_code",
+   "file_path",
+   "version",
+   "uploaded_by",
+   "uploaded_at"
+  ],
+  "pk": [
+   "document_id"
+  ],
+  "required": [
+   "project_id",
+   "doc_code"
+  ],
+  "fk": [
+   {
+    "column": "project_id",
+    "references": "DOCUMENT_SLOT",
+    "ref_column": "project_id"
+   },
+   {
+    "column": "doc_code",
+    "references": "DOCUMENT_SLOT",
+    "ref_column": "doc_code"
+   },
+   {
+    "column": "uploaded_by",
+    "references": "USER_ACCOUNT",
+    "ref_column": null
+   }
+  ],
+  "enums": {}
+ },
+ "BILINGUAL_DOCUMENT": {
+  "table": "bilingual_document",
+  "columns": [
+   "project_id",
+   "doc_code",
+   "structure_version",
+   "synopsis_en",
+   "project_meta",
+   "pdf_url",
+   "watermark"
+  ],
+  "pk": [
+   "project_id",
+   "doc_code"
+  ],
+  "required": [
+   "synopsis_en",
+   "project_meta"
+  ],
+  "fk": [
+   {
+    "column": "project_id",
+    "references": "PROJECT",
+    "ref_column": "project_id"
+   },
+   {
+    "column": "doc_code",
+    "references": "DOCUMENT_TYPE",
+    "ref_column": "doc_code"
+   }
+  ],
+  "enums": {}
+ },
+ "BILINGUAL_PARAGRAPH": {
+  "table": "bilingual_paragraph",
+  "columns": [
+   "project_id",
+   "doc_code",
+   "idx",
+   "source_text",
+   "target_text",
+   "status",
+   "reviewed_by",
+   "reviewer_org_id",
+   "reviewed_at"
+  ],
+  "pk": [
+   "project_id",
+   "doc_code",
+   "idx"
+  ],
+  "required": [
+   "reviewed_by"
+  ],
+  "fk": [
+   {
+    "column": "project_id",
+    "references": "BILINGUAL_DOCUMENT",
+    "ref_column": "project_id"
+   },
+   {
+    "column": "doc_code",
+    "references": "BILINGUAL_DOCUMENT",
+    "ref_column": "doc_code"
+   },
+   {
+    "column": "reviewed_by",
+    "references": "USER_ACCOUNT",
+    "ref_column": null
+   },
+   {
+    "column": "reviewer_org_id",
+    "references": "ORGANISATION",
+    "ref_column": null
+   }
+  ],
+  "enums": {
+   "status": [
+    "machine",
+    "reviewed"
+   ]
+  }
+ },
+ "PROJECT_GLOSSARY": {
+  "table": "project_glossary",
+  "columns": [
+   "project_id",
+   "source_term",
+   "target_term"
+  ],
+  "pk": [
+   "project_id",
+   "source_term"
+  ],
+  "required": [],
+  "fk": [
+   {
+    "column": "project_id",
+    "references": "PROJECT",
+    "ref_column": "project_id"
+   }
+  ],
+  "enums": {}
+ },
+ "PUBLIC_HOLIDAY": {
+  "table": "public_holiday",
+  "columns": [
+   "name",
+   "start_date",
+   "end_date",
+   "is_expected"
+  ],
+  "pk": [
+   "name",
+   "start_date"
+  ],
+  "required": [],
+  "fk": [],
+  "enums": {}
+ },
+ "LOCATION_INTEREST": {
+  "table": "location_interest",
+  "columns": [
+   "interest_id",
+   "project_id",
+   "location_id",
+   "created_at"
+  ],
+  "pk": [
+   "interest_id"
+  ],
+  "required": [
+   "project_id",
+   "location_id"
+  ],
+  "fk": [
+   {
+    "column": "project_id",
+    "references": "PROJECT",
+    "ref_column": "project_id"
+   },
+   {
+    "column": "location_id",
+    "references": "LOCATION",
+    "ref_column": "location_id"
+   }
+  ],
+  "enums": {}
+ },
+ "PROVINCE_NOTICE": {
+  "table": "province_notice",
+  "columns": [
+   "interest_id",
+   "province_id",
+   "project_summary",
+   "authority_email",
+   "drafted_at",
+   "reviewed_by",
+   "sent_at",
+   "delivery_status",
+   "received_at",
+   "response",
+   "note",
+   "responded_at"
+  ],
+  "pk": [
+   "interest_id"
+  ],
+  "required": [
+   "interest_id",
+   "project_summary",
+   "authority_email",
+   "reviewed_by",
+   "response"
+  ],
+  "fk": [
+   {
+    "column": "interest_id",
+    "references": "LOCATION_INTEREST",
+    "ref_column": "interest_id"
+   },
+   {
+    "column": "province_id",
+    "references": "PROVINCE",
+    "ref_column": "province_id"
+   },
+   {
+    "column": "reviewed_by",
+    "references": "USER_ACCOUNT",
+    "ref_column": null
+   }
+  ],
+  "enums": {
+   "delivery_status": [
+    "queued",
+    "sent",
+    "bounced"
+   ],
+   "response": [
+    "received",
+    "info_needed",
+    "cannot_support"
+   ]
+  }
+ },
+ "CONSULTATION_BOOKING": {
+  "table": "consultation_booking",
+  "columns": [
+   "booking_id",
+   "member_id",
+   "topic",
+   "slot_start",
+   "timezone",
+   "officer_id",
+   "booking_status"
+  ],
+  "pk": [
+   "booking_id"
+  ],
+  "required": [
+   "topic",
+   "slot_start",
+   "timezone",
+   "officer_id"
+  ],
+  "fk": [
+   {
+    "column": "member_id",
+    "references": "USER_ACCOUNT",
+    "ref_column": null
+   },
+   {
+    "column": "officer_id",
+    "references": "USER_ACCOUNT",
+    "ref_column": null
+   }
+  ],
+  "enums": {
+   "booking_status": [
+    "confirmed",
+    "rescheduled"
+   ]
+  }
+ }
+}
