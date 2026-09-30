@@ -38,7 +38,7 @@
 | 3 | Project name + segment + organisation | Header | `projects.name`, `projects.segment`, `organizations_producer.name` | Yes | — |
 | 4 | First shooting day + countdown | Text | `projects.shooting_start_date` | No | none → *not set* and a *Set date* button |
 | 5 | Overall readiness | Text + bar | `v_project_readiness.overall_score` | Yes | 0–100, integer |
-| 6 | Gauges (5) | Chart (gauge) | `v_project_readiness.<group>_score` | Yes | number of gauges shown depends on the segment — see SR |
+| 6 | Gauges (5) | Chart (gauge) | `v_project_readiness` — one `*_score` column per gauge | Yes | number of gauges shown depends on the segment — see SR |
 | 7 | *Next step* sentence | Text | `F-M0-07` — rule-generated, no language model | Yes | always present; when done, shows *Complete* |
 | 8 | Gauge action button | Button | static; target per gauge | — | — |
 | 9 | *Logistics* gauge (not yet available) | Chart (gauge) | static | — | shows `—`, not 0% |
@@ -100,7 +100,10 @@
 
 ## 9. Open questions
 
-_Open questions are tracked outside this repository until they are resolved._
+| # | Question | Blocking? | Status |
+|---|---|---|---|
+| 1 | [NEEDS CLARIFICATION: weights of the five gauges in the overall score per segment — VFDA to approve before they are written to `segment_requirements`] | Yes | Open |
+| 2 | [NEEDS CLARIFICATION: the 7-day buffer before the first shooting day is a proposed figure — can users change it themselves] | No | Open |
 
 ## Completion checklist
 

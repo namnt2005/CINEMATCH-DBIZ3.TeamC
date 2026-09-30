@@ -97,7 +97,10 @@
 
 ## 9. Open questions
 
-_Open questions are tracked outside this repository until they are resolved._
+| # | Question | Blocking? | Status |
+|---|---|---|---|
+| 1 | [NEEDS CLARIFICATION: procedure for filming permits inside the Tràng An heritage area — VFDA to confirm the contact and displayed wording] | No | Open |
+| 2 | [NEEDS CLARIFICATION: re-verification cycle for local authority contacts — proposed 12 months] | No | Open |
 
 ## Completion checklist
 

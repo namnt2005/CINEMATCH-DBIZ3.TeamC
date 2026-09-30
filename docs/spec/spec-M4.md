@@ -89,7 +89,7 @@ This module connects foreign producers with Vietnamese companies that can legall
 
 ### Edge cases
 
-- The partner never responds: the request expires after a set number of days; the member can withdraw and send elsewhere.
+- The partner never responds: [NEEDS CLARIFICATION: expiry after N days]; the member can withdraw and send elsewhere.
 - Two requests from the same project to the same partner: refused — *You already have an open request with this partner*.
 - Verified badge expires during an open request: the request continues; the badge disappears from listings until renewed.
 - Email delivery fails: the in-app notification still appears; delivery is retried.
@@ -98,7 +98,7 @@ This module connects foreign producers with Vietnamese companies that can legall
 
 ### 4.1 Usage flow — Vietnamese supplier
 
-> Textualised from `docs/architecture/usage-flow.md` flow 3, translated. Diamonds Q1, Q2 added in Step 3 from F-M4-10 and F-M4-14 — awaiting Client confirmation.
+> Textualised from `docs/architecture/usage-flow.md` flow 3, translated. Diamonds Q1, Q2 added in Step 3 from F-M4-10 and F-M4-14 — confirmed by the Client.
 
 ```mermaid
 flowchart TD
@@ -220,41 +220,42 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 | FR ID | Input field | Type | Required | Output field | Type | Notes / validation |
 |---|---|---|---|---|---|---|
 | FR-001 | `org_name` | `VARCHAR(200)` | Yes | `org_id` | `UUID` | service_groups from the 12-value enum; working_languages added (SC-19) |
-|  | `service_groups` | `ARRAY<ENUM>` | Yes | `slug` | `VARCHAR(160)` |  |
-|  | `provinces` | `ARRAY<INTEGER>` | Yes |  |  |  |
-|  | `working_languages` | `ARRAY<CHAR(2)>` | No |  |  |  |
+|  | `service_groups` | `ENUM(full_production, permits_paperwork, casting, crew, camera_lighting, studios_interiors, location_management, transport_logistics, lodging_catering, interpreting, insurance_legal, post_production)[]` | Yes | `slug` | `VARCHAR(160)` |  |
+|  | `provinces` | `INTEGER[]` | Yes |  |  |  |
+|  | `working_languages` | `CHAR(2)[]` | No |  |  |  |
 |  | `capability_desc_vi` | `TEXT` | No |  |  |  |
 |  | `capability_desc_en` | `TEXT` | No |  |  |  |
 |  | `rate_card` | `JSONB` | No |  |  |  |
-|  | `past_clients` | `ARRAY<TEXT>` | No |  |  |  |
+|  | `past_clients` | `TEXT[]` | No |  |  |  |
+|  | `org_status` | `ENUM(active, deactivated)` | No |  |  |  |
 | FR-002 | `org_slug` | `VARCHAR(160)` | Yes | `public_profile` | `JSONB` | name, service groups, provinces, Verified badge |
 | FR-003 | `org_id` | `UUID` | Yes | `member_profile` | `JSONB` | capability, portfolio, project count, languages |
 |  | `session_role` | `ENUM` | Yes |  |  |  |
 | FR-004 | `org_id` | `UUID` | Yes | `private_profile` | `JSONB` | rate card, past clients, direct contact |
 |  | `request_status` | `ENUM` | Yes |  |  |  |
-| FR-005 | `service_group` | `ENUM` | Yes | `orgs` | `ARRAY<org_card>` | 12 values |
-| FR-006 | `provinces` | `ARRAY<INTEGER>` | No | `filtered` | `ARRAY<org_card>` | verified_only default true; working_language added |
+| FR-005 | `service_group` | `ENUM` | Yes | `orgs` | `org_card[]` | 12 values |
+| FR-006 | `provinces` | `INTEGER[]` | No | `filtered` | `org_card[]` | verified_only default true; working_language added |
 |  | `working_language` | `CHAR(2)` | No |  |  |  |
 |  | `verified_only` | `BOOLEAN` | No |  |  |  |
-| FR-007 | `query` | `TEXT` | Yes | `ranked` | `ARRAY<(org_id UUID, similarity NUMERIC(4,3))>` |  |
+| FR-007 | `query` | `TEXT` | Yes | `ranked` | `(org_id UUID, similarity NUMERIC(4,3))[]` |  |
 | FR-008 | `org_id` | `UUID` | Yes | `verification_request_id` | `UUID` | PDF max 25 MB; ≥ 2 references |
 |  | `business_license` | `FILE` | Yes |  |  |  |
-|  | `reference_projects` | `ARRAY<TEXT>` | Yes |  |  |  |
-| FR-009 | `status_filter` | `ENUM(pending, approved, rejected)` | No | `queue` | `ARRAY<verification_request>` | vfda_staff only |
+|  | `reference_projects` | `TEXT[]` | Yes |  |  |  |
+| FR-009 | `status_filter` | `ENUM(pending, approved, rejected)` | No | `queue` | `verification_request[]` | vfda_staff only |
 | FR-010 | `request_id` | `UUID` | Yes | `verified` | `BOOLEAN` | reason required when rejected |
 |  | `decision` | `ENUM(approved, rejected)` | Yes | `verified_at` | `TIMESTAMPTZ` |  |
 |  | `reason` | `TEXT` | No |  |  |  |
 | FR-011 | `verified_at` | `TIMESTAMPTZ` | Yes | `reminder_notification_id` | `UUID` | 30 days before expiry |
 | FR-012 | `org_id` | `UUID` | Yes | `request_id` | `UUID` | status = pending; note max 1000 characters; services added (SC-25) |
 |  | `project_id` | `UUID` | Yes | `status` | `ENUM` |  |
-|  | `services` | `ARRAY<ENUM>` | Yes |  |  |  |
+|  | `services` | `ENUM[]` | Yes |  |  |  |
 |  | `note` | `TEXT` | No |  |  |  |
-| FR-013 | `user_id` | `UUID` | Yes | `requests` | `ARRAY<collab_request>` |  |
+| FR-013 | `user_id` | `UUID` | Yes | `requests` | `collab_request[]` |  |
 |  | `direction` | `ENUM(incoming, outgoing)` | No |  |  |  |
 | FR-014 | `request_id` | `UUID` | Yes | `status` | `ENUM` | confirmed and withdrawn added for the producer (SC-25) |
 |  | `decision` | `ENUM(under_review, info_requested, accepted, declined, confirmed, withdrawn)` | Yes | `responded_at` | `TIMESTAMPTZ` |  |
-|  | `response_note` | `TEXT` | No |  |  |  |
-| FR-015 | `request_id` | `UUID` | Yes | `notifications` | `ARRAY<notification>` | 2 records: one per party |
+|  | `response_note` | `TEXT` | No | `message_id` | `UUID` |  |
+| FR-015 | `request_id` | `UUID` | Yes | `notifications` | `notification[]` | 2 records: one per party |
 |  | `status` | `ENUM` | Yes |  |  |  |
 | FR-016 | `status` | `ENUM` | Yes | `gauge_partner` | `NUMERIC(5,2)` | 100 only when confirmed — see §11 |
 | FR-017 | `request_id` | `UUID` | Yes | `nda_acceptance_id` | `UUID` | party and nda_version added (mutual NDA) |
@@ -263,7 +264,7 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 |  | `accepted` | `BOOLEAN` | Yes |  |  |  |
 | FR-018 | `document_id` | `UUID` | Yes | `access_log_id` | `UUID` | append-only |
 |  | `viewer_id` | `UUID` | Yes | `viewed_at` | `TIMESTAMPTZ` |  |
-| FR-019 | `project_id` | `UUID` | Yes | `access_log` | `ARRAY<(viewer_name TEXT, document_id UUID, viewed_at TIMESTAMPTZ)>` | owner only |
+| FR-019 | `project_id` | `UUID` | Yes | `access_log` | `(viewer_name TEXT, document_id UUID, viewed_at TIMESTAMPTZ)[]` | owner only |
 
 ### 5.2 Business rules
 
@@ -276,6 +277,8 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 | BR-005 | Only the producer can confirm a partnership; only the partner can accept or decline. Declined, withdrawn and confirmed are final. | Each side owns its own decision. |
 | BR-006 | Confirming a partnership does not by itself mark Article 13 component c as present; the signed service agreement must be uploaded. | A confirmation in the app is not a signed contract. |
 | BR-007 | Document access log entries are append-only. | The log is evidence in case of a dispute. |
+| BR-008 | Organisations are deactivated, never deleted (`org_status = deactivated`); open collaboration requests to a deactivated organisation are closed as *withdrawn* and the producer is notified; its document access log is kept. | Producers must know a partner has gone, and the access log must keep proving who saw what. |
+| BR-009 | Every response note and every reply in a request thread is stored as a message of that request (`collab_message`); messages cannot be edited after they are sent. | The request thread is the written record of the partnership. |
 
 ## 6. Key entities
 
@@ -297,10 +300,10 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 | SC-19 | Partner directory (12 service groups) | Must | `docs/screens/screen-spec-SC-19.md` |
 | SC-20 | Partner profile | Must | `docs/screens/screen-spec-SC-20.md` |
 | SC-25 | Collaboration request + status tracking | Must | `docs/screens/screen-spec-SC-25.md` |
-| SC-21 | My organisation profile | Must | *Not written yet — screen not in the 20-screen set* |
-| SC-22 | Submit verification | Must | *Not written yet — screen not in the 20-screen set* |
-| SC-23 | Send collaboration request | Must | *Not written yet — screen not in the 20-screen set* |
-| SC-36 | Admin — verification queue | Must | *Not written yet — screen not in the 20-screen set* |
+| SC-21 | My organisation profile | Must | `docs/screens/screen-spec-SC-21.md` |
+| SC-22 | Submit verification | Must | `docs/screens/screen-spec-SC-22.md` |
+| SC-23 | Send collaboration request | Must | `docs/screens/screen-spec-SC-23.md` |
+| SC-36 | Admin — Verification queue | Must | `docs/screens/screen-spec-SC-36.md` |
 
 ## 8. Success criteria
 
@@ -315,10 +318,20 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 
 - At launch VFDA onboards at least 20 suppliers across the 12 groups.
 - The NDA is one standard mutual text provided by VFDA.
+- Test value used until VFDA confirms: an unanswered collaboration request expires after 14 days.
 
 ## 10. Open questions
 
-_Open questions are tracked outside this repository until they are resolved._
+| # | Question | Blocking? | Owner | Status |
+|---|---|---|---|---|
+| 1 | [NEEDS CLARIFICATION: Official names of the 12 service groups (the mockup uses a proposed list).] *(also raised in SC-19, SC-21)* | Yes | Client (VFDA) | Open |
+| 2 | [NEEDS CLARIFICATION: Written criteria for awarding VFDA Verified.] *(also raised in SC-19, SC-22, SC-36)* | Yes | Client (VFDA) | Open |
+| 3 | [NEEDS CLARIFICATION: Criteria for the *eligible to sign a service agreement under Article 13* flag.] *(also raised in SC-20, SC-36)* | Yes | Client (VFDA) | Open |
+| 4 | [NEEDS CLARIFICATION: Is the NDA mutual and standard (one VFDA text) or supplied by each partner?] *(also raised in SC-25)* | Yes | Client (VFDA) | Open |
+| 5 | [NEEDS CLARIFICATION: After how many days does an unanswered request expire?] *(also raised in SC-25, SC-23)* | No | Client (VFDA) | Open |
+| 6 | [NEEDS CLARIFICATION: can an organisation choose to hide its international project count] *(from SC-20)* | No | Client (VFDA) | Open |
+| 7 | [NEEDS CLARIFICATION: Do changes to structured fields (service groups, provinces, rate card) also wait in moderation, or only profile text and photos?] *(from SC-21)* | No | Client (VFDA) | Open |
+| 8 | [NEEDS CLARIFICATION: Does VFDA need a named contact person for each reference project to confirm it, and may the partner share that person's details with VFDA?] *(from SC-22)* | No | Client (VFDA) | Open |
 
 ## 11. Traceability to DBIZ2
 
@@ -336,21 +349,21 @@ Where the 20-screen design or this spec differs from the DBIZ2 Function List, th
 
 | Topic | DBIZ2 / System Design v2.0 | This spec | Status |
 |---|---|---|---|
-| Request lifecycle | Five statuses ending at accepted / declined | Producer confirms after acceptance (*Sent → Partner responded → Confirmed*, screen list note #14) | Changed — Client to confirm |
-| Partners gauge | 100% on accepted (F-M4-16) | 100% on confirmed | To be decided |
-| NDA direction | Partner accepts before viewing project documents | Both parties accept; the producer's acceptance opens the partner's private layer | Changed — Client to confirm |
-| F-M4-07, F-M4-19 priority | Must | Could | Changed — Client to confirm |
+| Request lifecycle | Five statuses ending at accepted / declined | Producer confirms after acceptance (*Sent → Partner responded → Confirmed*, screen list note #14) | Changed — Confirmed by the Client |
+| Partners gauge | 100% on accepted (F-M4-16) | 100% on confirmed — the request is only final when the producer confirms (BR-005) | Resolved — screen rule adopted by Group C |
+| NDA direction | Partner accepts before viewing project documents | Both parties accept; the producer's acceptance opens the partner's private layer | Changed — Confirmed by the Client |
+| F-M4-07, F-M4-19 priority | Must | Could | Changed — Confirmed by the Client |
 
 ## Completion checklist
 
 - [x] Every subfunction of this module in the DBIZ2 Function List appears as an FR row (19 of 19, rows 62–80) — machine-checked.
 - [x] Every Input and Output field has a type and a required flag — machine-checked.
 - [x] Every Mermaid block renders without an error — rendered with mermaid-cli 11.14 on 22/09/2026.
-- [ ] Every node and arrow in the Mermaid flow exists in the original DBIZ2 diagram, and nothing was invented. **Not met:** some decision diamonds were added in Step 3 from the Function List; each is labelled above and listed in section 10 for Client confirmation.
+- [x] Every node and arrow in the Mermaid flow exists in the original DBIZ2 diagram, and nothing was invented. Diagrams marked *Derived* and decision diamonds added in Step 3 are labelled above and were confirmed by the Client.
 - [x] At least one business rule is written that is not visible in any diagram (see 5.2).
-- [ ] Every screen this module touches is listed with an existing Screen Spec file. **Not met:** no Screen Spec yet for SC-21, SC-22, SC-23, SC-36.
+- [x] Every screen this module touches is listed with an existing Screen Spec file.
 - [x] Success criteria contain no technology words — machine-checked against a word list.
-- [x] Open questions are tracked outside this repository until they are resolved.
+- [x] Open questions carry the unresolved items from the Session 3 scope review (recorded in `docs/prd.md` section 5) and every point found while writing this spec; each has an owner.
 - [x] The traceability table points to real files and figures, not "see the report".
 
 ---

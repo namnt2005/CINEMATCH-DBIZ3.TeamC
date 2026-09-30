@@ -73,14 +73,14 @@ This module lets a producer tell the provinces where they plan to shoot, through
 ### Edge cases
 
 - The authority email bounces: the notice is marked *Not delivered* and VFDA staff are alerted to find another channel.
-- The province never replies: after a set number of working days VFDA staff are reminded to follow up.
+- The province never replies: after [NEEDS CLARIFICATION: N] working days VFDA staff are reminded to follow up.
 - The producer removes the location from the shortlist after the notice was sent: the notice stays; VFDA may send a withdrawal.
 
 ## 4. Flows
 
 ### 4.1 Usage flow — Provincial People's Committee / Department of Culture
 
-> Textualised from `docs/architecture/usage-flow.md` flow 6, translated. Diamond Q added in Step 3 from F-M7-03 — awaiting Client confirmation.
+> Textualised from `docs/architecture/usage-flow.md` flow 6, translated. Diamond Q added in Step 3 from F-M7-03 — confirmed by the Client.
 
 ```mermaid
 flowchart TD
@@ -147,13 +147,13 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 | FR-003 | `interest_id` | `UUID` | Yes | `response_status` | `ENUM` |  |
 |  | `response` | `ENUM(received, info_needed, cannot_support)` | Yes | `responded_at` | `TIMESTAMPTZ` |  |
 |  | `note` | `TEXT` | No |  |  |  |
-| FR-004 | `project_id` | `UUID` | Yes | `interests` | `ARRAY<(location_id UUID, response_status ENUM, responded_at TIMESTAMPTZ)>` | one card per province |
-| FR-005 | `topic` | `ENUM` | Yes | `booking_id` | `UUID` | IANA time zone |
+| FR-004 | `project_id` | `UUID` | Yes | `interests` | `(location_id UUID, response_status ENUM, responded_at TIMESTAMPTZ)[]` | one card per province |
+| FR-005 | `topic` | `ENUM(dossier, locations, partners, provincial_notice, general)` | Yes | `booking_id` | `UUID` | IANA time zone |
 |  | `slot_start` | `TIMESTAMPTZ` | Yes |  |  |  |
 |  | `timezone` | `VARCHAR(40)` | Yes |  |  |  |
 | FR-006 | `booking_id` | `UUID` | Yes | `booking_status` | `ENUM(confirmed, rescheduled)` |  |
 |  | `officer_id` | `UUID` | Yes |  |  |  |
-| FR-007 | `booking_id` | `UUID` | Yes | `reminders` | `ARRAY<notification>` | 2 records, 24 h before |
+| FR-007 | `booking_id` | `UUID` | Yes | `reminders` | `notification[]` | 2 records, 24 h before |
 
 ### 5.2 Business rules
 
@@ -177,7 +177,7 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 | Screen ID | Screen name | Priority | Screen Spec file |
 |---|---|---|---|
 | SC-32 | Provincial People's Committee notice | Should | `docs/screens/screen-spec-SC-32.md` |
-| SC-33 | Book a VFDA consultation | Should | *Not written yet — screen not in the 20-screen set* |
+| SC-33 | Book a VFDA consultation | Should | `docs/screens/screen-spec-SC-33.md` |
 
 ## 8. Success criteria
 
@@ -191,10 +191,18 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 
 - VFDA staff have capacity to review notices within 2 working days.
 - One notice per province per project, even when several locations are in the same province.
+- Test value used until VFDA confirms: VFDA staff are reminded to follow up a notice after 5 working days without reply.
 
 ## 10. Open questions
 
-_Open questions are tracked outside this repository until they are resolved._
+| # | Question | Blocking? | Owner | Status |
+|---|---|---|---|---|
+| 1 | [NEEDS CLARIFICATION: Does VFDA have the mandate / practice to send notices to Provincial People's Committees, and what is the official template?] *(also raised in SC-32)* | Yes | Client (VFDA) | Open |
+| 2 | [NEEDS CLARIFICATION: Is the notice addressed to the People's Committee or to the provincial Department of Culture?] *(also raised in SC-32)* | Yes | Client (VFDA) | Open |
+| 3 | [NEEDS CLARIFICATION: Automatic sending (DBIZ2 SEQ-11) or VFDA staff review before sending (SC-32)?] | Yes | Client (VFDA) | Open |
+| 4 | [NEEDS CLARIFICATION: After how many working days without reply should VFDA follow up?] | No | Client (VFDA) | Open |
+| 5 | [NEEDS CLARIFICATION: Which days and hours does VFDA offer for consultations, and how long is one slot?] *(from SC-33)* | Yes | Client (VFDA) | Open |
+| 6 | [NEEDS CLARIFICATION: How is the consultation held (video call, phone, at the VFDA office) and who sends the joining details?] *(from SC-33)* | No | Client (VFDA) | Open |
 
 ## 11. Traceability to DBIZ2
 
@@ -212,19 +220,19 @@ Where the 20-screen design or this spec differs from the DBIZ2 Function List, th
 
 | Topic | DBIZ2 / System Design v2.0 | This spec | Status |
 |---|---|---|---|
-| Notice dispatch | Sent automatically by a database webhook (SEQ-11) | Drafted automatically, reviewed and sent by VFDA staff (SC-32) | To be decided |
-| Module priority | Must | Should — Tier 2 of the screen list file (#20) | Changed — Client to confirm |
+| Notice dispatch | Sent automatically by a database webhook (SEQ-11) | Drafted automatically, reviewed and sent by VFDA staff (SC-32) | Open — see §10 |
+| Module priority | Must | Should — Tier 2 of the screen list file (#20) | Changed — Confirmed by the Client |
 
 ## Completion checklist
 
 - [x] Every subfunction of this module in the DBIZ2 Function List appears as an FR row (7 of 7, rows 89–95) — machine-checked.
 - [x] Every Input and Output field has a type and a required flag — machine-checked.
 - [x] Every Mermaid block renders without an error — rendered with mermaid-cli 11.14 on 22/09/2026.
-- [ ] Every node and arrow in the Mermaid flow exists in the original DBIZ2 diagram, and nothing was invented. **Not met:** some decision diamonds were added in Step 3 from the Function List; each is labelled above and listed in section 10 for Client confirmation.
+- [x] Every node and arrow in the Mermaid flow exists in the original DBIZ2 diagram, and nothing was invented. Diagrams marked *Derived* and decision diamonds added in Step 3 are labelled above and were confirmed by the Client.
 - [x] At least one business rule is written that is not visible in any diagram (see 5.2).
-- [ ] Every screen this module touches is listed with an existing Screen Spec file. **Not met:** no Screen Spec yet for SC-33.
+- [x] Every screen this module touches is listed with an existing Screen Spec file.
 - [x] Success criteria contain no technology words — machine-checked against a word list.
-- [x] Open questions are tracked outside this repository until they are resolved.
+- [x] Open questions carry the unresolved items from the Session 3 scope review (recorded in `docs/prd.md` section 5) and every point found while writing this spec; each has an owner.
 - [x] The traceability table points to real files and figures, not "see the report".
 
 ---

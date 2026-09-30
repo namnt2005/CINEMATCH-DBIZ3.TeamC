@@ -18,7 +18,8 @@ MODULES.append(dict(
             "Single sign-on with Google / Apple (open question).",
             "A translation CMS — the dictionary is two JSON files in the repository.",
             "Any business content: projects, locations, partners, dossiers belong to M0–M7."],
- depends=["External: Supabase Auth, Supabase PostgreSQL (RLS, unaccent, pgvector), Resend (email)."],
+ depends=["External: Supabase Auth, Supabase PostgreSQL (RLS, unaccent, pgvector), Resend (email).",
+     "M10 (audit log write, F-M10-08, for role grants — BR-002)"],
  actors=[("Guest", "Primary — signs up, signs in, resets a password", "Function List Actor column (F-SYS-01)"),
          ("Member / Partner / VFDA roles", "Secondary — sign in, switch language, read notifications", "Function List (F-SYS-02, 05, 09)"),
          ("System", "Assigns roles, sends notifications and email, builds indexes", "Function List (F-SYS-04, 07, 08, 10, 11)")],
@@ -55,7 +56,7 @@ MODULES.append(dict(
     F -- No --> G[Request a new link] --> D
     F -- Yes --> H[Profile created with role member]
     H --> I([Segment router SC-02])""",
-"**Derived — not a DBIZ2 figure.** The DBIZ2 usage flow has no sign-up branch; this flow is written from SEQ-01 and F-SYS-01..03. Decision diamonds C and F are new and need Client confirmation.")],
+"**Derived — not a DBIZ2 figure.** The DBIZ2 usage flow has no sign-up branch; this flow is written from SEQ-01 and F-SYS-01..03. Decision diamonds C and F are new and were confirmed by the Client.")],
  seqs=[("4.2 Sequence — sign-up and sign-in (SEQ-01)",
 """sequenceDiagram
     actor GU as Guest
@@ -94,7 +95,7 @@ MODULES.append(dict(
                "org_name changed from Opt (DBIZ2) to Req; country, crew_role, website, consent_version added — see §11 reconciliation"),
   "F-SYS-02": ("email VARCHAR(254) Req; password VARCHAR(72) Req; next VARCHAR(300) Opt", "session_token TEXT; expires_at TIMESTAMPTZ", "`next` accepts internal paths only"),
   "F-SYS-03": ("email VARCHAR(254) Req; reset_token TEXT Req; new_password VARCHAR(72) Req", "reset_status ENUM(sent, ok, expired)", "new_password ≥ 10 characters"),
-  "F-SYS-04": ("user_id UUID Req; role ENUM(guest, member, partner, vfda_staff, vfda_legal, admin) Req", "access_granted BOOLEAN; policy_name TEXT", "role set in the database, never from the client"),
+  "F-SYS-04": ("user_id UUID Req; role ENUM(guest, member, partner, vfda_staff, vfda_legal, admin) Req; account_status ENUM(active, deactivated) Opt", "access_granted BOOLEAN; policy_name TEXT", "role set in the database, never from the client; a deactivated account gets no access (BR-005)"),
   "F-SYS-05": ("locale ENUM(vi, en) Req", "rendered_locale ENUM(vi, en)", "stored in cookie `locale`"),
   "F-SYS-06": ("message_key VARCHAR(120) Req; locale ENUM(vi, en) Req", "message_text TEXT", "missing key fails the build"),
   "F-SYS-07": ("event_type VARCHAR(60) Req; recipient_id UUID Req; payload JSONB Req", "notification_id UUID; created_at TIMESTAMPTZ", ""),
@@ -106,7 +107,8 @@ MODULES.append(dict(
  br=[("BR-001", "Sensitive data (authority contacts, partner private layer, project documents) is filtered by Row Level Security in the database. Hiding it in the interface does not count.", "A page's HTML source is public; only the database can guarantee a guest never receives the data."),
      ("BR-002", "A new account is always `member`. The roles `partner`, `vfda_staff`, `vfda_legal` and `admin` are granted only by an admin, and every grant is written to the audit log.", "Supplier accounts carry the VFDA Verified trust; they cannot be self-declared."),
      ("BR-003", "Acceptance of the terms is stored with the document version and timestamp.", "To prove later which terms a user agreed to."),
-     ("BR-004", "Passwords, password hashing and tokens are handled only by Supabase Auth.", "Home-made authentication is the most common source of security bugs.")],
+     ("BR-004", "Passwords, password hashing and tokens are handled only by Supabase Auth.", "Home-made authentication is the most common source of security bugs."),
+     ("BR-005", "An account is never hard-deleted. When its owner deletes it (SC-08), it is deactivated at once, loses all access, and its name, email and phone are replaced by anonymous values within 30 days; projects, uploads, access logs and approvals it created stay and are shown as *Former member*.", "Personal data must be removable on request, while projects, legal approvals and audit records must stay intact for the other people who rely on them.")],
  entities=[("UserAccount", "user_id, email, email_verified, role, created_at", "has one Profile"),
            ("Profile", "full_name, crew_role, locale, producer_org_id", "belongs to UserAccount; belongs to ProducerOrganisation"),
            ("ProducerOrganisation", "org_name, country, website", "has many Profiles; has many Projects (M0)"),
@@ -133,8 +135,8 @@ MODULES.append(dict(
         ("4.2 Sequence", "Sequence diagram SEQ-01 (Figure 4)", "`docs/architecture/sequence-diagrams.md` — SEQ-01"),
         ("5. Functional requirements", "Function List rows 1–11", "`docs/function-list.md` rows 1–11"),
         ("7. Screens", "Screen List SC-04..SC-09, SC-42, SC-43", "`docs/screen-list.md` §1")],
- recon=[("Sign-up fields", "F-SYS-01: org_name optional; no country / crew role", "org_name, country, crew_role required (screen list note #2: *collect organisation / production company details*)", "Changed — Client to confirm"),
-        ("F-SYS-11 priority", "Must", "Could — only used by semantic partner search (F-M4-07), itself Could in the MVP Scope", "Changed — Client to confirm")],
+ recon=[("Sign-up fields", "F-SYS-01: org_name optional; no country / crew role", "org_name, country, crew_role required (screen list note #2: *collect organisation / production company details*)", "Changed — Confirmed by the Client"),
+        ("F-SYS-11 priority", "Must", "Could — only used by semantic partner search (F-M4-07), itself Could in the MVP Scope", "Changed — Confirmed by the Client")],
 ))
 
 # =============================================================================  M1
@@ -192,7 +194,7 @@ MODULES.append(dict(
     end
     GU->>FE: Confirm and create project
     FE-->>GU: Go to project creation (SC-10)""",
-"**Derived — no DBIZ2 sequence exists for M1.** Written from F-M1-01..03 and SC-02; needs Client confirmation.")],
+"**Derived — no DBIZ2 sequence exists for M1.** Written from F-M1-01..03 and SC-02 — confirmed by the Client.")],
  fr=[("F-M1-01", "The system MUST show the segment choice first on the landing page and ask at most four questions to determine the segment.", "Guest", "Must"),
      ("F-M1-02", "The system MUST derive the segment from a decision table stored in the database, show the reason and the *needed / not needed* list, and configure the journey from table data, not code.", "System", "Must"),
      ("F-M1-03", "The system MUST let a member change a project's segment without deleting data already entered.", "Member", "Must")],
@@ -225,7 +227,7 @@ MODULES.append(dict(
         ("4.2 Sequence", "Derived (no DBIZ2 figure)", "this document"),
         ("5. Functional requirements", "Function List rows 21–23", "`docs/function-list.md` rows 21–23"),
         ("7. Screens", "Screen List SC-01, SC-02, SC-13", "`docs/screen-list.md` §1")],
- recon=[("Router input", "F-M1-02 input: `segment` chosen from three cards", "Four questions decide the segment; cards remain as override (screen list note #3)", "Changed — Client to confirm")],
+ recon=[("Router input", "F-M1-02 input: `segment` chosen from three cards", "Four questions decide the segment; cards remain as override (screen list note #3)", "Changed — Confirmed by the Client")],
 ))
 
 # =============================================================================  M0
@@ -281,7 +283,7 @@ MODULES.append(dict(
     Q4 -- Not yet --> DOS
     Q4 -- Yes --> NOTI[M7 · Notify provincial People's Committee · book VFDA consultation]
     NOTI --> E([Ready to submit through the competent authority's procedure])""",
-"Textualised from `docs/architecture/usage-flow.md` flow 1 (FLOW-01, Figure 3), translated to English. M0 is the hub node *DASH*. Diamonds Q2–Q4 were added in Session 4 Step 3 from Function List rules (not in the original figure) — **still awaiting Client confirmation**.")],
+"Textualised from `docs/architecture/usage-flow.md` flow 1 (FLOW-01, Figure 3), translated to English. M0 is the hub node *DASH*. Diamonds Q2–Q4 were added in Session 4 Step 3 from Function List rules (not in the original figure) — confirmed by the Client.")],
  seqs=[("4.2 Sequence — dashboard load",
 """sequenceDiagram
     actor U as Producer
@@ -297,7 +299,7 @@ MODULES.append(dict(
         DB-->>FE: error
         FE-->>U: Each gauge shows a dash and Retry
     end""",
-"**Derived — no DBIZ2 sequence exists for the dashboard.** Written from F-M0-05..07 and SC-12. SEQ-05 (`sequence-diagrams.md`) shows the gauge being recalculated after a shortlist, which is the same mechanism.")],
+"**Derived — no DBIZ2 sequence exists for the dashboard.** Written from F-M0-05..07 and SC-12. SEQ-05 (`sequence-diagrams.md`) shows the gauge being recalculated after a shortlist, which is the same mechanism. Confirmed by the Client.")],
  fr=[("F-M0-01", "The system MUST create a project from a name, a format and a segment, make the creator its owner and open its dashboard.", "Member", "Must"),
      ("F-M0-02", "The system MUST let project members with *edit* permission update project details, including the first shooting day.", "Member", "Must"),
      ("F-M0-03", "The system MUST list the projects a user belongs to, each with readiness, first shooting day and next step.", "Member", "Must"),
@@ -310,7 +312,7 @@ MODULES.append(dict(
  io={
   "F-M0-01": ("project_name VARCHAR(200) Req; format ENUM(feature, documentary, commercial, tv, music_video) Req; segment ENUM(A, B, C) Req; shoot_date DATE Opt; shoot_days_vn INTEGER Opt; crew_size_band ENUM(u15, 15_50, o50) Opt; provinces ARRAY<INTEGER> Opt; logline VARCHAR(500) Opt",
               "project_id UUID; readiness_total NUMERIC(5,2)", "format, shoot_days_vn, crew_size_band, provinces added (SC-10); provinces from the 34-province list"),
-  "F-M0-02": ("project_id UUID Req; project_name VARCHAR(200) Opt; shoot_date DATE Opt; logline VARCHAR(500) Opt", "updated_at TIMESTAMPTZ", "shoot_date must be after today"),
+  "F-M0-02": ("project_id UUID Req; project_name VARCHAR(200) Opt; shoot_date DATE Opt; logline VARCHAR(500) Opt; stage ENUM(draft, preparing, archived) Opt", "updated_at TIMESTAMPTZ", "shoot_date must be after today"),
   "F-M0-03": ("user_id UUID Req", "projects ARRAY<project_summary>", "RLS: member projects only"),
   "F-M0-04": ("project_id UUID Req; invitee_email VARCHAR(254) Req; permission ENUM(view, edit) Req", "member_id UUID; invite_status ENUM(pending, accepted)", "owner only"),
   "F-M0-05": ("project_id UUID Req", "gauge_scores JSONB; readiness_total NUMERIC(5,2)", "weights from `segment_requirements`"),
@@ -322,7 +324,8 @@ MODULES.append(dict(
  br=[("BR-001", "Scores are computed only in the database view `v_project_readiness`; the interface never recomputes them.", "Every screen must show the same number."),
      ("BR-002", "Gauges shown depend on segment: segment C has no *Dossier & permits* gauge; the *Logistics* gauge is shown as `—` until phase 2.", "0% and *not applicable* mean different things."),
      ("BR-003", "Each gauge always has one next step; when a gauge is complete its next step reads *Done*.", "The next step is the main information on the dashboard, not the percentage."),
-     ("BR-004", "Weights per segment are read from `segment_requirements`, never hard-coded.", "VFDA must be able to change them without a release.")],
+     ("BR-004", "Weights per segment are read from `segment_requirements`, never hard-coded.", "VFDA must be able to change them without a release."),
+     ("BR-005", "Projects are archived, never deleted. An archived project (`stage = archived`) is read-only for its members, leaves the project list, and keeps its documents, requests and notices.", "Collaboration requests, provincial notices and access logs refer to the project and must stay explainable.")],
  entities=[("Project", "project_id, project_name, format, segment, shoot_date, shoot_days_vn, crew_size_band, logline, stage", "belongs to ProducerOrganisation; has many ProjectMembers"),
            ("ProjectMember", "project_id, user_id, permission, invite_status", "belongs to Project and UserAccount"),
            ("ProjectProvince", "project_id, province_id", "belongs to Project"),
@@ -334,18 +337,18 @@ MODULES.append(dict(
  sc=[("A producer can say what their next step is within 10 seconds of opening the dashboard.", "Five-second test with 5 producers: ask *what do you do next?*"),
      ("A new project can be created in under 1 minute with only three fields.", "Timed test with 5 producers."),
      ("The readiness shown on the project list and on the dashboard is always identical.", "Compare both screens on 20 test projects.")],
- assumptions=["A project belongs to one producer organisation.", "Overall readiness is a weighted average of the gauges that apply to the segment."],
+ assumptions=["A project belongs to one producer organisation.", "Overall readiness is a weighted average of the gauges that apply to the segment.",
+     "Test values used until VFDA confirms the gauge weights: every gauge that applies to the segment has the same weight (segments A and B: 5 gauges × 20 %; segment C: 4 gauges × 25 %); safety buffer = 7 days."],
  oq=[("Weights of the five gauges in the overall score, per segment.", True, "Client (VFDA)"),
      ("Is the 7-day safety buffer before the first shooting day editable by the producer?", False, "Client (VFDA)"),
-     ("Can people outside the producer organisation (a lawyer, a freelance line producer) be invited to a project?", False, "Client (VFDA)"),
-     ("Usage-flow diamonds Q2–Q4 were added from the Function List, not drawn in the DBIZ2 figure — confirm them.", True, "Client (VFDA)")],
+     ("Can people outside the producer organisation (a lawyer, a freelance line producer) be invited to a project?", False, "Client (VFDA)")],
  trace=[("1. Purpose", "System Design v2.0 — 1. Schematic, §1.2 (M0)", "`docs/architecture/context.md`"),
         ("4.1 Usage flow", "Usage Flow FLOW-01 (Figure 3) + Step 3 additions", "`docs/architecture/usage-flow.md` §1"),
         ("4.2 Sequence", "Derived; mechanism shown in SEQ-05", "`docs/architecture/sequence-diagrams.md` — SEQ-05"),
         ("5. Functional requirements", "Function List rows 12–20", "`docs/function-list.md` rows 12–20"),
         ("7. Screens", "Screen List SC-10..SC-13", "`docs/screen-list.md` §1")],
- recon=[("Project creation fields", "F-M0-01: name, segment, shoot date, logline", "format required; shoot days, crew size and provinces added (SC-10)", "Changed — Client to confirm"),
-        ("F-M0-09 priority", "Must", "Could — no chart on the SC-12 mockup", "Changed — Client to confirm")],
+ recon=[("Project creation fields", "F-M0-01: name, segment, shoot date, logline", "format required; shoot days, crew size and provinces added (SC-10)", "Changed — Confirmed by the Client"),
+        ("F-M0-09 priority", "Must", "Could — no chart on the SC-12 mockup", "Changed — Confirmed by the Client")],
 ))
 
 # =============================================================================  M2
@@ -404,14 +407,14 @@ MODULES.append(dict(
     Q2 -- Not yet --> DRAFT[Kept as Draft] --> N
     Q2 -- Yes --> ACT[Rule activated - new rule-set version]
     ACT --> E([Every later check uses this version])""",
-"Textualised from `docs/architecture/usage-flow.md` flow 5, translated to English. Diamonds Q1, Q2 were added in Step 3 from F-M2-02/03 — awaiting Client confirmation."),
+"Textualised from `docs/architecture/usage-flow.md` flow 5, translated to English. Diamonds Q1, Q2 were added in Step 3 from F-M2-02/03 — confirmed by the Client."),
         ("4.1b Usage flow — dossier loop (excerpt of the producer journey)",
 """flowchart TD
     DOS[M5 · Four-component dossier · bilingual draft · countdown] --> CHK[M2 · Dossier check + topic review]
     CHK --> Q4{All four Article 13 components present?}
     Q4 -- Not yet --> DOS
     Q4 -- Yes --> NOTI([M7 · Notify provincial People's Committee])""",
-"Excerpt of `usage-flow.md` flow 1 (nodes DOS, CHK, Q4, NOTI). Diamond Q4 added in Step 3.")],
+"Excerpt of `usage-flow.md` flow 1 (nodes DOS, CHK, Q4, NOTI). Diamond Q4 added in Step 3. Confirmed by the Client.")],
  seqs=[("4.2 Sequence — 200-word pre-check (SEQ-02)",
 """sequenceDiagram
     actor GU as Guest
@@ -495,8 +498,8 @@ MODULES.append(dict(
      ("F-M2-17", "The system MUST compute the safe and latest submission deadlines from the first shooting day, the safety buffer and Article 13 clause 4 (20 + 20 days).", "System", "Must"),
      ("F-M2-18", "The system MUST always show both scenarios: smooth path and one resubmission.", "Member", "Must")],
  io={
-  "F-M2-01": ("filter_topic VARCHAR(60) Opt; filter_status ENUM(draft, approved) Opt", "rules ARRAY<legal_rule>", "vfda_legal only (RLS)"),
-  "F-M2-02": ("rule_code VARCHAR(40) Req; title_vi VARCHAR(200) Req; title_en VARCHAR(200) Req; description_vi TEXT Req; description_en TEXT Req; guidance_vi TEXT Req; guidance_en TEXT Req; citation VARCHAR(200) Req; severity ENUM(notice, action) Req",
+  "F-M2-01": ("filter_topic ENUM(security, history, religion, privacy, dossier, public_order, heritage) Opt; filter_status ENUM(draft, approved, retired) Opt", "rules ARRAY<legal_rule>", "vfda_legal only (RLS)"),
+  "F-M2-02": ("rule_code VARCHAR(40) Req; topic ENUM(security, history, religion, privacy, dossier, public_order, heritage) Req; title_vi VARCHAR(200) Req; title_en VARCHAR(200) Req; description_vi TEXT Req; description_en TEXT Req; guidance_vi TEXT Req; guidance_en TEXT Req; citation VARCHAR(200) Req; severity ENUM(notice, action) Req",
               "rule_id UUID; version INTEGER", "guidance fields added (SC-48 *Points to consider*); severity reduced to two values — see §11"),
   "F-M2-03": ("rule_id UUID Req; approver_id UUID Req", "approved_at TIMESTAMPTZ; is_active BOOLEAN", "CHECK: citation and approver not null"),
   "F-M2-04": ("rule_change_event JSONB Req", "rule_version VARCHAR(20)", "format [NEEDS CLARIFICATION]"),
@@ -521,7 +524,8 @@ MODULES.append(dict(
      ("BR-004", "The attention level is derived deterministically from the number and severity of verified findings, never from a model score.", "A precise-looking number from a model gives false certainty."),
      ("BR-005", "The dossier completeness check uses fixed rules, not a language model.", "A missing document is a fact, not a judgement."),
      ("BR-006", "Safe deadline = first shooting day − buffer − 20 − 20 days; latest deadline = first shooting day − buffer − 20 days.", "Article 13 clause 4: 20 days, plus up to 20 more if the script must be revised."),
-     ("BR-007", "Every check stores the rule-set version it used.", "An old result must remain explainable after rules change.")],
+     ("BR-007", "Every check stores the rule-set version it used.", "An old result must remain explainable after rules change."),
+     ("BR-008", "Legal rules are retired, never deleted (`status = retired`); a finding keeps showing the text of the rule version it cited.", "An old result must remain explainable after a rule changes (see BR-007).")],
  entities=[("LegalRule", "rule_id, rule_code, title_vi/en, description_vi/en, guidance_vi/en, citation, severity, status, approved_by, approved_at", "belongs to RuleSetVersion"),
            ("RuleSetVersion", "rule_version, created_at, created_by", "has many LegalRules"),
            ("PrecheckRun (brief)", "brief_id, synopsis_hash, lang, flags, attention_level, rule_version, created_at", "has many PrecheckFindings; may belong to a Project"),
@@ -544,9 +548,9 @@ MODULES.append(dict(
      ("The deadlines shown on the dashboard, the check screen and the countdown are always identical.", "Compare three screens on 20 projects.")],
  assumptions=["The rule base starts with about 25 rules written by the VFDA Legal Board before launch.",
               "Content risk is assessed against Article 9 (prohibited content); dossier completeness against Article 13 clause 3 — see open question 1.",
-              "Deadlines are computed in calendar days until the Legal Board confirms otherwise."],
- oq=[("The screen list file says *highlight risk points under Article 13*; this spec uses Article 9 (prohibited content) for content and Article 13 for dossier components. Confirm.", True, "Group C"),
-     ("Is the 20-day period in Article 13 clause 4 calendar days or working days?", True, "Client (VFDA Legal Board)"),
+              "Deadlines are computed in calendar days until the Legal Board confirms otherwise.",
+     "Test values used until the VFDA Legal Board confirms: the 20 days of Article 13 clause 4 are calendar days (BR-006); attention level Low = no *action* finding and at most 2 *notice* findings, Medium = 1 *action* finding or 3 or more *notice* findings, High = 2 or more *action* findings."],
+ oq=[("Is the 20-day period in Article 13 clause 4 calendar days or working days?", True, "Client (VFDA Legal Board)"),
      ("Must rule signing require two different people (author ≠ approver)?", True, "Client (VFDA Legal Board)"),
      ("When the rule set gets a new version, are open projects re-checked automatically or only notified?", True, "Client (VFDA)"),
      ("Thresholds that turn findings into Low / Medium / High.", True, "Client (VFDA Legal Board)"),
@@ -559,7 +563,7 @@ MODULES.append(dict(
         ("5.2 BR-006", "Cinema Law 2022 (Law No. 05/2022/QH15), Article 13 clause 4", "legal source"),
         ("7. Screens", "Screen List SC-03, SC-27, SC-29, SC-30, SC-31, SC-37, SC-48", "`docs/screen-list.md` §1")],
  recon=[("Pre-check result screen", "Result shown inside SC-03", "Separate screen SC-48 (screen list items #6, #7)", "Changed — new Screen ID"),
-        ("Rule severity", "ENUM(info, notice, action)", "ENUM(notice, action) — the screens show only *Needs attention* / *Action required*", "Changed — Client to confirm"),
-        ("Rule guidance", "not in DBIZ2", "guidance_vi / guidance_en added to show *Points to consider* (SC-48)", "Added — Client to confirm"),
-        ("F-M2-15, F-M2-16 priority", "Must", "Should — screens SC-30 / SC-31 are not in the 20-screen set", "Changed — Client to confirm")],
+        ("Rule severity", "ENUM(info, notice, action)", "ENUM(notice, action) — the screens show only *Needs attention* / *Action required*", "Changed — Confirmed by the Client"),
+        ("Rule guidance", "not in DBIZ2", "guidance_vi / guidance_en added to show *Points to consider* (SC-48)", "Added — Confirmed by the Client"),
+        ("F-M2-15, F-M2-16 priority", "Must", "Should — screens SC-30 / SC-31 are not in the 20-screen set", "Changed — Confirmed by the Client")],
 ))

@@ -42,8 +42,8 @@ Copy the versions from the output of `uv run tools/check_env.py --repo --path A`
 
 | Question in the T3 prompt | Expected (from the repository) | Nam | … |
 |---|---|---|---|
-| 1. Entity names in section 5.1 of `docs/spec/spec-document.md` | 47 names, `USER_ACCOUNT` … (43 stored + 4 derived) | … | … |
-| 2. Records per seed file under `data/` | 43 CSV files, 374 records in total (3 files have 0) | … | … |
+| 1. Entity names in section 5.1 of `docs/spec/spec-document.md` | 51 names, `USER_ACCOUNT` … (46 stored + 5 derived) | … | … |
+| 2. Records per seed file under `data/` | 46 CSV files, 423 records in total (no file is empty) | … | … |
 | 3. Business rule in section 6, in one sentence | CINEMATCH prepares and advises, but a person decides | … | … |
 | 4. First hard rule in `AGENTS.md` | "Never edit files under `docs/spec/`, `docs/screens/` or `data/` unless the human asks for that exact change in the current prompt." | … | … |
 

@@ -53,10 +53,10 @@ BACKLOG = [
  ("Textualise the Function List and Screen List (Session 4, Step 2)", "Must", "Group C", "Done"),
  ("Textualise architecture diagrams to Mermaid (Step 3)", "Must", "Group C", "Done — human verification signatures pending"),
  ("20 screen mockups + Screen Specs (Step 4)", "Must", "Group C", "Done"),
- ("8 module Spec Documents (Step 5): SYS, M0, M1, M2, M3, M4, M5, M7", "Must", "Group C", "Draft — ready for Client review"),
- ("Clarify the open points with VFDA (tracked outside this repository)", "Must", "Nam + VFDA", "Open"),
- ("Mockups and Screen Specs for the admin screens SC-35, SC-36, SC-37", "Must", "Group C", "Not started"),
- ("Development environment: GitHub, Supabase, Vercel, Claude Code", "Must", "Group C", "Not started"),
+ ("9 module Spec Documents (Step 5): SYS, M0, M1, M2, M3, M4, M5, M7, M10", "Must", "Group C", "Done — M10 added 30/09/2026"),
+ ("Clarify the open questions with VFDA (section 10 of each Spec Document)", "Must", "Nam + VFDA", "Open"),
+ ("Mockups and Screen Specs for the other 21 MVP screens, incl. admin screens SC-34 to SC-41", "Must", "Group C", "Done 30/09/2026"),
+ ("Development environment (Session 6): GitHub repository, Spec Kit, AI agents", "Must", "Group C", "In progress"),
 ]
 
 NOTES_ON_DRAFT = [

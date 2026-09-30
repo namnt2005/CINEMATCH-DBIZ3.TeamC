@@ -1,10 +1,11 @@
 image_url,location_id,image_source,usage_right,status
 https://storage.cinematch.example/locations/cai-rang/01.jpg,8e10fbb0-a00d-5a68-b790-daad86a8d593,VFDA field visit 2026-07,VFDA owned,approved
+https://storage.cinematch.example/locations/cai-rang/02.jpg,8e10fbb0-a00d-5a68-b790-daad86a8d593,Mekong Frame Co. (partner upload),"Owned by Mekong Frame Co., licensed to VFDA",pending
 https://storage.cinematch.example/locations/dong-van/01.jpg,0bad9e61-4903-510e-9ded-67ad619da8b5,VFDA field visit 2026-08,VFDA owned,pending
 https://storage.cinematch.example/locations/ha-long/01.jpg,0889fb2d-3178-5598-93ae-3e3693dbe58a,VFDA field visit 2026-04,VFDA owned,approved
 https://storage.cinematch.example/locations/hoi-an/01.jpg,8a12db2b-bfe3-582a-82d9-95a786d33175,VFDA field visit 2026-06,VFDA owned,approved
 https://storage.cinematch.example/locations/mu-cang-chai/01.jpg,e64436a4-8286-5ed0-9902-6eb45545eb7b,Photographer Lương Quốc Việt,Licensed to VFDA,approved
-https://storage.cinematch.example/locations/mui-ne/01.jpg,162abff9-9986-52d0-80a6-75fd4e7403f5,Unknown — found online,Unclear,rejected
+https://storage.cinematch.example/locations/mui-ne/01.jpg,162abff9-9986-52d0-80a6-75fd4e7403f5,Unknown — found online,Unclear,hidden
 https://storage.cinematch.example/locations/phong-nha/01.jpg,980bcd8e-75c9-5cda-8b31-049fa39f9109,Phong Nha – Kẻ Bàng National Park,Licensed to VFDA,approved
 https://storage.cinematch.example/locations/trang-an/01.jpg,607132bd-b05b-52c6-900f-5f2928c17a9e,VFDA field visit 2026-05,VFDA owned,approved
 https://storage.cinematch.example/locations/trang-an/02.jpg,607132bd-b05b-52c6-900f-5f2928c17a9e,Ninh Bình Tourism Department,Licensed to VFDA,approved

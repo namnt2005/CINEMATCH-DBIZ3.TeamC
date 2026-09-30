@@ -55,14 +55,14 @@ MODULES.append(dict(
     LOC --> Q2{Any location scoring 40 or more?}
     Q2 -- No --> ASK[Ask VFDA for advice] --> LOC
     Q2 -- Yes --> PART([M4 · Vietnamese service partner])""",
-"Excerpt of `docs/architecture/usage-flow.md` flow 1. Diamond Q2 was added in Step 3 from F-M3-08 (40-point threshold) — awaiting Client confirmation."),
+"Excerpt of `docs/architecture/usage-flow.md` flow 1. Diamond Q2 was added in Step 3 from F-M3-08 (40-point threshold) — confirmed by the Client."),
         ("4.1b Usage flow — VFDA staff publishing a location",
 """flowchart TD
     HUB[M10 · Admin overview] --> A1[M3 · Manage locations]
     A1 --> Q1{Local authority contact verified?}
     Q1 -- Not yet --> BLOCK[System blocks publishing - database constraint] --> A1
     Q1 -- Yes --> PUB([Location published])""",
-"Excerpt of `usage-flow.md` flow 4, translated. Diamond Q1 added in Step 3 from F-M3-05.")],
+"Excerpt of `usage-flow.md` flow 4, translated. Diamond Q1 added in Step 3 from F-M3-05. Confirmed by the Client.")],
  seqs=[("4.2 Sequence — find locations from a scene description (SEQ-03)",
 """sequenceDiagram
     actor U as Producer
@@ -143,17 +143,17 @@ MODULES.append(dict(
      ("F-M3-20", "The system SHOULD show a province page linking into a pre-filtered location search.", "Guest", "Should")],
  io={
   "F-M3-01": ("filter JSONB Opt", "locations ARRAY<location_admin>", "vfda_staff only"),
-  "F-M3-02": ("name_vi VARCHAR(200) Req; name_en VARCHAR(200) Req; province_id INTEGER Req; district VARCHAR(120) Opt; lat NUMERIC(9,6) Req; lng NUMERIC(9,6) Req; airport_km INTEGER Opt; scene_types ARRAY<ENUM> Req; desc_vi TEXT Req; desc_en TEXT Req; crew_capacity ENUM(u15, 15_50, o50) Req; lodging_20km BOOLEAN Req; grid_power BOOLEAN Req; truck_access BOOLEAN Req; months_to_avoid ARRAY<INTEGER> Opt; permit_complexity ENUM(low, medium, high) Req; restriction_note TEXT Opt",
-              "location_id UUID; slug VARCHAR(160)", "province_id from the 34-province list"),
-  "F-M3-03": ("image_file BYTEA Req; image_source TEXT Req; usage_right TEXT Req", "image_url TEXT", "jpg / png, max 10 MB"),
+  "F-M3-02": ("name_vi VARCHAR(200) Req; name_en VARCHAR(200) Req; province_id INTEGER Req; district VARCHAR(120) Opt; lat NUMERIC(9,6) Req; lng NUMERIC(9,6) Req; airport_km INTEGER Opt; scene_types ARRAY<ENUM(karst, river, village, rice_field, sea, floating_village, cave, jungle, old_town, market, rice_terrace, mountain, dunes, mangrove)> Req; desc_vi TEXT Req; desc_en TEXT Req; crew_capacity ENUM(u15, 15_50, o50) Req; lodging_20km BOOLEAN Req; grid_power BOOLEAN Req; truck_access BOOLEAN Req; months_to_avoid ARRAY<INTEGER> Opt; permit_complexity ENUM(low, medium, high) Req; restriction_note TEXT Opt",
+              "location_id UUID; slug VARCHAR(160); intake_status ENUM(awaiting_contact, published, unpublished)", "province_id from the 34-province list"),
+  "F-M3-03": ("image_file BYTEA Req; image_source TEXT Req; usage_right TEXT Req", "image_url TEXT; image_status ENUM(pending, approved, hidden)", "jpg / png, max 10 MB"),
   "F-M3-04": ("location_id UUID Req; authority_name VARCHAR(200) Req; contact_name VARCHAR(120) Req; contact_phone VARCHAR(20) Req; contact_email VARCHAR(254) Opt; verified_by UUID Req", "contact_verified BOOLEAN; verified_at TIMESTAMPTZ", ""),
   "F-M3-05": ("location_id UUID Req", "published BOOLEAN; blocked_reason TEXT", "CHECK: contact_verified = true"),
   "F-M3-06": ("query VARCHAR(200) Opt", "matches ARRAY<location_card>", "unaccent full-text"),
-  "F-M3-07": ("scene_types ARRAY<ENUM> Opt; provinces ARRAY<INTEGER> Opt; crew_size ENUM(u15, 15_50, o50) Opt; shoot_month INTEGER Opt; special_scenes ARRAY<ENUM> Opt", "filtered_ids ARRAY<UUID>; url_state TEXT", "shoot_month 1–12"),
+  "F-M3-07": ("scene_types ARRAY<ENUM(karst, river, village, rice_field, sea, floating_village, cave, jungle, old_town, market, rice_terrace, mountain, dunes, mangrove)> Opt; provinces ARRAY<INTEGER> Opt; region ENUM(north, central, south) Opt; crew_size ENUM(u15, 15_50, o50) Opt; shoot_month INTEGER Opt; special_scenes ARRAY<ENUM> Opt", "filtered_ids ARRAY<UUID>; url_state TEXT", "shoot_month 1–12"),
   "F-M3-08": ("scene_types ARRAY Opt; provinces ARRAY Opt; crew_size ENUM Opt; shoot_month INTEGER Opt", "ranked ARRAY<(location_id UUID, score INTEGER, match_reasons ARRAY<TEXT>)>", "score 0–100; weights [NEEDS CLARIFICATION]"),
   "F-M3-09": ("ranked ARRAY Req", "cards_view JSONB", "≥ 1 reason per card"),
   "F-M3-10": ("scene_description TEXT Req", "form_state JSONB", "10–1000 characters"),
-  "F-M3-11": ("scene_description TEXT Req", "attributes JSONB (scene_types ARRAY, era ENUM, time_of_day ENUM, water ENUM, terrain ARRAY, crowd_scale ENUM, constraints ARRAY)", "structured output"),
+  "F-M3-11": ("scene_description TEXT Req; project_id UUID Opt; shoot_month INTEGER Opt", "query_id UUID; attributes JSONB (scene_types ARRAY, era ENUM, time_of_day ENUM, water ENUM, terrain ARRAY, crowd_scale ENUM, constraints ARRAY)", "structured output"),
   "F-M3-12": ("attributes JSONB Req; scene_type_catalog ARRAY<ENUM> Req", "valid_attributes JSONB; rejected ARRAY<TEXT>", "mapped values reported to the user"),
   "F-M3-13": ("slug VARCHAR(160) Req", "location_detail JSONB", "published only"),
   "F-M3-14": ("lat NUMERIC(9,6) Req; lng NUMERIC(9,6) Req; radius_km INTEGER Opt", "map_view JSONB; nearby ARRAY<(location_id UUID, distance_km NUMERIC(6,2))>", "radius default 30; max 5 nearby"),
@@ -170,7 +170,9 @@ MODULES.append(dict(
      ("BR-004", "A location cannot be published until its local authority contact is verified; contacts are re-verified every 12 months [NEEDS CLARIFICATION].", "A dead-end contact destroys trust in VFDA's data."),
      ("BR-005", "Authority contacts are returned only to signed-in users, enforced by Row Level Security.", "Contacts are VFDA's gated asset and personal data."),
      ("BR-006", "Provinces use the 34 provincial-level units after the 2025 reorganisation; old names are accepted in search and mapped to the new unit.", "Producers and older guides still use pre-2025 names."),
-     ("BR-007", "The provincial index uses only data generated on the platform and always shows its sample size.", "It must not become a subjective ranking of provinces.")],
+     ("BR-007", "The provincial index uses only data generated on the platform and always shows its sample size.", "It must not become a subjective ranking of provinces."),
+     ("BR-008", "Locations are unpublished, never deleted (`intake_status = unpublished`); shortlists and provincial notices that refer to an unpublished location keep it and show *No longer published*.", "A producer's plan and VFDA's letters to provinces must not silently lose a place."),
+     ("BR-009", "Every confirmed scene search is stored as a location query without any personal data (description, attributes, month, and the project only when a member searches inside a project); it is used for the M10 demand index and never to train a model.", "The demand index needs to know what producers look for; storing no personal data keeps guests anonymous.")],
  entities=[("Location", "location_id, slug, name_vi, name_en, province_id, lat, lng, scene_types, crew_capacity, lodging_20km, grid_power, truck_access, months_to_avoid, permit_complexity, intake_status, published", "belongs to Province; has many LocationImages; has one AuthorityContact"),
            ("LocationImage", "image_url, image_source, usage_right, status", "belongs to Location"),
            ("AuthorityContact", "authority_name, contact_name, contact_phone, contact_email, verified_by, verified_at", "belongs to Location"),
@@ -189,20 +191,22 @@ MODULES.append(dict(
      ("Four in five producers judge the top result relevant to their described scene.", "Rating task on 10 descriptions."),
      ("A guest never sees an authority phone number or email.", "Private-window source check on 10 location pages.")],
  assumptions=["The MVP launches with at least 50 VFDA-verified locations across at least 8 provinces.",
-              "Six scoring criteria: visual fit, crew capacity, logistics, season for the shooting month, permit complexity, intake status."],
+              "Six scoring criteria: visual fit, crew capacity, logistics, season for the shooting month, permit complexity, intake status.",
+     "Test values used until VFDA confirms the scoring weights: the six criteria have equal weight (1/6 each); a result is shown from 40 points; authority contacts are re-verified every 12 months."],
  oq=[("Weights of the six scoring criteria (F-M3-08).", True, "Client (VFDA)"),
      ("Who maintains the fixed attribute catalogue (scene types, terrain, era) used by F-M3-12?", True, "Client (VFDA)"),
      ("Where does data for the *night shooting* and *weather in the shooting month* comparison rows come from? No field exists yet.", True, "Group C"),
      ("May VFDA publish the provincial index publicly? It may be sensitive for low-scoring provinces.", True, "Client (VFDA)"),
-     ("Re-verification cycle for authority contacts (proposed 12 months).", False, "Client (VFDA)")],
+     ("Re-verification cycle for authority contacts (proposed 12 months).", False, "Client (VFDA)"),
+     ("Is the Session 3 target of at least 40 published locations at launch still required, and who supplies the location data?", False, "Nam with VFDA")],
  trace=[("1. Purpose", "System Design v2.0 — 1. Schematic, §1.2 (M3)", "`docs/architecture/context.md`"),
         ("4.1 Usage flow", "FLOW-01 flows 1 and 4 (Figure 3) + Step 3 additions", "`docs/architecture/usage-flow.md` §1, §4"),
         ("4.2–4.4 Sequences", "SEQ-03 (Fig. 6), SEQ-04 (Fig. 7), SEQ-05 (Fig. 8)", "`docs/architecture/sequence-diagrams.md`"),
         ("5. Functional requirements", "Function List rows 42–61", "`docs/function-list.md` rows 42–61"),
         ("7. Screens", "Screen List SC-14..SC-18, SC-35", "`docs/screen-list.md` §1")],
- recon=[("Attribute confirmation", "SEQ-03 goes straight from extraction to search", "SC-15 shows *What the system understood* and waits for the user to confirm", "Added — Client to confirm"),
-        ("F-M3-16..20 priority", "Must", "Should — Tier 2 of the screen list file (#18, #19)", "Changed — Client to confirm"),
-        ("Shortlist role", "no role", "primary / backup (SC-17)", "Added — Client to confirm")],
+ recon=[("Attribute confirmation", "SEQ-03 goes straight from extraction to search", "SC-15 shows *What the system understood* and waits for the user to confirm", "Added — Confirmed by the Client"),
+        ("F-M3-16..20 priority", "Must", "Should — Tier 2 of the screen list file (#18, #19)", "Changed — Confirmed by the Client"),
+        ("Shortlist role", "no role", "primary / backup (SC-17)", "Added — Confirmed by the Client")],
 ))
 
 # =============================================================================  M4
@@ -261,7 +265,7 @@ MODULES.append(dict(
     Q2 -- Declined --> INBOX
     Q2 -- Accepted --> NDA[M4·5 · Other party accepts the e-NDA before seeing project documents]
     NDA --> E([Collaboration starts; every document view is logged])""",
-"Textualised from `docs/architecture/usage-flow.md` flow 3, translated. Diamonds Q1, Q2 added in Step 3 from F-M4-10 and F-M4-14 — awaiting Client confirmation."),
+"Textualised from `docs/architecture/usage-flow.md` flow 3, translated. Diamonds Q1, Q2 added in Step 3 from F-M4-10 and F-M4-14 — confirmed by the Client."),
         ("4.1b Usage flow — segment C producer",
 """flowchart TD
     S([Choose: only hiring cast or logistics services]) --> G[M4 · Pick a service group from the 12]
@@ -341,7 +345,7 @@ MODULES.append(dict(
      ("F-M4-18", "The system MUST log every view of a shared document: who, which document, when.", "System", "Must"),
      ("F-M4-19", "The system COULD show a project owner the access log of their documents.", "Member", "Could")],
  io={
-  "F-M4-01": ("org_name VARCHAR(200) Req; service_groups ARRAY<ENUM> Req; provinces ARRAY<INTEGER> Req; working_languages ARRAY<CHAR(2)> Opt; capability_desc_vi TEXT Opt; capability_desc_en TEXT Opt; rate_card JSONB Opt; past_clients ARRAY<TEXT> Opt", "org_id UUID; slug VARCHAR(160)", "service_groups from the 12-value enum; working_languages added (SC-19)"),
+  "F-M4-01": ("org_name VARCHAR(200) Req; service_groups ARRAY<ENUM(full_production, permits_paperwork, casting, crew, camera_lighting, studios_interiors, location_management, transport_logistics, lodging_catering, interpreting, insurance_legal, post_production)> Req; provinces ARRAY<INTEGER> Req; working_languages ARRAY<CHAR(2)> Opt; capability_desc_vi TEXT Opt; capability_desc_en TEXT Opt; rate_card JSONB Opt; past_clients ARRAY<TEXT> Opt; org_status ENUM(active, deactivated) Opt", "org_id UUID; slug VARCHAR(160)", "service_groups from the 12-value enum; working_languages added (SC-19)"),
   "F-M4-02": ("org_slug VARCHAR(160) Req", "public_profile JSONB", "name, service groups, provinces, Verified badge"),
   "F-M4-03": ("org_id UUID Req; session_role ENUM Req", "member_profile JSONB", "capability, portfolio, project count, languages"),
   "F-M4-04": ("org_id UUID Req; request_status ENUM Req", "private_profile JSONB", "rate card, past clients, direct contact"),
@@ -354,7 +358,7 @@ MODULES.append(dict(
   "F-M4-11": ("verified_at TIMESTAMPTZ Req", "reminder_notification_id UUID", "30 days before expiry"),
   "F-M4-12": ("org_id UUID Req; project_id UUID Req; services ARRAY<ENUM> Req; note TEXT Opt", "request_id UUID; status ENUM", "status = pending; note max 1000 characters; services added (SC-25)"),
   "F-M4-13": ("user_id UUID Req; direction ENUM(incoming, outgoing) Opt", "requests ARRAY<collab_request>", ""),
-  "F-M4-14": ("request_id UUID Req; decision ENUM(under_review, info_requested, accepted, declined, confirmed, withdrawn) Req; response_note TEXT Opt", "status ENUM; responded_at TIMESTAMPTZ", "confirmed and withdrawn added for the producer (SC-25)"),
+  "F-M4-14": ("request_id UUID Req; decision ENUM(under_review, info_requested, accepted, declined, confirmed, withdrawn) Req; response_note TEXT Opt", "status ENUM; responded_at TIMESTAMPTZ; message_id UUID", "confirmed and withdrawn added for the producer (SC-25)"),
   "F-M4-15": ("request_id UUID Req; status ENUM Req", "notifications ARRAY<notification>", "2 records: one per party"),
   "F-M4-16": ("status ENUM Req", "gauge_partner NUMERIC(5,2)", "100 only when confirmed — see §11"),
   "F-M4-17": ("request_id UUID Req; party ENUM(producer, partner) Req; nda_version VARCHAR(20) Req; accepted BOOLEAN Req", "nda_acceptance_id UUID; accepted_at TIMESTAMPTZ", "party and nda_version added (mutual NDA)"),
@@ -367,7 +371,9 @@ MODULES.append(dict(
      ("BR-004", "A VFDA Verified badge is valid for 12 months and states what was checked and what was not (quality and prices are not).", "The badge is not a quality guarantee."),
      ("BR-005", "Only the producer can confirm a partnership; only the partner can accept or decline. Declined, withdrawn and confirmed are final.", "Each side owns its own decision."),
      ("BR-006", "Confirming a partnership does not by itself mark Article 13 component c as present; the signed service agreement must be uploaded.", "A confirmation in the app is not a signed contract."),
-     ("BR-007", "Document access log entries are append-only.", "The log is evidence in case of a dispute.")],
+     ("BR-007", "Document access log entries are append-only.", "The log is evidence in case of a dispute."),
+     ("BR-008", "Organisations are deactivated, never deleted (`org_status = deactivated`); open collaboration requests to a deactivated organisation are closed as *withdrawn* and the producer is notified; its document access log is kept.", "Producers must know a partner has gone, and the access log must keep proving who saw what."),
+     ("BR-009", "Every response note and every reply in a request thread is stored as a message of that request (`collab_message`); messages cannot be edited after they are sent.", "The request thread is the written record of the partnership.")],
  entities=[("Organisation", "org_id, slug, org_name, legal_form, founded_year, hq_province, verified_at, verified_until, art13_eligible", "has many OrganisationServices, OrganisationProvinces"),
            ("OrganisationMemberLayer", "capability_desc, portfolio, intl_project_count, working_languages", "belongs to Organisation"),
            ("OrganisationPrivateLayer", "rate_card, past_clients, direct_contact", "belongs to Organisation"),
@@ -386,22 +392,22 @@ MODULES.append(dict(
      ("A guest can never see a partner's prices or direct contact.", "Private-window check on 10 profiles."),
      ("VFDA staff decide a verification request in under 15 minutes of review work.", "Timed review of 5 requests.")],
  assumptions=["At launch VFDA onboards at least 20 suppliers across the 12 groups.",
-              "The NDA is one standard mutual text provided by VFDA."],
+              "The NDA is one standard mutual text provided by VFDA.",
+     "Test value used until VFDA confirms: an unanswered collaboration request expires after 14 days."],
  oq=[("Official names of the 12 service groups (the mockup uses a proposed list).", True, "Client (VFDA)"),
      ("Written criteria for awarding VFDA Verified.", True, "Client (VFDA)"),
      ("Criteria for the *eligible to sign a service agreement under Article 13* flag.", True, "Client (VFDA)"),
      ("Is the NDA mutual and standard (one VFDA text) or supplied by each partner?", True, "Client (VFDA)"),
-     ("After how many days does an unanswered request expire?", False, "Client (VFDA)"),
-     ("DBIZ2 F-M4-16 sets the Partners gauge to 100% on *accepted*; the screens do it on *confirmed*. Which one?", True, "Client (VFDA)")],
+     ("After how many days does an unanswered request expire?", False, "Client (VFDA)")],
  trace=[("1. Purpose", "System Design v2.0 — 1. Schematic, §1.2 (M4); Cinema Law 2022, Article 13", "`docs/architecture/context.md`"),
         ("4.1 Usage flow", "FLOW-01 flows 2 and 3 (Figure 3) + Step 3 additions", "`docs/architecture/usage-flow.md` §2, §3"),
         ("4.2–4.3 Sequences", "SEQ-06 (Fig. 9), SEQ-07 (Fig. 10)", "`docs/architecture/sequence-diagrams.md`"),
         ("5. Functional requirements", "Function List rows 62–80", "`docs/function-list.md` rows 62–80"),
         ("7. Screens", "Screen List SC-19..SC-25, SC-36", "`docs/screen-list.md` §1")],
- recon=[("Request lifecycle", "Five statuses ending at accepted / declined", "Producer confirms after acceptance (*Sent → Partner responded → Confirmed*, screen list note #14)", "Changed — Client to confirm"),
-        ("Partners gauge", "100% on accepted (F-M4-16)", "100% on confirmed", "Open question 6"),
-        ("NDA direction", "Partner accepts before viewing project documents", "Both parties accept; the producer's acceptance opens the partner's private layer", "Changed — Client to confirm"),
-        ("F-M4-07, F-M4-19 priority", "Must", "Could", "Changed — Client to confirm")],
+ recon=[("Request lifecycle", "Five statuses ending at accepted / declined", "Producer confirms after acceptance (*Sent → Partner responded → Confirmed*, screen list note #14)", "Changed — Confirmed by the Client"),
+        ("Partners gauge", "100% on accepted (F-M4-16)", "100% on confirmed — the request is only final when the producer confirms (BR-005)", "Resolved — screen rule adopted by Group C"),
+        ("NDA direction", "Partner accepts before viewing project documents", "Both parties accept; the producer's acceptance opens the partner's private layer", "Changed — Confirmed by the Client"),
+        ("F-M4-07, F-M4-19 priority", "Must", "Could", "Changed — Confirmed by the Client")],
 ))
 
 # =============================================================================  M5
@@ -447,7 +453,7 @@ MODULES.append(dict(
     CHK --> Q4{All four Article 13 components present?}
     Q4 -- Not yet --> DOS
     Q4 -- Yes --> NOTI([M7 · Notify provincial People's Committee])""",
-"Excerpt of `docs/architecture/usage-flow.md` flow 1, translated. Diamonds Q3, Q4 added in Step 3 — awaiting Client confirmation.")],
+"Excerpt of `docs/architecture/usage-flow.md` flow 1, translated. Diamonds Q3, Q4 added in Step 3 — confirmed by the Client.")],
  seqs=[("4.2 Sequence — bilingual dossier draft (SEQ-10)",
 """sequenceDiagram
     actor U as Producer
@@ -483,7 +489,7 @@ MODULES.append(dict(
   "F-M5-01": ("segment ENUM(A, B, C) Req; project_id UUID Req", "required_documents ARRAY<(doc_code VARCHAR(40), name_vi TEXT, name_en TEXT, basis ENUM(law, common, location), template_url TEXT)>", "basis added (SC-26)"),
   "F-M5-02": ("project_id UUID Req; doc_code VARCHAR(40) Req; file BYTEA Req", "document_id UUID", "PDF / DOCX, max 25 MB; previous versions kept"),
   "F-M5-03": ("project_id UUID Req", "doc_status ARRAY<(doc_code VARCHAR(40), state ENUM(present, needs_fix, pending, missing))>", "states changed from DBIZ2 — see §11"),
-  "F-M5-04": ("synopsis_en TEXT Req; project_meta JSONB Req", "paragraphs ARRAY<(idx INTEGER, source_text TEXT, target_text TEXT, status ENUM(machine, reviewed))>; structure_version VARCHAR(20)", "paragraph alignment added (SC-28)"),
+  "F-M5-04": ("synopsis_en TEXT Req; project_meta JSONB Req; glossary ARRAY<(term_en VARCHAR(120), term_vi VARCHAR(120))> Opt", "paragraphs ARRAY<(idx INTEGER, source_text TEXT, target_text TEXT, status ENUM(machine, reviewed))>; structure_version VARCHAR(20)", "paragraph alignment added (SC-28)"),
   "F-M5-05": ("synopsis_en TEXT Req; synopsis_vi TEXT Req", "pdf_url TEXT; watermark BOOLEAN", "watermark always true"),
   "F-M5-06": ("document_id UUID Req; paragraph_idx INTEGER Opt; reviewer_id UUID Req; reviewer_org_id UUID Opt", "proofread_at TIMESTAMPTZ", "paragraph-level added; editing clears it"),
   "F-M5-07": ("shoot_date DATE Req; buffer_days INTEGER Req", "shoot_date DATE", "after today; buffer 0 / 7 / 14 / 21"),
@@ -493,7 +499,8 @@ MODULES.append(dict(
      ("BR-002", "Article 13 component b counts as present only when every paragraph of the Vietnamese version has been proofread by a person.", "Machine translation is not a Vietnamese script."),
      ("BR-003", "Each document item carries its basis: *Required by law*, *Commonly requested* or *Location-specific*; nothing is presented as mandatory without a legal basis.", "Honesty about what is actually required."),
      ("BR-004", "The document list is generated from `segment_requirements` plus shortlisted locations; it is never hard-coded.", "VFDA must be able to change it."),
-     ("BR-005", "The countdown uses the same calculation as M2 (F-M2-17) and the dashboard.", "One number everywhere.")],
+     ("BR-005", "The countdown uses the same calculation as M2 (F-M2-17) and the dashboard.", "One number everywhere."),
+     ("BR-006", "Glossary terms a project adds (SC-28) are stored with the project (`project_glossary`) and applied to every later draft of that project.", "The same word must be translated the same way in every document of one dossier.")],
  entities=[("DocumentType", "doc_code, name_vi, name_en, basis, template_url, segments", "has many DocumentSlots"),
            ("DocumentSlot", "project_id, doc_code, state", "belongs to Project; has many Documents"),
            ("Document", "document_id, file_path, version, uploaded_by, uploaded_at", "belongs to DocumentSlot"),
@@ -520,8 +527,8 @@ MODULES.append(dict(
         ("5. Functional requirements", "Function List rows 81–88", "`docs/function-list.md` rows 81–88"),
         ("5.2 BR-002", "Cinema Law 2022, Article 13 clause 3 (script in Vietnamese)", "legal source"),
         ("7. Screens", "Screen List SC-26, SC-28, SC-29", "`docs/screen-list.md` §1")],
- recon=[("Document states", "missing / uploaded / replaced", "present / needs_fix / pending / missing (shared with SC-27)", "Changed — Client to confirm"),
-        ("Proofreading", "Partner marks the whole document proofread", "Paragraph-level proofreading in the editor + partner confirmation", "Added — Client to confirm")],
+ recon=[("Document states", "missing / uploaded / replaced", "present / needs_fix / pending / missing (shared with SC-27)", "Changed — Confirmed by the Client"),
+        ("Proofreading", "Partner marks the whole document proofread", "Paragraph-level proofreading in the editor + partner confirmation", "Added — Confirmed by the Client")],
 ))
 
 # =============================================================================  M7
@@ -564,7 +571,7 @@ MODULES.append(dict(
     R1 --> E([The producer sees the status on the tracking page])
     R2 --> E
     R3 --> E""",
-"Textualised from `docs/architecture/usage-flow.md` flow 6, translated. Diamond Q added in Step 3 from F-M7-03 — awaiting Client confirmation.")],
+"Textualised from `docs/architecture/usage-flow.md` flow 6, translated. Diamond Q added in Step 3 from F-M7-03 — confirmed by the Client.")],
  seqs=[("4.2 Sequence — provincial notice (SEQ-11)",
 """sequenceDiagram
     actor U as Producer
@@ -598,7 +605,7 @@ MODULES.append(dict(
   "F-M7-02": ("interest_id UUID Req; project_summary TEXT Req; authority_email VARCHAR(254) Req; reviewed_by UUID Req", "notification_id UUID; delivery_status ENUM(queued, sent, bounced)", "reviewed_by added (VFDA review step, SC-32); needs first shooting day"),
   "F-M7-03": ("interest_id UUID Req; response ENUM(received, info_needed, cannot_support) Req; note TEXT Opt", "response_status ENUM; responded_at TIMESTAMPTZ", ""),
   "F-M7-04": ("project_id UUID Req", "interests ARRAY<(location_id UUID, response_status ENUM, responded_at TIMESTAMPTZ)>", "one card per province"),
-  "F-M7-05": ("topic ENUM Req; slot_start TIMESTAMPTZ Req; timezone VARCHAR(40) Req", "booking_id UUID", "IANA time zone"),
+  "F-M7-05": ("topic ENUM(dossier, locations, partners, provincial_notice, general) Req; slot_start TIMESTAMPTZ Req; timezone VARCHAR(40) Req", "booking_id UUID", "IANA time zone"),
   "F-M7-06": ("booking_id UUID Req; officer_id UUID Req", "booking_status ENUM(confirmed, rescheduled)", ""),
   "F-M7-07": ("booking_id UUID Req", "reminders ARRAY<notification>", "2 records, 24 h before"),
  },
@@ -615,7 +622,8 @@ MODULES.append(dict(
      ("Provinces reply to four in five notices within 7 working days.", "Reply times over the first 30 notices."),
      ("A producer abroad books a consultation in their own time zone in under 2 minutes.", "Timed test with 3 producers in different time zones.")],
  assumptions=["VFDA staff have capacity to review notices within 2 working days.",
-              "One notice per province per project, even when several locations are in the same province."],
+              "One notice per province per project, even when several locations are in the same province.",
+     "Test value used until VFDA confirms: VFDA staff are reminded to follow up a notice after 5 working days without reply."],
  oq=[("Does VFDA have the mandate / practice to send notices to Provincial People's Committees, and what is the official template?", True, "Client (VFDA)"),
      ("Is the notice addressed to the People's Committee or to the provincial Department of Culture?", True, "Client (VFDA)"),
      ("Automatic sending (DBIZ2 SEQ-11) or VFDA staff review before sending (SC-32)?", True, "Client (VFDA)"),
@@ -625,6 +633,6 @@ MODULES.append(dict(
         ("4.2 Sequence", "SEQ-11 (Figure 14)", "`docs/architecture/sequence-diagrams.md` — SEQ-11"),
         ("5. Functional requirements", "Function List rows 89–95", "`docs/function-list.md` rows 89–95"),
         ("7. Screens", "Screen List SC-32, SC-33", "`docs/screen-list.md` §1")],
- recon=[("Notice dispatch", "Sent automatically by a database webhook (SEQ-11)", "Drafted automatically, reviewed and sent by VFDA staff (SC-32)", "Open question 3"),
-        ("Module priority", "Must", "Should — Tier 2 of the screen list file (#20)", "Changed — Client to confirm")],
+ recon=[("Notice dispatch", "Sent automatically by a database webhook (SEQ-11)", "Drafted automatically, reviewed and sent by VFDA staff (SC-32)", "Open — see §10"),
+        ("Module priority", "Must", "Should — Tier 2 of the screen list file (#20)", "Changed — Confirmed by the Client")],
 ))

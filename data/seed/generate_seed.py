@@ -11,7 +11,8 @@ which is generated from 04-data-model.md. Rows are sorted by primary key; UTF-8,
 One fictional story runs through the rows, the same as the 20 mockups: project *The Last Ferry*,
 Harbour Line Films (Korea), segment A, first shooting day 2027-03-15, readiness 58 %,
 Bến Xưa Production Services has accepted the request and waits for confirmation.
-All companies, people, phone numbers and e-mail addresses are fictional.
+All companies, people, phone numbers and e-mail addresses are fictional; every phone number has the
+form +84 000 000 1xx, which cannot be a real Vietnamese number.
 """
 import csv, json, os, uuid
 
@@ -26,6 +27,7 @@ def fit(text, n, filler=" — continued description for the boundary row"):
         text += filler
     return text[:n]
 TS = lambda d, t="09:00": f"{d}T{t}:00+07:00"
+PHONE = lambda n: f"+84 000 000 {100 + n}"      # clearly fake, unique per row (n = 1..99)
 ROWS = {e: [] for e in SCHEMA}
 
 def add(entity, **kw):
@@ -62,7 +64,7 @@ for i, (name, slug, region, merged) in enumerate(PROV, 1):
 
 # ------------------------------------------------------------------ accounts
 USERS = [  # key, email, verified, role, created, full_name, crew_role, locale, producer_org
- ("park","minjun.park@harbourline.example.kr",True,"member","2026-08-30","Park Min-jun","producer","en","harbour"),
+ ("park","lena.park@harbourline.example.kr",True,"member","2026-08-30","Lena Park","producer","en","harbour"),
  ("han","jiwoo.han@harbourline.example.kr",True,"member","2026-09-02","Han Ji-woo","line_producer","en","harbour"),
  ("laurent","sophie.laurent@lumierenord.example.fr",True,"member","2026-09-05","Sophie Laurent","producer","en","lumiere"),
  ("okafor","daniel.okafor@kestrelpictures.example.co.uk",True,"member","2026-09-20","Daniel Okafor","director","en","kestrel"),
@@ -82,7 +84,12 @@ USERS = [  # key, email, verified, role, created, full_name, crew_role, locale, 
   True,"member","2026-09-15",
   fit("Alexandria Konstantinopoulou-Nguyễn Thị Phương Thảo de la Fontaine-Wickramasinghe, Head of International Co-productions", 120, " Jr"),
   "other","vi","harbour"),
+ # deleted by its owner on SC-08: deactivated and anonymised, rows it created are kept (SYS BR-005)
+ ("former","former-member-" + U("user:former")[:8] + "@anonymised.example",True,"member","2026-07-01","Former member",
+  "production_coordinator","en","northwind"),
 ]
+DEACTIVATED = {"former"}
+# `guest` is never stored: a guest is a visitor without an account, and a new account is always `member` (SYS BR-002)
 UID = {k: U("user:" + k) for k, *_ in USERS}
 ORGP = {  # producer organisations
  "harbour": ("Harbour Line Films","KR","https://harbourline.example.kr"),
@@ -99,7 +106,8 @@ PO = {k: U("porg:" + k) for k in ORGP}
 for k, (n, c, w) in ORGP.items():
     add("PRODUCER_ORGANISATION", producer_org_id=PO[k], org_name=n, country=c, website=w)
 for k, email, ver, role, created, name, crew, loc, org in USERS:
-    add("USER_ACCOUNT", user_id=UID[k], email=email, email_verified=str(ver).lower(), role=role, created_at=TS(created, "10:00"))
+    add("USER_ACCOUNT", user_id=UID[k], email=email, email_verified=str(ver).lower(), role=role,
+        account_status="deactivated" if k in DEACTIVATED else "active", created_at=TS(created, "10:00"))
     add("PROFILE", user_id=UID[k], full_name=name, crew_role=crew, locale=loc, producer_org_id=PO[org] if org else "")
     add("CONSENT", user_id=UID[k], consent_version="2026.1", accepted_at=TS(created, "10:01"))
 add("CONSENT", user_id=UID["park"], consent_version="2026.2", accepted_at=TS("2026-09-20", "08:15"))
@@ -158,7 +166,8 @@ MEM = [("ferry","park","park@","edit","accepted"),("ferry","han","han@","edit","
        ("blues","park","park@","edit","accepted"),("long","long","long@","edit","accepted"),
        ("old","laurent","laurent@","edit","accepted"),
        ("ferry","","seo.yeon.kim@harbourline.example.kr","view","pending"),   # invited, no account yet
-       ("rice","okafor","okafor@","view","accepted")]
+       ("rice","okafor","okafor@","view","accepted"),
+       ("sapa","former","former@","view","accepted")]   # kept after the account was deactivated (SYS BR-005)
 EMAIL = {k: e for k, e, *_ in USERS}
 for proj, user, mail, perm, st in MEM:
     email = EMAIL[user] if user else mail
@@ -183,7 +192,11 @@ DEC = [("ferry","r1",True,"abroad","foreign",["locations","crew"],"A","",[1,2,3]
        ("signal","r5",False,"","",["cast"],"C","",[1]),
        ("session:7c1e9a40","r1",True,"abroad","foreign",[],"B","B",[1,2,3]),      # override A -> B (M1 US-2)
        ("session:2b88f0d1","",False,"","",["locations"],"","",[]),               # answers match no rule (M1 edge case)
-       ("session:c4d2a716","r6",True,"abroad","coproduction",["crew"],"A","",[1,2,3])]
+       ("session:c4d2a716","r6",True,"abroad","coproduction",["crew"],"A","",[1,2,3]),
+       ("session:5e0f7b22","r3",True,"both","foreign",["equipment","locations"],"B","",[1,2,3]),
+       ("session:9a31c4e8","r4",True,"vietnam","vietnamese",["crew","equipment"],"B","",[1,2,3]),
+       ("session:d71f2c09","r2",True,"vietnam","foreign",["locations"],"A","A",[1,2,3]),   # override B -> A
+       ("session:0b6e93aa","r1",True,"abroad","foreign",["cast"],"C","C",[1,2,3])]        # override A -> C
 for i, (ref, rule, q1, q2, q3, q4, seg, ov, by) in enumerate(DEC):
     ref_val = ref if ref.startswith("session:") else PID[ref]
     add("SEGMENT_DECISION", segment_decision_id=U(f"decision:{i}:{ref}"), session_or_project_id=ref_val,
@@ -202,12 +215,13 @@ LR = [  # code, version, title_en, title_vi, severity, topic, status, approved
  ("A13-DOSSIER","2026.06","Four dossier components under Article 13, clause 3","Bốn thành phần hồ sơ theo khoản 3 Điều 13","action","dossier","approved"),
  ("A9-DRUG","","Depiction of drug use","Mô tả việc sử dụng ma túy","action","public_order","draft"),       # draft: no citation, no approver
  ("A9-HERIT","","Filming inside a protected heritage zone","Quay phim trong khu vực di sản được bảo vệ","notice","heritage","draft"),
+ ("A9-MAP","2026.06","Maps showing national borders (replaced by A9-LONG)","Bản đồ thể hiện đường biên giới quốc gia (thay bằng A9-LONG)","action","security","retired"),
  ("A9-LONG","2026.08",("Scenes involving border areas, border markers, border guard posts and the movement of people or goods "
    "across national borders, including dramatised smuggling, in any segment and any format of production")[:200],
    "Cảnh quay liên quan đến khu vực biên giới, cột mốc và đồn biên phòng","action","security","approved"),
 ]
 for code, ver, ten, tvi, sev, topic, st in LR:
-    ok = st == "approved"
+    ok = st in ("approved", "retired")       # a retired rule was signed before; it is never deleted (M2 BR-008)
     add("LEGAL_RULE", rule_id=U("rule:" + code), rule_code=code, rule_version=ver, title_vi=tvi, title_en=ten,
         description_vi=f"Mô tả quy tắc {code} — bản mẫu, chờ Ban Pháp chế VFDA soạn chính thức.",
         description_en=f"Description of rule {code} — mockup text, pending the VFDA Legal Board's wording.",
@@ -216,7 +230,7 @@ for code, ver, ten, tvi, sev, topic, st in LR:
         citation=("Law 05/2022/QH15, Art. 13(3)" if code.startswith("A13") else "Law 05/2022/QH15, Art. 9") if ok else "",
         severity=sev, topic=topic, rule_slug=code.lower(), status=st,
         approved_by=UID["quan"] if ok else "", approved_at=TS("2026-08-28" if ver == "2026.08" else "2026-07-20" if ver == "2026.07" else "2026-06-15", "15:30") if ok else "",
-        is_active=str(ok).lower())
+        is_active=str(st == "approved").lower())
 
 SYN = ("In 1972, an old ferryman carries villagers across a river between limestone karsts at dawn. One night, soldiers ask him "
        "to take them across in secret.")
@@ -277,7 +291,10 @@ LOC = [  # key, prov, vi, en, district, lat, lng, airport, scenes, crew, lodge, 
   fit("Khu du lịch Mũi Cà Mau – điểm cực Nam của Tổ quốc, rừng ngập mặn ven biển và bãi bồi tại huyện Ngọc Hiển, nơi đất liền vươn ra biển mỗi năm hàng chục mét", 200, " và rừng đước"),
   fit("Cà Mau Cape — the southernmost point of mainland Vietnam, with coastal mangrove forest and mudflats that grow into the sea every year", 200, " and mangroves"),
   "Ngọc Hiển",8.615000,104.724000,400,["mangrove","sea","village"],"u15",False,False,False,[1,2,3,4,5,6,7,8,9,10,11,12],"high",True),
+ ("cua-van","quang-ninh","Làng chài Cửa Vạn","Cửa Vạn Fishing Village","Hạ Long",20.845000,107.155000,55,
+  ["floating_village","sea","village"],"u15",False,False,False,[7,8,9],"medium",False),   # unpublished (M3 BR-008), still shortlisted
 ]
+UNPUBLISHED = {"cua-van": "Unpublished by VFDA: the floating village has moved ashore (2026-09)."}
 LID = {k: U("location:" + k) for k, *_ in LOC}
 for k, prov, vi, en, dist, lat, lng, air, sc, crew, lo, pw, tr, av, pc, pub in LOC:
     add("LOCATION", location_id=LID[k], slug=k, province_id=P[prov], name_vi=vi, name_en=en, district=dist,
@@ -286,32 +303,34 @@ for k, prov, vi, en, dist, lat, lng, air, sc, crew, lo, pw, tr, av, pc, pub in L
         crew_capacity=crew, lodging_20km=str(lo).lower(), grid_power=str(pw).lower(), truck_access=str(tr).lower(),
         months_to_avoid=J(av), permit_complexity=pc,
         restriction_note="Drones need a separate airspace permit." if k in ("ha-long","trang-an") else "",
-        intake_status="published" if pub else "awaiting_contact", published=str(pub).lower(),
-        blocked_reason="" if pub else "Authority contact not verified (M3 BR-004).")
+        intake_status="published" if pub else "unpublished" if k in UNPUBLISHED else "awaiting_contact", published=str(pub).lower(),
+        blocked_reason="" if pub else UNPUBLISHED.get(k, "Authority contact not verified (M3 BR-004)."))
 for k, n, src, right, st in [("trang-an",1,"VFDA field visit 2026-05","VFDA owned","approved"),("trang-an",2,"Ninh Bình Tourism Department","Licensed to VFDA","approved"),
                              ("ha-long",1,"VFDA field visit 2026-04","VFDA owned","approved"),("phong-nha",1,"Phong Nha – Kẻ Bàng National Park","Licensed to VFDA","approved"),
                              ("hoi-an",1,"VFDA field visit 2026-06","VFDA owned","approved"),("mu-cang-chai",1,"Photographer Lương Quốc Việt","Licensed to VFDA","approved"),
-                             ("cai-rang",1,"VFDA field visit 2026-07","VFDA owned","approved"),("mui-ne",1,"Unknown — found online","Unclear","rejected"),
-                             ("dong-van",1,"VFDA field visit 2026-08","VFDA owned","pending")]:
+                             ("cai-rang",1,"VFDA field visit 2026-07","VFDA owned","approved"),("mui-ne",1,"Unknown — found online","Unclear","hidden"),
+                             ("dong-van",1,"VFDA field visit 2026-08","VFDA owned","pending"),
+                             ("cai-rang",2,"Mekong Frame Co. (partner upload)","Owned by Mekong Frame Co., licensed to VFDA","pending")]:
     add("LOCATION_IMAGE", image_url=f"https://storage.cinematch.example/locations/{k}/{n:02d}.jpg", location_id=LID[k],
         image_source=src, usage_right=right, status=st)
-AC = [("trang-an","Ban Quản lý Quần thể danh thắng Tràng An","Bùi Văn Thành","+84 229 3890 112","lienhe@trangan.example.vn",True,"2026-05-20"),
-      ("tam-coc","UBND phường Hoa Lư","Đinh Thị Mai","+84 229 3618 204","",True,"2026-05-21"),
-      ("ha-long","Ban Quản lý vịnh Hạ Long","Hoàng Văn Sơn","+84 203 3846 592","phim@halongbay.example.vn",True,"2026-04-12"),
-      ("phong-nha","Ban Quản lý Vườn quốc gia Phong Nha – Kẻ Bàng","Trương Quang Hải","+84 232 3677 021","",True,"2026-06-02"),
-      ("hoi-an","Trung tâm Quản lý bảo tồn di sản văn hóa Hội An","Nguyễn Thị Hoa","+84 235 3861 327","disan@hoian.example.vn",True,"2026-06-18"),
-      ("mu-cang-chai","UBND xã Mù Cang Chải","Giàng A Páo","+84 216 3878 045","",True,"2026-07-08"),
-      ("cai-rang","UBND phường Cái Răng","Lâm Văn Hùng","+84 292 3846 110","",True,"2026-07-15"),
-      ("dong-van","UBND xã Đồng Văn","Vàng Mí Sính","+84 219 3856 201","",True,"2026-08-19"),
-      ("mui-ne","UBND phường Mũi Né","Phan Văn Lộc","+84 252 3847 000","",False,""),
-      ("ca-mau-cape","Ban Quản lý Vườn quốc gia Mũi Cà Mau","Tạ Thị Kim Ngân","+84 290 3880 555","vqg@muicamau.example.vn",True,"2016-01-04")]
+AC = [("trang-an","Ban Quản lý Quần thể danh thắng Tràng An","Bùi Văn Thành",PHONE(1),"lienhe@trangan.example.vn",True,"2026-05-20"),
+      ("tam-coc","UBND phường Hoa Lư","Đinh Thị Mai",PHONE(2),"",True,"2026-05-21"),
+      ("ha-long","Ban Quản lý vịnh Hạ Long","Hoàng Văn Sơn",PHONE(3),"phim@halongbay.example.vn",True,"2026-04-12"),
+      ("phong-nha","Ban Quản lý Vườn quốc gia Phong Nha – Kẻ Bàng","Trương Quang Hải",PHONE(4),"",True,"2026-06-02"),
+      ("hoi-an","Trung tâm Quản lý bảo tồn di sản văn hóa Hội An","Nguyễn Thị Hoa",PHONE(5),"disan@hoian.example.vn",True,"2026-06-18"),
+      ("mu-cang-chai","UBND xã Mù Cang Chải","Giàng A Páo",PHONE(6),"",True,"2026-07-08"),
+      ("cai-rang","UBND phường Cái Răng","Lâm Văn Hùng",PHONE(7),"",True,"2026-07-15"),
+      ("dong-van","UBND xã Đồng Văn","Vàng Mí Sính",PHONE(8),"",True,"2026-08-19"),
+      ("mui-ne","UBND phường Mũi Né","Phan Văn Lộc",PHONE(9),"",False,""),
+      ("ca-mau-cape","Ban Quản lý Vườn quốc gia Mũi Cà Mau","Tạ Thị Kim Ngân",PHONE(10),"vqg@muicamau.example.vn",True,"2016-01-04"),
+      ("cua-van","UBND phường Hồng Gai","Vũ Thị Hằng",PHONE(11),"",True,"2026-06-15")]
 for k, auth, name, phone, mail, ver, d in AC:
     add("AUTHORITY_CONTACT", location_id=LID[k], authority_name=auth, contact_name=name, contact_phone=phone,
         contact_email=mail, verified_by=UID["thuha"] if ver else UID["phuc"], verified_at=TS(d, "10:00") if ver else "",
         contact_verified=str(ver).lower())
 for proj, loc, role in [("ferry","trang-an","primary"),("ferry","tam-coc","backup"),("ferry","ha-long","backup"),
                         ("rice","cai-rang","primary"),("sapa","mu-cang-chai","primary"),("lantern","hoi-an","primary"),
-                        ("blues","ha-long","primary"),("long","ca-mau-cape","primary")]:
+                        ("blues","ha-long","primary"),("blues","cua-van","backup"),("long","ca-mau-cape","primary")]:
     add("PROJECT_SHORTLIST", shortlist_id=U(f"short:{proj}:{loc}"), project_id=PID[proj], location_id=LID[loc], role=role)
 
 # ------------------------------------------------------------------ M4 partners
@@ -327,13 +346,15 @@ ORG = [  # key, name, legal, founded, hq, groups, provinces, verified_at, until,
  ("long",fit("Công ty Cổ phần Dịch vụ Sản xuất Phim, Truyền hình, Quảng cáo, Âm nhạc và Tổ chức Sự kiện Quốc tế Đồng bằng sông Cửu Long – Chi nhánh Thành phố Hồ Chí Minh", 200, " và các tỉnh"),
   "Công ty cổ phần",1990,"ho-chi-minh",["full_production","permits_paperwork","casting","crew","camera_lighting","studios_interiors","location_management",
   "transport_logistics","lodging_catering","interpreting","insurance_legal","post_production"],[s for _, s, _, _ in PROV],"2026-09-01","2027-09-01",True),
+ ("cuulongdrone","Cửu Long Drone Works","Công ty TNHH",2018,"can-tho",["camera_lighting","post_production"],["can-tho","vinh-long"],"","",False),  # deactivated (M4 BR-008)
 ]
+DEACTIVATED_ORGS = {"cuulongdrone"}
 OID = {k: U("org:" + k) for k, *_ in ORG}
 for k, name, legal, fy, hq, groups, provs, va, vu, a13 in ORG:
     add("ORGANISATION", org_id=OID[k], slug=k, org_name=name, legal_form=legal, founded_year=fy, hq_province=P[hq],
         service_groups=J(groups), provinces=J([P[p] for p in provs]), verified_at=TS(va, "11:00") if va else "",
-        verified_until=vu, art13_eligible=str(a13).lower())
-for k, cap_vi, cap_en, n, langs in [
+        verified_until=vu, art13_eligible=str(a13).lower(), org_status="deactivated" if k in DEACTIVATED_ORGS else "active")
+LAYERS = [
     ("benxua","Sản xuất trọn gói, xin phép và điều phối đoàn quốc tế.","Full production services, permits and coordination of international crews.",12,["en","ko"]),
     ("dongang","Dịch vụ sản xuất và khảo sát bối cảnh miền Trung.","Production services and location scouting in central Vietnam.",7,["en","fr"]),
     ("mekong","Dịch vụ sản xuất và hậu cần vùng Đồng bằng sông Cửu Long.","Production and logistics in the Mekong Delta.",2,["en"]),
@@ -341,15 +362,15 @@ for k, cap_vi, cap_en, n, langs in [
     ("halongmarine","Tàu thuyền, lưu trú và hậu cần trên vịnh.","Boats, lodging and logistics on the bay.",5,["en","zh"]),
     ("hoiancasting","Tuyển diễn viên và phiên dịch.","Casting and interpreting.",0,["en"]),
     ("songhau","Sản xuất trọn gói miền Tây.","Full production services in the Mekong Delta.",4,["en","fr"]),
-    ("long","Dịch vụ sản xuất phim trọn gói trên toàn quốc.","Nationwide full production services.",40,["en","fr","ko","ja","zh","de"])]:
+    ("long","Dịch vụ sản xuất phim trọn gói trên toàn quốc.","Nationwide full production services.",40,["en","fr","ko","ja","zh","de"])]
+for n, (k, cap_vi, cap_en, n_intl, langs) in enumerate(LAYERS, 21):
     add("ORGANISATION_MEMBER_LAYER", org_id=OID[k], capability_desc_vi=cap_vi, capability_desc_en=cap_en,
-        portfolio=J([f"Portfolio project {i}" for i in range(1, min(n, 3) + 1)]) if n else "",
-        intl_project_count=n, working_languages=J(langs))
+        portfolio=J([f"Portfolio project {i}" for i in range(1, min(n_intl, 3) + 1)]) if n_intl else "",
+        intl_project_count=n_intl, working_languages=J(langs))
     add("ORGANISATION_PRIVATE_LAYER", org_id=OID[k],
         rate_card=J({"line_producer_day_vnd": 6500000, "fixer_day_vnd": 3000000}) if k != "hoiancasting" else "",
-        past_clients=J(["Kestrel Pictures","Northwind Documentary"]) if n else "",
-        direct_contact={"benxua":"Phạm Ngọc Lan · +84 912 450 318","dongang":"Đỗ Văn Khải · +84 903 211 674",
-                        "mekong":"Huỳnh Minh Tuấn · +84 939 552 801"}.get(k, "Office · +84 28 3822 0000"))
+        past_clients=J(["Kestrel Pictures","Northwind Documentary"]) if n_intl else "",
+        direct_contact={"benxua":"Phạm Ngọc Lan","dongang":"Đỗ Văn Khải","mekong":"Huỳnh Minh Tuấn"}.get(k, "Office") + " · " + PHONE(n))
 for k, org, refs, st, by, reason in [
     ("v1","benxua",["Seoul Night (KR, 2024)","Blue River (FR, 2025)"],"approved","thuha",""),
     ("v2","dongang",["Imperial City (JP, 2023)","The Pass (AU, 2025)"],"approved","thuha",""),
@@ -372,6 +393,7 @@ CR = [  # key, project, org, services, note, status, response, sent, responded, 
  ("c6","sapa","saigonline",["crew","camera_lighting"],"","pending","","2026-09-25","",""),
  ("c7","blues","halongmarine",["transport_logistics"],"Dawn shoot on the wharf.","confirmed","Confirmed for 08/11.","2026-08-20","2026-08-21","2026-08-25"),
  ("c8","long","long",["full_production"],fit("We are looking for a nationwide partner for a 34-province documentary.", 1000, " Please see the itinerary for each province."),"pending","","2026-09-26","",""),
+ ("c9","rice","cuulongdrone",["camera_lighting"],"Aerial shots over the salt fields.","withdrawn","","2026-09-05","",""),  # closed when the organisation was deactivated (M4 BR-008)
 ]
 for k, proj, org, sv, note, st, rn, sent, resp, conf in CR:
     add("COLLAB_REQUEST", request_id=U("collab:" + k), project_id=PID[proj], org_id=OID[org], services=J(sv), note=note,
@@ -470,6 +492,7 @@ NOT = [  # key, project, location, created, reviewed, sent, delivery, received, 
  ("i5","lantern","hoi-an","2026-09-18","","","","","","",""),                     # drafted, not yet reviewed
  ("i6","blues","ha-long","2026-08-22","thuha","2026-08-23","bounced","","","",""),  # authority email bounced
  ("i7","signal","cai-rang","2026-09-21","","","","","","",""),                     # no first shooting day: sending blocked (M7 US-1)
+ ("i8","ferry","tam-coc","2026-09-28","phuc","","queued","","","",""),              # reviewed, waiting in the e-mail queue
 ]
 for k, proj, loc, dr, rv, sent, dl, rec, resp, note, rd in NOT:
     add("LOCATION_INTEREST", interest_id=U("interest:" + k), project_id=PID[proj], location_id=LID[loc], created_at=TS(dr, "08:40"))
@@ -497,7 +520,8 @@ NOTIF = [("n1","park","collab_request.accepted",{"request":"c1","org":"Bến Xư
          ("n5","tanaka","collab_request.declined",{"request":"c5"},"2026-09-11T15:11",""),
          ("n6","khai","verification.expiring",{"days_left":30},"2026-02-18T08:00",""),
          ("n7","thuha","province_notice.bounced",{"interest":"i6"},"2026-08-23T09:05","2026-08-23T09:30"),
-         ("n8","park","consultation.reminder",{"booking":"b1"},"2026-10-05T08:00","")]
+         ("n8","park","consultation.reminder",{"booking":"b1"},"2026-10-05T08:00",""),
+         ("n9","laurent","collab_request.withdrawn",{"request":"c9","reason":"organisation_deactivated"},"2026-09-24T10:00","")]
 for k, user, ev, payload, created, read in NOTIF:
     add("NOTIFICATION", notification_id=U("notif:" + k), recipient_id=UID[user], event_type=ev, payload=J(payload),
         created_at=created + ":00+07:00", read_at=(read + ":00+07:00") if read else "")
@@ -512,8 +536,80 @@ for k, notif, tpl, mail, vars_, st, msg in [
     add("EMAIL_DELIVERY", email_delivery_id=U("email:" + k), notification_id=U("notif:" + notif) if notif else "",
         template_id=tpl, recipient_email=mail, variables=J(vars_), delivery_status=st, provider_message_id=msg)
 
-# LOCATION_QUERY, COLLAB_MESSAGE, PROJECT_GLOSSARY: no function creates rows (02-crud-matrix, anomalies
-# kind 1 and 5). Writing rows would invent behaviour, so these files carry the header only.
+# ------------------------------------------------------------------ M3 location queries (F-M3-11, M3 BR-009: no personal data)
+LQ = [  # key, project, month, description, attributes
+ ("q1","ferry",3,"An old wooden ferry crossing a calm river between limestone karsts at dawn, a 1970s village on the bank.",
+  {"scene_types":["karst","river","village"],"era":"1970s","time_of_day":"dawn","water":"river","terrain":["karst"],"crowd_scale":"small","constraints":[]}),
+ ("q2","",5,"Busy floating market at sunrise with dozens of boats selling fruit.",
+  {"scene_types":["floating_village","market","river"],"era":"contemporary","time_of_day":"dawn","water":"river","terrain":[],"crowd_scale":"large","constraints":[]}),
+ ("q3","",9,"Ruộng bậc thang mùa lúa chín, có sương sớm và nhà sàn.",
+  {"scene_types":["rice_terrace","mountain","village"],"era":"contemporary","time_of_day":"morning","water":"none","terrain":["terraces"],"crowd_scale":"none","constraints":[]}),
+ ("q4","lantern",6,"Night market lit by hundreds of silk lanterns along an old river street.",
+  {"scene_types":["old_town","market","river"],"era":"contemporary","time_of_day":"night","water":"river","terrain":[],"crowd_scale":"large","constraints":["night_shooting"]}),
+ ("q5","",None,"Cave river",{"scene_types":["cave","river"],"era":"any","time_of_day":"any","water":"river","terrain":["cave"],"crowd_scale":"none","constraints":[]}),  # 10 characters, the minimum
+ ("q6","long",12,fit("A long journey south along the coast: mangrove forests, fishing villages and mudflats at low tide, filmed over several days.",
+  1000, " Then the road continues to the next province."),
+  {"scene_types":["mangrove","sea","village"],"era":"contemporary","time_of_day":"any","water":"sea","terrain":["mudflat"],"crowd_scale":"small","constraints":[]}),  # 1000 characters, the maximum
+]
+for k, proj, month, desc, attrs in LQ:
+    add("LOCATION_QUERY", query_id=U("query:" + k), project_id=PID[proj] if proj else "", scene_description=desc,
+        shoot_month=month if month else "", attributes=J(attrs))
+
+# ------------------------------------------------------------------ M4 request messages (F-M4-14, M4 BR-009)
+for k, req, author, d, body in [
+    ("m1","c1","lan","2026-09-22T15:10","Happy to support. Proposal attached; rates available after the NDA."),
+    ("m2","c1","park","2026-09-22T18:05","Thank you. We will accept the NDA tomorrow and share the Ninh Bình schedule."),
+    ("m3","c1","lan","2026-09-23T09:20","Received. Our line producer can join the scouting in October."),
+    ("m4","c4","laurent","2026-09-15T08:30","Weekly schedule attached, as requested.")]:
+    add("COLLAB_MESSAGE", message_id=U("message:" + k), request_id=U("collab:" + req), author_id=UID[author],
+        created_at=d + ":00+07:00", body=body)
+
+# ------------------------------------------------------------------ M5 project glossary (F-M5-04, M5 BR-006)
+for en, vi in [("ferry","đò"),("ferryman","người lái đò"),("landing","bến"),("karst","núi đá vôi")]:
+    add("PROJECT_GLOSSARY", project_id=PID["ferry"], term_en=en, term_vi=vi)
+
+# ------------------------------------------------------------------ M10 moderation, audit log, quarterly report
+IMG = lambda loc, n: f"https://storage.cinematch.example/locations/{loc}/{n:02d}.jpg"
+MOD = [  # key, type, org, image, submitted_by, submitted, status, reason, decided_by, decided
+ ("mod-mekong-1","org_profile","mekong","","tuan","2026-09-11T10:00","approved","","thuha","2026-09-12T09:30"),
+ ("mod-mekong-2","org_profile","mekong","","tuan","2026-09-26T16:20","pending","","",""),                  # M10 US-1: edit waits, old text stays public
+ ("mod-cairang-2","location_image","",IMG("cai-rang",2),"tuan","2026-09-27T11:05","pending","","",""),
+ ("mod-muine-1","location_image","",IMG("mui-ne",1),"tuan","2026-09-02T14:00","hidden",
+  "Source and usage right are unclear; upload a photo you own or have a licence for.","phuc","2026-09-03T10:15"),
+]
+MID = {k: U("moderation:" + k) for k, *_ in MOD}
+for k, ct, org, img, by, sub, st, reason, dec, dat in MOD:
+    add("MODERATION_ITEM", content_id=MID[k], content_type=ct, organisation_id=OID[org] if org else "",
+        location_image_id=img, submitted_by=UID[by], submitted_at=sub + ":00+07:00", content_status=st, reason=reason,
+        decided_by=UID[dec] if dec else "", decided_at=(dat + ":00+07:00") if dat else "")
+REPORT = U("report:2026-Q3")
+AUD = [  # key, action, admin, target, logged
+ ("a01","role.grant","ducanh",UID["lan"],"2026-06-10T10:30"),                 # SYS BR-002
+ ("a02","location.publish","thuha",LID["trang-an"],"2026-06-02T09:10"),       # M10 US-4
+ ("a03","location.publish","thuha",LID["tam-coc"],"2026-06-02T09:15"),
+ ("a04","org.verify.approve","thuha",U("verif:v1"),"2026-06-12T11:00"),
+ ("a05","org.verify.reject","thuha",U("verif:v5"),"2026-06-20T14:30"),
+ ("a06","org.verify.approve","ducanh",U("verif:v8"),"2026-09-01T11:00"),
+ ("a07","rule.sign","quan",U("rule:A9-PERSON"),"2026-08-28T15:30"),
+ ("a08","rule.retire","quan",U("rule:A9-MAP"),"2026-08-28T15:35"),            # M2 BR-008
+ ("a09","content.approve","thuha",MID["mod-mekong-1"],"2026-09-12T09:30"),     # M10 US-1
+ ("a10","content.hide","phuc",MID["mod-muine-1"],"2026-09-03T10:15"),
+ ("a11","location.unpublish","phuc",LID["cua-van"],"2026-09-19T16:40"),       # M3 BR-008
+ ("a12","report.export","thuha",REPORT,"2026-09-30T16:01"),                   # M10 US-3
+]
+for k, act, by, target, at in AUD:
+    add("AUDIT_LOG", audit_log_id=U("audit:" + k), action=act, admin_id=UID[by], target_id=target, logged_at=at + ":00+07:00")
+DEMAND_Q3 = [  # six indicators, each with its sample size; below 5 records: not enough data (M10 BR-003)
+ {"indicator":1,"value":62.5,"sample_size":8},{"indicator":2,"value":50.0,"sample_size":8},
+ {"indicator":3,"value":33.3,"sample_size":6},{"indicator":4,"value":None,"sample_size":0,"note":"not_enough_data"},
+ {"indicator":5,"value":None,"sample_size":3,"note":"not_enough_data"},{"indicator":6,"value":None,"sample_size":0,"note":"not_enough_data"}]
+add("QUARTERLY_REPORT", report_id=REPORT, period_start="2026-07-01", period_end="2026-09-30", demand_index=J(DEMAND_Q3),
+    narrative_vi="Quý III/2026: 8 dự án quốc tế [chỉ số 1]; 62,5 % đến từ Hàn Quốc và Pháp [chỉ số 1]. "
+                 "Chỉ số 4, 5 và 6 chưa đủ dữ liệu. Bản nháp — đã được cán bộ VFDA đọc lại.",
+    narrative_en="Q3 2026: 8 international projects [indicator 1]; 62.5 % from Korea and France [indicator 1]. "
+                 "Indicators 4, 5 and 6 have not enough data. Draft — reread by VFDA staff.",
+    reread_by=UID["thuha"], report_pdf_url="https://storage.cinematch.example/private/reports/2026-q3.pdf",
+    exported_at=TS("2026-09-30", "16:00"))
 
 # ------------------------------------------------------------------ write
 def pkey(entity):

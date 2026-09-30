@@ -1,12 +1,13 @@
 member_id,project_id,user_id,invitee_email,permission,invite_status
 028190cc-6680-5412-8f51-dda39173010f,a745bb54-573f-5e8f-9d99-2d7e9af46ccf,95f36904-6141-5469-8c63-712a80a4295e,sophie.laurent@lumierenord.example.fr,edit,accepted
 029931eb-4f45-58eb-9adb-903fa5e6051d,196465cf-563e-507e-aa03-b73497ac8e56,118de3c8-88eb-5003-a2f9-26bbdd0186ae,yui.tanaka@sakuralane.example.jp,edit,accepted
-093df3a1-c92c-5073-bd55-7ef0df1404f5,d74c8638-b266-5ed1-bc2c-ca130a0463da,4ef79de6-8efb-58f7-8514-9c0532345ac4,minjun.park@harbourline.example.kr,edit,accepted
+32f06a0b-0b9e-5924-9638-9081e40f7466,8b0fd28f-7963-5089-879a-6970d82e04af,4ef79de6-8efb-58f7-8514-9c0532345ac4,lena.park@harbourline.example.kr,edit,accepted
 32f356b9-0ae7-55af-910c-451073b873de,03f0d59d-ab53-519c-912e-71c66f38f3b6,18557ae8-32fa-5e30-9f76-295c73953f1d,liam.walsh@northwinddocs.example.com.au,edit,accepted
-7264cca9-4c59-50ea-96ae-3a071df3d1a3,f1419149-4224-59e3-84d5-0697a882957c,4ef79de6-8efb-58f7-8514-9c0532345ac4,minjun.park@harbourline.example.kr,edit,accepted
 b28f0265-0e14-5d58-8721-e71eb9e3bdb4,acbcadc9-e8ae-5507-b207-6322f59faf0e,2985398f-7372-5d92-a85d-117c3a4b91e4,daniel.okafor@kestrelpictures.example.co.uk,view,accepted
+b429409b-c824-5824-927d-b0227b94ea22,f1419149-4224-59e3-84d5-0697a882957c,4ef79de6-8efb-58f7-8514-9c0532345ac4,lena.park@harbourline.example.kr,edit,accepted
 c6351db0-aa95-5fa0-bc56-034f01553c36,d74c8638-b266-5ed1-bc2c-ca130a0463da,,seo.yeon.kim@harbourline.example.kr,view,pending
 cb412911-341a-5ed5-91da-3accaae49dcd,d74c8638-b266-5ed1-bc2c-ca130a0463da,b9916111-9b75-5ab9-b88c-4d578a87cd46,jiwoo.han@harbourline.example.kr,edit,accepted
 ce44370b-a8fe-58bb-b7ff-58e7f98da281,acbcadc9-e8ae-5507-b207-6322f59faf0e,95f36904-6141-5469-8c63-712a80a4295e,sophie.laurent@lumierenord.example.fr,edit,accepted
 d67f114c-c14e-5291-879f-125e75e57651,d43ad9c0-24eb-55e2-a41b-60a19c446eb2,f438b0ab-932f-5687-9e92-e2c6484142f8,international.coproductions.and.location.services.desk.team.team@coproduction-department-desk-desk-desk-desk-desk-desk-d.international-location-services-desk-desk-desk-desk-des.asia-pacific-region-desk-desk-desk-desk-desk-desk-desk-.harbourlin.example.kr,edit,accepted
-ef36b106-350f-5d43-8c35-967f21cc475a,8b0fd28f-7963-5089-879a-6970d82e04af,4ef79de6-8efb-58f7-8514-9c0532345ac4,minjun.park@harbourline.example.kr,edit,accepted
+d8f974a5-2f49-5bc6-b226-3ea2060e3fac,03f0d59d-ab53-519c-912e-71c66f38f3b6,2e513ee3-0d58-52f1-b847-91de33b554ce,former-member-2e513ee3@anonymised.example,view,accepted
+eb85fc9a-b74d-504b-9767-88a5ab5e887d,d74c8638-b266-5ed1-bc2c-ca130a0463da,4ef79de6-8efb-58f7-8514-9c0532345ac4,lena.park@harbourline.example.kr,edit,accepted

@@ -97,7 +97,7 @@ def data_word():
     out = f"{ROOT}/docs/word/data"; os.makedirs(out, exist_ok=True)
     t = tempfile.mkdtemp()
     names = {"SYS": "Platform foundation", "M1": "Segment router", "M0": "Project workspace", "M2": "Content and dossier checks",
-             "M3": "Location discovery", "M4": "Vietnamese service partners", "M5": "Dossier kit", "M7": "VFDA support"}
+             "M3": "Location discovery", "M4": "Vietnamese service partners", "M5": "Dossier kit", "M7": "VFDA support", "M10": "VFDA back office"}
     for name in ["01-entity-dictionary", "02-crud-matrix", "04-data-model", "05-review"]:
         md = re.sub(r"^---\n.*?\n---\n", "", open(f"{ROOT}/data/{name}.md", encoding="utf-8").read(), flags=re.S)
         if name == "04-data-model":
@@ -114,6 +114,7 @@ def data_word():
 if __name__ == "__main__":
     build_reference()
     data_word()
+    convert(f"{ROOT}/docs/prd.md", f"{ROOT}/docs/word/prd.docx", f"{ROOT}/docs")
     for md in sorted(glob.glob(f"{ROOT}/docs/spec/spec-*.md")):
         convert(md, f"{ROOT}/docs/word/specs/" + os.path.basename(md)[:-3] + ".docx", f"{ROOT}/docs/spec")
     for md in sorted(glob.glob(f"{ROOT}/docs/screens/screen-spec-*.md")):

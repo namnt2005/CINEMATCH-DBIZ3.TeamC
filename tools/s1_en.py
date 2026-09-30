@@ -174,7 +174,7 @@ add(dict(
   ("Verification link in the email", "tap", "Verifies and creates a login session", "SC-02"),
   ("*Forgot password?* (Log in tab)", "tap", "—", "SC-06"),
   ("Terms / Policy links", "tap", "Open in a new tab", "SC-43 / SC-42"),
-  ("*Contact VFDA for an invitation*", "tap", "Opens the booking form with topic *Supplier registration*", "SC-33"),
+  ("*Contact VFDA for an invitation*", "tap", "Opens the booking form with topic *General* (`general`) and the note *Supplier registration*", "SC-33"),
  ],
  sr=[
   ("Passwords, password hashing and JWTs are **handled by Supabase Auth**; the app does not implement them itself.", "TL5 §M-SYS"),
@@ -414,7 +414,7 @@ add(dict(
   (3, "Project name + segment + organisation", "Header", "`projects.name`, `projects.segment`, `organizations_producer.name`", "Yes", "—"),
   (4, "First shooting day + countdown", "Text", "`projects.shooting_start_date`", "No", "none → *not set* and a *Set date* button"),
   (5, "Overall readiness", "Text + bar", "`v_project_readiness.overall_score`", "Yes", "0–100, integer"),
-  (6, "Gauges (5)", "Chart (gauge)", "`v_project_readiness.<group>_score`", "Yes", "number of gauges shown depends on the segment — see SR"),
+  (6, "Gauges (5)", "Chart (gauge)", "`v_project_readiness` — one `*_score` column per gauge", "Yes", "number of gauges shown depends on the segment — see SR"),
   (7, "*Next step* sentence", "Text", "`F-M0-07` — rule-generated, no language model", "Yes", "always present; when done, shows *Complete*"),
   (8, "Gauge action button", "Button", "static; target per gauge", "—", "—"),
   (9, "*Logistics* gauge (not yet available)", "Chart (gauge)", "static", "—", "shows `—`, not 0%"),
@@ -579,7 +579,7 @@ add(dict(
  module="M2", actor="Guest / Member", prio="Must", route="/pre-check/r/[id]",
  design_note="Highlight risk points, suggest how to adjust.",
  new_note="**New Screen ID.** Screen List v2.0 did not have this screen (results were part of `SC-03`). `SC-48` has been added to `docs/screen-list.md`.",
- law_note="The screen list file says *\"highlight risk points under Article 13\"*. The mockup and spec use **Article 9** for content, because Article 9 of the Cinema Law 2022 defines prohibited content; Article 13 defines the dossier components and is checked on `SC-27`. The team needs to confirm this interpretation.",
+ law_note="The screen list file says *\"highlight risk points under Article 13\"*. The mockup and spec use **Article 9** for content, because Article 9 of the Cinema Law 2022 defines prohibited content; Article 13 defines the dossier components and is checked on `SC-27`. Group C adopted this interpretation, and the Screen List note was updated to match.",
  shown="A pre-check finishes from `SC-03`, or a member reopens a saved check from the *Content & compliance* gauge on `SC-12`.",
  leave="The user edits and re-checks (`SC-03`), saves to a project (`SC-12`, login required) or books a consultation (`SC-33`).",
  el=[
@@ -623,7 +623,6 @@ add(dict(
  ],
  fr=[("F-M2-06", "Review and return preliminary warnings"), ("F-M2-11", "Call the model with the rule set"), ("F-M2-12", "Verify citations by code"), ("F-M2-13", "Display findings with provisions"), ("F-M2-14", "Mark as reviewed (once saved to a project)")],
  resp=["Minimum supported width: **360px**.", "Narrow screens: submitted text on top, finding cards below; tapping a number in a highlight scrolls to the matching card.", "Highlights use `<mark>` with a `<sup>` number; screen readers announce *point of attention number 1*.", "Provision citations are selectable, copyable text."],
- oq=[("[NEEDS CLARIFICATION: team to confirm that content uses Article 9 (prohibited content) instead of Article 13 as stated in the screen list file]", True),
-     ("[NEEDS CLARIFICATION: the specific clause of Article 9 for each rule is to be filled in `rules.citation` by the VFDA Legal Board; the mockup only goes to Article level]", False),
+ oq=[("[NEEDS CLARIFICATION: the specific clause of Article 9 for each rule is to be filled in `rules.citation` by the VFDA Legal Board; the mockup only goes to Article level]", False),
      ("[NEEDS CLARIFICATION: thresholds for mapping number of findings × severity to Low / Medium / High]", True)],
 ), html)

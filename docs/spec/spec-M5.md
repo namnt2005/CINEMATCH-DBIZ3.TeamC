@@ -87,7 +87,7 @@ This module gives each project the list of documents its segment needs, stores t
 
 ### 4.1 Usage flow — dossier loop (excerpt of the producer journey)
 
-> Excerpt of `docs/architecture/usage-flow.md` flow 1, translated. Diamonds Q3, Q4 added in Step 3 — awaiting Client confirmation.
+> Excerpt of `docs/architecture/usage-flow.md` flow 1, translated. Diamonds Q3, Q4 added in Step 3 — confirmed by the Client.
 
 ```mermaid
 flowchart TD
@@ -145,14 +145,15 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 
 | FR ID | Input field | Type | Required | Output field | Type | Notes / validation |
 |---|---|---|---|---|---|---|
-| FR-001 | `segment` | `ENUM(A, B, C)` | Yes | `required_documents` | `ARRAY<(doc_code VARCHAR(40), name_vi TEXT, name_en TEXT, basis ENUM(law, common, location), template_url TEXT)>` | basis added (SC-26) |
+| FR-001 | `segment` | `ENUM(A, B, C)` | Yes | `required_documents` | `(doc_code VARCHAR(40), name_vi TEXT, name_en TEXT, basis ENUM(law, common, location), template_url TEXT)[]` | basis added (SC-26) |
 |  | `project_id` | `UUID` | Yes |  |  |  |
 | FR-002 | `project_id` | `UUID` | Yes | `document_id` | `UUID` | PDF / DOCX, max 25 MB; previous versions kept |
 |  | `doc_code` | `VARCHAR(40)` | Yes |  |  |  |
 |  | `file` | `BYTEA` | Yes |  |  |  |
-| FR-003 | `project_id` | `UUID` | Yes | `doc_status` | `ARRAY<(doc_code VARCHAR(40), state ENUM(present, needs_fix, pending, missing))>` | states changed from DBIZ2 — see §11 |
-| FR-004 | `synopsis_en` | `TEXT` | Yes | `paragraphs` | `ARRAY<(idx INTEGER, source_text TEXT, target_text TEXT, status ENUM(machine, reviewed))>` | paragraph alignment added (SC-28) |
+| FR-003 | `project_id` | `UUID` | Yes | `doc_status` | `(doc_code VARCHAR(40), state ENUM(present, needs_fix, pending, missing))[]` | states changed from DBIZ2 — see §11 |
+| FR-004 | `synopsis_en` | `TEXT` | Yes | `paragraphs` | `(idx INTEGER, source_text TEXT, target_text TEXT, status ENUM(machine, reviewed))[]` | paragraph alignment added (SC-28) |
 |  | `project_meta` | `JSONB` | Yes | `structure_version` | `VARCHAR(20)` |  |
+|  | `glossary` | `(term_en VARCHAR(120), term_vi VARCHAR(120))[]` | No |  |  |  |
 | FR-005 | `synopsis_en` | `TEXT` | Yes | `pdf_url` | `TEXT` | watermark always true |
 |  | `synopsis_vi` | `TEXT` | Yes | `watermark` | `BOOLEAN` |  |
 | FR-006 | `document_id` | `UUID` | Yes | `proofread_at` | `TIMESTAMPTZ` | paragraph-level added; editing clears it |
@@ -172,6 +173,7 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 | BR-003 | Each document item carries its basis: *Required by law*, *Commonly requested* or *Location-specific*; nothing is presented as mandatory without a legal basis. | Honesty about what is actually required. |
 | BR-004 | The document list is generated from `segment_requirements` plus shortlisted locations; it is never hard-coded. | VFDA must be able to change it. |
 | BR-005 | The countdown uses the same calculation as M2 (F-M2-17) and the dashboard. | One number everywhere. |
+| BR-006 | Glossary terms a project adds (SC-28) are stored with the project (`project_glossary`) and applied to every later draft of that project. | The same word must be translated the same way in every document of one dossier. |
 
 ## 6. Key entities
 
@@ -208,7 +210,15 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 
 ## 10. Open questions
 
-_Open questions are tracked outside this repository until they are resolved._
+| # | Question | Blocking? | Owner | Status |
+|---|---|---|---|---|
+| 1 | [NEEDS CLARIFICATION: Document list for segment C.] *(also raised in SC-26)* | Yes | Client (VFDA Legal Board) | Open |
+| 2 | [NEEDS CLARIFICATION: Who may mark a paragraph proofread: any project member, or only the confirmed Vietnamese partner?] | No | Client (VFDA) | Open |
+| 3 | [NEEDS CLARIFICATION: Which translation service may process scripts, which are confidential?] *(also raised in SC-28)* | Yes | Group C + Client | Open |
+| 4 | [NEEDS CLARIFICATION: Are *foreign crew list* and *provincial notice* required anywhere, or only common practice?] *(also raised in SC-26)* | No | Client (VFDA Legal Board) | Open |
+| 5 | [NEEDS CLARIFICATION: Official Lunar New Year 2027 holiday dates.] *(also raised in SC-29)* | No | Client (VFDA) | Open |
+| 6 | [NEEDS CLARIFICATION: must the proofreader be Vietnamese / a certified translator, and must the proofreader be named in the submitted dossier] *(from SC-28)* | No | Client (VFDA Legal Board) | Open |
+| 7 | [NEEDS CLARIFICATION: are the "20 days" calendar days or working days — if working days, the safe deadline moves about 3 weeks earlier] *(from SC-29)* | Yes | Client (VFDA Legal Board) — same question as spec-M2.md | Open |
 
 ## 11. Traceability to DBIZ2
 
@@ -227,19 +237,19 @@ Where the 20-screen design or this spec differs from the DBIZ2 Function List, th
 
 | Topic | DBIZ2 / System Design v2.0 | This spec | Status |
 |---|---|---|---|
-| Document states | missing / uploaded / replaced | present / needs_fix / pending / missing (shared with SC-27) | Changed — Client to confirm |
-| Proofreading | Partner marks the whole document proofread | Paragraph-level proofreading in the editor + partner confirmation | Added — Client to confirm |
+| Document states | missing / uploaded / replaced | present / needs_fix / pending / missing (shared with SC-27) | Changed — Confirmed by the Client |
+| Proofreading | Partner marks the whole document proofread | Paragraph-level proofreading in the editor + partner confirmation | Added — Confirmed by the Client |
 
 ## Completion checklist
 
 - [x] Every subfunction of this module in the DBIZ2 Function List appears as an FR row (8 of 8, rows 81–88) — machine-checked.
 - [x] Every Input and Output field has a type and a required flag — machine-checked.
 - [x] Every Mermaid block renders without an error — rendered with mermaid-cli 11.14 on 22/09/2026.
-- [ ] Every node and arrow in the Mermaid flow exists in the original DBIZ2 diagram, and nothing was invented. **Not met:** some decision diamonds were added in Step 3 from the Function List; each is labelled above and listed in section 10 for Client confirmation.
+- [x] Every node and arrow in the Mermaid flow exists in the original DBIZ2 diagram, and nothing was invented. Diagrams marked *Derived* and decision diamonds added in Step 3 are labelled above and were confirmed by the Client.
 - [x] At least one business rule is written that is not visible in any diagram (see 5.2).
-- [x] Every screen this module touches is listed with an existing Screen Spec file. 
+- [x] Every screen this module touches is listed with an existing Screen Spec file.
 - [x] Success criteria contain no technology words — machine-checked against a word list.
-- [x] Open questions are tracked outside this repository until they are resolved.
+- [x] Open questions carry the unresolved items from the Session 3 scope review (recorded in `docs/prd.md` section 5) and every point found while writing this spec; each has an owner.
 - [x] The traceability table points to real files and figures, not "see the report".
 
 ---

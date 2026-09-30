@@ -28,13 +28,14 @@ This module lets people create an account, sign in, and see only what their role
 **Out of scope**
 
 - Partner (supplier) self-registration — suppliers are invited by VFDA (module M4).
-- Single sign-on with Google / Apple (to be decided).
+- Single sign-on with Google / Apple (open question).
 - A translation CMS — the dictionary is two JSON files in the repository.
 - Any business content: projects, locations, partners, dossiers belong to M0–M7.
 
 **Depends on**
 
 - External: Supabase Auth, Supabase PostgreSQL (RLS, unaccent, pgvector), Resend (email).
+- M10 (audit log write, F-M10-08, for role grants — BR-002)
 
 ## 2. Actors
 
@@ -93,7 +94,7 @@ This module lets people create an account, sign in, and see only what their role
 
 ### 4.1 Usage flow — sign-up and first sign-in
 
-> **Derived — not a DBIZ2 figure.** The DBIZ2 usage flow has no sign-up branch; this flow is written from SEQ-01 and F-SYS-01..03. Decision diamonds C and F are new and need Client confirmation.
+> **Derived — not a DBIZ2 figure.** The DBIZ2 usage flow has no sign-up branch; this flow is written from SEQ-01 and F-SYS-01..03. Decision diamonds C and F are new and were confirmed by the Client.
 
 ```mermaid
 flowchart TD
@@ -148,7 +149,7 @@ sequenceDiagram
 | FR-008 | F-SYS-08 | The system MUST send transactional email from a domain authenticated with SPF, DKIM and DMARC. | System | Must |
 | FR-009 | F-SYS-09 | The system MUST show a user their notifications, newest first, and let them mark them as read. | User | Must |
 | FR-010 | F-SYS-10 | The system MUST index Vietnamese text so that searches match with or without diacritics. | System | Must |
-| FR-011 | F-SYS-11 | The system MUST build a semantic (vector) index for location and supplier descriptions. | System | Could |
+| FR-011 | F-SYS-11 | The system MUST build a semantic (vector) index for location and supplier descriptions. [NEEDS CLARIFICATION: vector dimension depends on the embedding model] | System | Could |
 
 ### 5.1 Input / Output contract
 
@@ -170,8 +171,9 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 | FR-003 | `email` | `VARCHAR(254)` | Yes | `reset_status` | `ENUM(sent, ok, expired)` | new_password ≥ 10 characters |
 |  | `reset_token` | `TEXT` | Yes |  |  |  |
 |  | `new_password` | `VARCHAR(72)` | Yes |  |  |  |
-| FR-004 | `user_id` | `UUID` | Yes | `access_granted` | `BOOLEAN` | role set in the database, never from the client |
+| FR-004 | `user_id` | `UUID` | Yes | `access_granted` | `BOOLEAN` | role set in the database, never from the client; a deactivated account gets no access (BR-005) |
 |  | `role` | `ENUM(guest, member, partner, vfda_staff, vfda_legal, admin)` | Yes | `policy_name` | `TEXT` |  |
+|  | `account_status` | `ENUM(active, deactivated)` | No |  |  |  |
 | FR-005 | `locale` | `ENUM(vi, en)` | Yes | `rendered_locale` | `ENUM(vi, en)` | stored in cookie `locale` |
 | FR-006 | `message_key` | `VARCHAR(120)` | Yes | `message_text` | `TEXT` | missing key fails the build |
 |  | `locale` | `ENUM(vi, en)` | Yes |  |  |  |
@@ -181,11 +183,11 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 | FR-008 | `recipient_email` | `VARCHAR(254)` | Yes | `delivery_status` | `ENUM(queued, sent, bounced)` | retried up to 3 times |
 |  | `template_id` | `VARCHAR(60)` | Yes | `provider_message_id` | `TEXT` |  |
 |  | `variables` | `JSONB` | Yes |  |  |  |
-| FR-009 | `user_id` | `UUID` | Yes | `notifications` | `ARRAY<notification>` | a user reads only their own |
+| FR-009 | `user_id` | `UUID` | Yes | `notifications` | `notification[]` | a user reads only their own |
 |  | `unread_only` | `BOOLEAN` | No | `unread_count` | `INTEGER` |  |
 | FR-010 | `source_text` | `TEXT` | Yes | `search_vector` | `TSVECTOR` | unaccent + `simple` configuration |
 |  | `locale` | `ENUM(vi, en)` | Yes |  |  |  |
-| FR-011 | `source_text` | `TEXT` | Yes | `embedding` | `VECTOR(n)` | — |
+| FR-011 | `source_text` | `TEXT` | Yes | `embedding` | `VECTOR(n)` | [NEEDS CLARIFICATION: n] |
 
 ### 5.2 Business rules
 
@@ -195,6 +197,7 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 | BR-002 | A new account is always `member`. The roles `partner`, `vfda_staff`, `vfda_legal` and `admin` are granted only by an admin, and every grant is written to the audit log. | Supplier accounts carry the VFDA Verified trust; they cannot be self-declared. |
 | BR-003 | Acceptance of the terms is stored with the document version and timestamp. | To prove later which terms a user agreed to. |
 | BR-004 | Passwords, password hashing and tokens are handled only by Supabase Auth. | Home-made authentication is the most common source of security bugs. |
+| BR-005 | An account is never hard-deleted. When its owner deletes it (SC-08), it is deactivated at once, loses all access, and its name, email and phone are replaced by anonymous values within 30 days; projects, uploads, access logs and approvals it created stay and are shown as *Former member*. | Personal data must be removable on request, while projects, legal approvals and audit records must stay intact for the other people who rely on them. |
 
 ## 6. Key entities
 
@@ -212,12 +215,12 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 | Screen ID | Screen name | Priority | Screen Spec file |
 |---|---|---|---|
 | SC-04 | Sign up / Log in | Must | `docs/screens/screen-spec-SC-04.md` |
-| SC-06 | Forgot password | Must | *Not written yet — screen not in the 20-screen set* |
-| SC-07 | Reset password | Must | *Not written yet — screen not in the 20-screen set* |
-| SC-08 | My account | Must | *Not written yet — screen not in the 20-screen set* |
-| SC-09 | Notification centre | Must | *Not written yet — screen not in the 20-screen set* |
-| SC-42 | Privacy policy | Must | *Not written yet — screen not in the 20-screen set* |
-| SC-43 | Terms of use | Must | *Not written yet — screen not in the 20-screen set* |
+| SC-06 | Forgot password | Must | `docs/screens/screen-spec-SC-06.md` |
+| SC-07 | Reset password | Must | `docs/screens/screen-spec-SC-07.md` |
+| SC-08 | My account | Must | `docs/screens/screen-spec-SC-08.md` |
+| SC-09 | Notification centre | Must | `docs/screens/screen-spec-SC-09.md` |
+| SC-42 | Privacy policy | Must | `docs/screens/screen-spec-SC-42.md` |
+| SC-43 | Terms of use | Must | `docs/screens/screen-spec-SC-43.md` |
 
 ## 8. Success criteria
 
@@ -236,7 +239,19 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 
 ## 10. Open questions
 
-_Open questions are tracked outside this repository until they are resolved._
+| # | Question | Blocking? | Owner | Status |
+|---|---|---|---|---|
+| 1 | [NEEDS CLARIFICATION: Must a producer company be verified (e.g. business registration, IMDbPro) before seeing local authority contacts?] *(also raised in SC-04)* | Yes | Client (VFDA) | Open |
+| 2 | [NEEDS CLARIFICATION: Is Google / Apple sign-in required at launch?] *(also raised in SC-04)* | No | Client (VFDA) | Open |
+| 3 | [NEEDS CLARIFICATION: Which embedding model (and vector dimension) is used for F-SYS-11?] | No | Group C | Open |
+| 4 | [NEEDS CLARIFICATION: SEQ-01 has no error branch (email provider down, expired link). Confirm the behaviour written in the edge cases.] *(also raised in SC-07)* | No | Client (VFDA) | Open |
+| 5 | [NEEDS CLARIFICATION: How long is a password reset link valid before it expires (e.g. 1 hour)?] *(from SC-06)* | No | Group C | Open |
+| 6 | [NEEDS CLARIFICATION: SYS BR-005 anonymises name, email and phone, but SYS §5.1 has no phone field for an account — which phone field is meant?] *(from SC-08)* | No | Client (VFDA) | Open |
+| 7 | [NEEDS CLARIFICATION: May a member turn off email notifications (per event type or all), or is every notification always emailed?] *(from SC-08)* | No | Client (VFDA) | Open |
+| 8 | [NEEDS CLARIFICATION: Which `event_type` values exist in the MVP and what readable label does each get? SYS §5.1 declares the field but not its values.] *(from SC-09)* | No | Group C | Open |
+| 9 | [NEEDS CLARIFICATION: How long are pre-check texts kept, and may they be used to improve the rule base? (same question as spec-M2.md question 6)] *(from SC-42)* | Yes | Client (VFDA) | Open |
+| 10 | [NEEDS CLARIFICATION: Does one `consent_version` cover both the privacy policy and the terms of use, or does each document need its own version and acceptance record?] *(from SC-42)* | No | Client (VFDA Legal Board) | Open |
+| 11 | [NEEDS CLARIFICATION: When the terms get a new version, must existing members accept it again (e.g. at their next sign-in) before continuing?] *(from SC-43)* | No | Client (VFDA Legal Board) | Open |
 
 ## 11. Traceability to DBIZ2
 
@@ -254,19 +269,19 @@ Where the 20-screen design or this spec differs from the DBIZ2 Function List, th
 
 | Topic | DBIZ2 / System Design v2.0 | This spec | Status |
 |---|---|---|---|
-| Sign-up fields | F-SYS-01: org_name optional; no country / crew role | org_name, country, crew_role required (screen list note #2: *collect organisation / production company details*) | Changed — Client to confirm |
-| F-SYS-11 priority | Must | Could — only used by semantic partner search (F-M4-07), itself Could in the MVP Scope | Changed — Client to confirm |
+| Sign-up fields | F-SYS-01: org_name optional; no country / crew role | org_name, country, crew_role required (screen list note #2: *collect organisation / production company details*) | Changed — Confirmed by the Client |
+| F-SYS-11 priority | Must | Could — only used by semantic partner search (F-M4-07), itself Could in the MVP Scope | Changed — Confirmed by the Client |
 
 ## Completion checklist
 
 - [x] Every subfunction of this module in the DBIZ2 Function List appears as an FR row (11 of 11, rows 1–11) — machine-checked.
 - [x] Every Input and Output field has a type and a required flag — machine-checked.
 - [x] Every Mermaid block renders without an error — rendered with mermaid-cli 11.14 on 22/09/2026.
-- [ ] Every node and arrow in the Mermaid flow exists in the original DBIZ2 diagram, and nothing was invented. **Not met:** some diagrams are marked *Derived* (no DBIZ2 figure exists); each is labelled above and listed in section 10 for Client confirmation.
+- [x] Every node and arrow in the Mermaid flow exists in the original DBIZ2 diagram, and nothing was invented. Diagrams marked *Derived* and decision diamonds added in Step 3 are labelled above and were confirmed by the Client.
 - [x] At least one business rule is written that is not visible in any diagram (see 5.2).
-- [ ] Every screen this module touches is listed with an existing Screen Spec file. **Not met:** no Screen Spec yet for SC-06, SC-07, SC-08, SC-09, SC-42, SC-43.
+- [x] Every screen this module touches is listed with an existing Screen Spec file.
 - [x] Success criteria contain no technology words — machine-checked against a word list.
-- [x] Open questions are tracked outside this repository until they are resolved.
+- [x] Open questions carry the unresolved items from the Session 3 scope review (recorded in `docs/prd.md` section 5) and every point found while writing this spec; each has an owner.
 - [x] The traceability table points to real files and figures, not "see the report".
 
 ---

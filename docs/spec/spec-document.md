@@ -1,26 +1,27 @@
-# Spec Document — CINEMATCH (index)
+# Spec Index: CINEMATCH
 
-CINEMATCH has one Spec Document **per module**, not one single file. This file is the entry point that the Session 6 setup guide and `AGENTS.md` name as `docs/spec/spec-document.md`. It lists the eight module files, shows where each section of the Session 4 template lives, and gathers in one place the two things a reader most often needs across modules: the entities (section 5.1) and the business rules (section 6).
+CINEMATCH has one Spec Document **per module**, not one single file. This file is the entry point that the Session 6 setup guide and `AGENTS.md` name as `docs/spec/spec-document.md`. It lists the nine module files, shows where each section of the Session 4 template lives, and gathers in one place the two things a reader most often needs across modules: the entities (section 5.1) and the business rules (section 6).
 
 It adds no requirement of its own. If this index and a module file ever disagree, **the module file wins**.
 
-*DBIZ3 · Group C · Session 4 Spec Documents, indexed in Session 6 · 29/09/2026*
+*DBIZ3 · Group C · Session 4 Spec Documents, indexed for the Session 7 midterm · 30/09/2026*
 
-## 1. The eight module Spec Documents
+## 1. The nine module Spec Documents
 
-| Module | File | Scope | Functional requirements | Business rules | User stories | Screens (§7) |
-|---|---|---|---|---|---|---|
-| SYS | [`spec-SYS.md`](spec-SYS.md) | Platform foundation — accounts, roles, bilingual UI, notifications, search | 11 | 4 | 4 | SC-04 |
-| M1 | [`spec-M1.md`](spec-M1.md) | Segment router | 3 | 4 | 3 | SC-01, SC-02 |
-| M0 | [`spec-M0.md`](spec-M0.md) | Project workspace and readiness dashboard | 9 | 4 | 3 | SC-10, SC-12 |
-| M2 | [`spec-M2.md`](spec-M2.md) | Content pre-check and Article 13 dossier check | 18 | 7 | 5 | SC-03, SC-27, SC-29, SC-48 |
-| M3 | [`spec-M3.md`](spec-M3.md) | Location discovery | 20 | 7 | 5 | SC-14, SC-15, SC-16, SC-17, SC-18 |
-| M4 | [`spec-M4.md`](spec-M4.md) | Vietnamese service partners | 19 | 7 | 4 | SC-19, SC-20, SC-25 |
-| M5 | [`spec-M5.md`](spec-M5.md) | Dossier kit, bilingual drafts and countdown | 8 | 5 | 3 | SC-26, SC-28, SC-29 |
-| M7 | [`spec-M7.md`](spec-M7.md) | VFDA support — provincial notices and consultations | 7 | 4 | 3 | SC-32 |
-| **Total** | | | **95** | **42** | **30** | 20 screens |
+| Module | File | Scope | Functional requirements | Business rules | User stories | Screens (§7) | Open questions (§10) |
+|---|---|---|---|---|---|---|---|
+| SYS | [`spec-SYS.md`](spec-SYS.md) | Platform foundation — accounts, roles, bilingual UI, notifications, search | 11 | 5 | 4 | SC-04, SC-06, SC-07, SC-08, SC-09, SC-42, SC-43 | 11 (2 blocking) |
+| M1 | [`spec-M1.md`](spec-M1.md) | Segment router | 3 | 4 | 3 | SC-01, SC-02, SC-13 | 4 (3 blocking) |
+| M0 | [`spec-M0.md`](spec-M0.md) | Project workspace and readiness dashboard | 9 | 5 | 3 | SC-10, SC-12, SC-13 | 6 (1 blocking) |
+| M2 | [`spec-M2.md`](spec-M2.md) | Content pre-check and Article 13 dossier check | 18 | 8 | 5 | SC-03, SC-27, SC-29, SC-30, SC-31, SC-37, SC-48 | 14 (7 blocking) |
+| M3 | [`spec-M3.md`](spec-M3.md) | Location discovery | 20 | 9 | 5 | SC-14, SC-15, SC-16, SC-17, SC-18, SC-35 | 10 (4 blocking) |
+| M4 | [`spec-M4.md`](spec-M4.md) | Vietnamese service partners | 19 | 9 | 4 | SC-19, SC-20, SC-21, SC-22, SC-23, SC-25, SC-36 | 8 (4 blocking) |
+| M5 | [`spec-M5.md`](spec-M5.md) | Dossier kit, bilingual drafts and countdown | 8 | 6 | 3 | SC-26, SC-28, SC-29 | 7 (3 blocking) |
+| M7 | [`spec-M7.md`](spec-M7.md) | VFDA support — provincial notices and consultations | 7 | 4 | 3 | SC-32, SC-33 | 6 (4 blocking) |
+| M10 | [`spec-M10.md`](spec-M10.md) | VFDA back office — moderation, demand index, quarterly report, audit log | 9 | 5 | 4 | SC-34, SC-38, SC-39, SC-40, SC-41 | 8 (1 blocking) |
+| **Total** |  |  | **104** | **55** | **34** | 41 screens | **74 (29 blocking)** |
 
-Module `M10` (VFDA back office) has no Spec Document yet, and `M6`, `M8`, `M9` are *Won't* for this release — see [`README.md`](README.md) in this folder.
+Modules `M6`, `M8` and `M9` are *Won't* for this release (see `docs/prd.md` section 4.4) and have no Spec Document.
 
 ## 2. Where each template section lives
 
@@ -36,8 +37,8 @@ Every module file follows the same Session 4 template, so the same section numbe
 | §6 | Key entities of the module |
 | §7 | Screens involved (Screen Specs in `docs/screens/`) |
 | §8 | Success criteria (`SC-nnn`) |
-| §9 | Assumptions |
-| §10 | Open questions — tracked outside this repository until they are resolved |
+| §9 | Assumptions, including the test values used until the Client confirms a number |
+| §10 | Open questions — `[NEEDS CLARIFICATION: …]`, each with an owner |
 | §11 | Traceability to DBIZ2, with §11.1 Reconciliation |
 
 Functional requirement and business rule IDs restart in every file, so always quote them with the module: “`FR-008` in `spec-M3.md`”, “M3 BR-004”.
@@ -46,25 +47,26 @@ Functional requirement and business rule IDs restart in every file, so always qu
 
 | Document | Path |
 |---|---|
-| MVP scope and priorities | `docs/mvp-scope.md` |
+| Product requirements (MVP Scope v3) | `docs/prd.md` |
+| MVP scope, Session 1 record | `docs/mvp-scope.md` |
 | Function List (119 subfunctions, 104 in the MVP) | `docs/function-list.md` |
 | Screen List (48 screens) | `docs/screen-list.md` |
 | Architecture diagrams | `docs/architecture/` |
-| Screen Specs and mockups | `docs/screens/` |
+| Screen Specs and mockups (41 screens) | `docs/screens/` |
 | Data model and seed data | `data/` |
 | Word copies of the Spec Documents | `docs/word/specs/` |
 
 ## 4. Reading order
 
-Start with the module you are working on: its §3 says what the user must be able to do, §5 says what the system must do, §6 and `data/04-data-model.md` say what is stored, §7 names the screens.
+Start with the module you are working on: its §3 says what the user must be able to do, §5 says what the system must do, §6 and `data/04-data-model.md` say what is stored, §7 names the screens, §10 says what is still open.
 
 ## 5. Functional requirements and data
 
-The 95 functional requirements are in §5 of the module files (table in section 1 above). The data they read and write is summarised here.
+The 104 functional requirements are in §5 of the module files (table in section 1 above). The data they read and write is summarised here.
 
 ### 5.1 Entities
 
-The entities of CINEMATCH, with the canonical names used by the Session 5 data model (`data/01-entity-dictionary.md`). 47 entities: 43 are stored as tables (one CSV each in `data/seed/`) and 4 are *derived* — computed on read, never stored.
+The entities of CINEMATCH, with the canonical names used by the Session 5 data model (`data/01-entity-dictionary.md`). 51 entities: 46 are stored as tables (one CSV each in `data/seed/`) and 5 are *derived* — computed on read, never stored.
 
 | # | Entity | Definition | Kind | Owner module |
 |---|---|---|---|---|
@@ -94,7 +96,7 @@ The entities of CINEMATCH, with the canonical names used by the Session 5 data m
 | 24 | `LOCATION_IMAGE` | A photo of a location with its source and usage right. | THING | M3 |
 | 25 | `AUTHORITY_CONTACT` | The local authority office and person to contact about filming at a location, verified by VFDA. | THING | M3 |
 | 26 | `PROVINCE` | One of the 34 provincial-level units after the 2025 reorganisation. | THING | M3 |
-| 27 | `LOCATION_QUERY` | A scene description a user typed and the attributes extracted from it. | EVENT | M3 |
+| 27 | `LOCATION_QUERY` | A scene description a user typed and the attributes extracted from it, stored without personal data. | EVENT | M3 |
 | 28 | `PROJECT_SHORTLIST` | A location a project has kept as its primary or backup choice. | THING | M3 |
 | 29 | `PROVINCE_READINESS` | A province's readiness index computed from platform data, with sample sizes. | DERIVED (computed on read) | M3 |
 | 30 | `ORGANISATION` | A Vietnamese service company listed in the partner directory. | THING | M4 |
@@ -102,7 +104,7 @@ The entities of CINEMATCH, with the canonical names used by the Session 5 data m
 | 32 | `ORGANISATION_PRIVATE_LAYER` | The part of a partner profile visible only after an accepted request and NDA. | THING | M4 |
 | 33 | `VERIFICATION_REQUEST` | A partner's application for the VFDA Verified badge and VFDA's decision on it. | EVENT | M4 |
 | 34 | `COLLAB_REQUEST` | A producer's request to a partner to work on one project, followed to confirmation. | EVENT | M4 |
-| 35 | `COLLAB_MESSAGE` | A message written inside a collaboration request. | EVENT | M4 |
+| 35 | `COLLAB_MESSAGE` | A message written inside a collaboration request, including every response note; never edited once sent. | EVENT | M4 |
 | 36 | `NDA_ACCEPTANCE` | One party's acceptance of a given NDA version for one collaboration request. | EVENT | M4 |
 | 37 | `DOCUMENT_ACCESS_LOG` | A record that one person viewed one shared document at one time. | EVENT | M4 |
 | 38 | `DOCUMENT_TYPE` | A kind of dossier document, with its legal basis and template. | THING | M5 |
@@ -110,17 +112,21 @@ The entities of CINEMATCH, with the canonical names used by the Session 5 data m
 | 40 | `DOCUMENT` | One uploaded file version in a project's document slot. | THING | M5 |
 | 41 | `BILINGUAL_DOCUMENT` | A generated English–Vietnamese draft of one document of a project. | THING | M5 |
 | 42 | `BILINGUAL_PARAGRAPH` | One aligned source/Vietnamese paragraph pair of a bilingual draft, with its proofreading status. | THING | M5 |
-| 43 | `PROJECT_GLOSSARY` | A project's agreed translation of one term. | THING | M5 |
+| 43 | `PROJECT_GLOSSARY` | A project's agreed translation of one term, applied to every later draft of that project. | THING | M5 |
 | 44 | `PUBLIC_HOLIDAY` | A public holiday period shown on the licensing timeline, official or expected. | THING | M5 |
 | 45 | `LOCATION_INTEREST` | A member's statement that a project is interested in a location. | EVENT | M7 |
 | 46 | `PROVINCE_NOTICE` | The notice VFDA sends a province about a project's interest, and the province's reply. | EVENT | M7 |
 | 47 | `CONSULTATION_BOOKING` | A member's booked consultation slot with a VFDA officer. | EVENT | M7 |
+| 48 | `MODERATION_ITEM` | A partner's published content (profile text or location photo) waiting for, or carrying, VFDA staff's approve-or-hide decision. | EVENT | M10 |
+| 49 | `AUDIT_LOG` | A permanent record of one administrative action: who did what to which record, and when. | EVENT | M10 |
+| 50 | `DEMAND_INDEX` | The six demand indicators of a reporting period, each with its sample size, computed from platform data. | DERIVED (computed on read) | M10 |
+| 51 | `QUARTERLY_REPORT` | A quarterly demand report with its bilingual commentary, reread by a staff member before it is exported. | THING | M10 |
 
 Columns, keys and relationships: `data/04-data-model.md`. Diagram: `data/03-erd.mmd`.
 
 ## 6. Business rules
 
-One principle runs through the rules of every module: **CINEMATCH prepares and advises, but a person decides.** A language model never ranks, approves or submits anything (M2 BR-001, BR-003, BR-004; M3 BR-001; M5 BR-001), and sensitive data is protected in the database, not in the interface (SYS BR-001, M3 BR-005, M4 BR-001).
+One principle runs through the rules of every module: **CINEMATCH prepares and advises, but a person decides.** A language model never ranks, approves or submits anything (M2 BR-001, BR-003, BR-004; M3 BR-001; M5 BR-001; M10 BR-004), sensitive data is protected in the database, not in the interface (SYS BR-001, M3 BR-005, M4 BR-001), and nothing is ever hard-deleted (SYS BR-005, M0 BR-005, M2 BR-008, M3 BR-008, M4 BR-008, M10 BR-005).
 
 All business rules, as written in §5.2 of each module file:
 
@@ -130,6 +136,7 @@ All business rules, as written in §5.2 of each module file:
 | SYS | BR-002 | A new account is always `member`. The roles `partner`, `vfda_staff`, `vfda_legal` and `admin` are granted only by an admin, and every grant is written to the audit log. |
 | SYS | BR-003 | Acceptance of the terms is stored with the document version and timestamp. |
 | SYS | BR-004 | Passwords, password hashing and tokens are handled only by Supabase Auth. |
+| SYS | BR-005 | An account is never hard-deleted. When its owner deletes it (SC-08), it is deactivated at once, loses all access, and its name, email and phone are replaced by anonymous values within 30 days; projects, uploads, access logs and approvals it created stay and are shown as *Former member*. |
 | M1 | BR-001 | The segment is decided by a deterministic decision table (`segment_rules`) approved by VFDA; the same answers always give the same segment. |
 | M1 | BR-002 | Question 4 never changes the segment; it only pre-selects service groups in M4. |
 | M1 | BR-003 | A manual override is always allowed and always recorded. |
@@ -138,6 +145,7 @@ All business rules, as written in §5.2 of each module file:
 | M0 | BR-002 | Gauges shown depend on segment: segment C has no *Dossier & permits* gauge; the *Logistics* gauge is shown as `—` until phase 2. |
 | M0 | BR-003 | Each gauge always has one next step; when a gauge is complete its next step reads *Done*. |
 | M0 | BR-004 | Weights per segment are read from `segment_requirements`, never hard-coded. |
+| M0 | BR-005 | Projects are archived, never deleted. An archived project (`stage = archived`) is read-only for its members, leaves the project list, and keeps its documents, requests and notices. |
 | M2 | BR-001 | Every finding shown to a user cites a rule written and signed by the VFDA Legal Board; findings without a valid citation are dropped by code before display. |
 | M2 | BR-002 | A rule becomes active only when it has a citation **and** an approver; this is enforced by a database CHECK constraint. |
 | M2 | BR-003 | The words *approved*, *accepted*, *legally compliant* and *safe* never appear in results, including when nothing is found. |
@@ -145,13 +153,16 @@ All business rules, as written in §5.2 of each module file:
 | M2 | BR-005 | The dossier completeness check uses fixed rules, not a language model. |
 | M2 | BR-006 | Safe deadline = first shooting day − buffer − 20 − 20 days; latest deadline = first shooting day − buffer − 20 days. |
 | M2 | BR-007 | Every check stores the rule-set version it used. |
+| M2 | BR-008 | Legal rules are retired, never deleted (`status = retired`); a finding keeps showing the text of the rule version it cited. |
 | M3 | BR-001 | The language model only extracts attributes; ranking is done by a deterministic scoring function in the database. The model never names or ranks a location. |
 | M3 | BR-002 | A result is shown only if its score is 40 or more and it has at least one *why it matches* reason. |
 | M3 | BR-003 | *Not a match* and *No data yet* are different; missing data never counts for or against a location. |
-| M3 | BR-004 | A location cannot be published until its local authority contact is verified; contacts are re-verified every 12 months. |
+| M3 | BR-004 | A location cannot be published until its local authority contact is verified; contacts are re-verified every 12 months [NEEDS CLARIFICATION]. |
 | M3 | BR-005 | Authority contacts are returned only to signed-in users, enforced by Row Level Security. |
 | M3 | BR-006 | Provinces use the 34 provincial-level units after the 2025 reorganisation; old names are accepted in search and mapped to the new unit. |
 | M3 | BR-007 | The provincial index uses only data generated on the platform and always shows its sample size. |
+| M3 | BR-008 | Locations are unpublished, never deleted (`intake_status = unpublished`); shortlists and provincial notices that refer to an unpublished location keep it and show *No longer published*. |
+| M3 | BR-009 | Every confirmed scene search is stored as a location query without any personal data (description, attributes, month, and the project only when a member searches inside a project); it is used for the M10 demand index and never to train a model. |
 | M4 | BR-001 | The three visibility layers are three tables with separate Row Level Security policies, not hidden columns. |
 | M4 | BR-002 | The 12 service groups are a fixed enum; organisations cannot invent groups. |
 | M4 | BR-003 | Supplier accounts are created only by VFDA invitation in the first phase. |
@@ -159,12 +170,20 @@ All business rules, as written in §5.2 of each module file:
 | M4 | BR-005 | Only the producer can confirm a partnership; only the partner can accept or decline. Declined, withdrawn and confirmed are final. |
 | M4 | BR-006 | Confirming a partnership does not by itself mark Article 13 component c as present; the signed service agreement must be uploaded. |
 | M4 | BR-007 | Document access log entries are append-only. |
+| M4 | BR-008 | Organisations are deactivated, never deleted (`org_status = deactivated`); open collaboration requests to a deactivated organisation are closed as *withdrawn* and the producer is notified; its document access log is kept. |
+| M4 | BR-009 | Every response note and every reply in a request thread is stored as a message of that request (`collab_message`); messages cannot be edited after they are sent. |
 | M5 | BR-001 | Every generated document is a draft: the PDF carries *DRAFT — REQUIRES PROOFREADING* on every page; CINEMATCH never submits anything. |
 | M5 | BR-002 | Article 13 component b counts as present only when every paragraph of the Vietnamese version has been proofread by a person. |
 | M5 | BR-003 | Each document item carries its basis: *Required by law*, *Commonly requested* or *Location-specific*; nothing is presented as mandatory without a legal basis. |
 | M5 | BR-004 | The document list is generated from `segment_requirements` plus shortlisted locations; it is never hard-coded. |
 | M5 | BR-005 | The countdown uses the same calculation as M2 (F-M2-17) and the dashboard. |
+| M5 | BR-006 | Glossary terms a project adds (SC-28) are stored with the project (`project_glossary`) and applied to every later draft of that project. |
 | M7 | BR-001 | Notices are sent in VFDA's name, never directly by the producer. |
 | M7 | BR-002 | Every notice states that it does not replace the filming licence from the Ministry of Culture, Sports and Tourism. |
 | M7 | BR-003 | The province's reply is one of three final values; the free-text note is kept as entered. |
 | M7 | BR-004 | Reply times feed the provincial readiness index (M3). |
+| M10 | BR-001 | Content published by partners (profile text, photos) is shown to the public only after VFDA staff approve it; until then the last approved version stays public. |
+| M10 | BR-002 | Hiding content requires a written reason, which is sent to the author. |
+| M10 | BR-003 | Every indicator shows the number of records it was computed from; below 5 records it shows *Not enough data* instead of a value. |
+| M10 | BR-004 | A quarterly report can be exported only after a named staff member has marked it reread; the draft commentary is never sent as written by the model. |
+| M10 | BR-005 | Audit records are append-only: no role, including admin, can update or delete them, and the admin action and its record are committed together or not at all. |

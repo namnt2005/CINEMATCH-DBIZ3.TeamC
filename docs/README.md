@@ -6,12 +6,13 @@ This folder holds everything written about CINEMATCH before any code: what the M
 
 | Path | What it is | Session |
 |---|---|---|
+| [`prd.md`](prd.md) | MVP Scope v3 (PRD): problem, users, MoSCoW with the spec file, FRs and screens delivering each item, change log since Session 3 | 7 |
 | [`mvp-scope.md`](mvp-scope.md) | MVP scope: problem, users, MoSCoW priorities by module, what is out of scope | 1 |
 | [`function-list.md`](function-list.md) | Full Function List from System Design v2.0: 119 subfunctions (104 in the MVP, 15 in phase 2) with ID, module, priority and data types | 4 (Step 2) |
 | [`screen-list.md`](screen-list.md) | Full Screen List: 48 screens, with the 20 priority screens marked (Tier 1: 17 · Tier 2: 3) | 4 (Step 2) |
 | [`architecture/`](architecture/) | Five textualized diagrams (below) | 4 (Step 3) |
 | [`spec/`](spec/) | One Spec Document per module, and the index [`spec/spec-document.md`](spec/spec-document.md) | 4 (Step 5) |
-| [`screens/`](screens/) | 20 Screen Specs and their annotated mockups in `screens/img/` | 4 (Step 4) |
+| [`screens/`](screens/) | 41 Screen Specs (every MVP screen) and their annotated mockups in `screens/img/` | 4 (Step 4), completed 30/09/2026 |
 | [`word/`](word/) | Word copies of the MVP scope, specs, screen specs and data model, for submission | 4–5 |
 | [`env/`](env/) | Environment Readiness Report | 6 |
 

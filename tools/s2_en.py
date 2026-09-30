@@ -172,7 +172,7 @@ add(dict(
  fr=[("F-M3-10", "Scene description input"), ("F-M3-11", "Extract structured attributes"), ("F-M3-12", "Validate attributes against the catalogue")],
  resp=["Minimum supported width: **360px**.", "Narrow screens: the *What the system understood* block moves below the description box; the *Find* button sticks to the bottom of the screen.", "Attribute tags are `<button>` elements with full labels (*Remove attribute: river landing*).", "The mapping warning is announced via `aria-live`."],
  oq=[("[NEEDS CLARIFICATION: fixed attribute catalogue (scene type, terrain, period…) — who approves and maintains it]", True),
-     ("[NEEDS CLARIFICATION: do we store guest descriptions to improve the catalogue]", False)],
+     ],
 ), html)
 
 # =====================================================================  10 · SC-14
@@ -537,7 +537,7 @@ html = page("SC-25", "Collaboration request + status tracking", "M4 · Member / 
 """, active="My projects", sidebar="Partners", side_n=2)
 
 add(dict(
- seq=14, sid="SC-25", name="Collaboration request + status tracking", group="M4", tier="Tier 1 — Must",
+ seq=14, sid="SC-25", also="SC-24", name="Collaboration request + status tracking", group="M4", tier="Tier 1 — Must",
  module="M4", actor="Member / Partner", prio="Must", route="/requests/[id]",
  design_note="Statuses: Sent → Partner responded → Confirmed.",
  merge_note="This screen uses a list–detail layout: the left column is the project's request inbox (`SC-24`), the rest is the detail of one request (`SC-25`). The mockup is filed under `SC-25`; `SC-24` has no separate image.",
