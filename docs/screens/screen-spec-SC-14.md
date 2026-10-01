@@ -38,15 +38,15 @@
 | # | Element | Type | Content / data source | Required | Validation |
 |---|---|---|---|---|---|
 | 1 | Navigation bar | Header | static | — | — |
-| 2 | Query summary + *Edit description* | List (chip) + Link | `location_queries.attributes` | — | — |
+| 2 | Query summary + *Edit description* | List (chip) + Link | `location_query.attributes` | — | — |
 | 3 | Additional filters | Toggle | region, shooting month, only locations open to productions | No | written to the URL (`nuqs`) |
 | 4 | Result count + sort | Text + Toggle | count of results above threshold; sort by score / name / distance | — | — |
-| 5 | Result card | List | `locations.name`, `provinces.name`, `provinces.region`, `locations.cover_image` | — | `published` locations only |
+| 5 | Result card | List | `location.name_en`, `province.name`, `province.region`, `location_image.image_url (first approved)` | — | `published` locations only |
 | 6 | Match score | Text | `F-M3-08` — 0–100 score computed in the database | — | only cards scoring ≥ 40 are shown |
 | 7 | Why it matches | Text | generated from the matched criteria — not written by a language model | **Yes** | at least one reason; no reason, no card |
 | 8 | Not a match / notes | Text | unmatched criteria, missing data, seasonal warnings for the shooting month | No | *No data yet* is distinct from *Not a match* |
 | 9 | Compare checkbox | Toggle (checkbox) | session comparison basket | — | max 4 |
-| 10 | Map | Map | Leaflet + OpenStreetMap; coordinates `locations.geom` | — | — |
+| 10 | Map | Map | Leaflet + OpenStreetMap; coordinates `location.lat, location.lng` | — | — |
 | 11 | Numbered pin | Map marker | one pin per card, **same number as the card** | — | pin number = card number |
 | 12 | Comparison tray | Container | comparison basket | — | hidden when the basket is empty |
 | 13 | *Ask VFDA for more suggestions* link | Link | static | — | — |

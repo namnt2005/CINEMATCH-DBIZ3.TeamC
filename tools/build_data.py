@@ -57,9 +57,9 @@ def build_01():
     s += ["\n## Conflicts requiring a human decision\n",
           "| Type (synonym / collision / shared ownership / type mismatch) | Items | Sources | What must be decided | Decision |",
           "|---|---|---|---|---|"]
-    s += [f"| {t} | {i} | {src} | {w} | |" for t, i, src, w in CONFLICTS]
+    s += [f"| {t} | {i} | {src} | {w} | {CONFLICT_DECISIONS[k]} |" for k, (t, i, src, w) in enumerate(CONFLICTS)]
     s += ["\n## Open questions\n", oq_table(OQ_01), ""]
-    s += ["\n---\n*Human gate 1 (not delegable): fill the Decision column, review the implied entities, "
+    s += ["\n---\n*Human gate 1 (not delegable): the Decision column records the choice applied in 04 on 01/10/2026 — confirm or change it, review the implied entities, "
           "and rewrite each definition in your own words. Signed: ____________________  Date: __________*\n"]
     return "\n".join(s)
 
@@ -213,8 +213,13 @@ def build_04():
          f"{len(STORED)} tables, {sum(len(v) for v in C.values())} columns. Every column is **copied** from a FIELDS row "
          "(section 5.1) or an ENTITIES attribute (section 6), with its declared type and Req / Opt flag. "
          "*system-set* = an output field (the system fills it); *not declared* = no flag in the input.\n",
-         f"**{nd} columns carry no declared type.** They are written *type not declared* and raised as OQ-04-18 — "
-         "no type was assigned here. Technical columns (`created_at`, `updated_at`) appear only where the spec declares them.\n",
+         (f"**{nd} columns carry no declared type.** They are written *type not declared* and raised as OQ-04-18 — "
+          "no type was assigned here. " if nd else
+          "**Every column has a declared type** — the types of the section 6 attributes that no 5.1 field declares come from "
+          "section 6.1 of the owning Spec Document (cited as `<MODULE> §6.1`). ") +
+         "Technical columns (`created_at`, `updated_at`) appear only where the spec declares them. "
+         "The physical schema built from this model is in `data/schema/schema-<MODULE>.sql`; one readable view per module is in "
+         "`data/data-model-<MODULE>.md`.\n",
          "Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M3 → M4 → M5 → M7 → M10.\n"]
     for e in STORED:
         d = EDEF[e]
@@ -227,7 +232,7 @@ def build_04():
             s.append(f"| `{c[0]}` | {ty} | {c[2]} | {key} | {c[4]} |")
         s.append(f"\n**Natural key:** {NATURAL_KEY[e]}\n")
     s += ["## Type conflicts\n", "| Field | Source A (type / required) | Source B (type / required) | Decision |", "|---|---|---|---|"]
-    s += [f"| {a} | {b} | {c} | |" for a, b, c in TYPE_CONFLICTS]
+    s += [f"| {a} | {b} | {c} | {TYPE_DECISIONS[k]} |" for k, (a, b, c) in enumerate(TYPE_CONFLICTS)]
     s += ["\n## Structural findings\n", "Reported only — nothing was fixed in the model.\n",
           "| Check | Entity / column | What the spec does not settle | Raised as |", "|---|---|---|---|"]
     s += [f"| {a} | {b} | {c} | {d} |" for a, b, c, d in STRUCTURAL]
@@ -245,7 +250,7 @@ def build_04():
           "undeclared types are drawn as `string` and named in the comment — the table above keeps the declared type.\n",
           "```mermaid\n" + "\n".join(d) + "\n```\n"]
     s += ["## Open questions\n", oq_table(OQ_04, with_id=True), ""]
-    s += ["\n---\n*Human gate 4: fill the Decision column of the type conflicts and confirm every natural key. "
+    s += ["\n---\n*Human gate 4: the Decision column records the type applied in 04 and in the schema on 01/10/2026 — confirm or change it, and confirm every natural key. "
           "Signed: ____________________  Date: __________*\n"]
     return "\n".join(s), "\n".join(d)
 
@@ -282,7 +287,7 @@ def build_05():
           "Full table in `seed/README.md`.\n",
           "## Consolidated open questions\n",
           f"All {len(rows)} questions raised in 01–04: **{len(open_rows)} still open, {blocking} of them blocking**; "
-          f"{len(rows) - len(open_rows)} resolved by the Spec Documents of 30/09/2026 (listed last, with the rule that settled them). "
+          f"{len(rows) - len(open_rows)} resolved by the Spec Documents of 30/09/2026 or the team decisions of 01/10/2026 (listed last, with the rule that settled them). "
           "Each open row can be pasted into section 10 of the owning module's Spec Document; the *From* column says where it was raised.\n",
           "| # | Owner | From | Question | Blocking? | Default applied | Consequence if the default is wrong | Resolution |",
           "|---|---|---|---|---|---|---|---|"]
@@ -292,8 +297,10 @@ def build_05():
           "| `data/01-entity-dictionary.md` | S1 | Draft — Decision column and definitions await human gate 1 |",
           "| `data/02-crud-matrix.md` | S2 | Draft — Resolution column awaits human gate 2 |",
           "| `data/03-erd.mmd` | S3 | Draft — renders; relationship sentences await human gate 3 |",
-          "| `data/04-data-model.md` | S4 | Draft — renders; type conflicts and natural keys await human gate 4 |",
-          f"| `data/seed/*.csv` ({len(STORED)}) + `generate_seed.py`, `check_seed.py`, `schema.json`, `README.md` | S5 | Check PASS |",
+          "| `data/04-data-model.md` | S4 | Draft — renders; type decisions applied, natural keys await human gate 4 |",
+          "| `data/schema/schema-<MODULE>.sql` (9) + `load_check.py` | S4 (physical) | Creates the database; seed loads in filename order (`load_check.py`: PASS) |",
+          "| `data/data-model-<MODULE>.md` (9) | S1–S6 per module | One file per module in the Data Model and Mockup Data layout |",
+          f"| `data/seed/NN_<table>.csv` ({len(STORED)}) + `generate_seed.py`, `seed_rules.py`, `check_seed.py`, `schema.json`, `README.md` | S5 | Check PASS |",
           "| `data/05-review.md` | S6 | This file — awaits human gate 6 |",
           "\n---\n*Human gate 6: the team challenged at least one result and agrees with this review. "
           "Signed: ____________________  Date: __________*\n"]
@@ -335,6 +342,20 @@ if __name__ == "__main__":
                                for c in C[e] if re.match(r"ENUM\(", c[1])},
                      "array_enums": {c[0]: [v.strip() for v in re.search(r"ENUM\((.*)\)", c[1]).group(1).split(",")]
                                      for c in C[e] if re.match(r"ARRAY<ENUM\(", c[1])}}
+    # load order: parents before children (foreign keys), ties in model order -> seed file NN_<table>.csv
+    deps = {e: [f["references"] for f in m["fk"] if f["references"] != e] for e, m in schema.items()}
+    order, seen = [], set()
+    def _visit(e):
+        if e in seen: return
+        seen.add(e)
+        for d in deps[e]: _visit(d)
+        order.append(e)
+    for e in schema: _visit(e)
+    for i, e in enumerate(order, 1):
+        schema[e]["load_order"] = i
+        schema[e]["file"] = f"{i:02d}_{schema[e]['table']}.csv"
+        schema[e]["owner"] = EDEF[e][3]
+    schema = OrderedDict((e, schema[e]) for e in order)
     json.dump(schema, open(os.path.join(OUT, "seed", "schema.json"), "w"), ensure_ascii=False, indent=1)
     if "--mermaid" in sys.argv:
         check_mermaid(t03, "03-erd.mmd"); check_mermaid(d04, "04 diagram")

@@ -39,16 +39,16 @@
 |---|---|---|---|---|---|
 | 1 | Navigation bar | Header | static | — | — |
 | 2 | Project sidebar | List | static; *Partners* item selected | — | — |
-| 3 | Project request list | List | `collab_requests` by `project_id` | — | sorted by most recently updated |
-| 4 | Status on each request | Text | `collab_requests.status` — sent / responded / closed / declined / withdrawn | Yes | always with text |
-| 5 | 3-step bar | Chart (stepper) | timestamps `sent_at`, `responded_at`, `closed_at` | Yes | exactly 3 steps: Sent → Partner responded → Confirmed |
-| 6 | Request summary | Text | `collab_requests.services[]`, project, dates, locations, crew size | Yes | — |
-| 7 | Message thread | List | `collab_messages` | — | shown in the author's original language |
-| 8 | Partner response card | Container | `collab_requests.partner_response` — accepted / counter-proposal / declined + message | — | shown from step 2 onwards |
-| 9 | NDA consent checkbox | Toggle (checkbox) | `nda_acceptances` — NDA version, timestamp | Yes (to confirm) | must be ticked to enable *Confirm partnership* |
+| 3 | Project request list | List | `collab_request` by `project_id` | — | sorted by most recently updated |
+| 4 | Status on each request | Text | `collab_request.status` — `pending` / `under_review` / `info_requested` / `accepted` / `declined` / `confirmed` / `withdrawn`, shown as *Sent*, *Partner responded* or *Confirmed* (M4 §5.1 FR-014) | Yes | always with text |
+| 5 | 3-step bar | Chart (stepper) | timestamps `collab_request.sent_at`, `responded_at`, `confirmed_at` | Yes | exactly 3 steps: Sent → Partner responded → Confirmed |
+| 6 | Request summary | Text | `collab_request.services[]`, project, dates, locations, crew size | Yes | — |
+| 7 | Message thread | List | `collab_message` | — | shown in the author's original language |
+| 8 | Partner response card | Container | `collab_request.response_note` — accepted / counter-proposal / declined + message | — | shown from step 2 onwards |
+| 9 | NDA consent checkbox | Toggle (checkbox) | `nda_acceptance` — NDA version, timestamp | Yes (to confirm) | must be ticked to enable *Confirm partnership* |
 | 10 | *Confirm partnership* button | Button | static | — | enabled only when the partner has accepted and the NDA is ticked |
 | 11 | *Decline* / *Propose changes* buttons | Button | static | — | *Decline* asks for a reason (optional) |
-| 12 | Message composer | Input | `collab_messages.body` | No | 1–2000 characters |
+| 12 | Message composer | Input | `collab_message.body` | No | 1–2000 characters |
 | 13 | Note on consequences of confirming | Text | static | — | always shown next to the confirm button |
 
 ## 4. States
@@ -69,7 +69,7 @@
 | 2 | *View partner profile* | tap | — | SC-20 |
 | 3 | Message composer | type + Enter | Sends the message, notifies the partner (`F-M4-15`) | stays |
 | 4 | *Non-disclosure agreement* link | tap | Opens the full NDA text | stays |
-| 5 | *Confirm partnership* button | tap | `status = closed`, updates the gauge, updates item c on `SC-27` | stays |
+| 5 | *Confirm partnership* button | tap | `collab_request.status = confirmed` and `confirmed_at` set (M4 BR-005); updates the Partners gauge; item c on `SC-27` becomes *pending* until the signed agreement is uploaded (M4 BR-006) | stays |
 | 6 | *Decline* button | tap | Asks for a reason, `status = declined` | stays |
 | 7 | *Propose changes* button | tap | Opens the form to change services / dates | SC-23 |
 

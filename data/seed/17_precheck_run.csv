@@ -1,5 +1,5 @@
 brief_id,project_id,rule_version,synopsis_hash,lang,flags,country_guess,attention_level,created_at
-7b8b325c-07c7-5fe0-adaa-3efeb0f0a415,,2026.08,576adf6de97e5503ac260f23bd83e97d,en,"{""real_person"":""yes"",""military"":""no"",""heritage_site"":""no""}",US,medium,2026-09-17T11:00:00+07:00
+7b8b325c-07c7-5fe0-adaa-3efeb0f0a415,,2026.08,576adf6de97e5503ac260f23bd83e97d,en,"{""real_person"":""yes"",""military"":""no"",""heritage_site"":""no""}",US,low,2026-09-17T11:00:00+07:00
 99b1d47a-390c-56ce-a87c-6dc3b7a057a0,,2026.08,e4bef9a6e4155bce8fad84e56c3d7529,vi,"{""real_person"":""no"",""military"":""yes"",""heritage_site"":""yes""}",VN,high,2026-09-18T11:00:00+07:00
 cc6bcb72-3869-59aa-a0b9-c2d2f9a9d3ba,,2026.08,105eed26f9c85d3aa46b4d645d1ca2fc,en,"{""real_person"":""unsure"",""military"":""unsure"",""heritage_site"":""unsure""}",,,2026-09-26T11:00:00+07:00
 da8ba51f-6398-543e-bf20-15d529627278,acbcadc9-e8ae-5507-b207-6322f59faf0e,2026.08,c6dbcf19b25c528ba7203fd0efefbbe9,en,"{""real_person"":""no"",""military"":""no"",""heritage_site"":""no""}",FR,low,2026-09-19T11:00:00+07:00

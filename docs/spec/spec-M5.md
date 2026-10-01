@@ -135,7 +135,7 @@ sequenceDiagram
 | FR-003 | F-M5-03 | The system MUST show a status for every document: present, needs fixing, pending or missing. | Member | Must |
 | FR-004 | F-M5-04 | The system MUST generate a Vietnamese draft of the synopsis and Vietnam-scene script, aligned paragraph by paragraph with the source. | System | Must |
 | FR-005 | F-M5-05 | The system MUST export a two-column English–Vietnamese PDF with *DRAFT — REQUIRES PROOFREADING* on every page. | System | Must |
-| FR-006 | F-M5-06 | The system MUST record who proofread each paragraph and when, and let the confirmed Vietnamese partner confirm the document as proofread. | Partner / Member | Must |
+| FR-006 | F-M5-06 | The system MUST record who proofread each paragraph and when, and let the project's Vietnamese partner confirm the whole document as proofread (who may proofread: §10 question 2). | Partner / Member | Must |
 | FR-007 | F-M5-07 | The system MUST store the project's first shooting day and safety buffer. | Member | Must |
 | FR-008 | F-M5-08 | The system MUST show the reverse timeline with both scenarios and flag milestones that are late. | Member | Must |
 
@@ -187,6 +187,23 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 | ProjectGlossary | project_id, source_term, target_term | belongs to Project |
 | PublicHoliday | name, start_date, end_date, is_expected | used by the timeline |
 
+### 6.1 Attribute types
+
+Types and required flags of the attributes above that no field in 5.1 declares (keys, timestamps, stored statuses). Every column of the data model now has a declared type.
+
+| Entity | Attribute | Type | Required | Notes |
+|---|---|---|---|---|
+| DocumentType | `segments` | `ENUM(A, B, C)[]` | Yes | segments that need this document |
+| Document | `file_path` | `TEXT` | Yes | path in private storage; replaces `file BYTEA` of FR-002 (the file itself is not stored in a table) |
+| Document | `version` | `INTEGER` | Yes | 1, 2, … — previous versions are kept (FR-002) |
+| Document | `uploaded_by` | `UUID` | Yes |  |
+| Document | `uploaded_at` | `TIMESTAMPTZ` | Yes |  |
+| ProjectGlossary | `project_id` | `UUID` | Yes | BR-006 |
+| PublicHoliday | `name` | `VARCHAR(120)` | Yes |  |
+| PublicHoliday | `start_date` | `DATE` | Yes |  |
+| PublicHoliday | `end_date` | `DATE` | Yes | not before start_date |
+| PublicHoliday | `is_expected` | `BOOLEAN` | Yes | true for dates not yet officially announced (US-3) |
+
 ## 7. Screens involved
 
 | Screen ID | Screen name | Priority | Screen Spec file |
@@ -207,6 +224,7 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 
 - The Vietnamese partner (or a Vietnamese-speaking team member) does the proofreading.
 - Public holidays are loaded manually by VFDA each year.
+- Test value used until VFDA answers §10 question 2: a project member, or a partner whose request for the project is accepted or confirmed, may proofread a paragraph; only a partner whose request is confirmed may confirm the whole document.
 
 ## 10. Open questions
 

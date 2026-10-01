@@ -39,12 +39,12 @@
 |---|---|---|---|---|---|
 | 1 | Navigation bar | Header | static | — | — |
 | 2 | Project sidebar | List | static; *Article 13 dossier* item selected | — | — |
-| 3 | Title + legal basis + check time | Header + Text | static + `dossier_checks.checked_at` | Yes | — |
+| 3 | Title + legal basis + check time | Header + Text | static + `DOSSIER_CHECK — computed on read; the time shown is the time of the check` | Yes | — |
 | 4 | Progress x / 4 | Text + bar | count of components with status *Present* | Yes | 0–4 |
 | 5 | Verdict banner | Text | derived from progress: 4/4 → *All components present*; any missing → *Not ready to submit* | Yes | never use the words *passed* or *approved* |
-| 6 | Component rows (a, b, c, d) | List | the project's `document_slots` of type `art13_*` | Yes | exactly 4 rows, ordered a–d as in Article 13 cl.3 |
-| 7 | Status label | Text | `document_slots.status` — `present` / `needs_fix` / `pending` / `missing` | Yes | always icon plus text |
-| 8 | Check details | Text | `document_slots.auto_checks` + `needs_human_review` | — | must clearly separate *auto-checked* from *needs human review* |
+| 6 | Component rows (a, b, c, d) | List | the project's `document_slot` of type `art13_*` | Yes | exactly 4 rows, ordered a–d as in Article 13 cl.3 |
+| 7 | Status label | Text | `document_slot.state` — `present` / `needs_fix` / `pending` / `missing` | Yes | always icon plus text |
+| 8 | Check details | Text | `DOSSIER_CHECK` — computed on read: which parts were checked automatically and which need a person | — | must clearly separate *auto-checked* from *needs human review* |
 | 9 | Component action | Button / Link | by status: View file / Draft Vietnamese version / View collaboration request / Download template + Upload | — | — |
 | 10 | *Where to submit, how long it takes* block | Text | static; wording approved by the VFDA Legal Board | Yes | quotes Article 13 cl.4 accurately |
 | 11 | *Re-run check* button | Button | static | — | — |

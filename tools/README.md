@@ -3,7 +3,7 @@
 Two kinds of script live here.
 
 1. **`check_env.py`** — the Session 6 starter-kit check. Every member runs it; it needs only `uv`.
-2. **The generators** — the scripts that produce `docs/spec/`, `docs/screens/`, `docs/mvp-scope.md`, `data/` and `docs/word/` from one set of source data. You need them only when you want to **rebuild** those files. Nobody needs them for Session 6.
+2. **The generators** — the scripts that produce `docs/spec/`, `docs/screens/`, `docs/mvp-scope.md`, `data/` (model, schema, seed) and `docs/word/` from one set of source data. **These scripts are the source of truth: edit them, then rebuild; never edit the generated files.** You need them only when you want to **rebuild** those files. Nobody needs them for Session 6.
 
 ## 1. Environment check (every member)
 
@@ -42,8 +42,12 @@ Paths are found automatically on macOS, Windows and Linux (`toolpaths.py`). To f
 | Step | Command | Writes |
 |---|---|---|
 | 1 | `python3 tools/build_docs.py --mermaid` | `docs/spec/spec-*.md`, `docs/screens/screen-spec-*.md`, `docs/mvp-scope.md` |
-| 1b | `python3 tools/build_index.py` | `docs/spec/spec-document.md`, `docs/spec/README.md`, `docs/screens/README.md` (run after step 2 as well) |
-| 2 | `python3 tools/build_data.py --mermaid` | `data/01`–`05`, `data/03-erd.mmd`, `data/seed/schema.json` |
+| 1b | `python3 tools/build_index.py` | `docs/spec/spec-document.md`, `docs/spec/README.md`, `docs/screens/README.md` (run again after step 2e) |
+| 2 | `python3 tools/build_data.py --mermaid` | `data/01`–`05`, `data/03-erd.mmd`, `data/seed/schema.json` (with the load order and the `NN_<table>.csv` file names) |
+| 2b | `python3 data/seed/generate_seed.py && python3 data/seed/check_seed.py` | `data/seed/NN_<table>.csv` (46 files, 427 rows); the generator validates every rule before it writes |
+| 2c | `python3 tools/build_schema.py` | `data/schema/schema-<MODULE>.sql` (9 files), `data/schema/schema-summary.json` |
+| 2d | `python3 data/schema/load_check.py` | nothing — loads schema and seed into an empty SQLite database (gate G3); `--postgres "<DSN>"` also tests PostgreSQL |
+| 2e | `python3 tools/build_dm_docs.py --mermaid` | `data/data-model-<MODULE>.md` (9 files, one per module) |
 | 3 | `python3 tools/make_erd_views.py` | `docs/word/data/erd-views/erd-*.png` |
 | 4 | `python3 tools/make_word.py` | every `.docx` in `docs/word/` except Session 1 |
 | 5 | `python3 tools/fill_mvp_docx.py <course template .docx> docs/word/Session-01-MVP-Scope-GroupC.docx` | the Session 1 Word copy (needs the course's *Session-01-MVP-Scope-Template.docx*) |
@@ -51,7 +55,7 @@ Paths are found automatically on macOS, Windows and Linux (`toolpaths.py`). To f
 `--mermaid` also checks that every diagram renders; leave it out if mermaid-cli is not installed.
 The generators are deterministic: on an unchanged repository they leave `git status` clean.
 
-**Not generated — edit these by hand:** `README.md`, `AGENTS.md`, every `README.md` inside a folder, `docs/spec/spec-document.md`, `docs/function-list.md`, `docs/screen-list.md`, `docs/architecture/*.md`, `docs/env/`.
+**Not generated — edit these by hand:** `README.md`, `AGENTS.md`, every `README.md` inside a folder, `docs/prd.md`, `docs/function-list.md`, `docs/screen-list.md`, `docs/architecture/*.md`, `docs/env/`.
 
 ## 4. Files in this folder
 
@@ -67,7 +71,11 @@ The generators are deterministic: on an unchanged repository they leave `git sta
 | `base.py` | Mockup drawing helpers (used with `--img`) |
 | `mvp.py` | Source data of the MVP scope |
 | `build_data.py` | Writes the Session 5 data-model files |
-| `dm_model.py`, `dm_model2.py` | Source data of the data model (entities, columns, relationships) |
+| `dm_model.py`, `dm_model2.py` | Source data of the data model (entities, columns, relationships, conflict and type decisions) |
+| `specs_types.py` | Attribute types per module, printed as §6.1 of each Spec Document and used by the data model |
+| `build_schema.py` | Writes the portable SQL schema, one file per module, with named key, enum and business-rule constraints |
+| `dm_rules.py` | Source data of the per-module data-model files: how each business rule is enforced, boundaries, privacy |
+| `build_dm_docs.py` | Writes `data/data-model-<MODULE>.md` and checks that each module ERD matches the model |
 | `make_erd_views.py` | One ERD picture per module, for the Word copies |
 | `make_word.py`, `fill_mvp_docx.py` | Word copies |
 | `toolpaths.py` | Finds Chrome, mermaid-cli and pandoc on any operating system |

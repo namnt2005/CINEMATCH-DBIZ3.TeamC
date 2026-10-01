@@ -106,6 +106,11 @@ def data_word():
                         "It is shown here as one view per module; the lines are the same as in `data/03-erd.mmd`.\n\n" + views, md, flags=re.S)
         open(f"{t}/{name}.md", "w", encoding="utf-8").write(md)
         convert(f"{t}/{name}.md", f"{out}/{name}.docx", out)
+    for m in names:   # one Data Model and Mockup Data file per module; the diagram is the module's ERD view
+        md = open(f"{ROOT}/data/data-model-{m}.md", encoding="utf-8").read()
+        md = re.sub(r"```mermaid\n.*?```", f"![ERD {m}](erd-views/erd-{m}.png)", md, flags=re.S)
+        open(f"{t}/data-model-{m}.md", "w", encoding="utf-8").write(md)
+        convert(f"{t}/data-model-{m}.md", f"{out}/data-model-{m}.docx", out)
     seed = re.sub(r"^---\n.*?\n---\n", "", open(f"{ROOT}/data/seed/README.md", encoding="utf-8").read(), flags=re.S)
     open(f"{t}/seed.md", "w", encoding="utf-8").write(seed)
     convert(f"{t}/seed.md", f"{out}/seed-README.docx", out)

@@ -117,7 +117,7 @@ flowchart TD
 
 ### 4.1b Usage flow — segment C producer
 
-> Textualised from `usage-flow.md` flow 2, translated.
+> Textualised from `usage-flow.md` flow 2, translated. The DBIZ2 flow opens the full information layer as soon as the request is *Accepted*; FR-004 adds the NDA gate in between (both parties accept the NDA first, as drawn in flow 4.1) — see §11.1.
 
 ```mermaid
 flowchart TD
@@ -156,7 +156,7 @@ sequenceDiagram
     DB->>MAIL: Webhook: notify the result
     MAIL->>U: The partner accepted your request
     DB->>DB: Update the Partners gauge to 100%
-    Note over DB: Five statuses: pending, under_review, info_requested, accepted, declined
+    Note over DB: DBIZ2 statuses: pending, under_review, info_requested, accepted, declined (this spec adds confirmed and withdrawn, see 11.1)
 ```
 
 ### 4.3 Sequence — VFDA Verified (SEQ-07)
@@ -293,6 +293,26 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 | NdaAcceptance | request_id, party, nda_version, accepted_at | belongs to CollabRequest |
 | DocumentAccessLog | document_id, viewer_id, viewed_at | belongs to Document (M5) |
 
+### 6.1 Attribute types
+
+Types and required flags of the attributes above that no field in 5.1 declares (keys, timestamps, stored statuses). Every column of the data model now has a declared type.
+
+| Entity | Attribute | Type | Required | Notes |
+|---|---|---|---|---|
+| Organisation | `legal_form` | `VARCHAR(60)` | Yes | e.g. Công ty TNHH, Công ty cổ phần, Hộ kinh doanh |
+| Organisation | `founded_year` | `INTEGER` | No |  |
+| Organisation | `hq_province` | `INTEGER` | No | a province_id (M3) |
+| Organisation | `verified_until` | `DATE` | No | verified_at + 12 months (BR-004); empty when never verified |
+| Organisation | `art13_eligible` | `BOOLEAN` | Yes | may sign the service agreement Article 13 requires (§10 question 3) |
+| OrganisationMemberLayer | `portfolio` | `VARCHAR(200)[]` | No | project titles without client names |
+| OrganisationMemberLayer | `intl_project_count` | `INTEGER` | Yes | 0 or more |
+| OrganisationPrivateLayer | `direct_contact` | `VARCHAR(200)` | No | name and phone of the contact person |
+| VerificationRequest | `decided_by` | `UUID` | No | empty while pending |
+| CollabRequest | `sent_at` | `TIMESTAMPTZ` | Yes |  |
+| CollabRequest | `confirmed_at` | `TIMESTAMPTZ` | No | set only when the producer confirms (BR-005) |
+| CollabMessage | `author_id` | `UUID` | Yes |  |
+| CollabMessage | `created_at` | `TIMESTAMPTZ` | Yes | messages are never edited (BR-009) |
+
 ## 7. Screens involved
 
 | Screen ID | Screen name | Priority | Screen Spec file |
@@ -353,6 +373,7 @@ Where the 20-screen design or this spec differs from the DBIZ2 Function List, th
 | Partners gauge | 100% on accepted (F-M4-16) | 100% on confirmed — the request is only final when the producer confirms (BR-005) | Resolved — screen rule adopted by Group C |
 | NDA direction | Partner accepts before viewing project documents | Both parties accept; the producer's acceptance opens the partner's private layer | Changed — Confirmed by the Client |
 | F-M4-07, F-M4-19 priority | Must | Could | Changed — Confirmed by the Client |
+| Segment C flow | Accepted opens the full information layer (usage-flow flow 2) | Accepted, then both parties accept the NDA, then the private layer opens (FR-004) | Changed — Group C decision 01/10/2026 |
 
 ## Completion checklist
 

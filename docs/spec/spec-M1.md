@@ -151,7 +151,24 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 |---|---|---|
 | SegmentRule | rule_id, q1, q2, q3, result_segment, version | used by SegmentDecision |
 | SegmentRequirement | segment, requirement_code, label_vi, label_en, needed | belongs to a segment |
-| SegmentDecision | session_or_project_id, answers, segment, decided_by, segment_override | belongs to Project (M0) once saved |
+| SegmentDecision | segment_decision_id, project_id, session_key, segment_rule_id, answers, segment, decided_by, segment_override | belongs to Project (M0) once saved; before that to an anonymous session |
+
+### 6.1 Attribute types
+
+Types and required flags of the attributes above that no field in 5.1 declares (keys, timestamps, stored statuses). Every column of the data model now has a declared type.
+
+| Entity | Attribute | Type | Required | Notes |
+|---|---|---|---|---|
+| SegmentRule | `segment_rule_id` | `UUID` | Yes | identifier (called rule_id in earlier drafts) |
+| SegmentRule | `version` | `VARCHAR(20)` | Yes | e.g. 2026.1; the same answers always give the same segment within one version (BR-001) |
+| SegmentRequirement | `requirement_code` | `VARCHAR(40)` | Yes | e.g. ART13_LICENCE |
+| SegmentRequirement | `label_vi` | `TEXT` | Yes |  |
+| SegmentRequirement | `label_en` | `TEXT` | Yes |  |
+| SegmentRequirement | `needed` | `BOOLEAN` | Yes | *Needed* / *Not needed* on SC-02 |
+| SegmentDecision | `segment_decision_id` | `UUID` | Yes | identifier; declared 01/10/2026 (no identifier before) |
+| SegmentDecision | `project_id` | `UUID` | No | set once the project is saved; exactly one of project_id and session_key is set |
+| SegmentDecision | `session_key` | `VARCHAR(40)` | No | anonymous session before sign-up, e.g. `session:7c1e9a40`; never linked to a person |
+| SegmentDecision | `segment_rule_id` | `UUID` | No | empty when the answers match no rule (§3 Edge cases) |
 
 ## 7. Screens involved
 
@@ -200,6 +217,7 @@ Where the 20-screen design or this spec differs from the DBIZ2 Function List, th
 | Topic | DBIZ2 / System Design v2.0 | This spec | Status |
 |---|---|---|---|
 | Router input | F-M1-02 input: `segment` chosen from three cards | Four questions decide the segment; cards remain as override (screen list note #3) | Changed — Confirmed by the Client |
+| Who a decision belongs to | one value meaning either a session or a project | `project_id` once the project is saved, `session_key` before that; exactly one is set (§6.1) | Changed — Group C decision 01/10/2026 |
 
 ## Completion checklist
 

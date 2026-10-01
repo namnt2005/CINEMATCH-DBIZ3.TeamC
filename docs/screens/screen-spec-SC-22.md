@@ -39,7 +39,7 @@
 |---|---|---|---|---|---|
 | 1 | Navigation bar (partner) | Header | static; *My organisation* selected | — | — |
 | 2 | Breadcrumb + title + purpose | Header + Text | static | — | — |
-| 3 | Organisation summary | Text | `org_id` with `org_name`, `legal_form`, `founded_year`, `hq_province`, `service_groups`, `provinces` (read-only) | Yes | — |
+| 3 | Organisation summary | Text | `org_id` with `org_name`, `legal_form`, `founded_year`, `hq_province`, `service_groups`, `province` (read-only) | Yes | — |
 | 4 | Business registration certificate | Input (file) | `business_license` — FILE, private storage | Yes | PDF only, ≤ 25 MB |
 | 5 | Reference project rows | Input (list) | `reference_projects` — TEXT[] | Yes | at least 2 non-empty rows; empty rows are ignored |
 | 6 | *+ Add reference project* button | Button | static | — | — |

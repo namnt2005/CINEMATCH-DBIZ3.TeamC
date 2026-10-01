@@ -1,7 +1,7 @@
 ---
 artifact: 02-crud-matrix
 step: S2
-generated: 2026-09-30
+generated: 2026-10-01
 sources: FUNCTIONS, FIELDS, ENTITIES, RULES, SCENARIOS, FLOWS, SCREENS, BOUNDARY
 ---
 

@@ -14,12 +14,12 @@ It adds no requirement of its own. If this index and a module file ever disagree
 | M1 | [`spec-M1.md`](spec-M1.md) | Segment router | 3 | 4 | 3 | SC-01, SC-02, SC-13 | 4 (3 blocking) |
 | M0 | [`spec-M0.md`](spec-M0.md) | Project workspace and readiness dashboard | 9 | 5 | 3 | SC-10, SC-12, SC-13 | 6 (1 blocking) |
 | M2 | [`spec-M2.md`](spec-M2.md) | Content pre-check and Article 13 dossier check | 18 | 8 | 5 | SC-03, SC-27, SC-29, SC-30, SC-31, SC-37, SC-48 | 14 (7 blocking) |
-| M3 | [`spec-M3.md`](spec-M3.md) | Location discovery | 20 | 9 | 5 | SC-14, SC-15, SC-16, SC-17, SC-18, SC-35 | 10 (4 blocking) |
+| M3 | [`spec-M3.md`](spec-M3.md) | Location discovery | 20 | 10 | 5 | SC-14, SC-15, SC-16, SC-17, SC-18, SC-35 | 10 (4 blocking) |
 | M4 | [`spec-M4.md`](spec-M4.md) | Vietnamese service partners | 19 | 9 | 4 | SC-19, SC-20, SC-21, SC-22, SC-23, SC-25, SC-36 | 8 (4 blocking) |
 | M5 | [`spec-M5.md`](spec-M5.md) | Dossier kit, bilingual drafts and countdown | 8 | 6 | 3 | SC-26, SC-28, SC-29 | 7 (3 blocking) |
-| M7 | [`spec-M7.md`](spec-M7.md) | VFDA support — provincial notices and consultations | 7 | 4 | 3 | SC-32, SC-33 | 6 (4 blocking) |
+| M7 | [`spec-M7.md`](spec-M7.md) | VFDA support — provincial notices and consultations | 7 | 5 | 3 | SC-32, SC-33 | 6 (4 blocking) |
 | M10 | [`spec-M10.md`](spec-M10.md) | VFDA back office — moderation, demand index, quarterly report, audit log | 9 | 5 | 4 | SC-34, SC-38, SC-39, SC-40, SC-41 | 8 (1 blocking) |
-| **Total** |  |  | **104** | **55** | **34** | 41 screens | **74 (29 blocking)** |
+| **Total** |  |  | **104** | **57** | **34** | 41 screens | **74 (29 blocking)** |
 
 Modules `M6`, `M8` and `M9` are *Won't* for this release (see `docs/prd.md` section 4.4) and have no Spec Document.
 
@@ -163,6 +163,7 @@ All business rules, as written in §5.2 of each module file:
 | M3 | BR-007 | The provincial index uses only data generated on the platform and always shows its sample size. |
 | M3 | BR-008 | Locations are unpublished, never deleted (`intake_status = unpublished`); shortlists and provincial notices that refer to an unpublished location keep it and show *No longer published*. |
 | M3 | BR-009 | Every confirmed scene search is stored as a location query without any personal data (description, attributes, month, and the project only when a member searches inside a project); it is used for the M10 demand index and never to train a model. |
+| M3 | BR-010 | Every published location carries an availability set by VFDA staff: `open`, `survey_in_progress` (another crew is scouting it) or `paused` (not receiving crews for now). A paused location stays published and visible with its label; availability is the sixth scoring criterion; every change is written to the audit log (M10 FR-008). |
 | M4 | BR-001 | The three visibility layers are three tables with separate Row Level Security policies, not hidden columns. |
 | M4 | BR-002 | The 12 service groups are a fixed enum; organisations cannot invent groups. |
 | M4 | BR-003 | Supplier accounts are created only by VFDA invitation in the first phase. |
@@ -182,6 +183,7 @@ All business rules, as written in §5.2 of each module file:
 | M7 | BR-002 | Every notice states that it does not replace the filming licence from the Ministry of Culture, Sports and Tourism. |
 | M7 | BR-003 | The province's reply is one of three final values; the free-text note is kept as entered. |
 | M7 | BR-004 | Reply times feed the provincial readiness index (M3). |
+| M7 | BR-005 | Consultation booking (SC-33) is offered only after VFDA has declared its staffed hours and reply time; until then SC-33 shows VFDA's contact email instead of the booking form. |
 | M10 | BR-001 | Content published by partners (profile text, photos) is shown to the public only after VFDA staff approve it; until then the last approved version stays public. |
 | M10 | BR-002 | Hiding content requires a written reason, which is sent to the author. |
 | M10 | BR-003 | Every indicator shows the number of records it was computed from; below 5 records it shows *Not enough data* instead of a value. |

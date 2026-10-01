@@ -35,15 +35,15 @@
 |---|---|---|---|---|---|
 | 1 | Navigation bar | Header | static | — | — |
 | 2 | Project sidebar | List | static; *Countdown* selected | — | — |
-| 3 | First shooting day (editable) | Input (date) | `projects.shooting_start_date` | Yes | after today |
-| 4 | Safety buffer | Toggle (dropdown) | `projects.buffer_days` — 0 / 7 / 14 / 21 | Yes | default 7 |
+| 3 | First shooting day (editable) | Input (date) | `project.shoot_date` | Yes | after today |
+| 4 | Safety buffer | Toggle (dropdown) | `project.buffer_days` — 0 / 7 / 14 / 21 | Yes | default 7 |
 | 5 | *Safe submission deadline* card | Text | `F-M2-17`: first shooting day − buffer − 20 − 20; days remaining | Yes | most prominent element on screen |
 | 6 | Timeline axis | Chart (timeline) | from today to after the first shooting day, monthly ticks | Yes | — |
 | 7 | Milestone | Chart marker | `timeline_milestones` — partner confirmed, Vietnamese version done, safe deadline, latest deadline, first shooting day | Yes | overdue milestones turn red |
 | 8 | Smooth-path bar | Chart bar | submission date → +20 days | Yes | — |
 | 9 | One-resubmission bar | Chart bar | submission date → +40 days | Yes | — |
 | 10 | Today line | Chart marker | current date | — | — |
-| 11 | Holiday band within processing period | Chart band + Text | `public_holidays` (Lunar New Year (Tết), 30/4–1/5, 2/9…) | No | only shown when it falls in the processing window; marked *expected* until the official calendar is out |
+| 11 | Holiday band within processing period | Chart band + Text | `public_holiday` (Lunar New Year (Tết), 30/4–1/5, 2/9…) | No | only shown when it falls in the processing window; marked *expected* until the official calendar is out |
 | 12 | Article 13 cl.4 basis line | Text | static | Yes | — |
 | 13 | *Remind me by email · Add to calendar* button | Button | Resend + `.ics` file | — | — |
 
@@ -73,7 +73,7 @@
 | SR-171 | **Safe submission deadline** = first shooting day − buffer − 20 − 20 days: room for **one resubmission** under Article 13 cl.4. This is the most emphasised figure. | Function list — note #17; Article 13 cl.4 |
 | SR-172 | Always show the consequence of submitting late (e.g. *result after the first shooting day*). Never soften bad news. | Honesty principle |
 | SR-173 | The **same calculation function** is used by `SC-12`, `SC-27` and this screen. | Consistency principle |
-| SR-174 | Public holidays are read from the `public_holidays` table; dates without an official calendar are clearly marked *expected*. | No-guessing principle |
+| SR-174 | Public holidays are read from the `public_holiday` table; dates without an official calendar are clearly marked *expected*. | No-guessing principle |
 | SR-175 | Calculated in **calendar days** until the VFDA Legal Board confirms the method (see open questions). | Interim assumption |
 
 ## 7. Linked requirements

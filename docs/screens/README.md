@@ -4,7 +4,7 @@ Every screen in the MVP scope of `docs/screen-list.md` has a mockup `img/<SCREEN
 Word copies are in `../word/screens/`.
 
 **Reading the mockups:** each orange numbered badge on an image is the row with the same number in section 3 (*Element inventory*) of that screen's spec.
-Badges and rows are machine-checked to match one-to-one on all 41 screens (545 elements, 205 screen-level rules).
+Badges and rows are machine-checked to match one-to-one on all 41 screens (545 elements, 206 screen-level rules).
 
 | # | Screen ID | Screen | Module spec | Priority | Tier / batch | Mockup | Spec |
 |---|---|---|---|---|---|---|---|
@@ -45,7 +45,7 @@ Badges and rows are machine-checked to match one-to-one on all 41 screens (545 e
 | 35 | SC-32 | Provincial People's Committee notice | `spec-M7.md` | Should | Tier 2 — Should | [img](img/SC-32.png) | [spec](screen-spec-SC-32.md) |
 | 36 | SC-33 | Book a VFDA consultation | `spec-M7.md` | Should | Added 30/09/2026 | [img](img/SC-33.png) | [spec](screen-spec-SC-33.md) |
 | 37 | SC-34 | Admin — Overview | `spec-M10.md` | Should | Added 30/09/2026 | [img](img/SC-34.png) | [spec](screen-spec-SC-34.md) |
-| 38 | SC-38 | Admin — Content moderation | `spec-M10.md` | Should | Added 30/09/2026 | [img](img/SC-38.png) | [spec](screen-spec-SC-38.md) |
+| 38 | SC-38 | Admin — Content moderation | `spec-M10.md` | Must | Added 30/09/2026 | [img](img/SC-38.png) | [spec](screen-spec-SC-38.md) |
 | 39 | SC-39 | Admin — Demand index | `spec-M10.md` | Should | Added 30/09/2026 | [img](img/SC-39.png) | [spec](screen-spec-SC-39.md) |
 | 40 | SC-40 | Admin — Quarterly report | `spec-M10.md` | Should | Added 30/09/2026 | [img](img/SC-40.png) | [spec](screen-spec-SC-40.md) |
 | 41 | SC-41 | Admin — Audit log | `spec-M10.md` | Should | Added 30/09/2026 | [img](img/SC-41.png) | [spec](screen-spec-SC-41.md) |

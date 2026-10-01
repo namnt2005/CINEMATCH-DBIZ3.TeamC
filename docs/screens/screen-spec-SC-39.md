@@ -43,7 +43,7 @@
 | 4 | Period granularity | Toggle | `period` — Month / Quarter / Year | Yes | enum `month`, `quarter`, `year` |
 | 5 | Period picker | Toggle (dropdown) | `period_start`, `period_end` derived from the choice (e.g. Q3 2026 = 01/07/2026–30/09/2026) | Yes | `period_start` ≤ `period_end`; not after the current period |
 | 6 | Charts / Data table switch | Toggle | `dashboard_view` — same figures as charts or as a table (indicator, value, sample size, source) | — | — |
-| 7 | Indicator 1 — projects by segment and format | Chart | `demand_index` from `projects.segment`, `projects.format` created in the period | Yes | counts; *Not enough data* below 5 records |
+| 7 | Indicator 1 — projects by segment and format | Chart | `demand_index` from `project.segment`, `project.format` created in the period | Yes | counts; *Not enough data* below 5 records |
 | 8 | Indicator 2 — origin market | Chart | `demand_index` from `producer_organisation.country` (ISO code shown as country name) | Yes | same rule |
 | 9 | Indicator 3 — top 10 provinces and scene types | Chart | `demand_index` from `project_province.province_id` (34-province list) and `location_query.attributes.scene_types` (readable labels) | Yes | same rule |
 | 10 | Indicator 4 — budget scale | Text | no source field yet | Yes | always *Not enough data — no data source yet* until a field exists |

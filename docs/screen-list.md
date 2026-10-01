@@ -3,6 +3,7 @@
 > Source: System Design v2.0, sheet *5. Screen List*, textualised in Session 4 Step 2.
 > **Updated 22/09/2026** to match the team's list of 20 priority screens (Tier 1: 17 · Tier 2: 3):
 > `SC-48` added; `SC-03`, `SC-14`, `SC-27` narrowed or renamed; `SC-17`, `SC-18`, `SC-32` moved to *Should*.
+> **Updated 01/10/2026:** `SC-38` raised to *Must* (moderation, `docs/prd.md` Must #13, M10 FR-001–FR-002); `SC-16` shows each location's availability (M3 BR-010).
 
 | | |
 |---|---|
@@ -30,7 +31,7 @@
 | Member | M0 — Project workspace | SC-13 | Project settings | Change segment, invite members | `/projects/[id]/settings` | A,B,C | Must |
 | Guest | M3 — Location discovery | SC-14 | Location suggestions (list + map) | Match score and reasons; entered from a description or from filters | `/locations` | A,B | Must |
 | Guest | M3 — Location discovery | SC-15 | Scene description (AI Matching input) | Describe a scene, confirm the extracted attributes | `/locations/describe` | A,B | Must |
-| Guest | M3 — Location discovery | SC-16 | Location detail | Location profile, gated authority contact, provincial readiness | `/locations/[slug]` | A,B | Must |
+| Guest | M3 — Location discovery | SC-16 | Location detail | Location profile with availability badge, gated authority contact, provincial readiness | `/locations/[slug]` | A,B | Must |
 | Guest | M3 — Location discovery | SC-17 | Location comparison (up to 4) | Compare up to four locations | `/locations/compare` | A,B | Should |
 | Guest | M3 — Location discovery | SC-18 | Provincial readiness index | Index from platform data, locations in the province | `/provinces/[slug]` | A,B | Should |
 | Guest | M4 — Vietnamese service partners | SC-19 | Partner directory (12 service groups) | Twelve service groups, filters, VFDA Verified | `/partners` | A,B,C | Must |
@@ -52,7 +53,7 @@
 | VFDA Staff | M3 — Location discovery | SC-35 | Admin — Locations | Add, edit, verify, publish | `/admin/locations` | — | Must |
 | VFDA Staff | M4 — Vietnamese service partners | SC-36 | Admin — Verification queue | Review organisation verification | `/admin/verification` | — | Must |
 | VFDA Legal | M2 — Content and dossier checks | SC-37 | Admin — Legal rule base | Write, sign, version rules | `/admin/legal-rules` | — | Must |
-| VFDA Staff | M10 — VFDA back office | SC-38 | Admin — Content moderation | Queue of content awaiting review | `/admin/moderation` | — | Should |
+| VFDA Staff | M10 — VFDA back office | SC-38 | Admin — Content moderation | Queue of content awaiting review | `/admin/moderation` | — | Must |
 | VFDA Staff | M10 — VFDA back office | SC-39 | Admin — Demand index | Six indicators and charts | `/admin/demand` | — | Should |
 | VFDA Staff | M10 — VFDA back office | SC-40 | Admin — Quarterly report | Generate and export the PDF report | `/admin/reports` | — | Should |
 | Admin | M10 — VFDA back office | SC-41 | Admin — Audit log | Search admin actions | `/admin/audit` | — | Should |

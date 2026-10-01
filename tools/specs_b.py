@@ -143,8 +143,8 @@ MODULES.append(dict(
      ("F-M3-20", "The system SHOULD show a province page linking into a pre-filtered location search.", "Guest", "Should")],
  io={
   "F-M3-01": ("filter JSONB Opt", "locations ARRAY<location_admin>", "vfda_staff only"),
-  "F-M3-02": ("name_vi VARCHAR(200) Req; name_en VARCHAR(200) Req; province_id INTEGER Req; district VARCHAR(120) Opt; lat NUMERIC(9,6) Req; lng NUMERIC(9,6) Req; airport_km INTEGER Opt; scene_types ARRAY<ENUM(karst, river, village, rice_field, sea, floating_village, cave, jungle, old_town, market, rice_terrace, mountain, dunes, mangrove)> Req; desc_vi TEXT Req; desc_en TEXT Req; crew_capacity ENUM(u15, 15_50, o50) Req; lodging_20km BOOLEAN Req; grid_power BOOLEAN Req; truck_access BOOLEAN Req; months_to_avoid ARRAY<INTEGER> Opt; permit_complexity ENUM(low, medium, high) Req; restriction_note TEXT Opt",
-              "location_id UUID; slug VARCHAR(160); intake_status ENUM(awaiting_contact, published, unpublished)", "province_id from the 34-province list"),
+  "F-M3-02": ("name_vi VARCHAR(200) Req; name_en VARCHAR(200) Req; province_id INTEGER Req; district VARCHAR(120) Opt; lat NUMERIC(9,6) Req; lng NUMERIC(9,6) Req; airport_km INTEGER Opt; scene_types ARRAY<ENUM(karst, river, village, rice_field, sea, floating_village, cave, jungle, old_town, market, rice_terrace, mountain, dunes, mangrove)> Req; desc_vi TEXT Req; desc_en TEXT Req; crew_capacity ENUM(u15, 15_50, o50) Req; lodging_20km BOOLEAN Req; grid_power BOOLEAN Req; truck_access BOOLEAN Req; months_to_avoid ARRAY<INTEGER> Opt; permit_complexity ENUM(low, medium, high) Req; restriction_note TEXT Opt; availability ENUM(open, survey_in_progress, paused) Req",
+              "location_id UUID; slug VARCHAR(160); intake_status ENUM(awaiting_contact, published, unpublished)", "province_id from the 34-province list; availability added 01/10/2026 (BR-010)"),
   "F-M3-03": ("image_file BYTEA Req; image_source TEXT Req; usage_right TEXT Req", "image_url TEXT; image_status ENUM(pending, approved, hidden)", "jpg / png, max 10 MB"),
   "F-M3-04": ("location_id UUID Req; authority_name VARCHAR(200) Req; contact_name VARCHAR(120) Req; contact_phone VARCHAR(20) Req; contact_email VARCHAR(254) Opt; verified_by UUID Req", "contact_verified BOOLEAN; verified_at TIMESTAMPTZ", ""),
   "F-M3-05": ("location_id UUID Req", "published BOOLEAN; blocked_reason TEXT", "CHECK: contact_verified = true"),
@@ -172,8 +172,9 @@ MODULES.append(dict(
      ("BR-006", "Provinces use the 34 provincial-level units after the 2025 reorganisation; old names are accepted in search and mapped to the new unit.", "Producers and older guides still use pre-2025 names."),
      ("BR-007", "The provincial index uses only data generated on the platform and always shows its sample size.", "It must not become a subjective ranking of provinces."),
      ("BR-008", "Locations are unpublished, never deleted (`intake_status = unpublished`); shortlists and provincial notices that refer to an unpublished location keep it and show *No longer published*.", "A producer's plan and VFDA's letters to provinces must not silently lose a place."),
-     ("BR-009", "Every confirmed scene search is stored as a location query without any personal data (description, attributes, month, and the project only when a member searches inside a project); it is used for the M10 demand index and never to train a model.", "The demand index needs to know what producers look for; storing no personal data keeps guests anonymous.")],
- entities=[("Location", "location_id, slug, name_vi, name_en, province_id, lat, lng, scene_types, crew_capacity, lodging_20km, grid_power, truck_access, months_to_avoid, permit_complexity, intake_status, published", "belongs to Province; has many LocationImages; has one AuthorityContact"),
+     ("BR-009", "Every confirmed scene search is stored as a location query without any personal data (description, attributes, month, and the project only when a member searches inside a project); it is used for the M10 demand index and never to train a model.", "The demand index needs to know what producers look for; storing no personal data keeps guests anonymous."),
+     ("BR-010", "Every published location carries an availability set by VFDA staff: `open`, `survey_in_progress` (another crew is scouting it) or `paused` (not receiving crews for now). A paused location stays published and visible with its label; availability is the sixth scoring criterion; every change is written to the audit log (M10 FR-008).", "The light version of a shared shooting calendar (TL4 idea #5, TL5 M3 step 5): two crews do not target the same place unknowingly, without building a booking system.")],
+ entities=[("Location", "location_id, slug, name_vi, name_en, province_id, lat, lng, scene_types, crew_capacity, lodging_20km, grid_power, truck_access, months_to_avoid, permit_complexity, availability, intake_status, published", "belongs to Province; has many LocationImages; has one AuthorityContact"),
            ("LocationImage", "image_url, image_source, usage_right, status", "belongs to Location"),
            ("AuthorityContact", "authority_name, contact_name, contact_phone, contact_email, verified_by, verified_at", "belongs to Location"),
            ("Province", "province_id, name, slug, region, merged_from", "has many Locations"),
@@ -191,14 +192,14 @@ MODULES.append(dict(
      ("Four in five producers judge the top result relevant to their described scene.", "Rating task on 10 descriptions."),
      ("A guest never sees an authority phone number or email.", "Private-window source check on 10 location pages.")],
  assumptions=["The MVP launches with at least 50 VFDA-verified locations across at least 8 provinces.",
-              "Six scoring criteria: visual fit, crew capacity, logistics, season for the shooting month, permit complexity, intake status.",
-     "Test values used until VFDA confirms the scoring weights: the six criteria have equal weight (1/6 each); a result is shown from 40 points; authority contacts are re-verified every 12 months."],
+              "Six scoring criteria: visual fit, crew capacity, logistics, season for the shooting month, permit complexity, availability (BR-010).",
+     "Test values used until VFDA confirms the scoring weights: the six criteria have equal weight (1/6 each); availability scores open = full, survey_in_progress = half, paused = 0; a result is shown from 40 points; authority contacts are re-verified every 12 months."],
  oq=[("Weights of the six scoring criteria (F-M3-08).", True, "Client (VFDA)"),
      ("Who maintains the fixed attribute catalogue (scene types, terrain, era) used by F-M3-12?", True, "Client (VFDA)"),
      ("Where does data for the *night shooting* and *weather in the shooting month* comparison rows come from? No field exists yet.", True, "Group C"),
      ("May VFDA publish the provincial index publicly? It may be sensitive for low-scoring provinces.", True, "Client (VFDA)"),
      ("Re-verification cycle for authority contacts (proposed 12 months).", False, "Client (VFDA)"),
-     ("Is the Session 3 target of at least 40 published locations at launch still required, and who supplies the location data?", False, "Nam with VFDA")],
+     ("The launch target is 50 VFDA-verified locations in at least 8 provinces (Group C decision 01/10/2026, replacing the Session 3 figure of 40). Who supplies the location data, and by when?", False, "Nam with VFDA")],
  trace=[("1. Purpose", "System Design v2.0 — 1. Schematic, §1.2 (M3)", "`docs/architecture/context.md`"),
         ("4.1 Usage flow", "FLOW-01 flows 1 and 4 (Figure 3) + Step 3 additions", "`docs/architecture/usage-flow.md` §1, §4"),
         ("4.2–4.4 Sequences", "SEQ-03 (Fig. 6), SEQ-04 (Fig. 7), SEQ-05 (Fig. 8)", "`docs/architecture/sequence-diagrams.md`"),
@@ -206,7 +207,8 @@ MODULES.append(dict(
         ("7. Screens", "Screen List SC-14..SC-18, SC-35", "`docs/screen-list.md` §1")],
  recon=[("Attribute confirmation", "SEQ-03 goes straight from extraction to search", "SC-15 shows *What the system understood* and waits for the user to confirm", "Added — Confirmed by the Client"),
         ("F-M3-16..20 priority", "Must", "Should — Tier 2 of the screen list file (#18, #19)", "Changed — Confirmed by the Client"),
-        ("Shortlist role", "no role", "primary / backup (SC-17)", "Added — Confirmed by the Client")],
+        ("Shortlist role", "no role", "primary / backup (SC-17)", "Added — Confirmed by the Client"),
+        ("Location availability", "not in DBIZ2", "availability ENUM(open, survey_in_progress, paused) set by VFDA staff; sixth scoring criterion (BR-010)", "Added — Group C decision 01/10/2026")],
 ))
 
 # =============================================================================  M4
@@ -276,7 +278,7 @@ MODULES.append(dict(
     Q -- Accepted --> OPEN[Full information layer opens: rate card, past clients, contact]
     OPEN --> N[M5 · Checklist: contract, payment, tax]
     N --> E([Service contract signed outside the system])""",
-"Textualised from `usage-flow.md` flow 2, translated.")],
+"Textualised from `usage-flow.md` flow 2, translated. The DBIZ2 flow opens the full information layer as soon as the request is *Accepted*; FR-004 adds the NDA gate in between (both parties accept the NDA first, as drawn in flow 4.1) — see §11.1.")],
  seqs=[("4.2 Sequence — collaboration request and two-way response (SEQ-06)",
 """sequenceDiagram
     actor U as Producer
@@ -298,7 +300,7 @@ MODULES.append(dict(
     DB->>MAIL: Webhook: notify the result
     MAIL->>U: The partner accepted your request
     DB->>DB: Update the Partners gauge to 100%
-    Note over DB: Five statuses: pending, under_review, info_requested, accepted, declined""",
+    Note over DB: DBIZ2 statuses: pending, under_review, info_requested, accepted, declined (this spec adds confirmed and withdrawn, see 11.1)""",
 "Textualised from SEQ-06 (Figure 9), translated. 5 participants, 13 messages. The SC-25 screen adds a producer *Confirm* step after acceptance — see §11."),
         ("4.3 Sequence — VFDA Verified (SEQ-07)",
 """sequenceDiagram
@@ -407,7 +409,8 @@ MODULES.append(dict(
  recon=[("Request lifecycle", "Five statuses ending at accepted / declined", "Producer confirms after acceptance (*Sent → Partner responded → Confirmed*, screen list note #14)", "Changed — Confirmed by the Client"),
         ("Partners gauge", "100% on accepted (F-M4-16)", "100% on confirmed — the request is only final when the producer confirms (BR-005)", "Resolved — screen rule adopted by Group C"),
         ("NDA direction", "Partner accepts before viewing project documents", "Both parties accept; the producer's acceptance opens the partner's private layer", "Changed — Confirmed by the Client"),
-        ("F-M4-07, F-M4-19 priority", "Must", "Could", "Changed — Confirmed by the Client")],
+        ("F-M4-07, F-M4-19 priority", "Must", "Could", "Changed — Confirmed by the Client"),
+        ("Segment C flow", "Accepted opens the full information layer (usage-flow flow 2)", "Accepted, then both parties accept the NDA, then the private layer opens (FR-004)", "Changed — Group C decision 01/10/2026")],
 ))
 
 # =============================================================================  M5
@@ -482,7 +485,7 @@ MODULES.append(dict(
      ("F-M5-03", "The system MUST show a status for every document: present, needs fixing, pending or missing.", "Member", "Must"),
      ("F-M5-04", "The system MUST generate a Vietnamese draft of the synopsis and Vietnam-scene script, aligned paragraph by paragraph with the source.", "System", "Must"),
      ("F-M5-05", "The system MUST export a two-column English–Vietnamese PDF with *DRAFT — REQUIRES PROOFREADING* on every page.", "System", "Must"),
-     ("F-M5-06", "The system MUST record who proofread each paragraph and when, and let the confirmed Vietnamese partner confirm the document as proofread.", "Partner / Member", "Must"),
+     ("F-M5-06", "The system MUST record who proofread each paragraph and when, and let the project's Vietnamese partner confirm the whole document as proofread (who may proofread: §10 question 2).", "Partner / Member", "Must"),
      ("F-M5-07", "The system MUST store the project's first shooting day and safety buffer.", "Member", "Must"),
      ("F-M5-08", "The system MUST show the reverse timeline with both scenarios and flag milestones that are late.", "Member", "Must")],
  io={
@@ -515,7 +518,8 @@ MODULES.append(dict(
      ("A Vietnamese partner proofreads a 14-paragraph draft in under 45 minutes.", "Timed session with 2 partners."),
      ("Every producer in testing can state their safe submission deadline after opening the countdown.", "Task check with 5 producers.")],
  assumptions=["The Vietnamese partner (or a Vietnamese-speaking team member) does the proofreading.",
-              "Public holidays are loaded manually by VFDA each year."],
+              "Public holidays are loaded manually by VFDA each year.",
+              "Test value used until VFDA answers §10 question 2: a project member, or a partner whose request for the project is accepted or confirmed, may proofread a paragraph; only a partner whose request is confirmed may confirm the whole document."],
  oq=[("Document list for segment C.", True, "Client (VFDA Legal Board)"),
      ("Who may mark a paragraph proofread: any project member, or only the confirmed Vietnamese partner?", False, "Client (VFDA)"),
      ("Which translation service may process scripts, which are confidential?", True, "Group C + Client"),
@@ -593,10 +597,10 @@ MODULES.append(dict(
     U->>FE: View the provincial coordination page
     Note over DB: This came from the BA Report executive summary and was missed in MVP v1""",
 "Textualised from SEQ-11 (Figure 14), translated. 5 participants, 11 messages. SC-32 inserts a VFDA review before the email is sent — see §11.")],
- fr=[("F-M7-01", "The system MUST record a member's interest in a location for a project.", "Member", "Should"),
-     ("F-M7-02", "The system MUST generate the provincial notice from project data and queue it for VFDA staff to review and send from VFDA's domain.", "System / VFDA Staff", "Should"),
-     ("F-M7-03", "The system MUST record the province's reply as received, info_needed or cannot_support, with an optional note and time.", "Province / VFDA Staff", "Should"),
-     ("F-M7-04", "The system MUST show the producer, per province, the four-step progress and the reply.", "Member", "Should"),
+ fr=[("F-M7-01", "The system SHOULD record a member's interest in a location for a project.", "Member", "Should"),
+     ("F-M7-02", "The system SHOULD generate the provincial notice from project data and queue it for VFDA staff to review and send from VFDA's domain.", "System / VFDA Staff", "Should"),
+     ("F-M7-03", "The system SHOULD record the province's reply as received, info_needed or cannot_support, with an optional note and time.", "Province / VFDA Staff", "Should"),
+     ("F-M7-04", "The system SHOULD show the producer, per province, the four-step progress and the reply.", "Member", "Should"),
      ("F-M7-05", "The system SHOULD let a member book a VFDA consultation by topic and slot, handling time zones.", "Member", "Should"),
      ("F-M7-06", "The system SHOULD let VFDA staff confirm or reschedule and assign an officer.", "VFDA Staff", "Should"),
      ("F-M7-07", "The system SHOULD remind both sides before the consultation.", "System", "Should")],
@@ -612,7 +616,8 @@ MODULES.append(dict(
  br=[("BR-001", "Notices are sent in VFDA's name, never directly by the producer.", "VFDA is the relationship holder with local government."),
      ("BR-002", "Every notice states that it does not replace the filming licence from the Ministry of Culture, Sports and Tourism.", "Avoids a province or producer mistaking it for permission."),
      ("BR-003", "The province's reply is one of three final values; the free-text note is kept as entered.", "Consistent tracking and reporting."),
-     ("BR-004", "Reply times feed the provincial readiness index (M3).", "Makes responsiveness visible and comparable.")],
+     ("BR-004", "Reply times feed the provincial readiness index (M3).", "Makes responsiveness visible and comparable."),
+     ("BR-005", "Consultation booking (SC-33) is offered only after VFDA has declared its staffed hours and reply time; until then SC-33 shows VFDA's contact email instead of the booking form.", "A booking form nobody answers does more harm than no form (TL4 §5.7, TL5 M7·2).")],
  entities=[("LocationInterest", "interest_id, project_id, location_id, created_at", "belongs to Project and Location"),
            ("ProvinceNotice", "interest_id, province_id, drafted_at, reviewed_by, sent_at, received_at, response, note, responded_at, delivery_status", "belongs to LocationInterest"),
            ("ConsultationBooking", "booking_id, member_id, topic, slot_start, timezone, officer_id, booking_status", "belongs to UserAccount")],
@@ -634,5 +639,6 @@ MODULES.append(dict(
         ("5. Functional requirements", "Function List rows 89–95", "`docs/function-list.md` rows 89–95"),
         ("7. Screens", "Screen List SC-32, SC-33", "`docs/screen-list.md` §1")],
  recon=[("Notice dispatch", "Sent automatically by a database webhook (SEQ-11)", "Drafted automatically, reviewed and sent by VFDA staff (SC-32)", "Open — see §10"),
-        ("Module priority", "Must", "Should — Tier 2 of the screen list file (#20)", "Changed — Confirmed by the Client")],
+        ("Module priority", "Must", "Should — Tier 2 of the screen list file (#20)", "Changed — Confirmed by the Client"),
+        ("Booking availability", "Booking always open (F-M7-05)", "Offered only once VFDA declares staffed hours (BR-005)", "Added — Group C decision 01/10/2026")],
 ))

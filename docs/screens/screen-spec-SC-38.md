@@ -9,12 +9,12 @@
 | Screen ID | `SC-38` |
 | Screen name | Admin — Content moderation |
 | Actor | VFDA Staff |
-| Priority | Should |
+| Priority | Must |
 | Belongs to module | `docs/spec/spec-M10.md` |
 | Mockup image | `img/SC-38.png` |
 | Status | Draft |
 
-*Route:* `/admin/moderation` · *Screen list file:* M10, item #38 (Added 30/09/2026 — Should) · *Design note from the screen list file:* Queue of content awaiting review
+*Route:* `/admin/moderation` · *Screen list file:* M10, item #38 (Added 30/09/2026 — Must (raised 01/10/2026, M10 FR-001–002)) · *Design note from the screen list file:* Queue of content awaiting review
 
 **Notes against Screen List v2.0**
 
@@ -44,7 +44,7 @@
 | 5 | Queue list | List | `moderation_queue`: `content_type`, target name, `submitted_by` → name, `submitted_at` | Yes | oldest `submitted_at` first |
 | 6 | *Updated after submission* label | Text | item edited again before review; queue keeps only the latest version | — | — |
 | 7 | Item header | Header + Link | `content_id` → organisation name or location name; `submitted_by`, `submitted_at`; changed fields | Yes | — |
-| 8 | Public now / submitted comparison | Text | last approved version vs submitted version (e.g. `capability_desc_en`, `provinces`); changes highlighted | Yes | for `location_image`: the photo with `image_source` and `usage_right` |
+| 8 | Public now / submitted comparison | Text | last approved version vs submitted version (e.g. `capability_desc_en`, `province`); changes highlighted | Yes | for `location_image`: the photo with `image_source` and `usage_right` |
 | 9 | Public-version note | Text | date of the last approval of this content | Yes | — |
 | 10 | Reason | Input (multi-line) | `reason` | Required when hiding | required when `decision = hidden`; 10–1000 characters |
 | 11 | *Approve* button | Button | `decision = approved` → `content_status = approved`, `audit_log_id` | — | — |

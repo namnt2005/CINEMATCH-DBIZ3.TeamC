@@ -1,9 +1,0 @@
-doc_code,name_vi,name_en,basis,template_url,segments
-A13_APPLICATION,Văn bản đề nghị cấp giấy phép theo mẫu,Application form (prescribed template),law,https://storage.cinematch.example/templates/a13_application.docx,"A,B"
-A13_ART9_COMMITMENT,Văn bản cam kết không vi phạm Điều 9,Undertaking not to breach Article 9,law,https://storage.cinematch.example/templates/a13_art9_commitment.docx,"A,B"
-A13_SCRIPT_VI,Kịch bản tóm tắt và kịch bản chi tiết phần quay tại Việt Nam bằng tiếng Việt,Synopsis and Vietnam-scene script in Vietnamese,law,https://storage.cinematch.example/templates/a13_script_vi.docx,"A,B"
-A13_SERVICE_AGREEMENT,Thỏa thuận hoặc hợp đồng với tổ chức Việt Nam cung cấp dịch vụ,Agreement or contract with the Vietnamese service provider,law,https://storage.cinematch.example/templates/a13_service_agreement.docx,"A,B"
-FOREIGN_CREW_LIST,Danh sách đoàn làm phim nước ngoài,Foreign crew list,common,https://storage.cinematch.example/templates/foreign_crew_list.docx,"A,B"
-HERITAGE_SITE_PERMIT,Văn bản đồng ý của ban quản lý di sản,Heritage-site management board consent,location,https://storage.cinematch.example/templates/heritage_site_permit.docx,"A,B"
-PROVINCIAL_NOTICE_COPY,Bản sao thông báo gửi địa phương,Copy of the provincial notice,common,https://storage.cinematch.example/templates/provincial_notice_copy.docx,"A,B"
-SERVICE_CONTRACT_C,Hợp đồng dịch vụ (phân khúc C),Service contract (segment C),common,https://storage.cinematch.example/templates/service_contract_c.docx,C

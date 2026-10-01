@@ -43,7 +43,7 @@
 | 4 | Organisation name | Input | `org_name` — layer 1 (public) | Yes | 1–200 characters |
 | 5 | Legal form, founded year, head office province | Input + Toggle (dropdown) | `legal_form`, `founded_year`, `hq_province` — layer 1 | Yes | founded year 4 digits, not in the future; province from the 34-province list |
 | 6 | Service groups (12) | Toggle (multi-select chips) | `service_groups` — ENUM(full_production, permits_paperwork, casting, crew, camera_lighting, studios_interiors, location_management, transport_logistics, lodging_catering, interpreting, insurance_legal, post_production)[] | Yes | at least one; only values of the fixed enum (M4 BR-002) |
-| 7 | Provinces | Input (multi-select) | `provinces` — INTEGER[] of province IDs | Yes | at least one; IDs from the 34-province list |
+| 7 | Provinces | Input (multi-select) | `province` — INTEGER[] of province IDs | Yes | at least one; IDs from the 34-province list |
 | 8 | Capability description EN / VI | Input (text area, two tabs) | `capability_desc_en`, `capability_desc_vi` — layer 2 (members) | No | free text; goes to moderation when changed (M10 BR-001) |
 | 9 | *Pending review* label + last approved note | Text | moderation item `content_status` = pending (content type `org_profile`) | — | shown only while a change is pending |
 | 10 | Working languages | Toggle (multi-select chips) | `working_languages` — CHAR(2)[] ISO 639-1 codes | No | ISO 639-1 codes only |

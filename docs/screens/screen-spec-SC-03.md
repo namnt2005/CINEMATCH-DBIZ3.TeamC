@@ -39,14 +39,14 @@
 |---|---|---|---|---|---|
 | 1 | Navigation bar | Header | static | — | — |
 | 2 | Title + description | Header + Text | static | — | — |
-| 3 | Story summary box | Input (textarea) | `precheck_runs.summary_text` | Yes | 20–200 words (word count); trim extra whitespace |
+| 3 | Story summary box | Input (textarea) | `summary_text — input only, never stored (M2 FR-007 keeps precheck_run.synopsis_hash)` | Yes | 20–200 words (word count); trim extra whitespace |
 | 4 | Word counter | Text | real-time count | — | red above 200, blocks submission |
-| 5 | Summary language selector | Toggle | `precheck_runs.lang` — en / vi | Yes | auto-detected from content, user can change |
+| 5 | Summary language selector | Toggle | `precheck_run.lang` — en / vi | Yes | auto-detected from content, user can change |
 | 6 | Worth-mentioning hints | List (chip) | static; chips auto-tick ✓ when the topic is detected in the text | — | hints only, never block submission |
-| 7 | Three quick questions | Toggle (single choice ×3) | `precheck_runs.flags` — real_person, military, heritage_site | No | Yes / No / Not sure |
+| 7 | Three quick questions | Toggle (single choice ×3) | `precheck_run.flags` — real_person, military, heritage_site | No | Yes / No / Not sure |
 | 8 | *Check content* button | Button | static | — | disabled below 20 or above 200 words |
 | 9 | Privacy line | Text | static | Yes | always shown next to the button |
-| 10 | *What is it checked against?* block | Text | `ruleset_versions.current`, count of approved `rules` | Yes | must show the rule set version |
+| 10 | *What is it checked against?* block | Text | `rule_set_version.rule_version (latest)`, count of approved `legal_rule` | Yes | must show the rule set version |
 | 11 | Disclaimer line | Text | static | Yes | always shown |
 
 ## 4. States

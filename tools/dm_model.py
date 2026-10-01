@@ -3,7 +3,7 @@
 Every claim carries a citation in the scheme  <MODULE> §<section> <ID>  (INPUT MAP, 01).
 FR numbers restart in each module: FR-008 in spec-M3.md is DBIZ2 F-M3-08."""
 
-GENERATED = "2026-09-30"
+GENERATED = "2026-10-01"
 SOURCES = "FUNCTIONS, FIELDS, ENTITIES, RULES, SCENARIOS, FLOWS, SCREENS, BOUNDARY"
 
 INPUT_MAP = """INPUT MAP
@@ -14,17 +14,17 @@ degradation rules rather than inventing the missing material.
               (spec-SYS, spec-M1, spec-M0, spec-M2, spec-M3, spec-M4, spec-M5, spec-M7, spec-M10),
               104 rows (Spec Documents of 30/09/2026)
   FIELDS    = section 5.1 "Input / Output contract" of the same documents
-              (every field typed, inputs marked Req / Opt)
+              (every field typed, inputs marked Req / Opt), plus section 6.1
+              "Attribute types" (types of the section 6 attributes no 5.1 field declares)
   ENTITIES  = section 6 "Key entities" of the same documents, 51 declared entities
   RULES     = section 5.2 "Business rules" of the same documents (BR-001 ... per module)
   SCENARIOS = section 3 user stories US-n with Given / When / Then, plus "Edge cases"
   FLOWS     = section 4 Mermaid blocks (usage flows 4.1, sequence diagrams 4.2+)
-  SCREENS   = section 7 tables + docs/screens/screen-spec-<ID>.md (20 Screen Specs)
+  SCREENS   = section 7 tables + docs/screens/screen-spec-<ID>.md (41 Screen Specs)
   BOUNDARY  = section 1 "Depends on" (external: Supabase Auth / PostgreSQL / Storage,
               Resend email, language-model API, PDF rendering, OpenStreetMap tiles, PostGIS)
 
-  Out of this input: M6, M8, M9 are Won't for this release (docs/mvp-scope.md §4).
-  The M10 screens (SC-34, SC-38 .. SC-41) have no Screen Spec file yet.
+  Out of this input: M6, M8, M9 are Won't for this release (docs/prd.md §4.4).
 
 CITATION SCHEME = <MODULE> §<section> <ID>
   e.g. "M3 §5.1 FR-008" (field row of F-M3-08) | "M3 §5.2 BR-004" | "M3 §3 US-2" | "M3 §6"
@@ -175,7 +175,7 @@ IMPLIED = [
   "Only reread_by is declared; who prepared the report is named in the relationship but has no field."),
 ]
 
-# (type, items, sources, what must be decided)  — Decision column left empty for a human
+# (type, items, sources, what must be decided); CONFLICT_DECISIONS[i] = choice applied in 04 (confirm at human gate 1)
 CONFLICTS = [
  ("collision","PRODUCER_ORGANISATION vs ORGANISATION","SYS §6; M4 §6; M5 §5.1 FR-006 (reviewer_org_id)",
   "Two different concepts share the word \"organisation\" (foreign producer company vs Vietnamese supplier). Keep two entities, or one ORGANISATION with a type? Which one does reviewer_org_id point to?"),
@@ -223,6 +223,32 @@ CONFLICTS = [
   "One reference to two tables cannot carry a foreign key. Modelled as two nullable FKs with a CHECK (see 04 Structural findings); confirm."),
  ("shared ownership","AUDIT_LOG written by the admin screens of M2, M3, M4 and by SYS role grants","M10 §1 Out of scope; SYS §5.2 BR-002",
   "Proposed owner M10; other modules never insert rows themselves — a trigger writes them (M10 §4.3, F-M10-08)."),
+]
+
+CONFLICT_DECISIONS = [
+ "Applied: two entities. `reviewer_org_id` points to ORGANISATION (the Vietnamese partner).",
+ "Applied: SEGMENT_RULE key renamed `segment_rule_id` (M1 §6.1).",
+ "Applied: BILINGUAL_DOCUMENT is keyed by project_id + doc_code; F-M5-06 `document_id` is read as that pair.",
+ "Applied: glossary — *partner organisation* (ORGANISATION), *partner account* (role `partner`), *partner party* (NDA_ACCEPTANCE.party).",
+ "Applied: entity PRECHECK_RUN; key keeps the spec name `brief_id`.",
+ "Applied: three column names kept as each spec declares them, one shared value set ENUM(u15, 15_50, o50).",
+ "Applied: one column `lang` ENUM(en, vi) (F-M2-05 input).",
+ "Applied: F-M7-02's `notification_id` is an EMAIL_DELIVERY (it has a delivery status), not an in-app NOTIFICATION.",
+ "Applied: VARCHAR(20), e.g. `2026.08` (M2 FR-004, US-1).",
+ "Applied: optional in storage; required by the functions that use it (M5 FR-007, M2 FR-017).",
+ "Applied: ENUM(A, B, C) = the overriding segment; *an override happened* = `segment_override` is set.",
+ "Applied: stored on PROFILE for members; the cookie is used only for guests.",
+ "Applied: `state` (SC-27 corrected 01/10/2026).",
+ "Applied: `confirmed` (SC-25 corrected 01/10/2026).",
+ "Applied: `organisation`, `organisation.service_groups` (SC-19, SC-20 corrected 01/10/2026).",
+ "Applied: owner SYS; M4 and M7 call F-SYS-07.",
+ "Applied: owner SYS; M4 and M7 call F-SYS-08.",
+ "Applied: owner M4 (declared in M4 §6, written by F-M4-18); it only references DOCUMENT (M5).",
+ "Applied: FIELDS names `scene_description`, `shoot_month`.",
+ "Applied: FIELDS names `term_en`, `term_vi`.",
+ "Applied: `admin_id`; the search filter `actor_id` of F-M10-09 filters on it.",
+ "Applied: two nullable foreign keys with a CHECK that exactly one is set and matches content_type (constraint `ck_moderation_item_one_target`).",
+ "Applied: owner M10; other modules never insert rows — a trigger in the same transaction writes them (M10 §4.3).",
 ]
 
 OQ_01 = [

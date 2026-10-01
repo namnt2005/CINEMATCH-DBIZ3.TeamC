@@ -149,7 +149,7 @@ sequenceDiagram
 | FR-008 | F-SYS-08 | The system MUST send transactional email from a domain authenticated with SPF, DKIM and DMARC. | System | Must |
 | FR-009 | F-SYS-09 | The system MUST show a user their notifications, newest first, and let them mark them as read. | User | Must |
 | FR-010 | F-SYS-10 | The system MUST index Vietnamese text so that searches match with or without diacritics. | System | Must |
-| FR-011 | F-SYS-11 | The system MUST build a semantic (vector) index for location and supplier descriptions. [NEEDS CLARIFICATION: vector dimension depends on the embedding model] | System | Could |
+| FR-011 | F-SYS-11 | The system COULD build a semantic (vector) index for location and supplier descriptions. [NEEDS CLARIFICATION: vector dimension depends on the embedding model] | System | Could |
 
 ### 5.1 Input / Output contract
 
@@ -210,6 +210,19 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 | Notification | notification_id, recipient_id, event_type, payload, read_at | belongs to UserAccount |
 | EmailDelivery | template_id, recipient_email, delivery_status, provider_message_id | may relate to a Notification |
 
+### 6.1 Attribute types
+
+Types and required flags of the attributes above that no field in 5.1 declares (keys, timestamps, stored statuses). Every column of the data model now has a declared type.
+
+| Entity | Attribute | Type | Required | Notes |
+|---|---|---|---|---|
+| UserAccount | `created_at` | `TIMESTAMPTZ` | Yes | set by the system at sign-up |
+| Profile | `producer_org_id` | `UUID` | No | empty for VFDA staff, Legal Board, admin and partner accounts, which are not created through sign-up (BR-002) |
+| ProducerOrganisation | `producer_org_id` | `UUID` | Yes | identifier |
+| Consent | `accepted_at` | `TIMESTAMPTZ` | Yes | BR-003 |
+| Notification | `read_at` | `TIMESTAMPTZ` | No | empty while unread (FR-009) |
+| EmailDelivery | `email_delivery_id` | `UUID` | Yes | identifier; declared 01/10/2026 (no identifier before) |
+
 ## 7. Screens involved
 
 | Screen ID | Screen name | Priority | Screen Spec file |
@@ -228,7 +241,7 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 |---|---|---|
 | SC-001 | A first-time producer completes sign-up, including company details, in under 3 minutes. | Timed walkthrough with 5 non-Vietnamese testers. |
 | SC-002 | A visitor who has not signed in can never obtain a local authority phone number or email from the site. | Private-window check of the full page content on 10 location pages. |
-| SC-003 | Every interface string on the 20 MVP screens is available in both languages. | Switch language on each screen; count untranslated strings (target 0). |
+| SC-003 | Every interface string on the 44 MVP screens is available in both languages. | Switch language on each screen; count untranslated strings (target 0). |
 | SC-004 | A member learns that a partner has replied within 5 minutes of the reply. | Timestamp of reply vs timestamp of notification on 10 test requests. |
 
 ## 9. Assumptions

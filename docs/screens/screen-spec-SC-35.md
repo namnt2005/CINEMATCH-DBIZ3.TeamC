@@ -39,11 +39,11 @@
 |---|---|---|---|---|---|
 | 1 | Navigation bar | Header | static; signed in as VFDA staff | — | — |
 | 2 | Admin menu | List | static; *Locations* selected | — | items shown according to the user's role |
-| 3 | Title + counts by status | Header | counts of `locations` by `intake_status` | — | — |
+| 3 | Title + counts by status | Header | counts of `location` by `intake_status` | — | — |
 | 4 | *+ New location* button | Button | static | — | opens an empty editor; a new location starts as `awaiting_contact` |
 | 5 | Status filter | Toggle (single choice) | `intake_status` — awaiting_contact / published / unpublished | No | enum or *All* |
 | 6 | Search and province filter | Input + Toggle (dropdown) | `filter` — name (with or without Vietnamese diacritics), `province_id` from the 34-province list | No | search max 200 characters |
-| 7 | Location table | List | `locations` (`location_admin[]`) including unpublished ones | — | visible to the `vfda_staff` role only (Row Level Security) |
+| 7 | Location table | List | `location` (`location_admin[]`) including unpublished ones | — | visible to the `vfda_staff` role only (Row Level Security) |
 | 8 | Location status | Text | `intake_status` — Awaiting contact / Published / Unpublished | — | enum |
 | 9 | Authority contact verification | Text | `contact_verified`, `verified_at` | — | *Not verified* when `contact_verified` = false |
 | 10 | Photo count | Text | count of photos; number with `image_status` = pending | — | — |
@@ -51,7 +51,7 @@
 | 12 | Location editor | Container | the selected location | — | — |
 | 13 | Names, province, district, coordinates | Input (several fields) | `name_vi`, `name_en`, `province_id`, `district`, `lat`, `lng` | Yes | names max 200 characters; province from the 34-province list; `lat` / `lng` inside Vietnam; district optional |
 | 14 | Scene types | Toggle (multiple choice) | `scene_types` — karst / river / village / rice_field / sea / floating_village / cave / jungle / old_town / market / rice_terrace / mountain / dunes / mangrove | Yes | at least 1; only enum values |
-| 15 | Logistics, season and permit complexity | Input (several fields) | `crew_capacity`, `lodging_20km`, `grid_power`, `truck_access`, `months_to_avoid`, `permit_complexity`, `airport_km` | Yes | `crew_capacity` u15 / 15_50 / o50; months 1–12; `permit_complexity` low / medium / high; `months_to_avoid` and `airport_km` optional |
+| 15 | Logistics, season, permit complexity and availability | Input (several fields) | `crew_capacity`, `lodging_20km`, `grid_power`, `truck_access`, `months_to_avoid`, `permit_complexity`, `airport_km`, `availability` | Yes | `availability` open / survey_in_progress / paused (M3 BR-010); `crew_capacity` u15 / 15_50 / o50; months 1–12; `permit_complexity` low / medium / high; `months_to_avoid` and `airport_km` optional |
 | 16 | Descriptions and restriction note | Input (multi-line) | `desc_vi`, `desc_en`, `restriction_note` | Yes | both descriptions required; restriction note optional |
 | 17 | *Photos* section | Container | location photos | — | — |
 | 18 | *Local authority contact* section | Input (several fields) | `authority_name`, `contact_name`, `contact_phone`, `contact_email` | Yes | office max 200, name max 120, phone max 20 characters; email optional, valid format |
@@ -99,7 +99,8 @@
 | SR-313 | Every photo has a source and a usage right; photos are shown publicly only when their `image_status` is *approved*. | M3 FR-003 (F-M3-03) |
 | SR-314 | The verification records **who** verified the contact and **when**; changing the contact clears the verification. | M3 FR-004 (F-M3-04) |
 | SR-315 | Provinces use the 34 provincial-level units after the 2025 reorganisation. | M3 BR-006 |
-| SR-316 | Every save, verification, publish and unpublish writes one audit record in the same transaction. | M10 BR-005 (F-M10-08) |
+| SR-316 | Every location carries an availability set here (*Open*, *Scouting crew on site*, *Temporarily closed*); a change writes an audit record. A paused location stays published with its label. | M3 BR-010 |
+| SR-317 | Every save, verification, publish and unpublish writes one audit record in the same transaction. | M10 BR-005 (F-M10-08) |
 
 ## 7. Linked requirements
 

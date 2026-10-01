@@ -153,7 +153,7 @@ add(dict(
   ("Only members with **edit** permission can change details, segment or stage; members with **view** permission see this screen read-only.", "M0 FR-002 (F-M0-02)"),
   ("Only the **owner** can invite people, with *view* or *edit* permission.", "M0 FR-004 (F-M0-04)"),
   ("A segment change **never deletes** documents or answers: items that no longer apply are hidden, not removed, and reappear if the segment is changed back.", "M1 BR-004"),
-  ("After a segment change the gauges and weights are read again from `segment_requirements`; this screen never computes scores.", "M0 BR-001, M0 BR-004"),
+  ("After a segment change the gauges and weights are read again from `segment_requirement`; this screen never computes scores.", "M0 BR-001, M0 BR-004"),
   ("Projects are **archived, never deleted**. An archived project (`stage = archived`) is read-only for its members, leaves the project list and keeps its documents, requests and notices. There is no *Delete project* action.", "M0 BR-005"),
  ],
  fr=[("F-M0-02", "Edit project details, including the first shooting day and the stage (archive)"),
@@ -234,10 +234,10 @@ add(dict(
  el=[
   (1, "Navigation bar", "Header", "static; *Permits* selected; guest view", "—", "—"),
   (2, "Title", "Header", "static", "—", "—"),
-  (3, "Rule set line", "Text", "current `rule_version` and the number of rules in `rules` (approved rules only)", "—", "—"),
+  (3, "Rule set line", "Text", "current `rule_version` and the number of rules in `legal_rule` (approved rules only)", "—", "—"),
   (4, "Topic filter with counts", "Toggle (single choice)", "`topic` — security / history / religion / privacy / dossier / public_order / heritage, shown with readable labels; count of approved rules per topic", "No", "one of the 7 topic values or *All topics*; a topic with 0 rules stays visible, greyed, and shows the empty message when chosen"),
   (5, "Segment filter", "Toggle (single choice)", "`segment` — A / B / C", "No", "enum A / B / C or *All*"),
-  (6, "Rule card list", "List", "`rules` (`legal_rule_public[]`) — approved, active rules only", "—", "draft and retired rules never listed"),
+  (6, "Rule card list", "List", "`legal_rule` (`legal_rule_public[]`) — approved, active rules only", "—", "draft and retired rules never listed"),
   (7, "Rule title", "Text", "`title_en` (or `title_vi` when the interface is in Vietnamese)", "Yes", "—"),
   (8, "Rule code and topic label", "Text", "`rule_code`, `topic`", "Yes", "—"),
   (9, "Severity label", "Text", "`severity` — notice → *Needs attention*, action → *Action required*", "Yes", "enum, 2 values"),
@@ -385,7 +385,7 @@ add(dict(
  resp=["Minimum supported width: **360px**.", "Narrow screens: English and Vietnamese stack (interface language first); the right-hand cards move below the citation.",
        "Each language block carries a `lang` attribute (`en` / `vi`) for screen readers.",
        "The citation box is a labelled region (*Legal basis*)."],
- oq=[("[NEEDS CLARIFICATION: the specific clause of Article 9 for each rule is to be filled in `rules.citation` by the VFDA Legal Board; the mockup only goes to Article level]", False, "Client (VFDA Legal Board)", 8),
+ oq=[("[NEEDS CLARIFICATION: the specific clause of Article 9 for each rule is to be filled in `legal_rule.citation` by the VFDA Legal Board; the mockup only goes to Article level]", False, "Client (VFDA Legal Board)", 8),
      ("[NEEDS CLARIFICATION: should the public rule page list earlier versions of the rule and what changed between them?]", False, "Client (VFDA Legal Board)")],
 ), html)
 
@@ -477,11 +477,11 @@ add(dict(
  el=[
   (1, "Navigation bar", "Header", "static; signed in as a VFDA Legal Board member", "—", "—"),
   (2, "Admin menu", "List", "static; *Legal rules* selected", "—", "items shown according to the user's role"),
-  (3, "Title + rule-set summary", "Header", "current `rule_version`; counts of `rules` by status", "—", "—"),
+  (3, "Title + rule-set summary", "Header", "current `rule_version`; counts of `legal_rule` by status", "—", "—"),
   (4, "*+ New rule* button", "Button", "static", "—", "opens an empty editor with status *draft*"),
   (5, "Topic filter", "Toggle (dropdown)", "`filter_topic` — security / history / religion / privacy / dossier / public_order / heritage", "No", "enum or *All topics*"),
   (6, "Status filter with counts", "Toggle (single choice)", "`filter_status` — draft / approved / retired", "No", "enum or *All*"),
-  (7, "Rule table", "List", "`rules` (`legal_rule[]`): `rule_code`, `title_en`, `topic`", "—", "visible to the `vfda_legal` role only (Row Level Security)"),
+  (7, "Rule table", "List", "`legal_rule` (`legal_rule[]`): `rule_code`, `title_en`, `topic`", "—", "visible to the `vfda_legal` role only (Row Level Security)"),
   (8, "Rule status", "Text", "status — Draft / Approved / Retired; *Approved* means `is_active` = true", "—", "enum"),
   (9, "Rule version", "Text", "`version` / `rule_version` in which the rule was activated", "—", "*—* for drafts"),
   (10, "Row action *Edit* / *Retire*", "Link", "draft → *Edit*; approved → *Retire* (confirmation dialog); retired → *View*", "—", "*Retire* needs a confirmation; retired rules are read-only"),
@@ -592,7 +592,7 @@ body = f"""
         <div class="field small" style="padding:6px 9px">Lâm Đồng ▾ · Mũi Né</div><div class="field small" style="padding:6px 9px">10.9476, 108.2856</div>
       </div>
       <div data-n="14" class="row" style="gap:5px;flex-wrap:wrap"><span class="chip on">Dunes</span><span class="chip on">Sea</span><span class="chip on">Village</span><span class="chip dash">+ scene type</span></div>
-      <div data-n="15" class="small" style="background:#f6f8fa;border-radius:6px;padding:7px 10px;line-height:1.6">Crew capacity <b>15–50</b> · Lodging within 20 km <b>Yes</b> · Grid power <b>Yes</b> · Truck access <b>Yes</b><br>Months to avoid <b>Oct–Nov</b> · Permit complexity <b>Low</b> · Airport <b>200 km</b></div>
+      <div data-n="15" class="small" style="background:#f6f8fa;border-radius:6px;padding:7px 10px;line-height:1.6">Crew capacity <b>15–50</b> · Lodging within 20 km <b>Yes</b> · Grid power <b>Yes</b> · Truck access <b>Yes</b><br>Months to avoid <b>Oct–Nov</b> · Permit complexity <b>Low</b> · Airport <b>200 km</b> · Availability <b>Open</b></div>
       <div data-n="16" class="small lnk">Descriptions VI / EN and restriction note ▸</div>
     </div>
     <div style="flex:1" class="col" data-n="17">
@@ -604,7 +604,7 @@ body = f"""
     </div>
     <div style="flex:1.1" class="col" data-n="18">
       <div class="lab" style="margin:0">Local authority contact</div>
-      <div class="small" style="line-height:1.55"><b>UBND phường Mũi Né</b><br>Phan Văn Lộc · +84 000 000 125<br><span class="muted">no email given</span></div>
+      <div class="small" style="line-height:1.55"><b>UBND phường Mũi Né</b><br>Phan Văn Lộc · +84 000 000 109<br><span class="muted">no email given</span></div>
       <div class="banner b-warn small" data-n="19" style="padding:8px 10px">Not verified. Call the office, confirm the person and number, then mark verified — your name and the time are recorded.<div style="margin-top:6px"><span class="btn sm">Mark contact as verified</span></div></div>
     </div>
   </div>
@@ -628,11 +628,11 @@ add(dict(
  el=[
   (1, "Navigation bar", "Header", "static; signed in as VFDA staff", "—", "—"),
   (2, "Admin menu", "List", "static; *Locations* selected", "—", "items shown according to the user's role"),
-  (3, "Title + counts by status", "Header", "counts of `locations` by `intake_status`", "—", "—"),
+  (3, "Title + counts by status", "Header", "counts of `location` by `intake_status`", "—", "—"),
   (4, "*+ New location* button", "Button", "static", "—", "opens an empty editor; a new location starts as `awaiting_contact`"),
   (5, "Status filter", "Toggle (single choice)", "`intake_status` — awaiting_contact / published / unpublished", "No", "enum or *All*"),
   (6, "Search and province filter", "Input + Toggle (dropdown)", "`filter` — name (with or without Vietnamese diacritics), `province_id` from the 34-province list", "No", "search max 200 characters"),
-  (7, "Location table", "List", "`locations` (`location_admin[]`) including unpublished ones", "—", "visible to the `vfda_staff` role only (Row Level Security)"),
+  (7, "Location table", "List", "`location` (`location_admin[]`) including unpublished ones", "—", "visible to the `vfda_staff` role only (Row Level Security)"),
   (8, "Location status", "Text", "`intake_status` — Awaiting contact / Published / Unpublished", "—", "enum"),
   (9, "Authority contact verification", "Text", "`contact_verified`, `verified_at`", "—", "*Not verified* when `contact_verified` = false"),
   (10, "Photo count", "Text", "count of photos; number with `image_status` = pending", "—", "—"),
@@ -640,7 +640,7 @@ add(dict(
   (12, "Location editor", "Container", "the selected location", "—", "—"),
   (13, "Names, province, district, coordinates", "Input (several fields)", "`name_vi`, `name_en`, `province_id`, `district`, `lat`, `lng`", "Yes", "names max 200 characters; province from the 34-province list; `lat` / `lng` inside Vietnam; district optional"),
   (14, "Scene types", "Toggle (multiple choice)", "`scene_types` — karst / river / village / rice_field / sea / floating_village / cave / jungle / old_town / market / rice_terrace / mountain / dunes / mangrove", "Yes", "at least 1; only enum values"),
-  (15, "Logistics, season and permit complexity", "Input (several fields)", "`crew_capacity`, `lodging_20km`, `grid_power`, `truck_access`, `months_to_avoid`, `permit_complexity`, `airport_km`", "Yes", "`crew_capacity` u15 / 15_50 / o50; months 1–12; `permit_complexity` low / medium / high; `months_to_avoid` and `airport_km` optional"),
+  (15, "Logistics, season, permit complexity and availability", "Input (several fields)", "`crew_capacity`, `lodging_20km`, `grid_power`, `truck_access`, `months_to_avoid`, `permit_complexity`, `airport_km`, `availability`", "Yes", "`availability` open / survey_in_progress / paused (M3 BR-010); `crew_capacity` u15 / 15_50 / o50; months 1–12; `permit_complexity` low / medium / high; `months_to_avoid` and `airport_km` optional"),
   (16, "Descriptions and restriction note", "Input (multi-line)", "`desc_vi`, `desc_en`, `restriction_note`", "Yes", "both descriptions required; restriction note optional"),
   (17, "*Photos* section", "Container", "location photos", "—", "—"),
   (18, "*Local authority contact* section", "Input (several fields)", "`authority_name`, `contact_name`, `contact_phone`, `contact_email`", "Yes", "office max 200, name max 120, phone max 20 characters; email optional, valid format"),
@@ -679,6 +679,7 @@ add(dict(
   ("Every photo has a source and a usage right; photos are shown publicly only when their `image_status` is *approved*.", "M3 FR-003 (F-M3-03)"),
   ("The verification records **who** verified the contact and **when**; changing the contact clears the verification.", "M3 FR-004 (F-M3-04)"),
   ("Provinces use the 34 provincial-level units after the 2025 reorganisation.", "M3 BR-006"),
+  ("Every location carries an availability set here (*Open*, *Scouting crew on site*, *Temporarily closed*); a change writes an audit record. A paused location stays published with its label.", "M3 BR-010"),
   ("Every save, verification, publish and unpublish writes one audit record in the same transaction.", "M10 BR-005 (F-M10-08)"),
  ],
  fr=[("F-M3-01", "List all locations including unpublished ones"),

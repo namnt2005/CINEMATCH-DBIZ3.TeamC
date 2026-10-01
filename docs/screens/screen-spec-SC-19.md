@@ -34,15 +34,15 @@
 | # | Element | Type | Content / data source | Required | Validation |
 |---|---|---|---|---|---|
 | 1 | Navigation bar | Header | static | — | — |
-| 2 | Title + search box | Header + Input | accent-insensitive search on `organizations.name`, `services` | No | max 80 characters |
-| 3 | 12 service groups list | List | `service_categories` — fixed enum of 12 values, with organisation counts | Yes | groups cannot be added freely |
+| 2 | Title + search box | Header + Input | accent-insensitive search on `organisation.org_name`, `services` | No | max 80 characters |
+| 3 | 12 service groups list | List | `organisation.service_groups` — fixed enum of 12 values, with organisation counts | Yes | groups cannot be added freely |
 | 4 | Province filter | Toggle (dropdown) | `organization_provinces` — 34 provinces | No | written to the URL |
-| 5 | Working language filter | Toggle (dropdown) | `organizations.working_languages[]` | No | ISO 639-1 codes |
-| 6 | *VFDA Verified only* switch | Toggle | `organizations.verified_until >= today` | No | on by default |
-| 7 | Organisation card | List | `organizations.name`, `logo` | — | public layer |
-| 8 | VFDA Verified badge + verification month | Text | `organizations.verified_at` | — | shown only while within its 12-month validity |
+| 5 | Working language filter | Toggle (dropdown) | `organisation_member_layer.working_languages[]` | No | ISO 639-1 codes |
+| 6 | *VFDA Verified only* switch | Toggle | `organisation.verified_until >= today` | No | on by default |
+| 7 | Organisation card | List | `organisation.org_name`, `logo` | — | public layer |
+| 8 | VFDA Verified badge + verification month | Text | `organisation.verified_at` | — | shown only while within its 12-month validity |
 | 9 | Provinces and services | Text | `organization_provinces`, `organization_services` | Yes | public layer |
-| 10 | International project count and languages | Text | `organizations.intl_project_count`, `working_languages` | — | **member layer** — guests do not see this line |
+| 10 | International project count and languages | Text | `organisation_member_layer.intl_project_count`, `working_languages` | — | **member layer** — guests do not see this line |
 | 11 | *Send request* button | Button | static | — | requires login and a project |
 | 12 | *Not verified* label | Text | organisation not yet verified by VFDA | — | shown only when switch 6 is off |
 | 13 | *What does VFDA Verified mean* explainer | Text | static; wording approved by VFDA | Yes | — |

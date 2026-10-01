@@ -40,13 +40,13 @@
 | 1 | Navigation bar | Header | static | — | — |
 | 2 | Project sidebar | List | static; *Provinces* selected | — | — |
 | 3 | Title + purpose | Header + Text | static | — | — |
-| 4 | Province card | Container | `province_notices` for the project | — | one card per province |
+| 4 | Province card | Container | `province_notice` for the project | — | one card per province |
 | 5 | 4-step progress | Chart (stepper) | `drafted_at`, `sent_at`, `received_at`, `responded_at` | Yes | exactly 4 steps |
-| 6 | Reply status | Text | `province_notices.response` — Received / More info needed / Cannot support at this time / Waiting | Yes | enum; always has text |
-| 7 | Reply content + next step | Text | `province_notices.response_note` entered by VFDA from the province's official letter | — | — |
+| 6 | Reply status | Text | `province_notice.response` — Received / More info needed / Cannot support at this time / Waiting | Yes | enum; always has text |
+| 7 | Reply content + next step | Text | `province_notice.note` entered by VFDA from the province's official letter | — | — |
 | 8 | Notice letter preview | Container | `notice_templates` template drafted by VFDA | — | read-only for members |
-| 9 | Project details included in the notice | Text | `projects.*`, confirmed locations, confirmed partners | Yes | must include: project, dates, location, crew size, Vietnamese company |
-| 10 | *Ask VFDA to send notice* button | Button | creates `province_notices` with status `requested` | — | requires shooting dates and a location in the province |
+| 9 | Project details included in the notice | Text | `project.*`, confirmed locations, confirmed partners | Yes | must include: project, dates, location, crew size, Vietnamese company |
+| 10 | *Ask VFDA to send notice* button | Button | creates `location_interest`; a `province_notice` is drafted with `delivery_status` empty until VFDA reviews it (M7 FR-001, FR-002) | — | requires shooting dates and a location in the province |
 | 11 | *+ Add province* button | Button | static | — | — |
 | 12 | *Does not replace the permit* note | Text | static | Yes | always shown |
 

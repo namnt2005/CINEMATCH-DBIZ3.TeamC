@@ -39,13 +39,13 @@
 |---|---|---|---|---|---|
 | 1 | Navigation bar | Header | static | — | — |
 | 2 | Breadcrumb | Text | Partners › service group › organisation name | — | — |
-| 3 | Logo + organisation name + legal entity | Header | `organizations.name`, `legal_form`, `founded_year`, `hq_province` | Yes | public layer |
-| 4 | VFDA Verified badge + validity | Text | `organizations.verified_at`, `verified_until` | — | hidden once expired |
+| 3 | Logo + organisation name + legal entity | Header | `organisation.org_name`, `legal_form`, `founded_year`, `hq_province` | Yes | public layer |
+| 4 | VFDA Verified badge + validity | Text | `organisation.verified_at`, `verified_until` | — | hidden once expired |
 | 5 | Provinces, services, languages | Text | `organization_provinces`, `organization_services`, `working_languages` | Yes | public layer |
-| 6 | *Eligible to sign service agreements (Article 13)* badge | Text | `organizations.art13_eligible` — confirmed by VFDA | — | only VFDA can switch it on |
-| 7 | *Capabilities* block | Text | `organization_profiles_member.capability` | — | **member layer** |
+| 6 | *Eligible to sign service agreements (Article 13)* badge | Text | `organisation.art13_eligible` — confirmed by VFDA | — | only VFDA can switch it on |
+| 7 | *Capabilities* block | Text | `organisation_member_layer.capability_desc_en` | — | **member layer** |
 | 8 | Past projects (portfolio) | List + Image | `organization_portfolio` — type, country, year, days, filming place | — | **member layer**; no project titles |
-| 9 | International project count | Text | `organizations.intl_project_count` | — | member layer |
+| 9 | International project count | Text | `organisation_member_layer.intl_project_count` | — | member layer |
 | 10 | *What VFDA checked* block | List | `verification_checks` from the latest verification | Yes | also states what was **not** checked |
 | 11 | Locked layer 3 block | Container | `organization_profiles_accepted` — rates, past clients, contacts | — | RLS: only unlocked with an `accepted` request and an agreed NDA |
 | 12 | Three-layer indicator | List | computed from the viewer's permissions | Yes | reflects actual permissions |

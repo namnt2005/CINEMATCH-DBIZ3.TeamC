@@ -14,7 +14,7 @@ Word copies are in `../word/specs/`.
 | [`spec-M4.md`](spec-M4.md) | M4 | Vietnamese service partners | 19 (17 Must) | SC-19, SC-20, SC-21, SC-22, SC-23, SC-25, SC-36 | 8 (4 blocking) |
 | [`spec-M5.md`](spec-M5.md) | M5 | Dossier kit, bilingual drafts and countdown | 8 (8 Must) | SC-26, SC-28, SC-29 | 7 (3 blocking) |
 | [`spec-M7.md`](spec-M7.md) | M7 | VFDA support — provincial notices and consultations | 7 (0 Must) | SC-32, SC-33 | 6 (4 blocking) |
-| [`spec-M10.md`](spec-M10.md) | M10 | VFDA back office — moderation, demand index, quarterly report, audit log | 9 (1 Must) | SC-34, SC-38, SC-39, SC-40, SC-41 | 8 (1 blocking) |
+| [`spec-M10.md`](spec-M10.md) | M10 | VFDA back office — moderation, demand index, quarterly report, audit log | 9 (3 Must) | SC-34, SC-38, SC-39, SC-40, SC-41 | 8 (1 blocking) |
 | **Total** |  |  | **104** |  | **74 (29 blocking)** |
 
 ## How to read a Spec Document

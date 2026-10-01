@@ -309,6 +309,23 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 | DossierCheck | project_id, checked_at, completeness_pct, missing_documents | derived from DocumentSlots (M5) |
 | LicensingTimeline | project_id, submit_by, result_by, result_by_worst, buffer_days | derived from Project.shoot_date |
 
+### 6.1 Attribute types
+
+Types and required flags of the attributes above that no field in 5.1 declares (keys, timestamps, stored statuses). Every column of the data model now has a declared type.
+
+| Entity | Attribute | Type | Required | Notes |
+|---|---|---|---|---|
+| RuleSetVersion | `created_at` | `TIMESTAMPTZ` | Yes | time of the activation that created the version (FR-004) |
+| RuleSetVersion | `created_by` | `UUID` | Yes | the Legal Board member who activated it |
+| PrecheckRun | `project_id` | `UUID` | No | empty for a guest pre-check (US-1) |
+| PrecheckRun | `created_at` | `TIMESTAMPTZ` | Yes |  |
+| PrecheckFinding | `span_start` | `INTEGER` | Yes | character position of the quoted passage in the submitted summary (0-based) |
+| PrecheckFinding | `span_end` | `INTEGER` | Yes | span_start + number of characters of quoted_text |
+| ComplianceRun | `run_id` | `UUID` | Yes | identifier |
+| ComplianceRun | `project_id` | `UUID` | Yes |  |
+| ComplianceRun | `run_at` | `TIMESTAMPTZ` | Yes |  |
+| ComplianceFinding | `run_id` | `UUID` | Yes |  |
+
 ## 7. Screens involved
 
 | Screen ID | Screen name | Priority | Screen Spec file |
@@ -349,7 +366,7 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 | 5 | [NEEDS CLARIFICATION: None of SEQ-02, SEQ-08, SEQ-09 draws an error branch (model down, file too large). Confirm the behaviour in the edge cases.] | No | Client (VFDA) | Open |
 | 6 | [NEEDS CLARIFICATION: How long is a guest's pre-check text kept, and may it be used to improve the rule base?] *(also raised in SC-03)* | Yes | Client (VFDA) | Open |
 | 7 | [NEEDS CLARIFICATION: daily pre-check limit per IP] *(from SC-03)* | No | Group C | Open |
-| 8 | [NEEDS CLARIFICATION: the specific clause of Article 9 for each rule is to be filled in `rules.citation` by the VFDA Legal Board; the mockup only goes to Article level] *(from SC-48)* *(also raised in SC-31)* | No | Client (VFDA Legal Board) | Open |
+| 8 | [NEEDS CLARIFICATION: the specific clause of Article 9 for each rule is to be filled in `legal_rule.citation` by the VFDA Legal Board; the mockup only goes to Article level] *(from SC-48)* *(also raised in SC-31)* | No | Client (VFDA Legal Board) | Open |
 | 9 | [NEEDS CLARIFICATION: which application form is currently in force, and may VFDA provide a bilingual version of it] *(from SC-27)* | Yes | Client (VFDA) | Open |
 | 10 | [NEEDS CLARIFICATION: F-M2-15 filters by segment, but a legal rule has no segment field (M2 §6). Who decides which rules apply to segments A, B and C, and where is it stored?] *(from SC-30)* | No | Client (VFDA Legal Board) | Open |
 | 11 | [NEEDS CLARIFICATION: M2 §5.1 declares the public `topic` filter as `VARCHAR(60)` while the rule base uses the 7-value topic enum; confirm the library uses the same enum] *(from SC-30)* | No | Group C | Open |

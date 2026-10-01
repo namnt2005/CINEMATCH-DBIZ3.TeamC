@@ -91,7 +91,7 @@
 | SR-271 | Only members with **edit** permission can change details, segment or stage; members with **view** permission see this screen read-only. | M0 FR-002 (F-M0-02) |
 | SR-272 | Only the **owner** can invite people, with *view* or *edit* permission. | M0 FR-004 (F-M0-04) |
 | SR-273 | A segment change **never deletes** documents or answers: items that no longer apply are hidden, not removed, and reappear if the segment is changed back. | M1 BR-004 |
-| SR-274 | After a segment change the gauges and weights are read again from `segment_requirements`; this screen never computes scores. | M0 BR-001, M0 BR-004 |
+| SR-274 | After a segment change the gauges and weights are read again from `segment_requirement`; this screen never computes scores. | M0 BR-001, M0 BR-004 |
 | SR-275 | Projects are **archived, never deleted**. An archived project (`stage = archived`) is read-only for its members, leaves the project list and keeps its documents, requests and notices. There is no *Delete project* action. | M0 BR-005 |
 
 ## 7. Linked requirements

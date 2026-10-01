@@ -38,15 +38,15 @@
 | # | Element | Type | Content / data source | Required | Validation |
 |---|---|---|---|---|---|
 | 1 | Navigation bar | Header | static | — | — |
-| 2 | Province name + 2025 merger note | Header | `provinces.name`, `provinces.merged_from[]` | Yes | list of 34 provinces and cities |
-| 3 | Composite index | Text | `v_province_readiness.score` | Yes | 0–100; insufficient data → *—* |
+| 2 | Province name + 2025 merger note | Header | `province.name`, `province.merged_from[]` | Yes | list of 34 provinces and cities |
+| 3 | Composite index | Text | `v_province_readiness.readiness_index` | Yes | 0–100; insufficient data → *—* |
 | 4 | Quarterly trend | Chart (line) | `province_readiness_snapshots`, last 4 quarters | No | quarterly axis, last point emphasised |
 | 5 | Components table | List | 5 components in `v_province_readiness` | Yes | each component shows raw value and score |
 | 6 | Sample size / confidence | Text | number of records used in the calculation | Yes | n < 10 → *small sample* label |
 | 7 | *How the index is calculated* link | Link | formula explanation page | — | — |
-| 8 | Featured locations | List | province's `locations`, sorted by interest | No | max 4 |
+| 8 | Featured locations | List | province's `location`, sorted by interest | No | max 4 |
 | 9 | Suppliers active in the province | List | `organization_provinces` | No | Verified organisations only |
-| 10 | Neighbouring provinces | List | `provinces.neighbors[]` + score | No | provinces lacking data show *insufficient data* |
+| 10 | Neighbouring provinces | List | `province.region — other provinces of the same region (no neighbour list is stored)` + score | No | provinces lacking data show *insufficient data* |
 | 11 | *View n locations in province* button | Button | static | — | — |
 | 12 | Last updated line | Text | `v_province_readiness.computed_at` | Yes | — |
 

@@ -113,7 +113,7 @@ add(dict(
  shown="A VFDA staff member, VFDA Legal Board member or admin signs in and opens the admin area, or clicks *Overview* in the admin menu of any admin screen (`SC-35` … `SC-41`).",
  leave="Each tile opens the queue it counts: `SC-38`, `SC-36`, `SC-35` or `SC-37`; the side panels open `SC-39`, `SC-40` and `SC-41`.",
  el=[
-  (1, "Admin top bar", "Header", "static; signed-in user's `profiles.full_name` and role (`user_accounts.role`)", "—", "shown only to `vfda_staff`, `vfda_legal`, `admin`"),
+  (1, "Admin top bar", "Header", "static; signed-in user's `profile.full_name` and role (`user_account.role`)", "—", "shown only to `vfda_staff`, `vfda_legal`, `admin`"),
   (2, "Admin menu", "List", "static: Overview · Locations · Verification · Legal rules · Moderation · Demand index · Reports · Audit log, with pending counts", "—", "items the role cannot open are hidden"),
   (3, "Greeting and date", "Header", "signed-in user's first name; server date", "—", "—"),
   (4, "*Moderation queue* tile", "Text + Link", "count of `moderation_queue` items with `content_status = pending`; oldest `submitted_at`", "Yes", "integer ≥ 0"),
@@ -209,8 +209,8 @@ html = admin_page("SC-38", "Admin — Content moderation", "VFDA Staff", "/admin
 """, "Moderation")
 
 add(dict(
- seq=38, sid="SC-38", name="Admin — Content moderation", group="M10", tier=TIER,
- module="M10", actor="VFDA Staff", prio="Should", route="/admin/moderation",
+ seq=38, sid="SC-38", name="Admin — Content moderation", group="M10", tier="Added 30/09/2026 — Must (raised 01/10/2026, M10 FR-001–002)",
+ module="M10", actor="VFDA Staff", prio="Must", route="/admin/moderation",
  design_note="Queue of content awaiting review",
  new_note="**New Screen Spec (30/09/2026).** Written with the M10 Spec Document. Content types limited to `org_profile` and `location_image`; `showcase` waits for phase 2.",
  shown="Staff click the *Moderation queue* tile or the menu item on `SC-34`, or open the admin menu from any admin screen.",
@@ -223,7 +223,7 @@ add(dict(
   (5, "Queue list", "List", "`moderation_queue`: `content_type`, target name, `submitted_by` → name, `submitted_at`", "Yes", "oldest `submitted_at` first"),
   (6, "*Updated after submission* label", "Text", "item edited again before review; queue keeps only the latest version", "—", "—"),
   (7, "Item header", "Header + Link", "`content_id` → organisation name or location name; `submitted_by`, `submitted_at`; changed fields", "Yes", "—"),
-  (8, "Public now / submitted comparison", "Text", "last approved version vs submitted version (e.g. `capability_desc_en`, `provinces`); changes highlighted", "Yes", "for `location_image`: the photo with `image_source` and `usage_right`"),
+  (8, "Public now / submitted comparison", "Text", "last approved version vs submitted version (e.g. `capability_desc_en`, `province`); changes highlighted", "Yes", "for `location_image`: the photo with `image_source` and `usage_right`"),
   (9, "Public-version note", "Text", "date of the last approval of this content", "Yes", "—"),
   (10, "Reason", "Input (multi-line)", "`reason`", "Required when hiding", "required when `decision = hidden`; 10–1000 characters"),
   (11, "*Approve* button", "Button", "`decision = approved` → `content_status = approved`, `audit_log_id`", "—", "—"),
@@ -324,7 +324,7 @@ add(dict(
   (4, "Period granularity", "Toggle", "`period` — Month / Quarter / Year", "Yes", "enum `month`, `quarter`, `year`"),
   (5, "Period picker", "Toggle (dropdown)", "`period_start`, `period_end` derived from the choice (e.g. Q3 2026 = 01/07/2026–30/09/2026)", "Yes", "`period_start` ≤ `period_end`; not after the current period"),
   (6, "Charts / Data table switch", "Toggle", "`dashboard_view` — same figures as charts or as a table (indicator, value, sample size, source)", "—", "—"),
-  (7, "Indicator 1 — projects by segment and format", "Chart", "`demand_index` from `projects.segment`, `projects.format` created in the period", "Yes", "counts; *Not enough data* below 5 records"),
+  (7, "Indicator 1 — projects by segment and format", "Chart", "`demand_index` from `project.segment`, `project.format` created in the period", "Yes", "counts; *Not enough data* below 5 records"),
   (8, "Indicator 2 — origin market", "Chart", "`demand_index` from `producer_organisation.country` (ISO code shown as country name)", "Yes", "same rule"),
   (9, "Indicator 3 — top 10 provinces and scene types", "Chart", "`demand_index` from `project_province.province_id` (34-province list) and `location_query.attributes.scene_types` (readable labels)", "Yes", "same rule"),
   (10, "Indicator 4 — budget scale", "Text", "no source field yet", "Yes", "always *Not enough data — no data source yet* until a field exists"),

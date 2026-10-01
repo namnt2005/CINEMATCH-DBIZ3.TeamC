@@ -35,15 +35,15 @@
 |---|---|---|---|---|---|
 | 1 | Navigation bar | Header | static | — | — |
 | 2 | Project sidebar | List | static; *Document kit* selected | — | — |
-| 3 | Title + project segment | Header | `projects.segment` | Yes | — |
-| 4 | Switch checklist view A / B / C | Toggle | `segment_requirements` for the selected segment | — | view only; does not change the project's segment |
-| 5 | Document group | Container | `document_types.group` | — | — |
-| 6 | Document row | List | `document_slots` generated from `segment_requirements` + confirmed locations | Yes | — |
-| 7 | Basis label | Text | `document_types.basis` — Required by law / Commonly requested / Location-specific | Yes | enum, 3 values |
+| 3 | Title + project segment | Header | `project.segment` | Yes | — |
+| 4 | Switch checklist view A / B / C | Toggle | `segment_requirement` for the selected segment | — | view only; does not change the project's segment |
+| 5 | Document group | Container | `document_type.basis` | — | — |
+| 6 | Document row | List | `document_slot` generated from `segment_requirement` + confirmed locations | Yes | — |
+| 7 | Basis label | Text | `document_type.basis` — Required by law / Commonly requested / Location-specific | Yes | enum, 3 values |
 | 8 | *Download template* link | Link | `document_templates` provided by VFDA | — | hidden when no template exists |
-| 9 | Document status | Text | `document_slots.status` — Present / Needs fixing / Pending / Missing | Yes | same status set as `SC-27` |
+| 9 | Document status | Text | `document_slot.state` — Present / Needs fixing / Pending / Missing | Yes | same status set as `SC-27` |
 | 10 | Row action | Button / Link | View / Upload / Draft bilingual / View request | — | — |
-| 11 | *Differences by segment* block | Text | `segment_requirements.summary` approved by VFDA | Yes | — |
+| 11 | *Differences by segment* block | Text | `segment_requirement.label_en` approved by VFDA | Yes | — |
 | 12 | Document kit progress | Text + bar | count of *Present* rows / total rows | Yes | — |
 | 13 | Drag-and-drop upload area | Input (file) | Supabase Storage, private bucket per project | — | PDF / DOCX, ≤ 25 MB; suggests item, user confirms |
 
@@ -72,7 +72,7 @@
 
 | Rule ID | Rule | Source |
 |---|---|---|
-| SR-151 | The checklist is **generated from the `segment_requirements` table** by segment, plus *location-specific* documents for confirmed locations — nothing hard-coded. | Function list — note #15 |
+| SR-151 | The checklist is **generated from the `segment_requirement` table** by segment, plus *location-specific* documents for confirmed locations — nothing hard-coded. | Function list — note #15 |
 | SR-152 | Every document carries a **basis label**: *Required by law* / *Commonly requested* / *Location-specific*. Never present everything as mandatory. | Honesty principle |
 | SR-153 | Status set shared with `SC-27`; the 4 Article 13 rows always match across both screens. | Consistency principle |
 | SR-154 | Files are stored in a private bucket; only project members can read them; every download is logged. | Security |

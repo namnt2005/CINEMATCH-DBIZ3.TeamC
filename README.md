@@ -4,7 +4,7 @@ CINEMATCH is a platform built with the Vietnam Film Development Association (VFD
 
 This repository is not the software yet. It holds the textualized specification the build starts from (DBIZ3 Session 4), the data model and seed data derived from it (Session 5), and the agent contract and checks that prepare it for AI-assisted development (Session 6).
 
-*DBIZ3 · VJCBI College – Foreign Trade University · Group C · 29/09/2026*
+*DBIZ3 · VJCBI College – Foreign Trade University · Group C · 01/10/2026*
 
 ---
 
@@ -14,10 +14,12 @@ This repository is not the software yet. It holds the textualized specification 
 CINEMATCH-DBIZ3.TeamC/
 ├── README.md                  ← this file
 ├── AGENTS.md                  ← rules every AI agent follows in this repository
+├── .specify/memory/constitution.md  ← project constitution for Spec Kit
 ├── .gitignore  .gitattributes
 ├── docs/
 │   ├── README.md              ← guide to the docs/ folder
-│   ├── prd.md                 ← MVP Scope v3 (PRD) for the Session 7 midterm
+│   ├── prd.md                 ← MVP Scope v3.1 (PRD) for the Session 7 midterm
+│   ├── ai-use-log.md          ← what AI agents did and what people checked
 │   ├── mvp-scope.md
 │   ├── function-list.md
 │   ├── screen-list.md
@@ -43,14 +45,18 @@ CINEMATCH-DBIZ3.TeamC/
 │       └── environment-readiness-report.md
 ├── data/
 │   ├── README.md
+│   ├── data-model-SYS.md … data-model-M10.md   ← one per module (9 files)
 │   ├── 01-entity-dictionary.md
 │   ├── 02-crud-matrix.md
 │   ├── 03-erd.mmd
 │   ├── 04-data-model.md
 │   ├── 05-review.md
+│   ├── schema/
+│   │   ├── schema-SYS.sql … schema-M10.sql  (9 files)
+│   │   └── load_check.py
 │   └── seed/
-│       ├── README.md  schema.json  generate_seed.py  check_seed.py
-│       └── <table>.csv  (46 files)
+│       ├── README.md  schema.json  generate_seed.py  seed_rules.py  check_seed.py
+│       └── NN_<table>.csv  (46 files, in load order)
 └── tools/
     ├── README.md              ← what each script does and what it needs
     ├── check_env.py           ← Session 6 environment check
@@ -64,7 +70,7 @@ CINEMATCH-DBIZ3.TeamC/
 | `docs/screens/` | One Screen Spec and one annotated mockup per screen — every MVP screen | 41 specs · 41 images |
 | `docs/word/` | Word copies for submission — same content as the Markdown | 58 files + ERD views |
 | `docs/env/` | Environment Readiness Report for Session 6 | 1 report |
-| `data/` | Entity dictionary, CRUD matrix, conceptual ERD, logical model, review; seed data with its generator and integrity check | 51 entities · 46 tables · 423 seed rows |
+| `data/` | One data-model file per module; entity dictionary, CRUD matrix, conceptual ERD, logical model, review; portable SQL schema; seed data with its generator, rule validator and integrity check | 51 entities · 46 tables · 313 columns · 427 seed rows |
 | `tools/` | The environment check and the generators that rebuild `docs/`, `data/` and `docs/word/` | — |
 
 Four rules govern the structure: one module per spec file, one screen per image file, DBIZ2 IDs reused unchanged, and everything text except the screen mockups. The data package adds one more: every entity, column and relationship cites the spec line it came from.
@@ -82,7 +88,8 @@ Four rules govern the structure: one module per spec file, one screen per image 
 | Screen-level rule | `SR-<nnn>` inside one screen spec | `SR-011` |
 | Business rule | `BR-<nnn>` inside one spec file | `BR-003` |
 | Success criterion | `SC-<nnn>` inside one spec file | `SC-002` |
-| Entity / table | `UPPER_SNAKE`, singular; CSV file in lower case | `COLLAB_REQUEST` · `collab_request.csv` |
+| Entity / table | `UPPER_SNAKE`, singular; CSV file in lower case, prefixed with its load order | `COLLAB_REQUEST` · `30_collab_request.csv` |
+| Data-model file / schema file | `data-model-<MODULE-ID>.md` · `schema-<MODULE-ID>.sql` | `data-model-M4.md` · `schema-M4.sql` |
 | Data-model citation | `<MODULE> §<section> <ID>` | `M3 §5.1 FR-008` |
 
 Functional requirement IDs restart in every module, so always quote them with the file name: “`FR-008` in `spec-M3.md`”. Success criteria use the prefix `SC-` inside a spec file, while `SC-nn` in `docs/screen-list.md` and in file names is a Screen ID — the surrounding file tells you which is meant.
@@ -95,7 +102,7 @@ Functional requirement IDs restart in every module, so always quote them with th
 | Reviewing what the system does | `docs/architecture/context.md` → `usage-flow.md` → `docs/function-list.md` |
 | Building or reviewing one module | `docs/spec/spec-document.md` → the module's `spec-<MODULE>.md` → the Screen Specs it names in §7 |
 | Building or reviewing one screen | `docs/screens/README.md` → `screen-spec-<ID>.md` → `img/<ID>.png` |
-| Building the database or reviewing the data | `data/README.md` → `data/05-review.md` → `data/04-data-model.md` → `data/seed/` |
+| Building the database or reviewing the data | `data/README.md` → `data/data-model-<MODULE>.md` → `data/schema/` → `data/seed/` (whole model: `data/04-data-model.md`, verdict: `data/05-review.md`) |
 | Setting up your machine | `AGENTS.md` → `docs/env/environment-readiness-report.md` |
 | Submitting or printing | `docs/word/` |
 
@@ -123,7 +130,7 @@ Because of this chain a reader can start anywhere — a badge on a picture, a ro
 **Reading the mockups.** All 41 mockups follow a single fictional project, so the numbers on different screens can be checked against each other:
 
 > *The Last Ferry* — Harbour Line Films (Korea), segment A (foreign production filming in Vietnam), first shooting day **15/03/2027**.
-> Readiness **58 %** · safe submission deadline **27/01/2027** · best-matching location Tràng An, match score **91**.
+> Readiness **58 %** on the mockups (68.75 % in the seed data, computed by the M0 §9 formula fixed on 01/10/2026 — see `data/seed/README.md`) · safe submission deadline **27/01/2027** · best-matching location Tràng An, match score **91**.
 
 Each orange numbered badge on an image is the row with the same number in section 3 of that screen's spec. Place names use the 34 provincial-level units that exist after the 2025 reorganisation.
 
@@ -134,20 +141,21 @@ Each orange numbered badge on an image is the row with the same number in sectio
 | Check the machine and the repository (Session 6, T1) | `uv run tools/check_env.py --repo --path A` |
 | Regenerate and check the seed data (Session 6, T2) | `python3 data/seed/generate_seed.py && python3 data/seed/check_seed.py` |
 | Rebuild the Spec Documents and Screen Specs | `python3 tools/build_docs.py` |
-| Rebuild the data model files | `python3 tools/build_data.py` |
+| Load schema and seed into an empty database (gate G3) | `python3 data/schema/load_check.py` |
+| Rebuild the data model, schema and per-module files | `python3 tools/build_data.py`, then `python3 tools/build_schema.py` and `python3 tools/build_dm_docs.py` (full order in `tools/README.md`) |
 | Rebuild the Word copies | `python3 tools/make_word.py` (needs `pandoc`) |
 
 The generators are deterministic: running them on an unchanged repository leaves `git status` clean. **Do not edit `docs/word/` by hand** — change the Markdown source and rebuild.
 
-**Working with AI agents.** Every agent reads `AGENTS.md` first. It names the sources of truth, the commands an agent may run, and the rules it must not break — above all, `docs/spec/`, `docs/screens/` and `data/` are read-only unless a person asks for a specific change.
+**Working with AI agents.** Every agent reads `AGENTS.md` first. It names the sources of truth, the commands an agent may run, and the rules it must not break — above all, `docs/spec/`, `docs/screens/` and `data/` are read-only unless a person asks for a specific change, and such a change is made in the generator source in `tools/`, then rebuilt. The project constitution for Spec Kit is `.specify/memory/constitution.md`.
 
 ## 6. What this package does and does not settle
 
-The package was checked so that a reader can rely on it: all 104 Function List rows in MVP scope are covered by a functional requirement in one of the nine Spec Documents, all 545 callout badges match their inventory rows, every navigation target named in a Screen Spec exists in the Screen List, every input and output field has a type and a required mark, every diagram renders, and the seed data passes its integrity check.
+The package was checked so that a reader can rely on it: all 104 Function List rows in MVP scope are covered by a functional requirement in one of the nine Spec Documents, all 545 callout badges match their inventory rows, every navigation target named in a Screen Spec exists in the Screen List, every input and output field has a type and a required mark, every diagram renders, the seed data passes its integrity check, and the schema and seed load into an empty SQLite and PostgreSQL database without error.
 
 Some things are deliberately not settled yet:
 
-- **Open questions** — for VFDA and for the team — are listed where they belong, as `[NEEDS CLARIFICATION: …]` with an owner: section 10 of each Spec Document (74, of which 29 blocking), section 9 of each Screen Spec, and `data/05-review.md` for the data model (35, of which 14 blocking). Section 9 of each Spec Document gives the test values used until the Client answers.
+- **Open questions** — for VFDA and for the team — are listed where they belong, as `[NEEDS CLARIFICATION: …]` with an owner: section 10 of each Spec Document (74, of which 29 blocking), section 9 of each Screen Spec, and `data/05-review.md` for the data model (31, of which 12 blocking). Section 9 of each Spec Document gives the test values used until the Client answers.
 - **Scope limits:** modules `M6`, `M8`, `M9` are *Won't* for this release and have no Spec Document.
 - **Human gates:** checklist items left unticked with their reason, the “Checked by a person” and “Verified by” lines, and the *Decision* and *Resolution* columns of the data files are left for a person to fill.
 

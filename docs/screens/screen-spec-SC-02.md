@@ -35,14 +35,14 @@
 |---|---|---|---|---|---|
 | 1 | Navigation bar | Header | static | — | — |
 | 2 | Progress indicator | Text + bar | number of questions answered / 4 | — | — |
-| 3 | Question 1 — Shooting in Vietnam? | Toggle (single choice) | `segment_answers.q1_shoot_in_vn` | Yes | Yes / No |
-| 4 | Question 2 — Release market | Toggle (single choice) | `segment_answers.q2_release` | Yes (if question 1 = Yes) | abroad / vietnam / both |
-| 5 | Question 3 — Producing entity | Toggle (single choice) | `segment_answers.q3_producer` | Yes (if question 1 = Yes) | foreign / vietnamese / coproduction |
-| 6 | Question 4 — Needs | Toggle (multiple choice) | `segment_answers.q4_needs[]` | No | subset of the 5 values |
+| 3 | Question 1 — Shooting in Vietnam? | Toggle (single choice) | `segment_decision.q1_shoot_in_vn` | Yes | Yes / No |
+| 4 | Question 2 — Release market | Toggle (single choice) | `segment_decision.q2_release` | Yes (if question 1 = Yes) | abroad / vietnam / both |
+| 5 | Question 3 — Producing entity | Toggle (single choice) | `segment_decision.q3_producer` | Yes (if question 1 = Yes) | foreign / vietnamese / coproduction |
+| 6 | Question 4 — Needs | Toggle (multiple choice) | `segment_decision.q4_needs[]` | No | subset of the 5 values |
 | 7 | *Edit* answer link | Button | static; on every question | — | — |
-| 8 | Segment result card | Container | computed from the decision table `segment_rules` (no language model) | Yes | exactly one of A / B / C |
+| 8 | Segment result card | Container | computed from the decision table `segment_rule` (no language model) | Yes | exactly one of A / B / C |
 | 9 | Classification reason | Text | the answers that determined the result | Yes | must cite question numbers |
-| 10 | *What this means* block | List | `segment_requirements` for the segment | Yes | each line labelled Required / Not required |
+| 10 | *What this means* block | List | `segment_requirement` for the segment | Yes | each line labelled Required / Not required |
 | 11 | *That's right — create a segment A project* button | Button | static | — | — |
 | 12 | The other two segment cards | Button | static | — | — |
 | 13 | *Ask VFDA* link | Button | static | — | — |
@@ -63,7 +63,7 @@
 |---|---|---|---|---|
 | 1 | Option within a question | tap | Records the answer, reveals the next question, recalculates the result | stays |
 | 2 | *Edit* link | tap | Reopens that question; result recalculates immediately | stays |
-| 3 | *That's right — create a segment A project* button | tap | Saves `projects.segment`; if not logged in, keeps it in the session | SC-10 (or SC-04) |
+| 3 | *That's right — create a segment A project* button | tap | Saves `project.segment`; if not logged in, keeps it in the session | SC-10 (or SC-04) |
 | 4 | Card B or C | tap | Switches the result to that segment, records `segment_override = true` | stays |
 | 5 | *Ask VFDA* | tap | Opens booking with topic *Segment identification* | SC-33 |
 
@@ -72,10 +72,10 @@
 | Rule ID | Rule | Source |
 |---|---|---|
 | SR-031 | At most **4 questions**; question 4 does not affect the segment. | Screen list file — note #3 |
-| SR-032 | The segment is computed with a **deterministic decision table** (`segment_rules`), not a language model — the same answers always give the same result. | Explainability principle |
+| SR-032 | The segment is computed with a **deterministic decision table** (`segment_rule`), not a language model — the same answers always give the same result. | Explainability principle |
 | SR-033 | The result **always** comes with the reason (which questions decided it) and a *Required / Not required* list. | No-black-box principle |
 | SR-034 | Users can always change the segment; manual choices are recorded (`segment_override`) so VFDA can see where the router misclassifies. | TL4 §2 |
-| SR-035 | The *Required / Not required* list is read from the VFDA-approved `segment_requirements` table, not hard-coded. | TL5 §M1 |
+| SR-035 | The *Required / Not required* list is read from the VFDA-approved `segment_requirement` table, not hard-coded. | TL5 §M1 |
 
 ## 7. Linked requirements
 

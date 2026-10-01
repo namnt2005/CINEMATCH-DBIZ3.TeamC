@@ -36,9 +36,9 @@
 | 1 | Navigation bar | Header | static | — | — |
 | 2 | Project sidebar | List | static; *Bilingual drafts* selected | — | — |
 | 3 | Document picker | Toggle (dropdown) | `bilingual_docs` — Synopsis / Full script for scenes shot in Vietnam / Application letter / Undertaking | Yes | project documents only |
-| 4 | Proofreading progress | Text + bar | count of `bilingual_paragraphs.reviewed_by IS NOT NULL` | Yes | — |
-| 5 | Source column | Text | `bilingual_paragraphs.source_text` | Yes | read-only |
-| 6 | Vietnamese column | Input (textarea per paragraph) | `bilingual_paragraphs.target_text` | Yes | must not be empty; editing a proofread paragraph resets it to *not proofread* |
+| 4 | Proofreading progress | Text + bar | count of `bilingual_paragraph.reviewed_by IS NOT NULL` | Yes | — |
+| 5 | Source column | Text | `bilingual_paragraph.source_text` | Yes | read-only |
+| 6 | Vietnamese column | Input (textarea per paragraph) | `bilingual_paragraph.target_text` | Yes | must not be empty; editing a proofread paragraph resets it to *not proofread* |
 | 7 | Paragraph status | Text | `machine` / `reviewed` + proofreader's name | Yes | always has text |
 | 8 | *✓ Proofread* button | Button | writes `reviewed_by`, `reviewed_at` | — | only shown on paragraphs not yet proofread |
 | 9 | Project glossary | List | `project_glossary` | No | one translation per source term |

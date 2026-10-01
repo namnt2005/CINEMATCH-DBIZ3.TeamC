@@ -42,7 +42,7 @@
 | 3 | Title + queue summary | Header + Text | count of `pending` requests and age of the oldest | — | — |
 | 4 | Status filter | Toggle (chips) | `status_filter` — ENUM(pending, approved, rejected) or All, with counts | No | enum values only |
 | 5 | Request list | List | `queue` — `verification_request[]`: organisation, head office, `status`, date | — | pending first, then newest decision first |
-| 6 | Organisation header of the selected request | Text | `org_name`, `legal_form`, `founded_year`, `hq_province`, `provinces`, `service_groups`, submitting user | Yes | — |
+| 6 | Organisation header of the selected request | Text | `org_name`, `legal_form`, `founded_year`, `hq_province`, `province`, `service_groups`, submitting user | Yes | — |
 | 7 | Business registration document | Text + Button | `business_license` (private storage) | Yes | opens in a new tab for staff only |
 | 8 | Reference projects | List | `reference_projects` | Yes | — |
 | 9 | Review guide | List (checkboxes) | static guide; ticks are not stored | — | — |

@@ -34,17 +34,17 @@
 | # | Element | Type | Content / data source | Required | Validation |
 |---|---|---|---|---|---|
 | 1 | Navigation bar | Header | static | — | — |
-| 2 | Breadcrumb | Text | Locations › `provinces.name` › `locations.name` | — | — |
-| 3 | Photo gallery | Image | `locations.cover_image` + `location_images` (approved) | Yes | `published` photos only |
-| 4 | Intake status badge | Text | `locations.intake_status` — open / scouting crew on site / temporarily closed | Yes | updated by VFDA |
-| 5 | English + Vietnamese name + province | Header | `locations.name_vi`, `name_en`, `provinces.name` | Yes | — |
+| 2 | Breadcrumb | Text | Locations › `province.name` › `location.name_en` | — | — |
+| 3 | Photo gallery | Image | `location_image.image_url (first approved)` + `location_image` (approved) | Yes | `published` photos only |
+| 4 | Intake status badge | Text | `location.availability` — `open` / `survey_in_progress` / `paused`, shown as *Open* / *Scouting crew on site* / *Temporarily closed* (M3 BR-010) | Yes | updated by VFDA |
+| 5 | English + Vietnamese name + province | Header | `location.name_vi`, `name_en`, `province.name` | Yes | — |
 | 6 | Match score for the project | Text | `F-M3-08` for the query linked to the open project | No | shown only when arriving from search results |
-| 7 | Description | Text | `locations.description` | Yes | — |
+| 7 | Description | Text | `location.desc_en` | Yes | — |
 | 8 | *Logistics* block | List | `crew_capacity_band`, `nearest_airport_km`, `accommodation_within_20km`, `truck_access` | Yes | missing data → *no data yet* |
 | 9 | *Seasons and permits* block | List | `avoid_months`, `permit_notes`, `drone_note`, `verified_at` | Yes | same as above |
-| 10 | *Local authority contact* block | Container | `location_authority_contacts` | Yes (members) | **Guests: RLS returns 0 rows, the table is not queried** |
-| 11 | *Province readiness* block | Text | `v_province_readiness.score` and its 3 main components | Yes | same source as `SC-18` |
-| 12 | Mini map + nearby within 30 km | Map + List | PostGIS `ST_DWithin` on `locations.geom` | No | max 5, sorted by distance |
+| 10 | *Local authority contact* block | Container | `authority_contact` | Yes (members) | **Guests: RLS returns 0 rows, the table is not queried** |
+| 11 | *Province readiness* block | Text | `v_province_readiness.readiness_index` and its 3 main components | Yes | same source as `SC-18` |
+| 12 | Mini map + nearby within 30 km | Map + List | PostGIS `ST_DWithin` on `location.lat, location.lng` | No | max 5, sorted by distance |
 | 13 | *Add to comparison* button | Button | static | — | disabled when the basket holds 4 |
 | 14 | *I'm interested* button | Button | static | — | requires login and a project |
 
@@ -73,7 +73,7 @@
 
 | Rule ID | Rule | Source |
 |---|---|---|
-| SR-111 | **The contact block must not be hidden by the UI alone.** For guests, the app does not query `location_authority_contacts`; RLS returns 0 rows. Verification: the page source in a private window shows no phone number. | Database-layer security principle |
+| SR-111 | **The contact block must not be hidden by the UI alone.** For guests, the app does not query `authority_contact`; RLS returns 0 rows. Verification: the page source in a private window shows no phone number. | Database-layer security principle |
 | SR-112 | The province readiness block uses the **same view** `v_province_readiness` as `SC-18`. | Screen list file — note #11 |
 | SR-113 | Every logistics and seasonal fact shows *when VFDA verified it*; if missing, show *no data yet*. | No-guessing principle |
 | SR-114 | The mockup uses sample organisation names; phone numbers / emails in the image are masked — not real data. | Mockup note |

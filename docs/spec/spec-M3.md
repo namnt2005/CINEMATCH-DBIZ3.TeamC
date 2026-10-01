@@ -233,7 +233,7 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 | FR ID | Input field | Type | Required | Output field | Type | Notes / validation |
 |---|---|---|---|---|---|---|
 | FR-001 | `filter` | `JSONB` | No | `locations` | `location_admin[]` | vfda_staff only |
-| FR-002 | `name_vi` | `VARCHAR(200)` | Yes | `location_id` | `UUID` | province_id from the 34-province list |
+| FR-002 | `name_vi` | `VARCHAR(200)` | Yes | `location_id` | `UUID` | province_id from the 34-province list; availability added 01/10/2026 (BR-010) |
 |  | `name_en` | `VARCHAR(200)` | Yes | `slug` | `VARCHAR(160)` |  |
 |  | `province_id` | `INTEGER` | Yes | `intake_status` | `ENUM(awaiting_contact, published, unpublished)` |  |
 |  | `district` | `VARCHAR(120)` | No |  |  |  |
@@ -250,6 +250,7 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 |  | `months_to_avoid` | `INTEGER[]` | No |  |  |  |
 |  | `permit_complexity` | `ENUM(low, medium, high)` | Yes |  |  |  |
 |  | `restriction_note` | `TEXT` | No |  |  |  |
+|  | `availability` | `ENUM(open, survey_in_progress, paused)` | Yes |  |  |  |
 | FR-003 | `image_file` | `BYTEA` | Yes | `image_url` | `TEXT` | jpg / png, max 10 MB |
 |  | `image_source` | `TEXT` | Yes | `image_status` | `ENUM(pending, approved, hidden)` |  |
 |  | `usage_right` | `TEXT` | Yes |  |  |  |
@@ -307,18 +308,29 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 | BR-007 | The provincial index uses only data generated on the platform and always shows its sample size. | It must not become a subjective ranking of provinces. |
 | BR-008 | Locations are unpublished, never deleted (`intake_status = unpublished`); shortlists and provincial notices that refer to an unpublished location keep it and show *No longer published*. | A producer's plan and VFDA's letters to provinces must not silently lose a place. |
 | BR-009 | Every confirmed scene search is stored as a location query without any personal data (description, attributes, month, and the project only when a member searches inside a project); it is used for the M10 demand index and never to train a model. | The demand index needs to know what producers look for; storing no personal data keeps guests anonymous. |
+| BR-010 | Every published location carries an availability set by VFDA staff: `open`, `survey_in_progress` (another crew is scouting it) or `paused` (not receiving crews for now). A paused location stays published and visible with its label; availability is the sixth scoring criterion; every change is written to the audit log (M10 FR-008). | The light version of a shared shooting calendar (TL4 idea #5, TL5 M3 step 5): two crews do not target the same place unknowingly, without building a booking system. |
 
 ## 6. Key entities
 
 | Entity | Attributes (from Input/Output fields) | Relationships |
 |---|---|---|
-| Location | location_id, slug, name_vi, name_en, province_id, lat, lng, scene_types, crew_capacity, lodging_20km, grid_power, truck_access, months_to_avoid, permit_complexity, intake_status, published | belongs to Province; has many LocationImages; has one AuthorityContact |
+| Location | location_id, slug, name_vi, name_en, province_id, lat, lng, scene_types, crew_capacity, lodging_20km, grid_power, truck_access, months_to_avoid, permit_complexity, availability, intake_status, published | belongs to Province; has many LocationImages; has one AuthorityContact |
 | LocationImage | image_url, image_source, usage_right, status | belongs to Location |
 | AuthorityContact | authority_name, contact_name, contact_phone, contact_email, verified_by, verified_at | belongs to Location |
 | Province | province_id, name, slug, region, merged_from | has many Locations |
 | LocationQuery | description, attributes, month, project_id | may belong to Project |
 | ProjectShortlist | project_id, location_id, role | belongs to Project and Location |
 | ProvinceReadiness | province_id, readiness_index, components, sample_sizes, computed_at | derived from Locations, Organisations, Notices |
+
+### 6.1 Attribute types
+
+Types and required flags of the attributes above that no field in 5.1 declares (keys, timestamps, stored statuses). Every column of the data model now has a declared type.
+
+| Entity | Attribute | Type | Required | Notes |
+|---|---|---|---|---|
+| Province | `name` | `VARCHAR(80)` | Yes | one of the 34 units (BR-006) |
+| Province | `merged_from` | `VARCHAR(80)[]` | No | pre-2025 names that now belong to this unit (BR-006) |
+| LocationImage | `location_id` | `UUID` | Yes |  |
 
 ## 7. Screens involved
 
@@ -343,8 +355,8 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 ## 9. Assumptions
 
 - The MVP launches with at least 50 VFDA-verified locations across at least 8 provinces.
-- Six scoring criteria: visual fit, crew capacity, logistics, season for the shooting month, permit complexity, intake status.
-- Test values used until VFDA confirms the scoring weights: the six criteria have equal weight (1/6 each); a result is shown from 40 points; authority contacts are re-verified every 12 months.
+- Six scoring criteria: visual fit, crew capacity, logistics, season for the shooting month, permit complexity, availability (BR-010).
+- Test values used until VFDA confirms the scoring weights: the six criteria have equal weight (1/6 each); availability scores open = full, survey_in_progress = half, paused = 0; a result is shown from 40 points; authority contacts are re-verified every 12 months.
 
 ## 10. Open questions
 
@@ -355,7 +367,7 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 | 3 | [NEEDS CLARIFICATION: Where does data for the *night shooting* and *weather in the shooting month* comparison rows come from? No field exists yet.] *(also raised in SC-17)* | Yes | Group C | Open |
 | 4 | [NEEDS CLARIFICATION: May VFDA publish the provincial index publicly? It may be sensitive for low-scoring provinces.] *(also raised in SC-18)* | Yes | Client (VFDA) | Open |
 | 5 | [NEEDS CLARIFICATION: Re-verification cycle for authority contacts (proposed 12 months).] *(also raised in SC-16, SC-35)* | No | Client (VFDA) | Open |
-| 6 | [NEEDS CLARIFICATION: Is the Session 3 target of at least 40 published locations at launch still required, and who supplies the location data?] | No | Nam with VFDA | Open |
+| 6 | [NEEDS CLARIFICATION: The launch target is 50 VFDA-verified locations in at least 8 provinces (Group C decision 01/10/2026, replacing the Session 3 figure of 40). Who supplies the location data, and by when?] | No | Nam with VFDA | Open |
 | 7 | [NEEDS CLARIFICATION: the 40-point threshold is a proposal and needs tuning once real data is available] *(from SC-14)* | No | Group C with VFDA | Open |
 | 8 | [NEEDS CLARIFICATION: procedure for filming permits inside the Tràng An heritage area — VFDA to confirm the contact and displayed wording] *(from SC-16)* | No | Client (VFDA) | Open |
 | 9 | [NEEDS CLARIFICATION: minimum data threshold for showing the index] *(from SC-18)* | No | Group C | Open |
@@ -380,6 +392,7 @@ Where the 20-screen design or this spec differs from the DBIZ2 Function List, th
 | Attribute confirmation | SEQ-03 goes straight from extraction to search | SC-15 shows *What the system understood* and waits for the user to confirm | Added — Confirmed by the Client |
 | F-M3-16..20 priority | Must | Should — Tier 2 of the screen list file (#18, #19) | Changed — Confirmed by the Client |
 | Shortlist role | no role | primary / backup (SC-17) | Added — Confirmed by the Client |
+| Location availability | not in DBIZ2 | availability ENUM(open, survey_in_progress, paused) set by VFDA staff; sixth scoring criterion (BR-010) | Added — Group C decision 01/10/2026 |
 
 ## Completion checklist
 

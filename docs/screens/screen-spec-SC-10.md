@@ -39,19 +39,19 @@
 |---|---|---|---|---|---|
 | 1 | Navigation bar | Header | static; *My projects* selected | — | — |
 | 2 | Title + *+ New project* button | Header + Button | static | — | — |
-| 3 | Project status tabs | Toggle | `projects.stage` — preparing / shot / archived, with counts | — | — |
-| 4 | Project card | List | `projects.name`, `projects.format`, `projects.segment` | — | only projects the user is a member of (Row Level Security (RLS)) |
-| 5 | Readiness on the card | Text + bar | `v_project_readiness.overall_score` | — | 0–100 |
-| 6 | First shooting day and days remaining | Text | `projects.shooting_start_date` | — | none → *not set* |
+| 3 | Project status tabs | Toggle | `project.stage` — preparing / shot / archived, with counts | — | — |
+| 4 | Project card | List | `project.project_name`, `project.format`, `project.segment` | — | only projects the user is a member of (Row Level Security (RLS)) |
+| 5 | Readiness on the card | Text + bar | `v_project_readiness.readiness_total` | — | 0–100 |
+| 6 | First shooting day and days remaining | Text | `project.shoot_date` | — | none → *not set* |
 | 7 | Next step on the card | Text | `F-M0-07` — highest-priority task | — | always one sentence |
 | 8 | *Create new project* panel | Container | static | — | — |
-| 9 | Project name | Input | `projects.name` | Yes | 2–120 characters; unique among the organisation's projects |
-| 10 | Format | Toggle (dropdown) | `projects.format` — Feature film / Documentary / Commercial / TV programme / Music video | Yes | enum |
-| 11 | Segment | Toggle (dropdown) | `projects.segment`, pre-filled from `SC-02` | Yes | A / B / C |
-| 12 | Planned first shooting day | Input (date) | `projects.shooting_start_date` | No | must be after today |
-| 13 | Shooting days in Vietnam | Input (number) | `projects.shoot_days_vn` | No | integer 1–365 |
-| 14 | Crew size in Vietnam | Toggle (dropdown) | `projects.crew_size_band` — <15 / 15–50 / >50 | No | enum |
-| 15 | Planned provinces / cities | Toggle (multiple choice) | `project_provinces` — list of 34 provincial-level administrative units | No | only codes from the list |
+| 9 | Project name | Input | `project.project_name` | Yes | 2–120 characters; unique among the organisation's projects |
+| 10 | Format | Toggle (dropdown) | `project.format` — Feature film / Documentary / Commercial / TV programme / Music video | Yes | enum |
+| 11 | Segment | Toggle (dropdown) | `project.segment`, pre-filled from `SC-02` | Yes | A / B / C |
+| 12 | Planned first shooting day | Input (date) | `project.shoot_date` | No | must be after today |
+| 13 | Shooting days in Vietnam | Input (number) | `project.shoot_days_vn` | No | integer 1–365 |
+| 14 | Crew size in Vietnam | Toggle (dropdown) | `project.crew_size_band` — <15 / 15–50 / >50 | No | enum |
+| 15 | Planned provinces / cities | Toggle (multiple choice) | `project_province` — list of 34 provincial-level administrative units | No | only codes from the list |
 | 16 | *Cancel* / *Create project* buttons | Button | static | — | *Create project* disabled until the 3 required fields are valid |
 
 ## 4. States
@@ -72,7 +72,7 @@
 | 2 | *+ New project* button | tap | Opens the panel, adds `?new=1` to the URL | stays |
 | 3 | Status tab | tap | Filters the list | stays |
 | 4 | *redo the router* link | tap | — | SC-02 |
-| 5 | *Create project* button | tap | Creates `projects`, assigns the creator as `owner`, generates the gauges for the segment | SC-12 |
+| 5 | *Create project* button | tap | Creates `project`, assigns the creator as `owner`, generates the gauges for the segment | SC-12 |
 | 6 | *Cancel* / ✕ button | tap | Closes the panel; asks for confirmation if something was typed | stays |
 
 ## 6. Screen-level rules
@@ -82,7 +82,7 @@
 | SR-041 | Only **3 required fields** (name, format, segment). Everything else can be added later — users aren't expected to know it all up front. | Friction-reduction principle |
 | SR-042 | The province list uses the **34 provincial-level units after the 2025 merger**; old names (e.g. Quảng Nam, Hà Giang) are accepted in search and mapped to the new province. | 2025 provincial merger resolution |
 | SR-043 | Project cards always show **one** next step — from the same source as the dashboard. | TL4 §4 |
-| SR-044 | The project creator is the `owner`; only project members can see the project (RLS on `projects` and `project_members`). | Database-level security principle |
+| SR-044 | The project creator is the `owner`; only project members can see the project (RLS on `project` and `project_member`). | Database-level security principle |
 
 ## 7. Linked requirements
 

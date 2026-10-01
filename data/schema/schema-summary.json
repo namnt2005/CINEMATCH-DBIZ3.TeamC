@@ -1,0 +1,56 @@
+{
+ "SYS": {
+  "tables": 6,
+  "columns": 31,
+  "fks": 5,
+  "checks": 5
+ },
+ "M1": {
+  "tables": 3,
+  "columns": 23,
+  "fks": 2,
+  "checks": 9
+ },
+ "M0": {
+  "tables": 4,
+  "columns": 24,
+  "fks": 6,
+  "checks": 8
+ },
+ "M2": {
+  "tables": 6,
+  "columns": 46,
+  "fks": 11,
+  "checks": 9
+ },
+ "M3": {
+  "tables": 6,
+  "columns": 50,
+  "fks": 7,
+  "checks": 10
+ },
+ "M4": {
+  "tables": 8,
+  "columns": 54,
+  "fks": 12,
+  "checks": 6
+ },
+ "M5": {
+  "tables": 7,
+  "columns": 38,
+  "fks": 10,
+  "checks": 6
+ },
+ "M7": {
+  "tables": 3,
+  "columns": 23,
+  "fks": 7,
+  "checks": 4
+ },
+ "M10": {
+  "tables": 3,
+  "columns": 24,
+  "fks": 6,
+  "checks": 7
+ }
+}

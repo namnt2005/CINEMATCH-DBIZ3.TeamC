@@ -1,7 +1,7 @@
 ---
 artifact: 01-entity-dictionary
 step: S1
-generated: 2026-09-30
+generated: 2026-10-01
 sources: FUNCTIONS, FIELDS, ENTITIES, RULES, SCENARIOS, FLOWS, SCREENS, BOUNDARY
 ---
 
@@ -21,17 +21,17 @@ degradation rules rather than inventing the missing material.
               (spec-SYS, spec-M1, spec-M0, spec-M2, spec-M3, spec-M4, spec-M5, spec-M7, spec-M10),
               104 rows (Spec Documents of 30/09/2026)
   FIELDS    = section 5.1 "Input / Output contract" of the same documents
-              (every field typed, inputs marked Req / Opt)
+              (every field typed, inputs marked Req / Opt), plus section 6.1
+              "Attribute types" (types of the section 6 attributes no 5.1 field declares)
   ENTITIES  = section 6 "Key entities" of the same documents, 51 declared entities
   RULES     = section 5.2 "Business rules" of the same documents (BR-001 ... per module)
   SCENARIOS = section 3 user stories US-n with Given / When / Then, plus "Edge cases"
   FLOWS     = section 4 Mermaid blocks (usage flows 4.1, sequence diagrams 4.2+)
-  SCREENS   = section 7 tables + docs/screens/screen-spec-<ID>.md (20 Screen Specs)
+  SCREENS   = section 7 tables + docs/screens/screen-spec-<ID>.md (41 Screen Specs)
   BOUNDARY  = section 1 "Depends on" (external: Supabase Auth / PostgreSQL / Storage,
               Resend email, language-model API, PDF rendering, OpenStreetMap tiles, PostGIS)
 
-  Out of this input: M6, M8, M9 are Won't for this release (docs/mvp-scope.md §4).
-  The M10 screens (SC-34, SC-38 .. SC-41) have no Screen Spec file yet.
+  Out of this input: M6, M8, M9 are Won't for this release (docs/prd.md §4.4).
 
 CITATION SCHEME = <MODULE> §<section> <ID>
   e.g. "M3 §5.1 FR-008" (field row of F-M3-08) | "M3 §5.2 BR-004" | "M3 §3 US-2" | "M3 §6"
@@ -117,29 +117,29 @@ Nouns the FIELDS or RULES need the system to remember, with no declared entity. 
 
 | Type (synonym / collision / shared ownership / type mismatch) | Items | Sources | What must be decided | Decision |
 |---|---|---|---|---|
-| collision | PRODUCER_ORGANISATION vs ORGANISATION | SYS §6; M4 §6; M5 §5.1 FR-006 (reviewer_org_id) | Two different concepts share the word "organisation" (foreign producer company vs Vietnamese supplier). Keep two entities, or one ORGANISATION with a type? Which one does reviewer_org_id point to? | |
-| collision | rule_id in SEGMENT_RULE vs rule_id in LEGAL_RULE | M1 §6; M2 §5.1 FR-002 | Same column name, unrelated concepts. Rename one (e.g. segment_rule_id). | |
-| collision | document_id of BILINGUAL_DOCUMENT (M5 FR-006) vs document_id of DOCUMENT | M5 §5.1 FR-002, FR-006; M5 §6 | FR-006 proofreads a bilingual draft by document_id, but BILINGUAL_DOCUMENT declares no id and document_id is DOCUMENT's key. | |
-| collision | "partner" = ORGANISATION, role `partner`, and NDA party `partner` | M4 §6; SYS §5.1 FR-004; M4 §5.1 FR-017 | One word, three meanings. Fix the glossary so specs say *partner organisation*, *partner account* and *partner party*. | |
-| synonym | PRECHECK_RUN = brief (brief_id) | M2 §6; M2 §5.1 FR-007 | Canonical name proposed: PRECHECK_RUN, key precheck_id; alias brief_id. | |
-| synonym | crew_size_band (PROJECT) = crew_capacity (LOCATION) = crew_size (search) | M0 §5.1 FR-001; M3 §5.1 FR-002, FR-007 | Same value set ENUM(u15, 15_50, o50) under three names. One name for the value set? | |
-| synonym | lang (FR-005) = locale (FR-007) on the same pre-check | M2 §5.1 FR-005, FR-007 | Same concept, two names and different value order (en, vi) vs (vi, en). One canonical name. | |
-| synonym | NOTIFICATION vs "notification_id" returned by F-M7-02 (an email to a province) | SYS §6; M7 §5.1 FR-002 | F-M7-02 returns notification_id with delivery_status (queued/sent/bounced) — that is EMAIL_DELIVERY, not an in-app NOTIFICATION. | |
-| type mismatch | rule set version: INTEGER vs VARCHAR(20) | M2 §5.1 FR-002 (OUT version INTEGER); FR-004 (OUT rule_version VARCHAR(20)); M2 §3 US-1 ("rule set 2026.08") | Which type and format is the rule-set version? | |
-| type mismatch | PROJECT.shoot_date: Opt vs Req | M0 §5.1 FR-001 (Opt); M5 §5.1 FR-007 (Req); M2 §5.1 FR-017 (Req); M7 §3 US-1 | Optional at creation but required by the countdown and notices. Confirm: optional in storage, required by those functions. | |
-| type mismatch | segment_override: ENUM(A, B, C) vs boolean | M1 §5.1 FR-002; M1 §3 US-2 ("segment_override = true") | Is it the overriding segment or a flag that an override happened? | |
-| type mismatch | PROFILE.locale vs cookie `locale` | SYS §6; SYS §5.1 FR-005 ("stored in cookie") | Is the language remembered on the profile, in a cookie, or both? | |
-| synonym | DOCUMENT_SLOT.state vs `document_slots.status` | M5 §5.1 FR-003 (state); docs/screens/screen-spec-SC-27.md element 7 (status) | Same column, two names across FIELDS and SCREENS. Canonical: state. | |
-| type mismatch | COLLAB_REQUEST status on confirm: `confirmed` vs `closed` | M4 §5.1 FR-014 (confirmed); docs/screens/screen-spec-SC-25.md interaction 5 (`status = closed`) | SC-25 writes a value that is not in the enum. Correct the Screen Spec to `confirmed`? | |
-| synonym | ORGANISATION vs `organizations` / `service_categories` | M4 §6; docs/screens/screen-spec-SC-19.md elements 3, 6, 8 | Screen Specs use US spelling and another name for service groups. One spelling for table names. | |
-| shared ownership | NOTIFICATION created by SYS, M4 and M7 functions | SYS §5.1 FR-007; M4 §5.1 FR-011, FR-015; M7 §5.1 FR-007 | Proposed owner SYS; other modules call F-SYS-07 instead of writing rows themselves. | |
-| shared ownership | EMAIL_DELIVERY created by SYS, M4 and M7 functions | SYS §5.1 FR-008; M4 §5.1 FR-015; M7 §5.1 FR-002 | Proposed owner SYS; M4/M7 call F-SYS-08. | |
-| shared ownership | DOCUMENT_ACCESS_LOG declared by M4 about DOCUMENT owned by M5 | M4 §6; M5 §6 | Which module owns the access log: M4 (who shares) or M5 (who stores)? | |
-| synonym | LOCATION_QUERY scene_description / shoot_month (FIELDS) = description / month (ENTITIES) | M3 §5.1 FR-011; M3 §6 | Canonical proposed: the FIELDS names scene_description and shoot_month (used in 04). | |
-| synonym | PROJECT_GLOSSARY term_en / term_vi (FIELDS) = source_term / target_term (ENTITIES) | M5 §5.1 FR-004; M5 §6 | Canonical proposed: the FIELDS names term_en and term_vi (used in 04). | |
-| synonym | AUDIT_LOG admin_id (write) = actor_id (search filter) | M10 §5.1 FR-008, FR-009 | Same person column under two names. Canonical proposed: admin_id. | |
-| collision | MODERATION_ITEM refers to "Organisation or LocationImage" through one content_id | M10 §6; M10 §5.1 FR-001 | One reference to two tables cannot carry a foreign key. Modelled as two nullable FKs with a CHECK (see 04 Structural findings); confirm. | |
-| shared ownership | AUDIT_LOG written by the admin screens of M2, M3, M4 and by SYS role grants | M10 §1 Out of scope; SYS §5.2 BR-002 | Proposed owner M10; other modules never insert rows themselves — a trigger writes them (M10 §4.3, F-M10-08). | |
+| collision | PRODUCER_ORGANISATION vs ORGANISATION | SYS §6; M4 §6; M5 §5.1 FR-006 (reviewer_org_id) | Two different concepts share the word "organisation" (foreign producer company vs Vietnamese supplier). Keep two entities, or one ORGANISATION with a type? Which one does reviewer_org_id point to? | Applied: two entities. `reviewer_org_id` points to ORGANISATION (the Vietnamese partner). |
+| collision | rule_id in SEGMENT_RULE vs rule_id in LEGAL_RULE | M1 §6; M2 §5.1 FR-002 | Same column name, unrelated concepts. Rename one (e.g. segment_rule_id). | Applied: SEGMENT_RULE key renamed `segment_rule_id` (M1 §6.1). |
+| collision | document_id of BILINGUAL_DOCUMENT (M5 FR-006) vs document_id of DOCUMENT | M5 §5.1 FR-002, FR-006; M5 §6 | FR-006 proofreads a bilingual draft by document_id, but BILINGUAL_DOCUMENT declares no id and document_id is DOCUMENT's key. | Applied: BILINGUAL_DOCUMENT is keyed by project_id + doc_code; F-M5-06 `document_id` is read as that pair. |
+| collision | "partner" = ORGANISATION, role `partner`, and NDA party `partner` | M4 §6; SYS §5.1 FR-004; M4 §5.1 FR-017 | One word, three meanings. Fix the glossary so specs say *partner organisation*, *partner account* and *partner party*. | Applied: glossary — *partner organisation* (ORGANISATION), *partner account* (role `partner`), *partner party* (NDA_ACCEPTANCE.party). |
+| synonym | PRECHECK_RUN = brief (brief_id) | M2 §6; M2 §5.1 FR-007 | Canonical name proposed: PRECHECK_RUN, key precheck_id; alias brief_id. | Applied: entity PRECHECK_RUN; key keeps the spec name `brief_id`. |
+| synonym | crew_size_band (PROJECT) = crew_capacity (LOCATION) = crew_size (search) | M0 §5.1 FR-001; M3 §5.1 FR-002, FR-007 | Same value set ENUM(u15, 15_50, o50) under three names. One name for the value set? | Applied: three column names kept as each spec declares them, one shared value set ENUM(u15, 15_50, o50). |
+| synonym | lang (FR-005) = locale (FR-007) on the same pre-check | M2 §5.1 FR-005, FR-007 | Same concept, two names and different value order (en, vi) vs (vi, en). One canonical name. | Applied: one column `lang` ENUM(en, vi) (F-M2-05 input). |
+| synonym | NOTIFICATION vs "notification_id" returned by F-M7-02 (an email to a province) | SYS §6; M7 §5.1 FR-002 | F-M7-02 returns notification_id with delivery_status (queued/sent/bounced) — that is EMAIL_DELIVERY, not an in-app NOTIFICATION. | Applied: F-M7-02's `notification_id` is an EMAIL_DELIVERY (it has a delivery status), not an in-app NOTIFICATION. |
+| type mismatch | rule set version: INTEGER vs VARCHAR(20) | M2 §5.1 FR-002 (OUT version INTEGER); FR-004 (OUT rule_version VARCHAR(20)); M2 §3 US-1 ("rule set 2026.08") | Which type and format is the rule-set version? | Applied: VARCHAR(20), e.g. `2026.08` (M2 FR-004, US-1). |
+| type mismatch | PROJECT.shoot_date: Opt vs Req | M0 §5.1 FR-001 (Opt); M5 §5.1 FR-007 (Req); M2 §5.1 FR-017 (Req); M7 §3 US-1 | Optional at creation but required by the countdown and notices. Confirm: optional in storage, required by those functions. | Applied: optional in storage; required by the functions that use it (M5 FR-007, M2 FR-017). |
+| type mismatch | segment_override: ENUM(A, B, C) vs boolean | M1 §5.1 FR-002; M1 §3 US-2 ("segment_override = true") | Is it the overriding segment or a flag that an override happened? | Applied: ENUM(A, B, C) = the overriding segment; *an override happened* = `segment_override` is set. |
+| type mismatch | PROFILE.locale vs cookie `locale` | SYS §6; SYS §5.1 FR-005 ("stored in cookie") | Is the language remembered on the profile, in a cookie, or both? | Applied: stored on PROFILE for members; the cookie is used only for guests. |
+| synonym | DOCUMENT_SLOT.state vs `document_slots.status` | M5 §5.1 FR-003 (state); docs/screens/screen-spec-SC-27.md element 7 (status) | Same column, two names across FIELDS and SCREENS. Canonical: state. | Applied: `state` (SC-27 corrected 01/10/2026). |
+| type mismatch | COLLAB_REQUEST status on confirm: `confirmed` vs `closed` | M4 §5.1 FR-014 (confirmed); docs/screens/screen-spec-SC-25.md interaction 5 (`status = closed`) | SC-25 writes a value that is not in the enum. Correct the Screen Spec to `confirmed`? | Applied: `confirmed` (SC-25 corrected 01/10/2026). |
+| synonym | ORGANISATION vs `organizations` / `service_categories` | M4 §6; docs/screens/screen-spec-SC-19.md elements 3, 6, 8 | Screen Specs use US spelling and another name for service groups. One spelling for table names. | Applied: `organisation`, `organisation.service_groups` (SC-19, SC-20 corrected 01/10/2026). |
+| shared ownership | NOTIFICATION created by SYS, M4 and M7 functions | SYS §5.1 FR-007; M4 §5.1 FR-011, FR-015; M7 §5.1 FR-007 | Proposed owner SYS; other modules call F-SYS-07 instead of writing rows themselves. | Applied: owner SYS; M4 and M7 call F-SYS-07. |
+| shared ownership | EMAIL_DELIVERY created by SYS, M4 and M7 functions | SYS §5.1 FR-008; M4 §5.1 FR-015; M7 §5.1 FR-002 | Proposed owner SYS; M4/M7 call F-SYS-08. | Applied: owner SYS; M4 and M7 call F-SYS-08. |
+| shared ownership | DOCUMENT_ACCESS_LOG declared by M4 about DOCUMENT owned by M5 | M4 §6; M5 §6 | Which module owns the access log: M4 (who shares) or M5 (who stores)? | Applied: owner M4 (declared in M4 §6, written by F-M4-18); it only references DOCUMENT (M5). |
+| synonym | LOCATION_QUERY scene_description / shoot_month (FIELDS) = description / month (ENTITIES) | M3 §5.1 FR-011; M3 §6 | Canonical proposed: the FIELDS names scene_description and shoot_month (used in 04). | Applied: FIELDS names `scene_description`, `shoot_month`. |
+| synonym | PROJECT_GLOSSARY term_en / term_vi (FIELDS) = source_term / target_term (ENTITIES) | M5 §5.1 FR-004; M5 §6 | Canonical proposed: the FIELDS names term_en and term_vi (used in 04). | Applied: FIELDS names `term_en`, `term_vi`. |
+| synonym | AUDIT_LOG admin_id (write) = actor_id (search filter) | M10 §5.1 FR-008, FR-009 | Same person column under two names. Canonical proposed: admin_id. | Applied: `admin_id`; the search filter `actor_id` of F-M10-09 filters on it. |
+| collision | MODERATION_ITEM refers to "Organisation or LocationImage" through one content_id | M10 §6; M10 §5.1 FR-001 | One reference to two tables cannot carry a foreign key. Modelled as two nullable FKs with a CHECK (see 04 Structural findings); confirm. | Applied: two nullable foreign keys with a CHECK that exactly one is set and matches content_type (constraint `ck_moderation_item_one_target`). |
+| shared ownership | AUDIT_LOG written by the admin screens of M2, M3, M4 and by SYS role grants | M10 §1 Out of scope; SYS §5.2 BR-002 | Proposed owner M10; other modules never insert rows themselves — a trigger writes them (M10 §4.3, F-M10-08). | Applied: owner M10; other modules never insert rows — a trigger in the same transaction writes them (M10 §4.3). |
 
 ## Open questions
 
@@ -154,4 +154,4 @@ Nouns the FIELDS or RULES need the system to remember, with no declared entity. 
 
 
 ---
-*Human gate 1 (not delegable): fill the Decision column, review the implied entities, and rewrite each definition in your own words. Signed: ____________________  Date: __________*
+*Human gate 1 (not delegable): the Decision column records the choice applied in 04 on 01/10/2026 — confirm or change it, review the implied entities, and rewrite each definition in your own words. Signed: ____________________  Date: __________*

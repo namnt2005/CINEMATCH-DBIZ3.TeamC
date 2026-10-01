@@ -6,7 +6,7 @@ This folder holds everything written about CINEMATCH before any code: what the M
 
 | Path | What it is | Session |
 |---|---|---|
-| [`prd.md`](prd.md) | MVP Scope v3 (PRD): problem, users, MoSCoW with the spec file, FRs and screens delivering each item, change log since Session 3 | 7 |
+| [`prd.md`](prd.md) | MVP Scope v3.1 (PRD): problem, users and first pilot users, MoSCoW (13 Must) with the spec file, FRs and screens delivering each item, change log since Session 3, success criteria | 7 |
 | [`mvp-scope.md`](mvp-scope.md) | MVP scope: problem, users, MoSCoW priorities by module, what is out of scope | 1 |
 | [`function-list.md`](function-list.md) | Full Function List from System Design v2.0: 119 subfunctions (104 in the MVP, 15 in phase 2) with ID, module, priority and data types | 4 (Step 2) |
 | [`screen-list.md`](screen-list.md) | Full Screen List: 48 screens, with the 20 priority screens marked (Tier 1: 17 · Tier 2: 3) | 4 (Step 2) |
@@ -15,6 +15,7 @@ This folder holds everything written about CINEMATCH before any code: what the M
 | [`screens/`](screens/) | 41 Screen Specs (every MVP screen) and their annotated mockups in `screens/img/` | 4 (Step 4), completed 30/09/2026 |
 | [`word/`](word/) | Word copies of the MVP scope, specs, screen specs and data model, for submission | 4–5 |
 | [`env/`](env/) | Environment Readiness Report | 6 |
+| `ai-use-log.md` | Log of AI use: what each agent did, what a person checked or changed | 4–7 |
 
 ### architecture/
 
@@ -35,7 +36,7 @@ All diagrams are Mermaid code inside Markdown, so they render on GitHub and in t
 ```
 mvp-scope.md ──► function-list.md ──► spec/spec-<MODULE>.md ──► screens/screen-spec-<ID>.md ──► screens/img/<ID>.png
                        ▲                     │                          (badge n = inventory row n)
-               screen-list.md                └──►../data/ (entities, columns and relationships cite §5.1, §5.2, §6)
+               screen-list.md                └──►../data/ (entities, columns and relationships cite §5.1, §5.2, §6, §6.1)
 ```
 
 - A **Function List** row `F-M3-08` becomes `FR-008` in `spec/spec-M3.md`.
@@ -44,7 +45,7 @@ mvp-scope.md ──► function-list.md ──► spec/spec-<MODULE>.md ──�
 
 ## Rules for this folder
 
-- `function-list.md`, `screen-list.md`, `spec/` and `screens/` are the source of truth. AI agents read them and never edit them unless a person asks for a specific change (`../AGENTS.md`, rule 1).
+- `function-list.md`, `screen-list.md`, `spec/` and `screens/` are the source of truth. `spec/` and `screens/*.md` are generated from `../tools/specs_*.py` and `../tools/s*_en.py`: change the source, then rebuild (`../tools/README.md`). AI agents read them and never edit them unless a person asks for a specific change (`../AGENTS.md`, rule 1).
 - `word/` is generated from the Markdown by `../tools/make_word.py`. Change the Markdown, then rebuild; never edit a `.docx` by hand.
 - Keep the file names exactly as they are: other documents link to them by path.
 - Image names use a hyphen — `SC-14.png`, not `SC14.png` — or the mockups will not appear in the Screen Specs on GitHub.

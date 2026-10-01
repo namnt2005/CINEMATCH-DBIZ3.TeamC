@@ -1,0 +1,88 @@
+# -*- coding: utf-8 -*-
+"""Section 6.1 of each Spec Document: types and required flags of the §6 attributes that no §5.1 field declares.
+Added 01/10/2026 so that every column of the data model has a declared type (data review, criterion 7).
+(entity, attribute, type, required, note)"""
+
+ATTR_TYPES = {
+ "SYS": [
+  ("UserAccount", "created_at", "TIMESTAMPTZ", "Yes", "set by the system at sign-up"),
+  ("Profile", "producer_org_id", "UUID", "No", "empty for VFDA staff, Legal Board, admin and partner accounts, which are not created through sign-up (BR-002)"),
+  ("ProducerOrganisation", "producer_org_id", "UUID", "Yes", "identifier"),
+  ("Consent", "accepted_at", "TIMESTAMPTZ", "Yes", "BR-003"),
+  ("Notification", "read_at", "TIMESTAMPTZ", "No", "empty while unread (FR-009)"),
+  ("EmailDelivery", "email_delivery_id", "UUID", "Yes", "identifier; declared 01/10/2026 (no identifier before)"),
+ ],
+ "M1": [
+  ("SegmentRule", "segment_rule_id", "UUID", "Yes", "identifier (called rule_id in earlier drafts)"),
+  ("SegmentRule", "version", "VARCHAR(20)", "Yes", "e.g. 2026.1; the same answers always give the same segment within one version (BR-001)"),
+  ("SegmentRequirement", "requirement_code", "VARCHAR(40)", "Yes", "e.g. ART13_LICENCE"),
+  ("SegmentRequirement", "label_vi", "TEXT", "Yes", ""),
+  ("SegmentRequirement", "label_en", "TEXT", "Yes", ""),
+  ("SegmentRequirement", "needed", "BOOLEAN", "Yes", "*Needed* / *Not needed* on SC-02"),
+  ("SegmentDecision", "segment_decision_id", "UUID", "Yes", "identifier; declared 01/10/2026 (no identifier before)"),
+  ("SegmentDecision", "project_id", "UUID", "No", "set once the project is saved; exactly one of project_id and session_key is set"),
+  ("SegmentDecision", "session_key", "VARCHAR(40)", "No", "anonymous session before sign-up, e.g. `session:7c1e9a40`; never linked to a person"),
+  ("SegmentDecision", "segment_rule_id", "UUID", "No", "empty when the answers match no rule (§3 Edge cases)"),
+ ],
+ "M0": [
+  ("Project", "producer_org_id", "UUID", "Yes", "a project belongs to one producer organisation (§9)"),
+  ("ProjectMember", "user_id", "UUID", "No", "empty while an invitation is pending (FR-004)"),
+ ],
+ "M2": [
+  ("RuleSetVersion", "created_at", "TIMESTAMPTZ", "Yes", "time of the activation that created the version (FR-004)"),
+  ("RuleSetVersion", "created_by", "UUID", "Yes", "the Legal Board member who activated it"),
+  ("PrecheckRun", "project_id", "UUID", "No", "empty for a guest pre-check (US-1)"),
+  ("PrecheckRun", "created_at", "TIMESTAMPTZ", "Yes", ""),
+  ("PrecheckFinding", "span_start", "INTEGER", "Yes", "character position of the quoted passage in the submitted summary (0-based)"),
+  ("PrecheckFinding", "span_end", "INTEGER", "Yes", "span_start + number of characters of quoted_text"),
+  ("ComplianceRun", "run_id", "UUID", "Yes", "identifier"),
+  ("ComplianceRun", "project_id", "UUID", "Yes", ""),
+  ("ComplianceRun", "run_at", "TIMESTAMPTZ", "Yes", ""),
+  ("ComplianceFinding", "run_id", "UUID", "Yes", ""),
+ ],
+ "M3": [
+  ("Province", "name", "VARCHAR(80)", "Yes", "one of the 34 units (BR-006)"),
+  ("Province", "merged_from", "VARCHAR(80)[]", "No", "pre-2025 names that now belong to this unit (BR-006)"),
+  ("LocationImage", "location_id", "UUID", "Yes", ""),
+ ],
+ "M4": [
+  ("Organisation", "legal_form", "VARCHAR(60)", "Yes", "e.g. Công ty TNHH, Công ty cổ phần, Hộ kinh doanh"),
+  ("Organisation", "founded_year", "INTEGER", "No", ""),
+  ("Organisation", "hq_province", "INTEGER", "No", "a province_id (M3)"),
+  ("Organisation", "verified_until", "DATE", "No", "verified_at + 12 months (BR-004); empty when never verified"),
+  ("Organisation", "art13_eligible", "BOOLEAN", "Yes", "may sign the service agreement Article 13 requires (§10 question 3)"),
+  ("OrganisationMemberLayer", "portfolio", "VARCHAR(200)[]", "No", "project titles without client names"),
+  ("OrganisationMemberLayer", "intl_project_count", "INTEGER", "Yes", "0 or more"),
+  ("OrganisationPrivateLayer", "direct_contact", "VARCHAR(200)", "No", "name and phone of the contact person"),
+  ("VerificationRequest", "decided_by", "UUID", "No", "empty while pending"),
+  ("CollabRequest", "sent_at", "TIMESTAMPTZ", "Yes", ""),
+  ("CollabRequest", "confirmed_at", "TIMESTAMPTZ", "No", "set only when the producer confirms (BR-005)"),
+  ("CollabMessage", "author_id", "UUID", "Yes", ""),
+  ("CollabMessage", "created_at", "TIMESTAMPTZ", "Yes", "messages are never edited (BR-009)"),
+ ],
+ "M5": [
+  ("DocumentType", "segments", "ENUM(A, B, C)[]", "Yes", "segments that need this document"),
+  ("Document", "file_path", "TEXT", "Yes", "path in private storage; replaces `file BYTEA` of FR-002 (the file itself is not stored in a table)"),
+  ("Document", "version", "INTEGER", "Yes", "1, 2, … — previous versions are kept (FR-002)"),
+  ("Document", "uploaded_by", "UUID", "Yes", ""),
+  ("Document", "uploaded_at", "TIMESTAMPTZ", "Yes", ""),
+  ("ProjectGlossary", "project_id", "UUID", "Yes", "BR-006"),
+  ("PublicHoliday", "name", "VARCHAR(120)", "Yes", ""),
+  ("PublicHoliday", "start_date", "DATE", "Yes", ""),
+  ("PublicHoliday", "end_date", "DATE", "Yes", "not before start_date"),
+  ("PublicHoliday", "is_expected", "BOOLEAN", "Yes", "true for dates not yet officially announced (US-3)"),
+ ],
+ "M7": [
+  ("LocationInterest", "created_at", "TIMESTAMPTZ", "Yes", ""),
+  ("ProvinceNotice", "province_id", "INTEGER", "Yes", "the province the notice was addressed to, kept as sent even if the location's province later changes"),
+  ("ProvinceNotice", "drafted_at", "TIMESTAMPTZ", "Yes", ""),
+  ("ProvinceNotice", "sent_at", "TIMESTAMPTZ", "No", "empty until VFDA sends it"),
+  ("ProvinceNotice", "received_at", "TIMESTAMPTZ", "No", "empty until the province acknowledges it"),
+  ("ConsultationBooking", "member_id", "UUID", "Yes", ""),
+ ],
+ "M10": [
+  ("ModerationItem", "decided_by", "UUID", "No", "empty while pending"),
+  ("ModerationItem", "decided_at", "TIMESTAMPTZ", "No", "empty while pending"),
+  ("QuarterlyReport", "exported_at", "TIMESTAMPTZ", "No", "set only after the reread is recorded (BR-004)"),
+ ],
+}

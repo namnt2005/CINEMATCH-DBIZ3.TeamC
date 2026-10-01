@@ -20,7 +20,7 @@ This module is VFDA's own workspace: staff review what users publish before the 
 **In scope**
 
 - Admin overview with the work waiting for each VFDA team (SC-34).
-- Moderation queue for user-published content (organisation profiles, location photos submitted by partners), with approve or hide and a reason.
+- Moderation queue for user-published content (organisation profiles, location photos submitted by partners), with approve or hide and a reason (Must).
 - Demand index: six indicators aggregated from the platform's own data, as a table and charts, filtered by month, quarter or year.
 - Quarterly report: commentary drafted from the figures, reread by a staff member, exported as a VFDA-branded PDF.
 - Audit log: every administrative action is written to a log that cannot be edited (Must), and admins can search it (Should).
@@ -50,13 +50,13 @@ This module is VFDA's own workspace: staff review what users publish before the 
 
 ## 3. User scenarios and acceptance criteria
 
-### US-1 (P2): Nothing reaches the public unreviewed
+### US-1 (P1): Nothing reaches the public unreviewed
 
 **Journey.** As VFDA staff, I want every newly published organisation profile to wait in a queue until I approve it, so that VFDA's name is never attached to content it has not seen.
 
 **Acceptance scenarios**
 
-1. **Given** partner Mekong Frame Services edits its public profile description, **When** it saves, **Then** the change appears in the moderation queue with type `org_profile` and the public page keeps showing the previous approved text.
+1. **Given** partner Mekong Frame Co. edits its public profile description, **When** it saves, **Then** the change appears in the moderation queue with type `org_profile` and the public page keeps showing the previous approved text.
 2. **Given** an item in the queue, **When** staff choose *Hide* without typing a reason, **Then** the decision is refused with *A reason is required to hide content*.
 3. **Given** staff choose *Approve*, **When** the decision is saved, **Then** the new text is public within one minute and an audit record `content.approve` names the staff member, the item and the time.
 
@@ -163,8 +163,8 @@ sequenceDiagram
 
 | FR ID | DBIZ2 Subfunction ID | Requirement (system MUST ...) | Actor | Priority |
 |---|---|---|---|---|
-| FR-001 | F-M10-01 | The system SHOULD show VFDA staff a queue of user-published content awaiting review, filterable by content type. | VFDA Staff | Should |
-| FR-002 | F-M10-02 | The system SHOULD let VFDA staff approve or hide an item; hiding MUST carry a reason, and every decision is written to the audit log. | VFDA Staff | Should |
+| FR-001 | F-M10-01 | The system MUST show VFDA staff a queue of user-published content awaiting review, filterable by content type. | VFDA Staff | Must |
+| FR-002 | F-M10-02 | The system MUST let VFDA staff approve or hide an item; hiding MUST carry a reason, and every decision is written to the audit log. | VFDA Staff | Must |
 | FR-003 | F-M10-03 | The system SHOULD aggregate six demand indicators for a reporting period from the platform's own data only. | System | Should |
 | FR-004 | F-M10-04 | The system SHOULD show the indicators as a data table and charts, visible to the roles `vfda_staff` and `admin` only. | VFDA Staff | Should |
 | FR-005 | F-M10-05 | The system SHOULD let staff choose the reporting period by month, quarter or year. | VFDA Staff | Should |
@@ -220,12 +220,22 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 | DemandIndex | period, indicators (6 values with sample sizes) | derived from Project, ProducerOrganisation, LocationQuery, ProjectProvince, CollabRequest — not stored |
 | QuarterlyReport | report_id, period, demand_index, narrative_vi, narrative_en, reread_by, report_pdf_url, exported_at | prepared by UserAccount |
 
+### 6.1 Attribute types
+
+Types and required flags of the attributes above that no field in 5.1 declares (keys, timestamps, stored statuses). Every column of the data model now has a declared type.
+
+| Entity | Attribute | Type | Required | Notes |
+|---|---|---|---|---|
+| ModerationItem | `decided_by` | `UUID` | No | empty while pending |
+| ModerationItem | `decided_at` | `TIMESTAMPTZ` | No | empty while pending |
+| QuarterlyReport | `exported_at` | `TIMESTAMPTZ` | No | set only after the reread is recorded (BR-004) |
+
 ## 7. Screens involved
 
 | Screen ID | Screen name | Priority | Screen Spec file |
 |---|---|---|---|
 | SC-34 | Admin — Overview | Should | `docs/screens/screen-spec-SC-34.md` |
-| SC-38 | Admin — Content moderation | Should | `docs/screens/screen-spec-SC-38.md` |
+| SC-38 | Admin — Content moderation | Must | `docs/screens/screen-spec-SC-38.md` |
 | SC-39 | Admin — Demand index | Should | `docs/screens/screen-spec-SC-39.md` |
 | SC-40 | Admin — Quarterly report | Should | `docs/screens/screen-spec-SC-40.md` |
 | SC-41 | Admin — Audit log | Should | `docs/screens/screen-spec-SC-41.md` |
@@ -276,7 +286,7 @@ Where the 20-screen design or this spec differs from the DBIZ2 Function List, th
 
 | Topic | DBIZ2 / System Design v2.0 | This spec | Status |
 |---|---|---|---|
-| Module priority | Must (all nine subfunctions) | Should, except F-M10-08 (audit log write) which stays Must because M2, M3 and M4 depend on it | Changed — Group C proposal |
+| Module priority | Must (all nine subfunctions) | Should, except F-M10-01, F-M10-02 (moderation — BR-001 holds back partner content that M4 FR-001 publishes) and F-M10-08 (audit log write, needed by M2, M3, M4), which stay Must | Changed — Group C decision 01/10/2026 |
 | Moderated content types | org_profile, location, showcase | org_profile, location_image; showcase kept for phase 2 | Changed — Group C proposal |
 | Audit log filters | filter JSONB | four typed filters (person, action, from, to) | Changed — Group C proposal |
 | Report reread | Implicit (SEQ-12 note) | Explicit reread_by field and export gate (BR-004) | Added — Group C proposal |

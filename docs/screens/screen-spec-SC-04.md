@@ -39,14 +39,14 @@
 |---|---|---|---|---|---|
 | 1 | Account value block | List | static: 3 benefits | — | — |
 | 2 | *Create account* / *Log in* tabs | Toggle | static; tab selected by route | — | — |
-| 3 | Full name | Input | `profiles.full_name` | Yes | 2–80 characters |
+| 3 | Full name | Input | `profile.full_name` | Yes | 2–80 characters |
 | 4 | Work email | Input | `auth.users.email` | Yes | email format; not already in the system |
 | 5 | Password | Input (password) | sent directly to Supabase Auth, not stored by the app | Yes | ≥ 10 characters; strength meter |
-| 6 | Organisation / production company | Input | `organizations_producer.name` | Yes | 2–120 characters |
-| 7 | Country of headquarters | Toggle (dropdown) | `organizations_producer.country` — ISO 3166-1 alpha-2 code | Yes | only codes from the list |
-| 8 | Role in the crew | Toggle (dropdown) | `profiles.crew_role` — Producer / Director / Production coordinator / Line producer / Other | Yes | enum |
-| 9 | Website or company profile | Input | `organizations_producer.website` | No | valid URL if provided |
-| 10 | Terms consent checkbox | Toggle (checkbox) | `consents` — stores terms version and timestamp | Yes | must be ticked to enable the Create account button |
+| 6 | Organisation / production company | Input | `producer_organisation.org_name` | Yes | 2–120 characters |
+| 7 | Country of headquarters | Toggle (dropdown) | `producer_organisation.country` — ISO 3166-1 alpha-2 code | Yes | only codes from the list |
+| 8 | Role in the crew | Toggle (dropdown) | `profile.crew_role` — Producer / Director / Production coordinator / Line producer / Other | Yes | enum |
+| 9 | Website or company profile | Input | `producer_organisation.website` | No | valid URL if provided |
+| 10 | Terms consent checkbox | Toggle (checkbox) | `consent` — stores terms version and timestamp | Yes | must be ticked to enable the Create account button |
 | 11 | *Create account* button | Button | static | — | disabled while any required field is invalid |
 | 12 | Entry for Vietnamese suppliers | Text + link | static | — | — |
 | 13 | *Already have an account? Log in* line | Text + link | static | — | — |
@@ -67,7 +67,7 @@
 |---|---|---|---|---|
 | 1 | *Log in* tab | tap | Switches form, changes URL to `/login` | SC-05 (same layout) |
 | 2 | Email field | type | Validates format on blur | stays |
-| 3 | *Create account* button | tap | Calls Supabase Auth `signUp`, creates `profiles` + `organizations_producer` | stays (Check your inbox screen) |
+| 3 | *Create account* button | tap | Calls Supabase Auth `signUp`, creates `profile` + `producer_organisation` | stays (Check your inbox screen) |
 | 4 | Verification link in the email | tap | Verifies and creates a login session | SC-02 |
 | 5 | *Forgot password?* (Log in tab) | tap | — | SC-06 |
 | 6 | Terms / Policy links | tap | Open in a new tab | SC-43 / SC-42 |

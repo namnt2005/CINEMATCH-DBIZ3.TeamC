@@ -5,7 +5,7 @@
 import os, re, sys, subprocess, tempfile, shutil
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import importlib
-import s1_en, s2_en, s3_en, specs_a, specs_b, specs_c, mvp
+import s1_en, s2_en, s3_en, specs_a, specs_b, specs_c, specs_types, mvp
 _EXTRA = [importlib.import_module(n) for n in ("s4_en", "s5_en", "s6_en", "s7_en")
           if os.path.exists(os.path.join(os.path.dirname(os.path.abspath(__file__)), n + ".py"))]
 
@@ -208,6 +208,15 @@ def screens_of(mod):
     return [s for s, _ in SCREENS if modid(s["module"]) == mod]
 
 
+def attr_types_md(mid):
+    rows = specs_types.ATTR_TYPES.get(mid)
+    if not rows:
+        return ""
+    body = tbl(["Entity", "Attribute", "Type", "Required", "Notes"], [(e, f"`{a}`", f"`{t}`", r, n) for e, a, t, r, n in rows])
+    return ("\n### 6.1 Attribute types\n\nTypes and required flags of the attributes above that no field in 5.1 declares "
+            "(keys, timestamps, stored statuses). Every column of the data model now has a declared type.\n\n" + body + "\n")
+
+
 def module_md(m, mermaid_ok):
     mid = m["id"]
     unconf = lambda p: "onfirmed by the Client" not in p
@@ -321,7 +330,7 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 ## 6. Key entities
 
 {tbl(["Entity", "Attributes (from Input/Output fields)", "Relationships"], m['entities'])}
-
+{attr_types_md(mid)}
 ## 7. Screens involved
 
 {tbl(["Screen ID", "Screen name", "Priority", "Screen Spec file"], screens)}
@@ -364,7 +373,7 @@ def mvp_md():
     link = "\n".join(f"**{k}**\n\n{bullets(v)}\n" for k, v in mvp.LINK)
     return f"""# MVP Scope & Rough Sprint Backlog
 
-*Session 1 deliverable — Word version: `docs/word/Session-01-MVP-Scope-GroupC.docx`.*
+*Session 1 deliverable — Word version: `docs/word/Session-01-MVP-Scope-GroupC.docx`. Kept as the Session 1 record; the current scope is `docs/prd.md` (MVP Scope v3), which lists every change since.*
 
 | Team / Project | Date | Completed by |
 |---|---|---|

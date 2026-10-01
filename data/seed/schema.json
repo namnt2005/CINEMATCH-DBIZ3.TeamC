@@ -14,7 +14,8 @@
   ],
   "required": [
    "email",
-   "role"
+   "role",
+   "created_at"
   ],
   "fk": [],
   "enums": {
@@ -31,7 +32,33 @@
     "deactivated"
    ]
   },
-  "array_enums": {}
+  "array_enums": {},
+  "load_order": 1,
+  "file": "01_user_account.csv",
+  "owner": "SYS"
+ },
+ "PRODUCER_ORGANISATION": {
+  "table": "producer_organisation",
+  "columns": [
+   "producer_org_id",
+   "org_name",
+   "country",
+   "website"
+  ],
+  "pk": [
+   "producer_org_id"
+  ],
+  "required": [
+   "producer_org_id",
+   "org_name",
+   "country"
+  ],
+  "fk": [],
+  "enums": {},
+  "array_enums": {},
+  "load_order": 2,
+  "file": "02_producer_organisation.csv",
+  "owner": "SYS"
  },
  "PROFILE": {
   "table": "profile",
@@ -76,26 +103,10 @@
     "en"
    ]
   },
-  "array_enums": {}
- },
- "PRODUCER_ORGANISATION": {
-  "table": "producer_organisation",
-  "columns": [
-   "producer_org_id",
-   "org_name",
-   "country",
-   "website"
-  ],
-  "pk": [
-   "producer_org_id"
-  ],
-  "required": [
-   "org_name",
-   "country"
-  ],
-  "fk": [],
-  "enums": {},
-  "array_enums": {}
+  "array_enums": {},
+  "load_order": 3,
+  "file": "03_profile.csv",
+  "owner": "SYS"
  },
  "CONSENT": {
   "table": "consent",
@@ -110,7 +121,8 @@
   ],
   "required": [
    "user_id",
-   "consent_version"
+   "consent_version",
+   "accepted_at"
   ],
   "fk": [
    {
@@ -120,7 +132,10 @@
    }
   ],
   "enums": {},
-  "array_enums": {}
+  "array_enums": {},
+  "load_order": 4,
+  "file": "04_consent.csv",
+  "owner": "SYS"
  },
  "NOTIFICATION": {
   "table": "notification",
@@ -148,7 +163,10 @@
    }
   ],
   "enums": {},
-  "array_enums": {}
+  "array_enums": {},
+  "load_order": 5,
+  "file": "05_notification.csv",
+  "owner": "SYS"
  },
  "EMAIL_DELIVERY": {
   "table": "email_delivery",
@@ -165,6 +183,7 @@
    "email_delivery_id"
   ],
   "required": [
+   "email_delivery_id",
    "template_id",
    "recipient_email",
    "variables"
@@ -183,7 +202,10 @@
     "bounced"
    ]
   },
-  "array_enums": {}
+  "array_enums": {},
+  "load_order": 6,
+  "file": "06_email_delivery.csv",
+  "owner": "SYS"
  },
  "SEGMENT_RULE": {
   "table": "segment_rule",
@@ -199,7 +221,9 @@
    "segment_rule_id"
   ],
   "required": [
-   "q1_shoot_in_vn"
+   "segment_rule_id",
+   "q1_shoot_in_vn",
+   "version"
   ],
   "fk": [],
   "enums": {
@@ -219,7 +243,10 @@
     "C"
    ]
   },
-  "array_enums": {}
+  "array_enums": {},
+  "load_order": 7,
+  "file": "07_segment_rule.csv",
+  "owner": "M1"
  },
  "SEGMENT_REQUIREMENT": {
   "table": "segment_requirement",
@@ -234,7 +261,12 @@
    "segment",
    "requirement_code"
   ],
-  "required": [],
+  "required": [
+   "requirement_code",
+   "label_vi",
+   "label_en",
+   "needed"
+  ],
   "fk": [],
   "enums": {
    "segment": [
@@ -243,13 +275,79 @@
     "C"
    ]
   },
-  "array_enums": {}
+  "array_enums": {},
+  "load_order": 8,
+  "file": "08_segment_requirement.csv",
+  "owner": "M1"
+ },
+ "PROJECT": {
+  "table": "project",
+  "columns": [
+   "project_id",
+   "producer_org_id",
+   "project_name",
+   "format",
+   "segment",
+   "shoot_date",
+   "buffer_days",
+   "shoot_days_vn",
+   "crew_size_band",
+   "logline",
+   "stage",
+   "updated_at"
+  ],
+  "pk": [
+   "project_id"
+  ],
+  "required": [
+   "producer_org_id",
+   "project_name",
+   "format",
+   "segment",
+   "buffer_days"
+  ],
+  "fk": [
+   {
+    "column": "producer_org_id",
+    "references": "PRODUCER_ORGANISATION",
+    "ref_column": "producer_org_id"
+   }
+  ],
+  "enums": {
+   "format": [
+    "feature",
+    "documentary",
+    "commercial",
+    "tv",
+    "music_video"
+   ],
+   "segment": [
+    "A",
+    "B",
+    "C"
+   ],
+   "crew_size_band": [
+    "u15",
+    "15_50",
+    "o50"
+   ],
+   "stage": [
+    "draft",
+    "preparing",
+    "archived"
+   ]
+  },
+  "array_enums": {},
+  "load_order": 9,
+  "file": "09_project.csv",
+  "owner": "M0"
  },
  "SEGMENT_DECISION": {
   "table": "segment_decision",
   "columns": [
    "segment_decision_id",
-   "session_or_project_id",
+   "project_id",
+   "session_key",
    "segment_rule_id",
    "q1_shoot_in_vn",
    "q2_release",
@@ -264,13 +362,14 @@
    "segment_decision_id"
   ],
   "required": [
+   "segment_decision_id",
    "q1_shoot_in_vn"
   ],
   "fk": [
    {
-    "column": "session_or_project_id",
+    "column": "project_id",
     "references": "PROJECT",
-    "ref_column": null
+    "ref_column": "project_id"
    },
    {
     "column": "segment_rule_id",
@@ -308,65 +407,10 @@
     "equipment",
     "logistics"
    ]
-  }
- },
- "PROJECT": {
-  "table": "project",
-  "columns": [
-   "project_id",
-   "producer_org_id",
-   "project_name",
-   "format",
-   "segment",
-   "shoot_date",
-   "buffer_days",
-   "shoot_days_vn",
-   "crew_size_band",
-   "logline",
-   "stage",
-   "updated_at"
-  ],
-  "pk": [
-   "project_id"
-  ],
-  "required": [
-   "project_name",
-   "format",
-   "segment",
-   "buffer_days"
-  ],
-  "fk": [
-   {
-    "column": "producer_org_id",
-    "references": "PRODUCER_ORGANISATION",
-    "ref_column": "producer_org_id"
-   }
-  ],
-  "enums": {
-   "format": [
-    "feature",
-    "documentary",
-    "commercial",
-    "tv",
-    "music_video"
-   ],
-   "segment": [
-    "A",
-    "B",
-    "C"
-   ],
-   "crew_size_band": [
-    "u15",
-    "15_50",
-    "o50"
-   ],
-   "stage": [
-    "draft",
-    "preparing",
-    "archived"
-   ]
   },
-  "array_enums": {}
+  "load_order": 10,
+  "file": "10_segment_decision.csv",
+  "owner": "M1"
  },
  "PROJECT_MEMBER": {
   "table": "project_member",
@@ -408,7 +452,40 @@
     "accepted"
    ]
   },
-  "array_enums": {}
+  "array_enums": {},
+  "load_order": 11,
+  "file": "11_project_member.csv",
+  "owner": "M0"
+ },
+ "PROVINCE": {
+  "table": "province",
+  "columns": [
+   "province_id",
+   "name",
+   "slug",
+   "region",
+   "merged_from"
+  ],
+  "pk": [
+   "province_id"
+  ],
+  "required": [
+   "province_id",
+   "name",
+   "slug"
+  ],
+  "fk": [],
+  "enums": {
+   "region": [
+    "north",
+    "central",
+    "south"
+   ]
+  },
+  "array_enums": {},
+  "load_order": 12,
+  "file": "12_province.csv",
+  "owner": "M3"
  },
  "PROJECT_PROVINCE": {
   "table": "project_province",
@@ -436,7 +513,10 @@
    }
   ],
   "enums": {},
-  "array_enums": {}
+  "array_enums": {},
+  "load_order": 13,
+  "file": "13_project_province.csv",
+  "owner": "M0"
  },
  "READINESS_SNAPSHOT": {
   "table": "readiness_snapshot",
@@ -461,7 +541,37 @@
    }
   ],
   "enums": {},
-  "array_enums": {}
+  "array_enums": {},
+  "load_order": 14,
+  "file": "14_readiness_snapshot.csv",
+  "owner": "M0"
+ },
+ "RULE_SET_VERSION": {
+  "table": "rule_set_version",
+  "columns": [
+   "rule_version",
+   "created_at",
+   "created_by"
+  ],
+  "pk": [
+   "rule_version"
+  ],
+  "required": [
+   "created_at",
+   "created_by"
+  ],
+  "fk": [
+   {
+    "column": "created_by",
+    "references": "USER_ACCOUNT",
+    "ref_column": null
+   }
+  ],
+  "enums": {},
+  "array_enums": {},
+  "load_order": 15,
+  "file": "15_rule_set_version.csv",
+  "owner": "M2"
  },
  "LEGAL_RULE": {
   "table": "legal_rule",
@@ -533,28 +643,10 @@
     "retired"
    ]
   },
-  "array_enums": {}
- },
- "RULE_SET_VERSION": {
-  "table": "rule_set_version",
-  "columns": [
-   "rule_version",
-   "created_at",
-   "created_by"
-  ],
-  "pk": [
-   "rule_version"
-  ],
-  "required": [],
-  "fk": [
-   {
-    "column": "created_by",
-    "references": "USER_ACCOUNT",
-    "ref_column": null
-   }
-  ],
-  "enums": {},
-  "array_enums": {}
+  "array_enums": {},
+  "load_order": 16,
+  "file": "16_legal_rule.csv",
+  "owner": "M2"
  },
  "PRECHECK_RUN": {
   "table": "precheck_run",
@@ -574,7 +666,8 @@
   ],
   "required": [
    "synopsis_hash",
-   "lang"
+   "lang",
+   "created_at"
   ],
   "fk": [
    {
@@ -599,7 +692,10 @@
     "high"
    ]
   },
-  "array_enums": {}
+  "array_enums": {},
+  "load_order": 17,
+  "file": "17_precheck_run.csv",
+  "owner": "M2"
  },
  "PRECHECK_FINDING": {
   "table": "precheck_finding",
@@ -618,7 +714,9 @@
    "span_start"
   ],
   "required": [
-   "brief_id"
+   "brief_id",
+   "span_start",
+   "span_end"
   ],
   "fk": [
    {
@@ -633,7 +731,10 @@
    }
   ],
   "enums": {},
-  "array_enums": {}
+  "array_enums": {},
+  "load_order": 18,
+  "file": "18_precheck_finding.csv",
+  "owner": "M2"
  },
  "COMPLIANCE_RUN": {
   "table": "compliance_run",
@@ -646,7 +747,11 @@
   "pk": [
    "run_id"
   ],
-  "required": [],
+  "required": [
+   "run_id",
+   "project_id",
+   "run_at"
+  ],
   "fk": [
    {
     "column": "project_id",
@@ -660,7 +765,10 @@
    }
   ],
   "enums": {},
-  "array_enums": {}
+  "array_enums": {},
+  "load_order": 19,
+  "file": "19_compliance_run.csv",
+  "owner": "M2"
  },
  "COMPLIANCE_FINDING": {
   "table": "compliance_finding",
@@ -676,7 +784,8 @@
    "finding_id"
   ],
   "required": [
-   "finding_id"
+   "finding_id",
+   "run_id"
   ],
   "fk": [
    {
@@ -696,7 +805,10 @@
     "reviewed"
    ]
   },
-  "array_enums": {}
+  "array_enums": {},
+  "load_order": 20,
+  "file": "20_compliance_finding.csv",
+  "owner": "M2"
  },
  "LOCATION": {
   "table": "location",
@@ -720,6 +832,7 @@
    "months_to_avoid",
    "permit_complexity",
    "restriction_note",
+   "availability",
    "intake_status",
    "published",
    "blocked_reason"
@@ -740,7 +853,8 @@
    "lodging_20km",
    "grid_power",
    "truck_access",
-   "permit_complexity"
+   "permit_complexity",
+   "availability"
   ],
   "fk": [
    {
@@ -759,6 +873,11 @@
     "low",
     "medium",
     "high"
+   ],
+   "availability": [
+    "open",
+    "survey_in_progress",
+    "paused"
    ],
    "intake_status": [
     "awaiting_contact",
@@ -783,7 +902,10 @@
     "dunes",
     "mangrove"
    ]
-  }
+  },
+  "load_order": 21,
+  "file": "21_location.csv",
+  "owner": "M3"
  },
  "LOCATION_IMAGE": {
   "table": "location_image",
@@ -798,6 +920,7 @@
    "image_url"
   ],
   "required": [
+   "location_id",
    "image_source",
    "usage_right"
   ],
@@ -815,7 +938,10 @@
     "hidden"
    ]
   },
-  "array_enums": {}
+  "array_enums": {},
+  "load_order": 22,
+  "file": "22_location_image.csv",
+  "owner": "M3"
  },
  "AUTHORITY_CONTACT": {
   "table": "authority_contact",
@@ -852,33 +978,10 @@
    }
   ],
   "enums": {},
-  "array_enums": {}
- },
- "PROVINCE": {
-  "table": "province",
-  "columns": [
-   "province_id",
-   "name",
-   "slug",
-   "region",
-   "merged_from"
-  ],
-  "pk": [
-   "province_id"
-  ],
-  "required": [
-   "province_id",
-   "slug"
-  ],
-  "fk": [],
-  "enums": {
-   "region": [
-    "north",
-    "central",
-    "south"
-   ]
-  },
-  "array_enums": {}
+  "array_enums": {},
+  "load_order": 23,
+  "file": "23_authority_contact.csv",
+  "owner": "M3"
  },
  "LOCATION_QUERY": {
   "table": "location_query",
@@ -903,7 +1006,10 @@
    }
   ],
   "enums": {},
-  "array_enums": {}
+  "array_enums": {},
+  "load_order": 24,
+  "file": "24_location_query.csv",
+  "owner": "M3"
  },
  "PROJECT_SHORTLIST": {
   "table": "project_shortlist",
@@ -939,7 +1045,10 @@
     "backup"
    ]
   },
-  "array_enums": {}
+  "array_enums": {},
+  "load_order": 25,
+  "file": "25_project_shortlist.csv",
+  "owner": "M3"
  },
  "ORGANISATION": {
   "table": "organisation",
@@ -962,8 +1071,10 @@
   ],
   "required": [
    "org_name",
+   "legal_form",
    "service_groups",
-   "provinces"
+   "provinces",
+   "art13_eligible"
   ],
   "fk": [
    {
@@ -993,7 +1104,10 @@
     "insurance_legal",
     "post_production"
    ]
-  }
+  },
+  "load_order": 26,
+  "file": "26_organisation.csv",
+  "owner": "M4"
  },
  "ORGANISATION_MEMBER_LAYER": {
   "table": "organisation_member_layer",
@@ -1009,7 +1123,8 @@
    "org_id"
   ],
   "required": [
-   "org_id"
+   "org_id",
+   "intl_project_count"
   ],
   "fk": [
    {
@@ -1019,7 +1134,10 @@
    }
   ],
   "enums": {},
-  "array_enums": {}
+  "array_enums": {},
+  "load_order": 27,
+  "file": "27_organisation_member_layer.csv",
+  "owner": "M4"
  },
  "ORGANISATION_PRIVATE_LAYER": {
   "table": "organisation_private_layer",
@@ -1043,7 +1161,10 @@
    }
   ],
   "enums": {},
-  "array_enums": {}
+  "array_enums": {},
+  "load_order": 28,
+  "file": "28_organisation_private_layer.csv",
+  "owner": "M4"
  },
  "VERIFICATION_REQUEST": {
   "table": "verification_request",
@@ -1083,7 +1204,10 @@
     "rejected"
    ]
   },
-  "array_enums": {}
+  "array_enums": {},
+  "load_order": 29,
+  "file": "29_verification_request.csv",
+  "owner": "M4"
  },
  "COLLAB_REQUEST": {
   "table": "collab_request",
@@ -1105,7 +1229,8 @@
   "required": [
    "project_id",
    "org_id",
-   "services"
+   "services",
+   "sent_at"
   ],
   "fk": [
    {
@@ -1130,7 +1255,10 @@
     "withdrawn"
    ]
   },
-  "array_enums": {}
+  "array_enums": {},
+  "load_order": 30,
+  "file": "30_collab_request.csv",
+  "owner": "M4"
  },
  "COLLAB_MESSAGE": {
   "table": "collab_message",
@@ -1145,7 +1273,9 @@
    "message_id"
   ],
   "required": [
-   "request_id"
+   "request_id",
+   "author_id",
+   "created_at"
   ],
   "fk": [
    {
@@ -1160,7 +1290,10 @@
    }
   ],
   "enums": {},
-  "array_enums": {}
+  "array_enums": {},
+  "load_order": 31,
+  "file": "31_collab_message.csv",
+  "owner": "M4"
  },
  "NDA_ACCEPTANCE": {
   "table": "nda_acceptance",
@@ -1194,37 +1327,10 @@
     "partner"
    ]
   },
-  "array_enums": {}
- },
- "DOCUMENT_ACCESS_LOG": {
-  "table": "document_access_log",
-  "columns": [
-   "access_log_id",
-   "document_id",
-   "viewer_id",
-   "viewed_at"
-  ],
-  "pk": [
-   "access_log_id"
-  ],
-  "required": [
-   "document_id",
-   "viewer_id"
-  ],
-  "fk": [
-   {
-    "column": "document_id",
-    "references": "DOCUMENT",
-    "ref_column": "document_id"
-   },
-   {
-    "column": "viewer_id",
-    "references": "USER_ACCOUNT",
-    "ref_column": null
-   }
-  ],
-  "enums": {},
-  "array_enums": {}
+  "array_enums": {},
+  "load_order": 32,
+  "file": "32_nda_acceptance.csv",
+  "owner": "M4"
  },
  "DOCUMENT_TYPE": {
   "table": "document_type",
@@ -1239,7 +1345,9 @@
   "pk": [
    "doc_code"
   ],
-  "required": [],
+  "required": [
+   "segments"
+  ],
   "fk": [],
   "enums": {
    "basis": [
@@ -1248,7 +1356,16 @@
     "location"
    ]
   },
-  "array_enums": {}
+  "array_enums": {
+   "segments": [
+    "A",
+    "B",
+    "C"
+   ]
+  },
+  "load_order": 33,
+  "file": "33_document_type.csv",
+  "owner": "M5"
  },
  "DOCUMENT_SLOT": {
   "table": "document_slot",
@@ -1285,7 +1402,10 @@
     "missing"
    ]
   },
-  "array_enums": {}
+  "array_enums": {},
+  "load_order": 34,
+  "file": "34_document_slot.csv",
+  "owner": "M5"
  },
  "DOCUMENT": {
   "table": "document",
@@ -1303,7 +1423,11 @@
   ],
   "required": [
    "project_id",
-   "doc_code"
+   "doc_code",
+   "file_path",
+   "version",
+   "uploaded_by",
+   "uploaded_at"
   ],
   "fk": [
    {
@@ -1323,7 +1447,43 @@
    }
   ],
   "enums": {},
-  "array_enums": {}
+  "array_enums": {},
+  "load_order": 35,
+  "file": "35_document.csv",
+  "owner": "M5"
+ },
+ "DOCUMENT_ACCESS_LOG": {
+  "table": "document_access_log",
+  "columns": [
+   "access_log_id",
+   "document_id",
+   "viewer_id",
+   "viewed_at"
+  ],
+  "pk": [
+   "access_log_id"
+  ],
+  "required": [
+   "document_id",
+   "viewer_id"
+  ],
+  "fk": [
+   {
+    "column": "document_id",
+    "references": "DOCUMENT",
+    "ref_column": "document_id"
+   },
+   {
+    "column": "viewer_id",
+    "references": "USER_ACCOUNT",
+    "ref_column": null
+   }
+  ],
+  "enums": {},
+  "array_enums": {},
+  "load_order": 36,
+  "file": "36_document_access_log.csv",
+  "owner": "M4"
  },
  "BILINGUAL_DOCUMENT": {
   "table": "bilingual_document",
@@ -1333,8 +1493,7 @@
    "structure_version",
    "synopsis_en",
    "project_meta",
-   "pdf_url",
-   "watermark"
+   "pdf_url"
   ],
   "pk": [
    "project_id",
@@ -1357,7 +1516,10 @@
    }
   ],
   "enums": {},
-  "array_enums": {}
+  "array_enums": {},
+  "load_order": 37,
+  "file": "37_bilingual_document.csv",
+  "owner": "M5"
  },
  "BILINGUAL_PARAGRAPH": {
   "table": "bilingual_paragraph",
@@ -1408,7 +1570,10 @@
     "reviewed"
    ]
   },
-  "array_enums": {}
+  "array_enums": {},
+  "load_order": 38,
+  "file": "38_bilingual_paragraph.csv",
+  "owner": "M5"
  },
  "PROJECT_GLOSSARY": {
   "table": "project_glossary",
@@ -1421,7 +1586,9 @@
    "project_id",
    "term_en"
   ],
-  "required": [],
+  "required": [
+   "project_id"
+  ],
   "fk": [
    {
     "column": "project_id",
@@ -1430,7 +1597,10 @@
    }
   ],
   "enums": {},
-  "array_enums": {}
+  "array_enums": {},
+  "load_order": 39,
+  "file": "39_project_glossary.csv",
+  "owner": "M5"
  },
  "PUBLIC_HOLIDAY": {
   "table": "public_holiday",
@@ -1444,10 +1614,18 @@
    "name",
    "start_date"
   ],
-  "required": [],
+  "required": [
+   "name",
+   "start_date",
+   "end_date",
+   "is_expected"
+  ],
   "fk": [],
   "enums": {},
-  "array_enums": {}
+  "array_enums": {},
+  "load_order": 40,
+  "file": "40_public_holiday.csv",
+  "owner": "M5"
  },
  "LOCATION_INTEREST": {
   "table": "location_interest",
@@ -1462,7 +1640,8 @@
   ],
   "required": [
    "project_id",
-   "location_id"
+   "location_id",
+   "created_at"
   ],
   "fk": [
    {
@@ -1477,7 +1656,10 @@
    }
   ],
   "enums": {},
-  "array_enums": {}
+  "array_enums": {},
+  "load_order": 41,
+  "file": "41_location_interest.csv",
+  "owner": "M7"
  },
  "PROVINCE_NOTICE": {
   "table": "province_notice",
@@ -1500,8 +1682,10 @@
   ],
   "required": [
    "interest_id",
+   "province_id",
    "project_summary",
    "authority_email",
+   "drafted_at",
    "reviewed_by",
    "response"
   ],
@@ -1534,7 +1718,10 @@
     "cannot_support"
    ]
   },
-  "array_enums": {}
+  "array_enums": {},
+  "load_order": 42,
+  "file": "42_province_notice.csv",
+  "owner": "M7"
  },
  "CONSULTATION_BOOKING": {
   "table": "consultation_booking",
@@ -1551,6 +1738,7 @@
    "booking_id"
   ],
   "required": [
+   "member_id",
    "topic",
    "slot_start",
    "timezone",
@@ -1581,7 +1769,10 @@
     "rescheduled"
    ]
   },
-  "array_enums": {}
+  "array_enums": {},
+  "load_order": 43,
+  "file": "43_consultation_booking.csv",
+  "owner": "M7"
  },
  "MODERATION_ITEM": {
   "table": "moderation_item",
@@ -1637,7 +1828,10 @@
     "hidden"
    ]
   },
-  "array_enums": {}
+  "array_enums": {},
+  "load_order": 44,
+  "file": "44_moderation_item.csv",
+  "owner": "M10"
  },
  "AUDIT_LOG": {
   "table": "audit_log",
@@ -1663,7 +1857,10 @@
    }
   ],
   "enums": {},
-  "array_enums": {}
+  "array_enums": {},
+  "load_order": 45,
+  "file": "45_audit_log.csv",
+  "owner": "M10"
  },
  "QUARTERLY_REPORT": {
   "table": "quarterly_report",
@@ -1697,6 +1894,9 @@
    }
   ],
   "enums": {},
-  "array_enums": {}
+  "array_enums": {},
+  "load_order": 46,
+  "file": "46_quarterly_report.csv",
+  "owner": "M10"
  }
 }

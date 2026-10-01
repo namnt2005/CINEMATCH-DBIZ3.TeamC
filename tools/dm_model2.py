@@ -7,8 +7,8 @@
 R = [
  ("USER_ACCOUNT","||","--","||","PROFILE","has",
   "Each user account has exactly one profile","Each profile belongs to exactly one user account","neither","SYS §6 (\"has one Profile\"); SYS §5.1 FR-001 full_name Req"),
- ("PRODUCER_ORGANISATION","||","..","|{","PROFILE","employs",
-  "Each producer organisation employs one or more profiles","Each profile works for exactly one producer organisation","neither","SYS §6 (\"belongs to ProducerOrganisation\"); SYS §5.1 FR-001 org_name Req"),
+ ("PRODUCER_ORGANISATION","|o","..","o{","PROFILE","employs",
+  "Each producer organisation employs zero or more profiles","Each profile works for zero or one producer organisation (none for VFDA staff, Legal Board, admin and partner accounts)","both sides","SYS §6 (\"belongs to ProducerOrganisation\"); SYS §5.1 FR-001 org_name Req; SYS §5.2 BR-002; SYS §6.1 producer_org_id No"),
  ("USER_ACCOUNT","||","--","|{","CONSENT","gives",
   "Each user account gives one or more consents","Each consent is given by exactly one user account","neither","SYS §6; SYS §5.1 FR-001 consent_version Req"),
  ("USER_ACCOUNT","||","--","o{","NOTIFICATION","receives",
@@ -72,7 +72,7 @@ R = [
  ("ORGANISATION","||","--","o|","ORGANISATION_PRIVATE_LAYER","shows confirmed partners",
   "Each organisation shows confirmed partners zero or one private layer","Each private layer belongs to exactly one organisation","ORGANISATION_PRIVATE_LAYER side","M4 §6; M4 §5.1 FR-001 (rate_card, past_clients Opt)"),
  ("PROVINCE","|o","..","o{","ORGANISATION","hosts the headquarters of",
-  "Each province hosts the headquarters of zero or more organisations","Each organisation has its headquarters in zero or one province","both sides (ORGANISATION side unsettled: hq_province has no Req flag)","M4 §6 (hq_province)"),
+  "Each province hosts the headquarters of zero or more organisations","Each organisation has its headquarters in zero or one province","both sides","M4 §6 (hq_province); M4 §6.1 hq_province INTEGER No"),
  ("ORGANISATION","||","--","o{","VERIFICATION_REQUEST","applies through",
   "Each organisation applies through zero or more verification requests","Each verification request is made by exactly one organisation","VERIFICATION_REQUEST side","M4 §6; M4 §5.1 FR-008"),
  ("USER_ACCOUNT","|o","..","o{","VERIFICATION_REQUEST","decides",
@@ -145,7 +145,8 @@ UNLINKED = {  # stored entities with no citable relationship (open questions, pe
 
 OQ_03 = [
  ("[NEEDS CLARIFICATION: Is LEGAL_RULE ↔ RULE_SET_VERSION one-to-many (as M2 §6 says) or many-to-many (every version re-includes all active rules)?]","Yes","M2 owner","One-to-many as declared; a rule points to the version that activated it","Re-running an old check cannot reconstruct the exact rule set of that version."),
- ("[NEEDS CLARIFICATION: Do VFDA staff, partner and admin accounts also need a PRODUCER_ORGANISATION? The diagram says every profile works for exactly one.]","Yes","SYS owner","Exactly one, as sign-up requires org_name (SYS FR-001)","Staff and partner accounts created by an admin would need a fake producer company."),
+ ("[NEEDS CLARIFICATION: Do VFDA staff, partner and admin accounts also need a PRODUCER_ORGANISATION? The diagram says every profile works for exactly one.]","Yes","SYS owner","Exactly one, as sign-up requires org_name (SYS FR-001)","Staff and partner accounts created by an admin would need a fake producer company.",
+  "Resolved 01/10/2026 — zero or one: SYS §6.1 declares producer_org_id optional for accounts not created through sign-up (SYS BR-002); 03 and 04 corrected together."),
  ("[NEEDS CLARIFICATION: Is a province notice drafted at the moment the interest is saved (1:1), or can an interest exist without a notice?]","No","M7 owner","1:1, per M7 US-1","If notices are optional, PROVINCE_NOTICE side becomes zero-or-one."),
  ("[NEEDS CLARIFICATION: Is an email delivery linked to at most one notification, or can one digest email carry several?]","No","SYS owner","At most one","A digest would need an association entity."),
  ("[NEEDS CLARIFICATION: Which entity links SEGMENT_REQUIREMENT to DOCUMENT_TYPE (M5 BR-004 builds the kit from segment_requirements)?]","Yes","M1 + M5 owners","No link drawn","The document kit cannot be generated from data (M5 BR-004) without it."),
@@ -216,7 +217,8 @@ C["SEGMENT_REQUIREMENT"] = [
 ]
 C["SEGMENT_DECISION"] = [
  ("segment_decision_id",ND,"not declared","PK","none — no identifier declared (open question)",None),
- ("session_or_project_id",ND,"not declared","FK","M1 §6 (one column for two meanings — see Structural findings)","PROJECT"),
+ ("project_id",ND,"not declared","FK","M1 §6 (\"belongs to Project (M0) once saved\")","PROJECT"),
+ ("session_key",ND,"not declared","","M1 §6 (anonymous session before sign-up)",None),
  ("segment_rule_id",ND,"not declared","FK","M1 §6 (\"used by SegmentDecision\")","SEGMENT_RULE"),
  ("q1_shoot_in_vn","BOOLEAN","Req","","M1 §5.1 FR-002 (answers)",None),
  ("q2_release","ENUM(abroad, vietnam, both)","Opt","","M1 §5.1 FR-002 (Req when q1 = true)",None),
@@ -344,6 +346,7 @@ C["LOCATION"] = [
  ("months_to_avoid","ARRAY<INTEGER>","Opt","","M3 §5.1 FR-002",None),
  ("permit_complexity","ENUM(low, medium, high)","Req","","M3 §5.1 FR-002",None),
  ("restriction_note","TEXT","Opt","","M3 §5.1 FR-002",None),
+ ("availability","ENUM(open, survey_in_progress, paused)","Req","","M3 §5.1 FR-002; M3 §5.2 BR-010",None),
  ("intake_status","ENUM(awaiting_contact, published, unpublished)","system-set","","M3 §5.1 FR-002 (OUT); M3 §6; M3 §5.2 BR-008 (unpublished, never deleted)",None),
  ("published","BOOLEAN","system-set","","M3 §5.1 FR-005 (OUT); M3 §5.2 BR-004",None),
  ("blocked_reason","TEXT","system-set","","M3 §5.1 FR-005 (OUT)",None),
@@ -477,7 +480,6 @@ C["BILINGUAL_DOCUMENT"] = [
  ("synopsis_en","TEXT","Req","","M5 §5.1 FR-004, FR-005",None),
  ("project_meta","JSONB","Req","","M5 §5.1 FR-004 (copy of project data — see Structural findings)",None),
  ("pdf_url","TEXT","system-set","","M5 §5.1 FR-005 (OUT)",None),
- ("watermark","BOOLEAN","system-set","","M5 §5.1 FR-005 (OUT, always true); M5 §5.2 BR-001",None),
 ]
 C["BILINGUAL_PARAGRAPH"] = [
  ("project_id","UUID","not declared","PK, FK","M5 §6 (belongs to BilingualDocument)","BILINGUAL_DOCUMENT"),
@@ -561,6 +563,24 @@ C["QUARTERLY_REPORT"] = [
  ("exported_at",ND,"not declared","","M10 §6",None),
 ]
 
+# ---------------------------------------------------------------- §6.1 attribute types (declared 01/10/2026)
+import re as _re
+from specs_types import ATTR_TYPES as _AT
+def _snake(n): return _re.sub(r"(?<!^)(?=[A-Z])", "_", n).upper()
+def _arr(t): return f"ARRAY<{t[:-2]}>" if t.endswith("[]") else t
+_DECLARED = {}
+for _mod, _rows in _AT.items():
+    for _ent, _att, _typ, _req, _note in _rows:
+        _DECLARED[(_snake(_ent), _att)] = (_arr(_typ), "Req" if _req == "Yes" else "Opt", f"{_mod} §6.1")
+for _e, _cols in C.items():
+    for _i, _c in enumerate(_cols):
+        _d = _DECLARED.get((_e, _c[0]))
+        if _d and _c[1] == ND:
+            _cite = _c[4] if not _c[4].startswith("none") else ""
+            _cols[_i] = (_c[0], _d[0], _d[1], _c[3], (_cite + "; " if _cite else "") + _d[2], _c[5])
+_unused = [k for k in _DECLARED if not any(c[0] == k[1] for c in C.get(k[0], []))]
+assert not _unused, f"§6.1 attributes with no column: {_unused}"
+
 NATURAL_KEY = {
  "USER_ACCOUNT":"email — one account per email (SYS §3 US-1, third criterion).",
  "PROFILE":"user_id — one profile per account (SYS §6).",
@@ -610,7 +630,7 @@ NATURAL_KEY = {
  "QUARTERLY_REPORT":"period_start + period_end.",
 }
 
-# (field, source A, source B)  — Decision left empty
+# (field, source A, source B); TYPE_DECISIONS[i] = type applied in 04 and in the schema (confirm at human gate 4)
 TYPE_CONFLICTS = [
  ("rule set version","M2 §5.1 FR-002: version INTEGER (OUT)","M2 §5.1 FR-004: rule_version VARCHAR(20) (OUT); M2 §3 US-1 \"2026.08\""),
  ("PROJECT.shoot_date","M0 §5.1 FR-001: DATE Opt","M5 §5.1 FR-007 and M2 §5.1 FR-017: DATE Req"),
@@ -627,6 +647,24 @@ TYPE_CONFLICTS = [
  ("PROVINCE_NOTICE.reviewed_by / response","M7 §5.1 FR-002 reviewed_by Req; FR-003 response Req","M7 §3 US-1: notice drafted before any review or reply (must be Opt in storage)"),
  ("LEGAL_RULE.topic","M2 §5.1 FR-002: topic ENUM(security, history, religion, privacy, dossier, public_order, heritage) Req; FR-001 filter_topic ENUM","M2 §5.1 FR-015: topic VARCHAR(60) Opt (public filter)"),
  ("QUARTERLY_REPORT.reread_by","M10 §5.1 FR-007: reread_by UUID Req","M10 §3 US-3: a draft exists before anyone rereads it (must be Opt in storage)"),
+]
+
+TYPE_DECISIONS = [
+ "VARCHAR(20), e.g. `2026.08` (FR-004 and US-1 win; FR-002's INTEGER is a slip).",
+ "Optional in storage; required by the functions that need it (M5 FR-007, M2 FR-017).",
+ "ENUM(A, B, C): the segment chosen by the override.",
+ "`lang ENUM(en, vi)` (the F-M2-05 input).",
+ "Column on PROFILE for members; cookie only for guests.",
+ "`file_path TEXT` (M5 §6.1): the file stays in private storage.",
+ "INTEGER province_id (M4 §6.1), foreign key to PROVINCE.",
+ "On ORGANISATION_MEMBER_LAYER as CHAR(2)[]; FR-006 filters on it.",
+ "Optional in storage (machine paragraphs have no reviewer); required by F-M5-06.",
+ "Optional in storage; CHECK `ck_legal_rule_approved_needs_signature` requires it when status = approved (M2 BR-002).",
+ "Optional in storage; same CHECK requires it when status = approved (M2 BR-002).",
+ "Optional in storage until F-M7-06 assigns an officer.",
+ "Optional in storage until VFDA reviews and the province replies.",
+ "ENUM(security, history, religion, privacy, dossier, public_order, heritage); the public filter (FR-015) takes the same set.",
+ "Optional in storage; CHECK `ck_quarterly_report_reread_before_export` requires it before exported_at (M10 BR-004).",
 ]
 
 # (check, entity/column, what the spec does not settle, raised as)
@@ -662,9 +700,10 @@ STRUCTURAL = [
  ("polymorphic","AUDIT_LOG.target_id","Points at a row of any table, so it carries no foreign key (by design, M10 FR-008). Targets whose key is not a UUID (LOCATION_IMAGE image_url, RULE_SET_VERSION rule_version, DOCUMENT_TYPE doc_code) cannot be recorded in a UUID column.","OQ-04-25"),
  ("writer","MODERATION_ITEM (content_type location_image)","M10 moderates location photos submitted by partners (M10 §1), but the only photo function, F-M3-03, is for VFDA staff; no function lets a partner submit a photo.","OQ-04-22"),
  ("period","PROJECT; LOCATION_QUERY (period filter of DEMAND_INDEX)","The indicators are filtered by month, quarter or year (M10 FR-003, FR-005), but neither PROJECT nor LOCATION_QUERY declares when it was created.","OQ-04-21"),
- ("minimality","PROVINCE_NOTICE.province_id","Derivable from LOCATION_INTEREST → LOCATION → province_id.","OQ-04-16"),
- ("minimality","LEGAL_RULE.is_active vs status","is_active may be derivable from status = approved.","OQ-04-16"),
- ("minimality","BILINGUAL_DOCUMENT.watermark","Always true (M5 FR-005) — a constant column.","OQ-04-16"),
+ ("minimality","PROVINCE_NOTICE.province_id","Kept as a deliberate exception: it records the province the notice was *addressed* to, which must not change if the location's province is later merged (M3 BR-006). Upkeep rule: set once from LOCATION_INTEREST → LOCATION.province_id when the notice is drafted, never updated (M7 §6.1).","OQ-04-16 (resolved)"),
+ ("minimality","LEGAL_RULE.is_active vs status","Kept as a deliberate exception: the pre-check reads active rules on every call. Upkeep rule: is_active = (status = approved), enforced by CHECK `ck_legal_rule_active_matches_status`.","OQ-04-16 (resolved)"),
+ ("minimality","BILINGUAL_DOCUMENT.watermark","Dropped 01/10/2026: always true (M5 FR-005) — the PDF renderer stamps every page (M5 BR-001); nothing to store.","OQ-04-16 (resolved)"),
+ ("polymorphic","SEGMENT_DECISION.project_id / session_key","Resolved 01/10/2026: the single column `session_or_project_id` (two meanings, no possible foreign key) is split into `project_id` (FK → PROJECT) and `session_key`, with a CHECK that exactly one is set (M1 §6.1).","—"),
  ("1NF","ORGANISATION.service_groups, provinces; LOCATION.scene_types, months_to_avoid; SEGMENT_DECISION.q4_needs","Arrays as declared; filtering and counting on them is exactly the use (M3 FR-007, M4 FR-005/006). Implied entities in 01.","01 OQ 3"),
 ]
 
@@ -694,9 +733,12 @@ OQ_04 = [
  ("OQ-04-14","[NEEDS CLARIFICATION: After how many days does an unanswered collaboration request expire, and is `expired` a status?]","No","M4 owner","No expiry; member withdraws","Requests stay open forever and block a second request to the same partner."),
  ("OQ-04-15","[NEEDS CLARIFICATION: Value sets of PROJECT.stage, LOCATION.intake_status, LOCATION_IMAGE.status, consultation topic, the 12 service groups and scene types.]","Yes","Module owners + VFDA","Values used in the seed are proposals, listed in data/seed/README.md","Code and seed invent their own values; screens and filters disagree.",
   "Resolved 30/09/2026 — declared in §5.1: M0 FR-002 (stage), M3 FR-002 (intake_status, scene_types), M3 FR-003 / M10 FR-002 (image status — see Type conflicts), M7 FR-005 (topic), M4 FR-001 (service groups), M3 FR-007 (region), M2 FR-001/002 (rule topic)."),
- ("OQ-04-16","[NEEDS CLARIFICATION: Drop derivable columns (PROVINCE_NOTICE.province_id, LEGAL_RULE.is_active, BILINGUAL_DOCUMENT.watermark)?]","No","M7, M2, M5 owners","Kept as declared","Two sources of the same truth can disagree."),
- ("OQ-04-17","[NEEDS CLARIFICATION: Declare identifiers for EMAIL_DELIVERY and SEGMENT_DECISION (none in the spec; LOCATION_QUERY now has query_id, M3 FR-011).]","No","SYS, M1 owners","Placeholder keys *_id (type not declared)","Rows cannot be referenced from logs or support tickets."),
- ("OQ-04-18",f"[NEEDS CLARIFICATION: Types for all columns marked *type not declared* ({N_ND} columns).]","Yes","Module owners","Seed uses text; generic diagram type string","The build agent will choose types itself."),
+ ("OQ-04-16","[NEEDS CLARIFICATION: Drop derivable columns (PROVINCE_NOTICE.province_id, LEGAL_RULE.is_active, BILINGUAL_DOCUMENT.watermark)?]","No","M7, M2, M5 owners","Kept as declared","Two sources of the same truth can disagree.",
+  "Resolved 01/10/2026 — watermark dropped; is_active kept with CHECK `ck_legal_rule_active_matches_status`; province_id kept as the province the notice was addressed to (M7 §6.1). See Structural findings, minimality."),
+ ("OQ-04-17","[NEEDS CLARIFICATION: Declare identifiers for EMAIL_DELIVERY and SEGMENT_DECISION (none in the spec; LOCATION_QUERY now has query_id, M3 FR-011).]","No","SYS, M1 owners","Placeholder keys *_id (type not declared)","Rows cannot be referenced from logs or support tickets.",
+  "Resolved 01/10/2026 — email_delivery_id UUID (SYS §6.1) and segment_decision_id UUID (M1 §6.1)."),
+ ("OQ-04-18","[NEEDS CLARIFICATION: Types for all columns marked *type not declared* (62 columns on 30/09/2026).]","Yes","Module owners","Seed uses text; generic diagram type string","The build agent will choose types itself.",
+  "Resolved 01/10/2026 — every one is declared in section 6.1 of its module's Spec Document; no column is left without a type."),
  ("OQ-04-19","[NEEDS CLARIFICATION: The location data-entry template has \"18 fields\" (M3 FR-002) but the I/O contract lists 17. Which field is missing?]","No","M3 owner","17 as listed","One template field has nowhere to be stored."),
  ("OQ-04-20","[NEEDS CLARIFICATION: Where is the submitted version of a partner's content kept while the last approved version stays public (M10 BR-001)?]","Yes","M10 + M4 owners","Not modelled; MODERATION_ITEM holds only the reference and the decision","Approving has nothing to publish, or the waiting text overwrites the public one."),
  ("OQ-04-21","[NEEDS CLARIFICATION: Add a creation time to PROJECT and LOCATION_QUERY so the demand index can be filtered by period (M10 FR-003, FR-005)?]","No","M0, M3, M10 owners","Not modelled; seed rows carry no creation time","Indicators cannot be computed for a month, quarter or year."),
@@ -708,30 +750,30 @@ OQ_04 = [
 
 # ---------------------------------------------------------------- S6 review
 # Seed figures quoted in 05 (from the last run of data/seed/generate_seed.py and check_seed.py; see seed/README.md)
-SEED_ROWS = 423
+SEED_ROWS = 427
 SEED_SCENARIOS = "34 acceptance scenarios: **29 runnable, 4 partly, 1 not runnable** (M2 US-5: rule ↔ segment is not modelled)."
 RUBRIC = [
- ("1. Completeness","Fail",
-  "SYS §5.1 FR-010 outputs `search_vector TSVECTOR` and FR-011 `embedding VECTOR(n)` for location and supplier descriptions; 02 records F-SYS-11 updating LOCATION and ORGANISATION_MEMBER_LAYER, but neither column exists in 04. Other outputs with no home are runtime-only by their own description (SYS FR-004 `access_granted`, M1 FR-003 `data_retained`, M4 FR-007 `similarity`) or live in Supabase Auth (SYS FR-002 `session_token`, SYS §5.2 BR-004).",
-  "Add `search_vector` to LOCATION and `embedding` to LOCATION and ORGANISATION_MEMBER_LAYER, types copied from SYS FR-010/011 (`n` stays [NEEDS CLARIFICATION])."),
- ("2. Correctness","Fail",
-  f"03 says *\"Each profile works for exactly one producer organisation\"* (from SYS FR-001 `org_name Req`), but staff and partner accounts are created by an admin, not through sign-up (SYS §5.2 BR-002) — the seed has 7 such profiles with no organisation. The other {len(R) - 1} relationships match the wording of their cited evidence, e.g. *\"a notice ... is drafted\"* when the interest is saved (M7 §3 US-1) → 1:1.",
-  "Change PROFILE's side of `PRODUCER_ORGANISATION ||..|{ PROFILE` to zero-or-one (`|o..o{`), in 03 and 04 together (OQ-03-2)."),
- ("3. Minimality","Fail",
-  "`PROVINCE_NOTICE.province_id` is derivable through LOCATION_INTEREST → LOCATION (M7 §6); `LEGAL_RULE.is_active` duplicates `status = approved` (M2 FR-003); `BILINGUAL_DOCUMENT.watermark` is *\"always true\"* (M5 FR-005). The five entities the specs call *derived* (including M10's DEMAND_INDEX) were correctly kept out of the tables.",
-  "Drop the three columns, or keep them only with a written reason (OQ-04-16)."),
- ("4. Readability","Fail",
-  f"The conceptual ERD has {len(C)} entities and {len(R)} relationships in one diagram. Each relationship has a forward and reverse sentence in plain English (03, `%%` lines), but the drawing itself cannot be followed unaided by a non-technical reader.",
-  "Add one small view per module (the same lines, filtered) under `docs/architecture/`; keep 03 as the single source."),
- ("5. Extensibility","Pass",
-  "Business case tested: **M6 entry logistics — temporary import of filming equipment** (Won't now, phase 2, docs/mvp-scope.md §4). It adds new entities hanging off PROJECT (an equipment list and a customs declaration) and new DOCUMENT_TYPE rows with basis `law` or `common`; no existing table or relationship changes.",
+ ("1. Completeness","Pass",
+  "Every FIELDS output that must be remembered has a column. The two that do not — SYS FR-010 `search_vector TSVECTOR` and FR-011 `embedding VECTOR(n)` — are search indexes over LOCATION and ORGANISATION_MEMBER_LAYER text that the database computes from existing columns; they belong to the physical design (indexes), which the process leaves to the Plan step (*never skip a level*). Runtime-only outputs (SYS FR-004 `access_granted`, M1 FR-003 `data_retained`, M4 FR-007 `similarity`) and Supabase Auth data (SYS FR-002 `session_token`, SYS §5.2 BR-004) are not stored by design. *Fixed 01/10/2026: was Fail — the two index columns were reported missing.*",
+  "At the Plan step, create the two indexes on LOCATION and ORGANISATION_MEMBER_LAYER (`n` stays [NEEDS CLARIFICATION], SYS §10)."),
+ ("2. Correctness","Pass",
+  f"All {len(R)} relationships match the wording of their cited evidence, e.g. *\"a notice ... is drafted\"* when the interest is saved (M7 §3 US-1) → 1:1. *Fixed 01/10/2026: was Fail — PRODUCER_ORGANISATION – PROFILE said every profile works for exactly one organisation; it is now zero-or-one on both sides (SYS §6.1, SYS BR-002), in 03 and 04 together; the seed's 7 staff and partner profiles have none.*",
   "—"),
- ("6. Integration","Fail",
-  "BOUNDARY: passwords and tokens stay in Supabase Auth (SYS BR-004) — USER_ACCOUNT has no password column ✓; Resend's `provider_message_id` is kept ✓. But SCREENS disagree with FIELDS in three places: SC-25 writes `status = closed` (not in M4 FR-014's enum), SC-27 reads `document_slots.status` (FIELDS: `state`), SC-19 reads `organizations` / `service_categories`. And M5 FR-002 declares `file BYTEA` while storage is Supabase Storage (M5 §1 Depends on).",
-  "Correct the three Screen Specs to the logical names; declare the document as a storage path, not bytes (01 conflicts)."),
- ("7. Traceability","Fail",
-  f"{N_COLS - len(UNCITED)} of {N_COLS} columns cite a FIELDS row or a §6 attribute. {len(UNCITED)} key columns cite nothing because the specs declare no identifier: " + ", ".join(f"`{u}`" for u in UNCITED) + f". {N_ND} columns cite an attribute but carry *type not declared*.",
-  f"Declare the {len(UNCITED)} identifiers and the {N_ND} types in the owning specs' §5.1 (OQ-04-17, OQ-04-18)."),
+ ("3. Minimality","Pass",
+  "No column duplicates another without a written reason. BILINGUAL_DOCUMENT.watermark (*always true*, M5 FR-005) is dropped; LEGAL_RULE.is_active and PROVINCE_NOTICE.province_id are kept as deliberate exceptions, each with its upkeep rule (Structural findings, minimality). The five *derived* entities (including M10's DEMAND_INDEX) stay out of the tables. *Fixed 01/10/2026: was Fail — three derivable columns had no decision.*",
+  "—"),
+ ("4. Readability","Pass",
+  f"The full conceptual ERD ({len(C)} entities, {len(R)} relationships) stays the single source in 03; each module now has its own readable view with attributes in `data/data-model-<MODULE>.md` §5, and one picture per module in `docs/word/data/erd-views/`. Every relationship also reads as a forward and reverse sentence. *Fixed 01/10/2026: was Fail — only the one large diagram existed.*",
+  "—"),
+ ("5. Extensibility","Pass",
+  "Business case tested: **M6 entry logistics — temporary import of filming equipment** (Won't now, phase 2, docs/prd.md §4.4). It adds new entities hanging off PROJECT (an equipment list and a customs declaration) and new DOCUMENT_TYPE rows with basis `law` or `common`; no existing table or relationship changes.",
+  "—"),
+ ("6. Integration","Pass",
+  "BOUNDARY: passwords and tokens stay in Supabase Auth (SYS BR-004) — USER_ACCOUNT has no password column ✓; Resend's `provider_message_id` is kept ✓; documents are stored by path (`file_path TEXT`, M5 §6.1), not as bytes ✓. SCREENS now use the logical names of 04 (`document_slot.state`, `collab_request.status = confirmed`, `organisation.org_name` …). *Fixed 01/10/2026: was Fail — SC-25, SC-27, SC-19 and 18 other Screen Specs named columns differently from FIELDS.*",
+  "—"),
+ ("7. Traceability","Pass",
+  f"All {N_COLS} columns cite a FIELDS row, a §6 attribute or a §6.1 declaration, and every column has a declared type ({N_ND} *type not declared*). *Fixed 01/10/2026: was Fail — 2 identifiers were undeclared and 62 columns had no type; both are now declared in the owning specs' §6.1.*",
+  "—"),
 ]
 CHALLENGE = ("5. Extensibility",
  "We challenge our own Pass. Test a second case the specs already hint at: **a co-production with two producer "

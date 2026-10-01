@@ -124,10 +124,10 @@ sequenceDiagram
 
 | FR ID | DBIZ2 Subfunction ID | Requirement (system MUST ...) | Actor | Priority |
 |---|---|---|---|---|
-| FR-001 | F-M7-01 | The system MUST record a member's interest in a location for a project. | Member | Should |
-| FR-002 | F-M7-02 | The system MUST generate the provincial notice from project data and queue it for VFDA staff to review and send from VFDA's domain. | System / VFDA Staff | Should |
-| FR-003 | F-M7-03 | The system MUST record the province's reply as received, info_needed or cannot_support, with an optional note and time. | Province / VFDA Staff | Should |
-| FR-004 | F-M7-04 | The system MUST show the producer, per province, the four-step progress and the reply. | Member | Should |
+| FR-001 | F-M7-01 | The system SHOULD record a member's interest in a location for a project. | Member | Should |
+| FR-002 | F-M7-02 | The system SHOULD generate the provincial notice from project data and queue it for VFDA staff to review and send from VFDA's domain. | System / VFDA Staff | Should |
+| FR-003 | F-M7-03 | The system SHOULD record the province's reply as received, info_needed or cannot_support, with an optional note and time. | Province / VFDA Staff | Should |
+| FR-004 | F-M7-04 | The system SHOULD show the producer, per province, the four-step progress and the reply. | Member | Should |
 | FR-005 | F-M7-05 | The system SHOULD let a member book a VFDA consultation by topic and slot, handling time zones. | Member | Should |
 | FR-006 | F-M7-06 | The system SHOULD let VFDA staff confirm or reschedule and assign an officer. | VFDA Staff | Should |
 | FR-007 | F-M7-07 | The system SHOULD remind both sides before the consultation. | System | Should |
@@ -163,6 +163,7 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 | BR-002 | Every notice states that it does not replace the filming licence from the Ministry of Culture, Sports and Tourism. | Avoids a province or producer mistaking it for permission. |
 | BR-003 | The province's reply is one of three final values; the free-text note is kept as entered. | Consistent tracking and reporting. |
 | BR-004 | Reply times feed the provincial readiness index (M3). | Makes responsiveness visible and comparable. |
+| BR-005 | Consultation booking (SC-33) is offered only after VFDA has declared its staffed hours and reply time; until then SC-33 shows VFDA's contact email instead of the booking form. | A booking form nobody answers does more harm than no form (TL4 §5.7, TL5 M7·2). |
 
 ## 6. Key entities
 
@@ -171,6 +172,19 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 | LocationInterest | interest_id, project_id, location_id, created_at | belongs to Project and Location |
 | ProvinceNotice | interest_id, province_id, drafted_at, reviewed_by, sent_at, received_at, response, note, responded_at, delivery_status | belongs to LocationInterest |
 | ConsultationBooking | booking_id, member_id, topic, slot_start, timezone, officer_id, booking_status | belongs to UserAccount |
+
+### 6.1 Attribute types
+
+Types and required flags of the attributes above that no field in 5.1 declares (keys, timestamps, stored statuses). Every column of the data model now has a declared type.
+
+| Entity | Attribute | Type | Required | Notes |
+|---|---|---|---|---|
+| LocationInterest | `created_at` | `TIMESTAMPTZ` | Yes |  |
+| ProvinceNotice | `province_id` | `INTEGER` | Yes | the province the notice was addressed to, kept as sent even if the location's province later changes |
+| ProvinceNotice | `drafted_at` | `TIMESTAMPTZ` | Yes |  |
+| ProvinceNotice | `sent_at` | `TIMESTAMPTZ` | No | empty until VFDA sends it |
+| ProvinceNotice | `received_at` | `TIMESTAMPTZ` | No | empty until the province acknowledges it |
+| ConsultationBooking | `member_id` | `UUID` | Yes |  |
 
 ## 7. Screens involved
 
@@ -222,6 +236,7 @@ Where the 20-screen design or this spec differs from the DBIZ2 Function List, th
 |---|---|---|---|
 | Notice dispatch | Sent automatically by a database webhook (SEQ-11) | Drafted automatically, reviewed and sent by VFDA staff (SC-32) | Open — see §10 |
 | Module priority | Must | Should — Tier 2 of the screen list file (#20) | Changed — Confirmed by the Client |
+| Booking availability | Booking always open (F-M7-05) | Offered only once VFDA declares staffed hours (BR-005) | Added — Group C decision 01/10/2026 |
 
 ## Completion checklist
 

@@ -1,22 +1,25 @@
 ---
 artifact: seed
 step: S5
-generated: 2026-09-30
+generated: 2026-10-01
 sources: FUNCTIONS, FIELDS, ENTITIES, RULES, SCENARIOS, FLOWS, SCREENS, BOUNDARY
 ---
 
 # Seed data — CINEMATCH
 
-One CSV per table of `04-data-model.md` — **46 tables, 423 rows**, no table left empty. All people, companies, phone numbers and e-mail addresses are fictional (`*.example.*` domains); every phone number has the form `+84 000 000 1xx`, which cannot be a real number, and none is used twice. Legal-rule texts are mockups: the citations say only *Law 05/2022/QH15, Art. 9* or *Art. 13(3)* and must be written by the VFDA Legal Board.
+One CSV per table of `04-data-model.md` — **46 tables, 427 rows**, no table left empty. Each file is named `NN_<table>.csv`, where `NN` is the table's place in the load order (parents before children, from `schema.json`), so loading the files in filename order never breaks a foreign key (gate G3). All people, companies, phone numbers and e-mail addresses are fictional (`*.example.*` domains); every phone number has the form `+84 000 000 1xx`, which cannot be a real number, and none is used twice. Legal-rule texts are mockups: the citations say only *Law 05/2022/QH15, Art. 9* or *Art. 13(3)* and must be written by the VFDA Legal Board.
 
 ## How to run
 
 ```bash
-python3 data/seed/generate_seed.py   # writes the 46 CSV files
-python3 data/seed/check_seed.py      # integrity check — must print PASS
+python3 data/seed/generate_seed.py   # builds the rows, validates them, then writes the 46 NN_<table>.csv files
+python3 data/seed/check_seed.py      # integrity check of the files on disk — must print PASS
+python3 data/schema/load_check.py    # loads schema + seed into an empty database — must print PASS
 ```
 
-`check_seed.py` checks, by script and not by eye:
+The rules live in one place, `seed_rules.py`. `generate_seed.py` calls them **before** it writes anything — a row that breaks a rule stops the generator, so a wrong file is never written — and `check_seed.py` calls them again on the files on disk, adding a check that the file names follow the load order, that no extra CSV is lying around, and that regenerating gives identical bytes. Values that a business rule decides are **computed, not typed**: the attention level of a pre-check (M2 §5.1 FR-007), the span of a finding (its quoted text), `is_active` of a legal rule, `published` of a location, and the latest readiness snapshot of every project (M0 §9 formulas).
+
+The checks, by script and not by eye:
 
 - every primary key is unique;
 - every foreign key resolves — 68 FK columns, composite keys included (`DOCUMENT → DOCUMENT_SLOT`, `BILINGUAL_PARAGRAPH → BILINGUAL_DOCUMENT`), and `rule_code` against `LEGAL_RULE`'s unique key;
@@ -26,16 +29,19 @@ python3 data/seed/check_seed.py      # integrity check — must print PASS
 - no published location lacks a verified authority contact (M3 BR-004), and `published` agrees with `intake_status`;
 - nothing is hard-deleted: a deactivated account is anonymised (SYS BR-005), an unpublished location is still in a shortlist (M3 BR-008), no request stays open with a deactivated organisation (M4 BR-008), a retired rule is not active (M2 BR-008);
 - every moderation item points at exactly one of `organisation_id` / `location_image_id`, matching its `content_type`, and a hidden item has a reason (M10 BR-002);
-- every phone number in any file has the fake form `+84 000 000 1xx` and is unique;
+- every phone number in any file has the fake form `+84 000 000 1xx` and is unique, and every e-mail uses an example domain;
+- a segment decision belongs to a project **or** to an anonymous session, never both (M1 §6.1); a badge ends 12 months after it starts (M4 BR-004); a confirmed request has a confirmation time (M4 BR-005); a proofread paragraph names an accepted or confirmed partner of the project (M5 BR-002, M5 §9); a quarterly report is reread before export (M10 BR-004);
+- the last readiness snapshot of each project equals the M0 §9 formula on the current rows;
+- the files are named `NN_<table>.csv` in load order and no other CSV is in the folder;
 - regenerating produces **byte-identical files** — the Session 6 smoke test T2.
 
-**Last run: PASS.** Negative tests were run to prove the check bites: a province id of 99 was reported as an unresolved FK, a hand-edited file was reported as non-deterministic, and a real-looking phone number was reported as not fake.
+**Last run: PASS** (01/10/2026), on the files and through `load_check.py` on SQLite and PostgreSQL 16. Negative tests were run to prove the checks bite: a province id of 99 was reported as an unresolved FK (and rejected by the database), a hand-edited file was reported as non-deterministic, a real-looking phone number was reported as not fake, and a typed readiness value that disagreed with the formula was refused by the generator.
 
 **File convention:** header row in logical-model column order · rows sorted by primary key · ISO dates `YYYY-MM-DD` and timestamps `YYYY-MM-DDThh:mm:ss+07:00` · dot decimals · UTF-8 · LF · arrays and objects as compact JSON in the cell.
 
 ## The story in the data
 
-The rows tell the same story as the 20 mockups: *The Last Ferry* (Harbour Line Films, Korea, segment A, first shooting day 2027-03-15, 7-day buffer, readiness 58 % on the last snapshot). Tràng An is shortlisted as primary, Ninh Bình acknowledged the notice on 18/09, Bến Xưa Production Services has **accepted** the request and waits for confirmation, 6 of 14 script paragraphs are proofread, and the dossier stands at application *present*, script *needs fixing*, service agreement *pending*, Article 9 undertaking *missing*. The producer on the mockups, **Lena Park**, is the Harbour Line member who owns the project; her colleague Han Ji-woo edits it with her. Its glossary fixes four terms (ferry → đò, ferryman → người lái đò, landing → bến, karst → núi đá vôi).
+The rows tell the same story as the 41 mockups: *The Last Ferry* (Harbour Line Films, Korea, segment A, first shooting day 2027-03-15, 7-day buffer). Its last readiness snapshot is **68.75 %**, computed by the M0 §9 formula: content 80 (latest compliance run on the active rule set, half of its findings reviewed), locations 100 (primary and backup), partners 70 (request accepted, not yet confirmed), dossier 25 (1 of 4 Article 13 components present). The mockups SC-10 and SC-12 show **58 %**, the value of the snapshots of 24–26/09; they were drawn before the formula was fixed (01/10/2026), so their five gauge numbers are illustrative. The data, not the picture, is the reference for tests. Tràng An is shortlisted as primary (Hạ Long, whose availability is *survey in progress*, and Tam Cốc as backups), Ninh Bình acknowledged the notice on 18/09, Bến Xưa Production Services has **accepted** the request and waits for confirmation, 6 of 14 script paragraphs are proofread, and the dossier stands at application *present*, script *needs fixing*, service agreement *pending*, Article 9 undertaking *missing*. The producer on the mockups, **Lena Park**, is the Harbour Line member who owns the project; her colleague Han Ji-woo edits it with her. Its glossary fixes four terms (ferry → đò, ferryman → người lái đò, landing → bến, karst → núi đá vôi).
 
 In the VFDA back office (M10), Mekong Frame Co. has a profile edit and a location photo waiting for moderation, Nguyễn Thị Thu Hà has reread and exported the Q3 2026 quarterly report, and every administrative action — publishing Tràng An, approving Bến Xưa's badge, signing and retiring rules, approving or hiding content — is in the audit log under Nguyễn Thị Thu Hà, Lê Hoàng Phúc, Trần Minh Quân or Vũ Đức Anh.
 
@@ -62,10 +68,10 @@ Every table has ordinary rows (1). The other three kinds:
 | legal_rule | 200-character title | `A9-RELIG`: never cited by a pre-check | `A9-DRUG`, `A9-HERIT`: draft, no citation, no approver; `A9-MAP`: retired, not active (M2 BR-008) |
 | precheck_run | all flags `unsure` | `g-fr`: no finding | `g-dropped`: every finding dropped, no attention level |
 | precheck_finding | span starting at 0 | — | — (no status column) |
-| compliance_run | — | `sapa-a`: no finding | older run on an older rule-set version |
+| compliance_run | — | `sapa-a`: no finding | older run on an older rule-set version; `blues-a` on `Quiet Harbour Blues`: nothing flagged, so its content gauge is 100 (the 100.00 boundary snapshot) |
 | compliance_finding | — | — | `open` findings next to `reviewed` ones |
 | province | *Thành phố Hồ Chí Minh* (longest) | 25 provinces with no location | merged units with `merged_from` (M3 BR-006) |
-| location | 200-char names; Cà Mau, southernmost (8.615°) | Tam Cốc, Cà Mau Cape: no image | Mũi Né: contact unverified, publishing blocked; Cửa Vạn: `unpublished` (M3 BR-008) |
+| location | 200-char names; Cà Mau, southernmost (8.615°) | Tam Cốc, Cà Mau Cape: no image | Mũi Né: contact unverified, publishing blocked; Cửa Vạn: `unpublished` (M3 BR-008); Hạ Long `survey_in_progress`, Phong Nha `paused` (M3 BR-010) |
 | location_image | — | Tam Cốc, Cà Mau Cape: no image | `hidden`: usage right unclear; `pending`: partner photo of Cái Răng |
 | authority_contact | verified in 2016 (older than the 12-month cycle) | contacts without e-mail | Mũi Né: not verified |
 | project_shortlist | — | `Monsoon Signal`, `Harbour Lights`: none | Cửa Vạn, unpublished, kept as a backup of `Quiet Harbour Blues` |
@@ -89,7 +95,7 @@ Every table has ordinary rows (1). The other three kinds:
 | collab_message | — | requests with no message | — (messages are never edited, M4 BR-009) |
 | project_glossary | — | projects with no glossary | — (no status column) |
 | moderation_item | — | organisations and photos never moderated | `pending`, `approved`, `hidden` with reason |
-| audit_log | — | accounts with no admin action | `rule.retire`, `location.unpublish` |
+| audit_log | — | accounts with no admin action | `rule.retire`, `location.unpublish`, `location.availability` (2 changes) |
 | quarterly_report | — | only one quarter reported | indicators 4–6 below 5 records: *not enough data* (M10 BR-003) |
 
 **No header-only table any more.** `location_query` (F-M3-11, M3 BR-009), `collab_message` (F-M4-14, M4 BR-009) and `project_glossary` (F-M5-04, M5 BR-006) now have a writer in the Spec Documents of 30/09/2026, so they carry rows. Location queries hold no personal data. Messages exist only where the author has a seeded account, so the response notes of Hạ Long Marine, Sông Hậu and Hội An Casting have no message row.
@@ -100,12 +106,13 @@ Every table has ordinary rows (1). The other three kinds:
 
 ## Enum value sets (declared in the Spec Documents, section 5.1)
 
-Declared since 30/09/2026 — no longer proposals. The seed uses every value (except the two noted above).
+Declared since 30/09/2026 (availability since 01/10/2026) — no longer proposals. The seed uses every value (except the two noted above).
 
 | Column | Values | Declared in |
 |---|---|---|
 | `project.stage` | draft, preparing, archived | M0 §5.1 FR-002; M0 BR-005 |
 | `location.intake_status` | awaiting_contact, published, unpublished | M3 §5.1 FR-002; M3 BR-008 |
+| `location.availability` | open, survey_in_progress, paused | M3 §5.1 FR-002; M3 BR-010 (added 01/10/2026) |
 | `location_image.status` | pending, approved, hidden | M3 §5.1 FR-003 (image_status); M10 §5.1 FR-002 (content_status) |
 | `location.scene_types` | karst, river, village, rice_field, sea, floating_village, cave, jungle, old_town, market, rice_terrace, mountain, dunes, mangrove | M3 §5.1 FR-002, FR-007 |
 | `organisation.service_groups` (12) | full_production, permits_paperwork, casting, crew, camera_lighting, studios_interiors, location_management, transport_logistics, lodging_catering, interpreting, insurance_legal, post_production | M4 §5.1 FR-001; M4 BR-002 |
@@ -155,6 +162,6 @@ Declared since 30/09/2026 — no longer proposals. The seed uses every value (ex
 | M10 US-1 | moderation_item Mekong Frame profile edit `pending` next to the approved first version; audit `content.approve` | Yes |
 | M10 US-2 | projects, location queries, project provinces and requests of Q3 2026 | Partly — no creation time on projects and queries, so the period filter cannot run (OQ-04-21); indicators unnamed |
 | M10 US-3 | quarterly_report Q3 2026, reread by Nguyễn Thị Thu Hà; audit `report.export` | Yes |
-| M10 US-4 | audit_log `location.publish` for Tràng An, 12 actions by 4 people | Yes — the spec's filter example names *Phạm Thu Hà*; the seed person is Nguyễn Thị Thu Hà |
+| M10 US-4 | audit_log `location.publish` for Tràng An, 14 actions by 4 people | Yes — the spec's filter example names *Phạm Thu Hà*; the seed person is Nguyễn Thị Thu Hà |
 
 **34 scenarios: 29 covered, 4 partly, 1 not covered.** The partial and missing ones point at points still to be decided, not at thin data.

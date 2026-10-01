@@ -63,7 +63,7 @@ This module gives each production one place to prepare its shoot in Vietnam and 
 
 **Acceptance scenarios**
 
-1. **Given** a segment A project with 2 of 4 Article 13 components present, **When** the dashboard loads, **Then** the *Dossier & permits* gauge shows its score and the next step names the missing components.
+1. **Given** a segment A project with 2 of 4 Article 13 components present, **When** the dashboard loads, **Then** the *Dossier & permits* gauge shows 50 % and the next step names the two missing components.
 2. **Given** a segment C project, **When** the dashboard loads, **Then** the *Dossier & permits* gauge is not shown (BR-002).
 3. **Given** the score view fails, **When** the dashboard loads, **Then** each gauge shows `—` and *Retry*, never a fake 0%.
 
@@ -196,6 +196,15 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 | ReadinessView | project_id, gauge_scores, readiness_total, next_actions | derived from M2, M3, M4, M5 data |
 | ReadinessSnapshot | snapshot_id, project_id, snapshot_date, readiness_total | belongs to Project |
 
+### 6.1 Attribute types
+
+Types and required flags of the attributes above that no field in 5.1 declares (keys, timestamps, stored statuses). Every column of the data model now has a declared type.
+
+| Entity | Attribute | Type | Required | Notes |
+|---|---|---|---|---|
+| Project | `producer_org_id` | `UUID` | Yes | a project belongs to one producer organisation (§9) |
+| ProjectMember | `user_id` | `UUID` | No | empty while an invitation is pending (FR-004) |
+
 ## 7. Screens involved
 
 | Screen ID | Screen name | Priority | Screen Spec file |
@@ -216,7 +225,11 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 
 - A project belongs to one producer organisation.
 - Overall readiness is a weighted average of the gauges that apply to the segment.
-- Test values used until VFDA confirms the gauge weights: every gauge that applies to the segment has the same weight (segments A and B: 5 gauges × 20 %; segment C: 4 gauges × 25 %); safety buffer = 7 days.
+- Test values used until VFDA confirms the gauge formulas and weights (TL5 formulas, adapted to the data this spec stores): *Content & compliance* = 30 % if the project has a compliance run + 30 % if its latest run used the active rule-set version + 40 % × the share of that run's findings marked reviewed (all 40 % when it has no finding).
+- *Locations* = 50 % with at least one shortlisted location + 25 % when a primary is set + 25 % when a backup is set.
+- *Partners* = 30 % once a collaboration request is sent, 70 % once one is accepted, 100 % once one is confirmed (M4 BR-005).
+- *Dossier & permits* = the share of the four Article 13 components whose slot is `present` (segments A and B only).
+- *Logistics* is not scored until phase 2 (shown as `—`, weight 0). Overall readiness = equal weights of the scored gauges: segments A and B 4 × 25 %; segment C 3 × 33.3 % (no *Dossier & permits* gauge). Safety buffer = 7 days.
 
 ## 10. Open questions
 

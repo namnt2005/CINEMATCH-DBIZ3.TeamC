@@ -35,14 +35,14 @@
 |---|---|---|---|---|---|
 | 1 | Navigation bar | Header | static | — | — |
 | 2 | Title + mode switch | Header + Toggle | static: By description / By filters | — | — |
-| 3 | Scene description box | Input (textarea) | `location_queries.description` | Yes | 10–1000 characters (Function List F-M3-10) |
+| 3 | Scene description box | Input (textarea) | `location_query.scene_description` | Yes | 10–1000 characters (Function List F-M3-10) |
 | 4 | Structure hints (chips) | List | 7 attribute groups; a chip ticks ✓ automatically once the description covers it | — | hints only, never blocking |
 | 5 | *Analyse description* button | Button | calls `F-M3-11` | — | disabled under 10 characters |
-| 6 | *What the system understood* block | Container | `location_queries.attributes` (JSONB) | Yes | only values from the catalogue (`F-M3-12`) |
+| 6 | *What the system understood* block | Container | `location_query.attributes` (JSONB) | Yes | only values from the catalogue (`F-M3-12`) |
 | 7 | Attribute tag | Toggle (edit / remove chip) | one value in `attributes` | — | accepts catalogue values only |
 | 8 | Mapping warning | Text | term not in the catalogue and the value it was mapped to | — | always shown when a mapping occurs; has a *Change* button |
-| 9 | Planned shooting month | Input (month/year) | `location_queries.month`; prefilled from `projects.shooting_start_date` | No | valid month, not in the past |
-| 10 | Link to project | Toggle (dropdown) | `location_queries.project_id` | No | user's own projects only; hidden for guests |
+| 9 | Planned shooting month | Input (month/year) | `location_query.shoot_month`; prefilled from `project.shoot_date` | No | valid month, not in the past |
+| 10 | Link to project | Toggle (dropdown) | `location_query.project_id` | No | user's own projects only; hidden for guests |
 | 11 | *Find matching locations* button | Button | static | — | disabled when the attribute block is empty |
 | 12 | Examples of good descriptions | Text | static | — | — |
 

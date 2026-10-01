@@ -1,20 +1,27 @@
 # -*- coding: utf-8 -*-
 """CINEMATCH seed data generator (Session 5, step S5).
 
-    python3 data/seed/generate_seed.py        # writes data/seed/<table>.csv
-    python3 data/seed/check_seed.py           # FK, required, enum, timestamp checks
+    python3 data/seed/generate_seed.py        # checks every rule, then writes data/seed/NN_<table>.csv
+    python3 data/seed/check_seed.py           # re-checks the files and that generation is deterministic
 
 Deterministic: no randomness, no clock. IDs are UUIDv5 of a readable key, so the same run always
 produces byte-identical files (Session 6 smoke test T2). Column order comes from schema.json,
 which is generated from 04-data-model.md. Rows are sorted by primary key; UTF-8, LF, ISO dates.
+Files are numbered in load order (parents first), so loading them in filename order never breaks a foreign key.
 
-One fictional story runs through the rows, the same as the 20 mockups: project *The Last Ferry*,
+Values a business rule determines are COMPUTED here, not typed (attention level M2 BR-004, quote span M2 §6.1,
+is_active, published, verified_until). Before any file is written, seed_rules.validate() re-checks every
+foreign key, enum, required column and business rule; if one fails, nothing is written.
+
+One fictional story runs through the rows, the same as the mockups: project *The Last Ferry*,
 Harbour Line Films (Korea), segment A, first shooting day 2027-03-15, readiness 58 %,
 Bến Xưa Production Services has accepted the request and waits for confirmation.
 All companies, people, phone numbers and e-mail addresses are fictional; every phone number has the
 form +84 000 000 1xx, which cannot be a real Vietnamese number.
 """
-import csv, json, os, uuid
+import csv, glob, json, os, sys, uuid
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from seed_rules import validate, attention_level, readiness
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SCHEMA = json.load(open(os.path.join(HERE, "schema.json"), encoding="utf-8"))
@@ -180,7 +187,7 @@ for d, v in [("2026-09-20","41.00"),("2026-09-21","44.50"),("2026-09-22","52.00"
              ("2026-09-24","58.00"),("2026-09-25","58.00"),("2026-09-26","58.00"),("2026-09-27","58.00")]:
     add("READINESS_SNAPSHOT", snapshot_id=U("snap:ferry:" + d), project_id=PID["ferry"], snapshot_date=d, readiness_total=v)
 for proj, d, v in [("rice","2026-09-27","37.50"),("sapa","2026-09-27","22.00"),("lantern","2026-09-27","31.00"),
-                   ("long","2026-09-27","0.00"),("blues","2026-09-27","100.00")]:
+                   ("long","2026-09-25","0.00"),("long","2026-09-27","0.00"),("blues","2026-09-27","100.00")]:
     add("READINESS_SNAPSHOT", snapshot_id=U(f"snap:{proj}:{d}"), project_id=PID[proj], snapshot_date=d, readiness_total=v)
 
 # ------------------------------------------------------------------ M1 decisions
@@ -198,8 +205,9 @@ DEC = [("ferry","r1",True,"abroad","foreign",["locations","crew"],"A","",[1,2,3]
        ("session:d71f2c09","r2",True,"vietnam","foreign",["locations"],"A","A",[1,2,3]),   # override B -> A
        ("session:0b6e93aa","r1",True,"abroad","foreign",["cast"],"C","C",[1,2,3])]        # override A -> C
 for i, (ref, rule, q1, q2, q3, q4, seg, ov, by) in enumerate(DEC):
-    ref_val = ref if ref.startswith("session:") else PID[ref]
-    add("SEGMENT_DECISION", segment_decision_id=U(f"decision:{i}:{ref}"), session_or_project_id=ref_val,
+    is_session = ref.startswith("session:")
+    add("SEGMENT_DECISION", segment_decision_id=U(f"decision:{i}:{ref}"),
+        project_id="" if is_session else PID[ref], session_key=ref if is_session else "",
         segment_rule_id=SRID[rule] if rule else "", q1_shoot_in_vn=str(q1).lower(), q2_release=q2, q3_producer=q3,
         q4_needs=J(q4), segment=seg, segment_override=ov, decided_by=J(by),
         journey_config=J({"gauges": ["content","locations","partners"] + ([] if seg == "C" else ["dossier"])}) if seg else "")
@@ -243,19 +251,25 @@ PR = [  # key, project, version, lang, flags, country, level, created
  ("g-dropped","","2026.08","en",{"real_person":"unsure","military":"unsure","heritage_site":"unsure"},"","","2026-09-26"),  # every finding dropped
  ("rice1","rice","2026.08","en",{"real_person":"no","military":"no","heritage_site":"no"},"FR","low","2026-09-19"),
 ]
-for k, proj, ver, lang, flags, cc, lvl, d in PR:
+FINDINGS = [("ferry1","A9-HIST",3,"In 1972"),("ferry1","A9-MIL",65,"soldiers ask him to take them across in secret"),
+            ("g-us","A9-PERSON",0,"Based on the life of a"),("g-vi","A9-MIL",12,"đồn biên phòng trên núi"),
+            ("g-vi","A9-LONG",41,"vượt biên giới vào ban đêm"),("g-vi","A9-HIST",80,"năm 1979")]
+SEV = {code: sev for code, _v, _te, _tv, sev, _t, _s in LR}
+DROPPED = {"g-dropped"}          # every finding was dropped by FR-012: no attention level is shown
+for k, proj, ver, lang, flags, cc, _typed, d in PR:
+    # M2 BR-004 — computed from the verified findings with the M2 §9 thresholds, never typed by hand
+    lvl = "" if k in DROPPED else attention_level([SEV[c] for kk, c, _s, _q in FINDINGS if kk == k])
     add("PRECHECK_RUN", brief_id=U("brief:" + k), project_id=PID[proj] if proj else "", rule_version=ver,
         synopsis_hash=U("hash:" + k).replace("-", ""), lang=lang, flags=J(flags) if flags else "", country_guess=cc,
         attention_level=lvl, created_at=TS(d, "11:00"))
-for k, code, s0, s1, q in [("ferry1","A9-HIST",3,10,"In 1972"),("ferry1","A9-MIL",65,118,"soldiers ask him to take them across in secret"),
-                           ("g-us","A9-PERSON",0,24,"Based on the life of a"),("g-vi","A9-MIL",12,40,"đồn biên phòng trên núi"),
-                           ("g-vi","A9-LONG",41,70,"vượt biên giới vào ban đêm"),("g-vi","A9-HIST",80,96,"năm 1979")]:
-    add("PRECHECK_FINDING", brief_id=U("brief:" + k), rule_code=code, span_start=s0, span_end=s1, quoted_text=q,
+for k, code, s0, q in FINDINGS:
+    # M2 §6.1 — span_end = span_start + length of the quoted passage
+    add("PRECHECK_FINDING", brief_id=U("brief:" + k), rule_code=code, span_start=s0, span_end=s0 + len(q), quoted_text=q,
         explanation_vi=f"Đoạn này liên quan đến quy tắc {code}; hội đồng thẩm định thường xem xét kỹ nội dung này.",
         explanation_en=f"This passage relates to rule {code}; appraisal boards usually look closely at such content.")
 for k, proj, ver, d in [("ferry-a","ferry","2026.07","2026-08-10"),("ferry-b","ferry","2026.08","2026-09-15"),
                         ("rice-a","rice","2026.08","2026-09-19"),("lantern-a","lantern","2026.08","2026-09-18"),
-                        ("sapa-a","sapa","2026.08","2026-09-12")]:
+                        ("sapa-a","sapa","2026.08","2026-09-12"),("blues-a","blues","2026.08","2026-09-08")]:
     add("COMPLIANCE_RUN", run_id=U("run:" + k), project_id=PID[proj], rule_version=ver, run_at=TS(d, "14:00"))
 for k, run, code, q, st, note in [
     ("f1","ferry-a","A9-HIST","In 1972","reviewed","Setting confirmed with Bến Xưa; no real persons."),
@@ -295,6 +309,8 @@ LOC = [  # key, prov, vi, en, district, lat, lng, airport, scenes, crew, lodge, 
   ["floating_village","sea","village"],"u15",False,False,False,[7,8,9],"medium",False),   # unpublished (M3 BR-008), still shortlisted
 ]
 UNPUBLISHED = {"cua-van": "Unpublished by VFDA: the floating village has moved ashore (2026-09)."}
+# M3 BR-010 — set by VFDA staff; a paused location stays published and visible with its label
+AVAIL = {"ha-long": "survey_in_progress", "phong-nha": "paused"}
 LID = {k: U("location:" + k) for k, *_ in LOC}
 for k, prov, vi, en, dist, lat, lng, air, sc, crew, lo, pw, tr, av, pc, pub in LOC:
     add("LOCATION", location_id=LID[k], slug=k, province_id=P[prov], name_vi=vi, name_en=en, district=dist,
@@ -303,6 +319,7 @@ for k, prov, vi, en, dist, lat, lng, air, sc, crew, lo, pw, tr, av, pc, pub in L
         crew_capacity=crew, lodging_20km=str(lo).lower(), grid_power=str(pw).lower(), truck_access=str(tr).lower(),
         months_to_avoid=J(av), permit_complexity=pc,
         restriction_note="Drones need a separate airspace permit." if k in ("ha-long","trang-an") else "",
+        availability=AVAIL.get(k, "open"),
         intake_status="published" if pub else "unpublished" if k in UNPUBLISHED else "awaiting_contact", published=str(pub).lower(),
         blocked_reason="" if pub else UNPUBLISHED.get(k, "Authority contact not verified (M3 BR-004)."))
 for k, n, src, right, st in [("trang-an",1,"VFDA field visit 2026-05","VFDA owned","approved"),("trang-an",2,"Ninh Bình Tourism Department","Licensed to VFDA","approved"),
@@ -416,7 +433,7 @@ DT = [("A13_APPLICATION","Văn bản đề nghị cấp giấy phép theo mẫu"
       ("SERVICE_CONTRACT_C","Hợp đồng dịch vụ (phân khúc C)","Service contract (segment C)","common","C")]
 for code, vi, en, basis, segs in DT:
     add("DOCUMENT_TYPE", doc_code=code, name_vi=vi, name_en=en, basis=basis,
-        template_url=f"https://storage.cinematch.example/templates/{code.lower()}.docx", segments=segs)
+        template_url=f"https://storage.cinematch.example/templates/{code.lower()}.docx", segments=J(segs.split(",")))
 SLOTS = {"ferry": [("A13_APPLICATION","present"),("A13_SCRIPT_VI","needs_fix"),("A13_SERVICE_AGREEMENT","pending"),
                    ("A13_ART9_COMMITMENT","missing"),("FOREIGN_CREW_LIST","present"),("HERITAGE_SITE_PERMIT","missing")],
          "rice": [("A13_APPLICATION","present"),("A13_SCRIPT_VI","missing"),("A13_SERVICE_AGREEMENT","missing"),("A13_ART9_COMMITMENT","missing")],
@@ -455,7 +472,7 @@ FERRY_EN = ["In 1972, an old ferryman carries villagers across a river between l
             "Min-seo leaves the ferry at the landing and returns to Seoul."]
 add("BILINGUAL_DOCUMENT", project_id=PID["ferry"], doc_code="A13_SCRIPT_VI", structure_version="art13-script-v1",
     synopsis_en=" ".join(FERRY_EN), project_meta=J({"title": "The Last Ferry", "shoot_date": "2027-03-15", "segment": "A"}),
-    pdf_url="https://storage.cinematch.example/private/projects/ferry/a13_script_vi/draft.pdf", watermark="true")
+    pdf_url="https://storage.cinematch.example/private/projects/ferry/a13_script_vi/draft.pdf")
 for i, s in enumerate(FERRY_EN, 1):
     done = i <= 6          # 6 / 14 proofread, as on SC-28
     add("BILINGUAL_PARAGRAPH", project_id=PID["ferry"], doc_code="A13_SCRIPT_VI", idx=i, source_text=s,
@@ -464,13 +481,13 @@ for i, s in enumerate(FERRY_EN, 1):
         reviewed_at=TS("2026-09-24", f"1{i % 10}:00") if done else "")
 add("BILINGUAL_DOCUMENT", project_id=PID["blues"], doc_code="A13_SCRIPT_VI", structure_version="art13-script-v1",
     synopsis_en="A lone saxophonist plays on the wharf at dawn.", project_meta=J({"title": "Quiet Harbour Blues", "segment": "A"}),
-    pdf_url="https://storage.cinematch.example/private/projects/blues/a13_script_vi/draft.pdf", watermark="true")
+    pdf_url="https://storage.cinematch.example/private/projects/blues/a13_script_vi/draft.pdf")
 add("BILINGUAL_PARAGRAPH", project_id=PID["blues"], doc_code="A13_SCRIPT_VI", idx=1, source_text="A lone saxophonist plays on the wharf at dawn.",
     target_text="Một nghệ sĩ saxophone một mình chơi nhạc trên cầu tàu lúc bình minh.", status="reviewed",
     reviewed_by=UID["park"], reviewer_org_id="", reviewed_at=TS("2026-08-28", "09:00"))
 add("BILINGUAL_DOCUMENT", project_id=PID["rice"], doc_code="A13_SCRIPT_VI", structure_version="art13-script-v1",
     synopsis_en="Salt farmers and rice growers of the Mekong Delta through one year.", project_meta=J({"title": "Rice and Salt", "segment": "B"}),
-    pdf_url="", watermark="true")
+    pdf_url="")
 add("BILINGUAL_PARAGRAPH", project_id=PID["rice"], doc_code="A13_SCRIPT_VI", idx=1,
     source_text="Salt farmers and rice growers of the Mekong Delta through one year.", target_text="",
     status="machine", reviewed_by="", reviewer_org_id="", reviewed_at="")   # translation failed for this paragraph (M5 edge case)
@@ -596,6 +613,8 @@ AUD = [  # key, action, admin, target, logged
  ("a10","content.hide","phuc",MID["mod-muine-1"],"2026-09-03T10:15"),
  ("a11","location.unpublish","phuc",LID["cua-van"],"2026-09-19T16:40"),       # M3 BR-008
  ("a12","report.export","thuha",REPORT,"2026-09-30T16:01"),                   # M10 US-3
+ ("a13","location.availability","phuc",LID["ha-long"],"2026-09-24T08:20"),    # M3 BR-010: open -> survey_in_progress
+ ("a14","location.availability","phuc",LID["phong-nha"],"2026-09-25T15:05"),  # M3 BR-010: open -> paused (rainy season)
 ]
 for k, act, by, target, at in AUD:
     add("AUDIT_LOG", audit_log_id=U("audit:" + k), action=act, admin_id=UID[by], target_id=target, logged_at=at + ":00+07:00")
@@ -611,17 +630,33 @@ add("QUARTERLY_REPORT", report_id=REPORT, period_start="2026-07-01", period_end=
     reread_by=UID["thuha"], report_pdf_url="https://storage.cinematch.example/private/reports/2026-q3.pdf",
     exported_at=TS("2026-09-30", "16:00"))
 
-# ------------------------------------------------------------------ write
+# ------------------------------------------------------------------ check, then write
 def pkey(entity):
     pk = SCHEMA[entity]["pk"]
     def k(row):
         return tuple((0, int(row[c])) if str(row[c]).lstrip("-").isdigit() else (1, str(row[c])) for c in pk)
     return k
 
+def tables():
+    """Rows exactly as they will be written: sorted by primary key, every value a string."""
+    return {e: [{c: str(v) for c, v in r.items()} for r in sorted(ROWS[e], key=pkey(e))] for e in SCHEMA}
+
+# M0 §9 — the latest snapshot of each project is the readiness formula applied to the data above (never typed)
+_T = tables()
+for _pid in {r["project_id"] for r in ROWS["READINESS_SNAPSHOT"]}:
+    _last = max((r for r in ROWS["READINESS_SNAPSHOT"] if r["project_id"] == _pid), key=lambda r: r["snapshot_date"])
+    _last["readiness_total"] = f"{readiness(_T, _pid)[1]:.2f}"
+
 if __name__ == "__main__":
+    T = tables()
+    problems = validate(SCHEMA, T)          # integrity + business rules BEFORE writing anything
+    if problems:
+        print(f"NOT WRITTEN — {len(problems)} problem(s):"); [print("  -", p) for p in problems]; sys.exit(1)
+    expected = {meta["file"] for meta in SCHEMA.values()}
+    for old in glob.glob(os.path.join(HERE, "*.csv")):     # files of an older layout would load in the wrong order
+        if os.path.basename(old) not in expected: os.remove(old)
     for e, meta in SCHEMA.items():
-        rows = sorted(ROWS[e], key=pkey(e))
-        with open(os.path.join(HERE, meta["table"] + ".csv"), "w", encoding="utf-8", newline="") as f:
+        with open(os.path.join(HERE, meta["file"]), "w", encoding="utf-8", newline="") as f:
             w = csv.DictWriter(f, fieldnames=meta["columns"], lineterminator="\n")
-            w.writeheader(); w.writerows(rows)
-    print(f"wrote {len(SCHEMA)} tables, {sum(len(v) for v in ROWS.values())} rows")
+            w.writeheader(); w.writerows(T[e])
+    print(f"checked and wrote {len(SCHEMA)} tables, {sum(len(v) for v in T.values())} rows")

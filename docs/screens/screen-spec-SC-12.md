@@ -35,10 +35,10 @@
 |---|---|---|---|---|---|
 | 1 | Navigation bar | Header | static | — | — |
 | 2 | Project sidebar | List | static: 10 items; *Overview* selected | — | — |
-| 3 | Project name + segment + organisation | Header | `projects.name`, `projects.segment`, `organizations_producer.name` | Yes | — |
-| 4 | First shooting day + countdown | Text | `projects.shooting_start_date` | No | none → *not set* and a *Set date* button |
-| 5 | Overall readiness | Text + bar | `v_project_readiness.overall_score` | Yes | 0–100, integer |
-| 6 | Gauges (5) | Chart (gauge) | `v_project_readiness` — one `*_score` column per gauge | Yes | number of gauges shown depends on the segment — see SR |
+| 3 | Project name + segment + organisation | Header | `project.project_name`, `project.segment`, `producer_organisation.org_name` | Yes | — |
+| 4 | First shooting day + countdown | Text | `project.shoot_date` | No | none → *not set* and a *Set date* button |
+| 5 | Overall readiness | Text + bar | `v_project_readiness.readiness_total` | Yes | 0–100, integer |
+| 6 | Gauges (5) | Chart (gauge) | `v_project_readiness.gauge_scores` — one score per gauge (M0 FR-005) | Yes | number of gauges shown depends on the segment — see SR |
 | 7 | *Next step* sentence | Text | `F-M0-07` — rule-generated, no language model | Yes | always present; when done, shows *Complete* |
 | 8 | Gauge action button | Button | static; target per gauge | — | — |
 | 9 | *Logistics* gauge (not yet available) | Chart (gauge) | static | — | shows `—`, not 0% |
@@ -76,7 +76,7 @@
 |---|---|---|
 | SR-051 | **The *Next step* sentence is the primary information**; the percentage is secondary. This sentence is never empty. | TL4 §4 |
 | SR-052 | Scores are computed by the DB view `v_project_readiness`, **not in the browser** — every place shows the same number. | TL5 §M0 |
-| SR-053 | Number of gauges by segment: segment C has **no** *Dossier & permits* gauge; weights are read from `segment_requirements`. | TL4 §2 |
+| SR-053 | Number of gauges by segment: segment C has **no** *Dossier & permits* gauge; weights are read from `segment_requirement`. | TL4 §2 |
 | SR-054 | A gauge that doesn't apply shows `—`, not 0% — these are two different things. | No-guessing principle |
 | SR-055 | Every module writes to the dashboard via the `readiness_changed` event; the dashboard never reads other modules' tables directly. | Screen list file — note #5 |
 | SR-056 | The deadline strip uses **the same calculation function** as `SC-29`; the two screens must never show different dates. | Consistency principle |
@@ -102,7 +102,7 @@
 
 | # | Question | Blocking? | Status |
 |---|---|---|---|
-| 1 | [NEEDS CLARIFICATION: weights of the five gauges in the overall score per segment — VFDA to approve before they are written to `segment_requirements`] | Yes | Open |
+| 1 | [NEEDS CLARIFICATION: weights of the five gauges in the overall score per segment — VFDA to approve before they are written to `segment_requirement`] | Yes | Open |
 | 2 | [NEEDS CLARIFICATION: the 7-day buffer before the first shooting day is a proposed figure — can users change it themselves] | No | Open |
 
 ## Completion checklist

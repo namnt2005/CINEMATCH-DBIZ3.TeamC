@@ -98,7 +98,7 @@
 
 | # | Question | Blocking? | Status |
 |---|---|---|---|
-| 1 | [NEEDS CLARIFICATION: the specific clause of Article 9 for each rule is to be filled in `rules.citation` by the VFDA Legal Board; the mockup only goes to Article level] | No | Open |
+| 1 | [NEEDS CLARIFICATION: the specific clause of Article 9 for each rule is to be filled in `legal_rule.citation` by the VFDA Legal Board; the mockup only goes to Article level] | No | Open |
 | 2 | [NEEDS CLARIFICATION: should the public rule page list earlier versions of the rule and what changed between them?] | No | Open |
 
 ## Completion checklist

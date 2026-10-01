@@ -39,12 +39,12 @@
 |---|---|---|---|---|---|
 | 1 | Navigation bar | Header | static | — | — |
 | 2 | *Compare n / 4* title + context | Header | number of columns; current query and shooting month | — | — |
-| 3 | Location column | List | `locations.name`, `provinces.name`, `cover_image` | — | 2–4 columns |
+| 3 | Location column | List | `location.name_en`, `province.name`, `cover_image` | — | 2–4 columns |
 | 4 | Match score | Text | `F-M3-08` for the current query | — | — |
 | 5 | Add-location slot | Button | static | — | hidden when 4 columns are filled |
 | 6 | Criteria row | List | 8 fixed criteria | — | fixed order |
 | 7 | Value cell | Text | `✓` / `△` / *to verify* + short note | **Yes** | never blank — missing data shows *to verify* |
-| 8 | *Provincial readiness* row | Text | `v_province_readiness.score` | — | same source as `SC-18` |
+| 8 | *Provincial readiness* row | Text | `v_province_readiness.readiness_index` | — | same source as `SC-18` |
 | 9 | Symbol legend | Text | static | Yes | — |
 | 10 | *Set as primary* / *Set as backup* button | Button | writes `project_shortlist.role` = primary / backup | — | at most 1 primary location per scene; login required |
 | 11 | *Download comparison PDF* button | Button | generates PDF | — | login required |
@@ -100,7 +100,7 @@
 
 | # | Question | Blocking? | Status |
 |---|---|---|---|
-| 1 | [NEEDS CLARIFICATION: data source for the *Night shooting* and *Weather by month* criteria — no matching field in `locations` yet] | Yes | Open |
+| 1 | [NEEDS CLARIFICATION: data source for the *Night shooting* and *Weather by month* criteria — no matching field in `location` yet] | Yes | Open |
 
 ## Completion checklist
 

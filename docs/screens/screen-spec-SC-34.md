@@ -37,7 +37,7 @@
 
 | # | Element | Type | Content / data source | Required | Validation |
 |---|---|---|---|---|---|
-| 1 | Admin top bar | Header | static; signed-in user's `profiles.full_name` and role (`user_accounts.role`) | — | shown only to `vfda_staff`, `vfda_legal`, `admin` |
+| 1 | Admin top bar | Header | static; signed-in user's `profile.full_name` and role (`user_account.role`) | — | shown only to `vfda_staff`, `vfda_legal`, `admin` |
 | 2 | Admin menu | List | static: Overview · Locations · Verification · Legal rules · Moderation · Demand index · Reports · Audit log, with pending counts | — | items the role cannot open are hidden |
 | 3 | Greeting and date | Header | signed-in user's first name; server date | — | — |
 | 4 | *Moderation queue* tile | Text + Link | count of `moderation_queue` items with `content_status = pending`; oldest `submitted_at` | Yes | integer ≥ 0 |

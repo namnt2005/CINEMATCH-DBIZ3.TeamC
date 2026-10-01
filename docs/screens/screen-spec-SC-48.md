@@ -39,15 +39,15 @@
 | # | Element | Type | Content / data source | Required | Validation |
 |---|---|---|---|---|---|
 | 1 | Navigation bar | Header | static | — | — |
-| 2 | Title + check run details | Header + Text | `precheck_runs.created_at`, `ruleset_version`, word count, language | Yes | must include the rule set version |
+| 2 | Title + check run details | Header + Text | `precheck_run.created_at`, `ruleset_version`, word count, language | Yes | must include the rule set version |
 | 3 | Attention level scale | Chart (3 levels) | computed deterministically from number of findings × severity (`F-M2-06`) | Yes | Low / Medium / High — no 0–100 score |
-| 4 | Point count by level | Text | count of `precheck_findings` by `severity` | Yes | — |
-| 5 | Submitted text | Text | `precheck_runs.summary_text` | Yes | shown verbatim, unedited |
-| 6 | Highlighted passage | Text (highlight) | `precheck_findings.span_start/end`, finding number | — | yellow = Needs attention, red = Action required; always with a number |
-| 7 | Finding card | List | `precheck_findings` + `rules.title` | — | shown only with a valid citation |
-| 8 | Severity label | Text | `rules.severity` | Yes | Needs attention / Action required |
-| 9 | Provision citation + rule code | Text | `rules.citation`, `rules.code` | **Yes** | **no citation, no finding shown** (`F-M2-12`) |
-| 10 | Points to consider | Text | `rules.guidance_vi/en` — written by the VFDA Legal Board | Yes | taken verbatim from the rule; **not** written by a language model |
+| 4 | Point count by level | Text | count of `precheck_finding` by `severity` | Yes | — |
+| 5 | Submitted text | Text | `summary_text — input only, never stored (M2 FR-007 keeps precheck_run.synopsis_hash)` | Yes | shown verbatim, unedited |
+| 6 | Highlighted passage | Text (highlight) | `precheck_finding.span_start/end`, finding number | — | yellow = Needs attention, red = Action required; always with a number |
+| 7 | Finding card | List | `precheck_finding` + `legal_rule.title_en` | — | shown only with a valid citation |
+| 8 | Severity label | Text | `legal_rule.severity` | Yes | Needs attention / Action required |
+| 9 | Provision citation + rule code | Text | `legal_rule.citation`, `legal_rule.rule_code` | **Yes** | **no citation, no finding shown** (`F-M2-12`) |
+| 10 | Points to consider | Text | `legal_rule.guidance_vi/en` — written by the VFDA Legal Board | Yes | taken verbatim from the rule; **not** written by a language model |
 | 11 | *Edit summary and re-check* button | Button | static | — | — |
 | 12 | *Save to project* button | Button | static | — | requires login and at least one project |
 | 13 | *Ask the VFDA Legal Board* button | Button | static | — | — |
@@ -78,7 +78,7 @@
 
 | Rule ID | Rule | Source |
 |---|---|---|
-| SR-071 | **Every finding comes with a cited provision; if it can't be cited, it isn't shown.** Citations are matched by code against the `rules` table before display. | TL5 §M2 — anti-fabrication |
+| SR-071 | **Every finding comes with a cited provision; if it can't be cited, it isn't shown.** Citations are matched by code against the `legal_rule` table before display. | TL5 §M2 — anti-fabrication |
 | SR-072 | Results use a **3-level scale**, not a 0–100 score: a precise number from a language model creates false certainty. | No-guessing principle |
 | SR-073 | **Adjustment suggestions** are only *points to consider* taken verbatim from VFDA-written rules. The system **never** rewrites film content itself. | Screen list file — note #7; TL3 |
 | SR-074 | **Banned wording:** *approved*, *accepted*, *legally compliant*, *safe* — even when there are no findings. | Legal liability principle |
@@ -106,7 +106,7 @@
 
 | # | Question | Blocking? | Status |
 |---|---|---|---|
-| 1 | [NEEDS CLARIFICATION: the specific clause of Article 9 for each rule is to be filled in `rules.citation` by the VFDA Legal Board; the mockup only goes to Article level] | No | Open |
+| 1 | [NEEDS CLARIFICATION: the specific clause of Article 9 for each rule is to be filled in `legal_rule.citation` by the VFDA Legal Board; the mockup only goes to Article level] | No | Open |
 | 2 | [NEEDS CLARIFICATION: thresholds for mapping number of findings × severity to Low / Medium / High] | Yes | Open |
 
 ## Completion checklist

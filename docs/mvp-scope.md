@@ -1,6 +1,6 @@
 # MVP Scope & Rough Sprint Backlog
 
-*Session 1 deliverable — Word version: `docs/word/Session-01-MVP-Scope-GroupC.docx`.*
+*Session 1 deliverable — Word version: `docs/word/Session-01-MVP-Scope-GroupC.docx`. Kept as the Session 1 record; the current scope is `docs/prd.md` (MVP Scope v3), which lists every change since.*
 
 | Team / Project | Date | Completed by |
 |---|---|---|
@@ -27,7 +27,7 @@ International film producers (production companies and line producers) planning 
 
 - System Design v2.0, sheet *3. Function List*: 41 capabilities / 119 subfunctions, textualised in `docs/function-list.md`.
 - MVP modules: SYS (F-SYS-01..11), M1 (F-M1-01..03), M0 (F-M0-01..09), M2 (F-M2-01..18), M3 (F-M3-01..20), M4 (F-M4-01..19), M5 (F-M5-01..08), M7 (F-M7-01..07), M10 (F-M10-01..09).
-- Screens: System Design v2.0, sheet *5. Screen List* (`docs/screen-list.md`); 20 priority screens mocked and specified in `docs/screens/`.
+- Screens: System Design v2.0, sheet *5. Screen List* (`docs/screen-list.md`); 44 MVP screens specified and mocked in `docs/screens/` (41 files; 20 priority screens first, 21 added on 30/09/2026).
 
 ## 4. MVP Scope Priority — MoSCoW
 
@@ -38,10 +38,10 @@ International film producers (production companies and line producers) planning 
 | Must | Project workspace and five-gauge readiness dashboard with one next step per gauge (M0) | The product's home; every module reports into it |
 | Must | 200-word content pre-check without sign-up and result with cited findings (M2) | Main conversion point; findings must cite VFDA-signed rules |
 | Must | Article 13 dossier completeness check and 20-day timeline (M2) | A missing component costs the producer the 20-day processing time |
-| Must | Legal rule base written and signed by the VFDA Legal Board, with audit log (M2, M10 log) | Without approved rules the pre-check has nothing to check against; screen SC-37 still needs a mockup |
+| Must | Legal rule base written and signed by the VFDA Legal Board, with audit log (M2, M10 log) | Without approved rules the pre-check has nothing to check against |
 | Must | Location search from a scene description, results with reasons, location detail with gated authority contacts (M3) | The most tangible value for a foreign producer |
-| Must | Location data management and publishing by VFDA staff (M3) | Seed data; screen SC-35 still needs a mockup |
-| Must | Partner directory (12 service groups), three-layer profiles, VFDA Verified (M4) | Article 13 makes a Vietnamese partner mandatory; screen SC-36 still needs a mockup |
+| Must | Location data management and publishing by VFDA staff (M3) | Seed data |
+| Must | Partner directory (12 service groups), three-layer profiles, VFDA Verified (M4) | Article 13 makes a Vietnamese partner mandatory |
 | Must | Collaboration requests to confirmation, mutual NDA, document access log (M4) | Turns the directory into an actual partnership |
 | Must | Document kit by segment, bilingual draft with paragraph proofreading, countdown (M5) | The Vietnamese script is a legal requirement |
 | Should | Location comparison (up to 4) and primary / backup shortlist (M3) | Tier 2 in the screen list; search and detail work without it |

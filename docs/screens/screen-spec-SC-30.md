@@ -39,10 +39,10 @@
 |---|---|---|---|---|---|
 | 1 | Navigation bar | Header | static; *Permits* selected; guest view | — | — |
 | 2 | Title | Header | static | — | — |
-| 3 | Rule set line | Text | current `rule_version` and the number of rules in `rules` (approved rules only) | — | — |
+| 3 | Rule set line | Text | current `rule_version` and the number of rules in `legal_rule` (approved rules only) | — | — |
 | 4 | Topic filter with counts | Toggle (single choice) | `topic` — security / history / religion / privacy / dossier / public_order / heritage, shown with readable labels; count of approved rules per topic | No | one of the 7 topic values or *All topics*; a topic with 0 rules stays visible, greyed, and shows the empty message when chosen |
 | 5 | Segment filter | Toggle (single choice) | `segment` — A / B / C | No | enum A / B / C or *All* |
-| 6 | Rule card list | List | `rules` (`legal_rule_public[]`) — approved, active rules only | — | draft and retired rules never listed |
+| 6 | Rule card list | List | `legal_rule` (`legal_rule_public[]`) — approved, active rules only | — | draft and retired rules never listed |
 | 7 | Rule title | Text | `title_en` (or `title_vi` when the interface is in Vietnamese) | Yes | — |
 | 8 | Rule code and topic label | Text | `rule_code`, `topic` | Yes | — |
 | 9 | Severity label | Text | `severity` — notice → *Needs attention*, action → *Action required* | Yes | enum, 2 values |

@@ -39,11 +39,11 @@
 |---|---|---|---|---|---|
 | 1 | Navigation bar | Header | static; signed in as a VFDA Legal Board member | — | — |
 | 2 | Admin menu | List | static; *Legal rules* selected | — | items shown according to the user's role |
-| 3 | Title + rule-set summary | Header | current `rule_version`; counts of `rules` by status | — | — |
+| 3 | Title + rule-set summary | Header | current `rule_version`; counts of `legal_rule` by status | — | — |
 | 4 | *+ New rule* button | Button | static | — | opens an empty editor with status *draft* |
 | 5 | Topic filter | Toggle (dropdown) | `filter_topic` — security / history / religion / privacy / dossier / public_order / heritage | No | enum or *All topics* |
 | 6 | Status filter with counts | Toggle (single choice) | `filter_status` — draft / approved / retired | No | enum or *All* |
-| 7 | Rule table | List | `rules` (`legal_rule[]`): `rule_code`, `title_en`, `topic` | — | visible to the `vfda_legal` role only (Row Level Security) |
+| 7 | Rule table | List | `legal_rule` (`legal_rule[]`): `rule_code`, `title_en`, `topic` | — | visible to the `vfda_legal` role only (Row Level Security) |
 | 8 | Rule status | Text | status — Draft / Approved / Retired; *Approved* means `is_active` = true | — | enum |
 | 9 | Rule version | Text | `version` / `rule_version` in which the rule was activated | — | *—* for drafts |
 | 10 | Row action *Edit* / *Retire* | Link | draft → *Edit*; approved → *Retire* (confirmation dialog); retired → *View* | — | *Retire* needs a confirmation; retired rules are read-only |

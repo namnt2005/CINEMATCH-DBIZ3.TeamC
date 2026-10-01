@@ -1,16 +1,16 @@
 ---
 artifact: 04-data-model
 step: S4
-generated: 2026-09-30
+generated: 2026-10-01
 sources: FUNCTIONS, FIELDS, ENTITIES, RULES, SCENARIOS, FLOWS, SCREENS, BOUNDARY
 ---
 
 
 # Logical Data Model — CINEMATCH
 
-46 tables, 312 columns. Every column is **copied** from a FIELDS row (section 5.1) or an ENTITIES attribute (section 6), with its declared type and Req / Opt flag. *system-set* = an output field (the system fills it); *not declared* = no flag in the input.
+46 tables, 313 columns. Every column is **copied** from a FIELDS row (section 5.1) or an ENTITIES attribute (section 6), with its declared type and Req / Opt flag. *system-set* = an output field (the system fills it); *not declared* = no flag in the input.
 
-**62 columns carry no declared type.** They are written *type not declared* and raised as OQ-04-18 — no type was assigned here. Technical columns (`created_at`, `updated_at`) appear only where the spec declares them.
+**Every column has a declared type** — the types of the section 6 attributes that no 5.1 field declares come from section 6.1 of the owning Spec Document (cited as `<MODULE> §6.1`). Technical columns (`created_at`, `updated_at`) appear only where the spec declares them. The physical schema built from this model is in `data/schema/schema-<MODULE>.sql`; one readable view per module is in `data/data-model-<MODULE>.md`.
 
 Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M3 → M4 → M5 → M7 → M10.
 
@@ -25,7 +25,7 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 | `email_verified` | `BOOLEAN` | system-set |  | SYS §5.1 FR-001 (OUT) |
 | `role` | `ENUM(guest, member, partner, vfda_staff, vfda_legal, admin)` | Req |  | SYS §5.1 FR-004; SYS §5.2 BR-002 (new account = member) |
 | `account_status` | `ENUM(active, deactivated)` | Opt |  | SYS §5.1 FR-004; SYS §5.2 BR-005 (deactivated and anonymised, never hard-deleted) |
-| `created_at` | *type not declared* | not declared |  | SYS §6 |
+| `created_at` | `TIMESTAMPTZ` | Req |  | SYS §6; SYS §6.1 |
 
 **Natural key:** email — one account per email (SYS §3 US-1, third criterion).
 
@@ -39,7 +39,7 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 | `full_name` | `VARCHAR(120)` | Req |  | SYS §5.1 FR-001 |
 | `crew_role` | `ENUM(producer, director, production_coordinator, line_producer, other)` | Req |  | SYS §5.1 FR-001 |
 | `locale` | `ENUM(vi, en)` | Req |  | SYS §5.1 FR-005 (also said to live in a cookie — see Type conflicts) |
-| `producer_org_id` | *type not declared* | not declared | FK → `PRODUCER_ORGANISATION` | SYS §6 |
+| `producer_org_id` | `UUID` | Opt | FK → `PRODUCER_ORGANISATION` | SYS §6; SYS §6.1 |
 
 **Natural key:** user_id — one profile per account (SYS §6).
 
@@ -49,7 +49,7 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 
 | Column | Type (as declared) | Required | Key | Citation |
 |---|---|---|---|---|
-| `producer_org_id` | *type not declared* | not declared | PK | SYS §6 (Profile.producer_org_id) |
+| `producer_org_id` | `UUID` | Req | PK | SYS §6 (Profile.producer_org_id); SYS §6.1 |
 | `org_name` | `VARCHAR(200)` | Req |  | SYS §5.1 FR-001 |
 | `country` | `CHAR(2)` | Req |  | SYS §5.1 FR-001 |
 | `website` | `VARCHAR(300)` | Opt |  | SYS §5.1 FR-001 |
@@ -64,7 +64,7 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 |---|---|---|---|---|
 | `user_id` | `UUID` | Req | PK, FK → `USER_ACCOUNT` | SYS §6 |
 | `consent_version` | `VARCHAR(20)` | Req | PK | SYS §5.1 FR-001; SYS §5.2 BR-003 |
-| `accepted_at` | *type not declared* | not declared |  | SYS §6; SYS §5.2 BR-003 (timestamp) |
+| `accepted_at` | `TIMESTAMPTZ` | Req |  | SYS §6; SYS §5.2 BR-003 (timestamp); SYS §6.1 |
 
 **Natural key:** user_id + consent_version.
 
@@ -79,7 +79,7 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 | `event_type` | `VARCHAR(60)` | Req |  | SYS §5.1 FR-007 |
 | `payload` | `JSONB` | Req |  | SYS §5.1 FR-007 |
 | `created_at` | `TIMESTAMPTZ` | system-set |  | SYS §5.1 FR-007 (OUT) |
-| `read_at` | *type not declared* | not declared |  | SYS §6; SYS §5.1 FR-009 (mark as read) |
+| `read_at` | `TIMESTAMPTZ` | Opt |  | SYS §6; SYS §5.1 FR-009 (mark as read); SYS §6.1 |
 
 **Natural key:** None in the real world (an event); recipient_id + event_type + created_at identifies it in practice.
 
@@ -89,7 +89,7 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 
 | Column | Type (as declared) | Required | Key | Citation |
 |---|---|---|---|---|
-| `email_delivery_id` | *type not declared* | not declared | PK | none — no identifier declared (open question) |
+| `email_delivery_id` | `UUID` | Req | PK | SYS §6.1 |
 | `notification_id` | `UUID` | Opt | FK → `NOTIFICATION` | SYS §6 ("may relate to a Notification") |
 | `template_id` | `VARCHAR(60)` | Req |  | SYS §5.1 FR-008 |
 | `recipient_email` | `VARCHAR(254)` | Req |  | SYS §5.1 FR-008 |
@@ -105,12 +105,12 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 
 | Column | Type (as declared) | Required | Key | Citation |
 |---|---|---|---|---|
-| `segment_rule_id` | *type not declared* | not declared | PK | M1 §6 (rule_id — renamed, see 01 conflicts) |
+| `segment_rule_id` | `UUID` | Req | PK | M1 §6 (rule_id — renamed, see 01 conflicts); M1 §6.1 |
 | `q1_shoot_in_vn` | `BOOLEAN` | Req |  | M1 §6 (q1) = M1 §5.1 FR-002 q1_shoot_in_vn |
 | `q2_release` | `ENUM(abroad, vietnam, both)` | Opt |  | M1 §6 (q2) = M1 §5.1 FR-002 |
 | `q3_producer` | `ENUM(foreign, vietnamese, coproduction)` | Opt |  | M1 §6 (q3) = M1 §5.1 FR-002 |
 | `result_segment` | `ENUM(A, B, C)` | not declared |  | M1 §6; type of segment from M1 §5.1 FR-002 |
-| `version` | *type not declared* | not declared |  | M1 §6 |
+| `version` | `VARCHAR(20)` | Req |  | M1 §6; M1 §6.1 |
 
 **Natural key:** q1_shoot_in_vn + q2_release + q3_producer + version — the same answers always give the same segment (M1 BR-001).
 
@@ -121,10 +121,10 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 | Column | Type (as declared) | Required | Key | Citation |
 |---|---|---|---|---|
 | `segment` | `ENUM(A, B, C)` | not declared | PK | M1 §6; type from M1 §5.1 FR-002 |
-| `requirement_code` | *type not declared* | not declared | PK | M1 §6 |
-| `label_vi` | *type not declared* | not declared |  | M1 §6 |
-| `label_en` | *type not declared* | not declared |  | M1 §6 |
-| `needed` | *type not declared* | not declared |  | M1 §6; M1 §3 US-1 (Needed / Not needed) |
+| `requirement_code` | `VARCHAR(40)` | Req | PK | M1 §6; M1 §6.1 |
+| `label_vi` | `TEXT` | Req |  | M1 §6; M1 §6.1 |
+| `label_en` | `TEXT` | Req |  | M1 §6; M1 §6.1 |
+| `needed` | `BOOLEAN` | Req |  | M1 §6; M1 §3 US-1 (Needed / Not needed); M1 §6.1 |
 
 **Natural key:** segment + requirement_code.
 
@@ -134,9 +134,10 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 
 | Column | Type (as declared) | Required | Key | Citation |
 |---|---|---|---|---|
-| `segment_decision_id` | *type not declared* | not declared | PK | none — no identifier declared (open question) |
-| `session_or_project_id` | *type not declared* | not declared | FK → `PROJECT` | M1 §6 (one column for two meanings — see Structural findings) |
-| `segment_rule_id` | *type not declared* | not declared | FK → `SEGMENT_RULE` | M1 §6 ("used by SegmentDecision") |
+| `segment_decision_id` | `UUID` | Req | PK | M1 §6.1 |
+| `project_id` | `UUID` | Opt | FK → `PROJECT` | M1 §6 ("belongs to Project (M0) once saved"); M1 §6.1 |
+| `session_key` | `VARCHAR(40)` | Opt |  | M1 §6 (anonymous session before sign-up); M1 §6.1 |
+| `segment_rule_id` | `UUID` | Opt | FK → `SEGMENT_RULE` | M1 §6 ("used by SegmentDecision"); M1 §6.1 |
 | `q1_shoot_in_vn` | `BOOLEAN` | Req |  | M1 §5.1 FR-002 (answers) |
 | `q2_release` | `ENUM(abroad, vietnam, both)` | Opt |  | M1 §5.1 FR-002 (Req when q1 = true) |
 | `q3_producer` | `ENUM(foreign, vietnamese, coproduction)` | Opt |  | M1 §5.1 FR-002 (Req when q1 = true) |
@@ -155,7 +156,7 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 | Column | Type (as declared) | Required | Key | Citation |
 |---|---|---|---|---|
 | `project_id` | `UUID` | system-set | PK | M0 §5.1 FR-001 (OUT) |
-| `producer_org_id` | *type not declared* | not declared | FK → `PRODUCER_ORGANISATION` | M0 §6 ("belongs to ProducerOrganisation") |
+| `producer_org_id` | `UUID` | Req | FK → `PRODUCER_ORGANISATION` | M0 §6 ("belongs to ProducerOrganisation"); M0 §6.1 |
 | `project_name` | `VARCHAR(200)` | Req |  | M0 §5.1 FR-001 |
 | `format` | `ENUM(feature, documentary, commercial, tv, music_video)` | Req |  | M0 §5.1 FR-001 |
 | `segment` | `ENUM(A, B, C)` | Req |  | M0 §5.1 FR-001; M1 §5.1 FR-003 |
@@ -177,7 +178,7 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 |---|---|---|---|---|
 | `member_id` | `UUID` | system-set | PK | M0 §5.1 FR-004 (OUT) |
 | `project_id` | `UUID` | Req | FK → `PROJECT` | M0 §5.1 FR-004 |
-| `user_id` | *type not declared* | not declared | FK → `USER_ACCOUNT` | M0 §6 (user_id) |
+| `user_id` | `UUID` | Opt | FK → `USER_ACCOUNT` | M0 §6 (user_id); M0 §6.1 |
 | `invitee_email` | `VARCHAR(254)` | Req |  | M0 §5.1 FR-004 |
 | `permission` | `ENUM(view, edit)` | Req |  | M0 §5.1 FR-004 (owner not in the set — see Structural findings) |
 | `invite_status` | `ENUM(pending, accepted)` | system-set |  | M0 §5.1 FR-004 (OUT) |
@@ -241,8 +242,8 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 | Column | Type (as declared) | Required | Key | Citation |
 |---|---|---|---|---|
 | `rule_version` | `VARCHAR(20)` | system-set | PK | M2 §5.1 FR-004 (OUT) — see Type conflicts |
-| `created_at` | *type not declared* | not declared |  | M2 §6 |
-| `created_by` | *type not declared* | not declared | FK → `USER_ACCOUNT` | M2 §6 |
+| `created_at` | `TIMESTAMPTZ` | Req |  | M2 §6; M2 §6.1 |
+| `created_by` | `UUID` | Req | FK → `USER_ACCOUNT` | M2 §6; M2 §6.1 |
 
 **Natural key:** rule_version.
 
@@ -253,14 +254,14 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 | Column | Type (as declared) | Required | Key | Citation |
 |---|---|---|---|---|
 | `brief_id` | `UUID` | system-set | PK | M2 §5.1 FR-007 (OUT) |
-| `project_id` | *type not declared* | not declared | FK → `PROJECT` | M2 §6 ("may belong to a Project") |
+| `project_id` | `UUID` | Opt | FK → `PROJECT` | M2 §6 ("may belong to a Project"); M2 §6.1 |
 | `rule_version` | `VARCHAR(20)` | system-set | FK → `RULE_SET_VERSION` | M2 §6; M2 §5.2 BR-007 |
 | `synopsis_hash` | `TEXT` | Req |  | M2 §5.1 FR-007 |
 | `lang` | `ENUM(en, vi)` | Req |  | M2 §5.1 FR-005 (= locale ENUM(vi, en) in FR-007) |
 | `flags` | `JSONB` | Opt |  | M2 §5.1 FR-005 |
 | `country_guess` | `VARCHAR(2)` | Opt |  | M2 §5.1 FR-007 |
 | `attention_level` | `ENUM(low, medium, high)` | system-set |  | M2 §5.1 FR-006 (OUT); M2 §5.2 BR-004 |
-| `created_at` | *type not declared* | not declared |  | M2 §6 |
+| `created_at` | `TIMESTAMPTZ` | Req |  | M2 §6; M2 §6.1 |
 
 **Natural key:** None — the same summary may be checked many times (synopsis_hash + created_at in practice).
 
@@ -272,8 +273,8 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 |---|---|---|---|---|
 | `brief_id` | `UUID` | Req | PK, FK → `PRECHECK_RUN` | M2 §6 ("belongs to PrecheckRun") |
 | `rule_code` | `VARCHAR(40)` | system-set | PK, FK → `LEGAL_RULE` | M2 §5.1 FR-006 (OUT findings) |
-| `span_start` | *type not declared* | not declared | PK | M2 §6 |
-| `span_end` | *type not declared* | not declared |  | M2 §6 |
+| `span_start` | `INTEGER` | Req | PK | M2 §6; M2 §6.1 |
+| `span_end` | `INTEGER` | Req |  | M2 §6; M2 §6.1 |
 | `quoted_text` | `TEXT` | system-set |  | M2 §5.1 FR-006 (OUT) |
 | `explanation_vi` | `TEXT` | system-set |  | M2 §5.1 FR-006 (OUT); M2 §6 (explanation) |
 | `explanation_en` | `TEXT` | system-set |  | M2 §5.1 FR-006 (OUT) |
@@ -286,10 +287,10 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 
 | Column | Type (as declared) | Required | Key | Citation |
 |---|---|---|---|---|
-| `run_id` | *type not declared* | not declared | PK | M2 §6 |
-| `project_id` | *type not declared* | not declared | FK → `PROJECT` | M2 §6 |
+| `run_id` | `UUID` | Req | PK | M2 §6; M2 §6.1 |
+| `project_id` | `UUID` | Req | FK → `PROJECT` | M2 §6; M2 §6.1 |
 | `rule_version` | `VARCHAR(20)` | not declared | FK → `RULE_SET_VERSION` | M2 §6; M2 §5.2 BR-007 |
-| `run_at` | *type not declared* | not declared |  | M2 §6 |
+| `run_at` | `TIMESTAMPTZ` | Req |  | M2 §6; M2 §6.1 |
 
 **Natural key:** project_id + run_at.
 
@@ -300,7 +301,7 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 | Column | Type (as declared) | Required | Key | Citation |
 |---|---|---|---|---|
 | `finding_id` | `UUID` | Req | PK | M2 §5.1 FR-014 |
-| `run_id` | *type not declared* | not declared | FK → `COMPLIANCE_RUN` | M2 §6 ("belongs to ComplianceRun") |
+| `run_id` | `UUID` | Req | FK → `COMPLIANCE_RUN` | M2 §6 ("belongs to ComplianceRun"); M2 §6.1 |
 | `rule_code` | `VARCHAR(40)` | system-set | FK → `LEGAL_RULE` | M2 §6; type from M2 §5.1 FR-006 |
 | `quoted_text` | `TEXT` | system-set |  | M2 §6; type from M2 §5.1 FR-006 |
 | `finding_status` | `ENUM(open, reviewed)` | system-set |  | M2 §5.1 FR-014 (OUT) |
@@ -333,6 +334,7 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 | `months_to_avoid` | `INTEGER[]` | Opt |  | M3 §5.1 FR-002 |
 | `permit_complexity` | `ENUM(low, medium, high)` | Req |  | M3 §5.1 FR-002 |
 | `restriction_note` | `TEXT` | Opt |  | M3 §5.1 FR-002 |
+| `availability` | `ENUM(open, survey_in_progress, paused)` | Req |  | M3 §5.1 FR-002; M3 §5.2 BR-010 |
 | `intake_status` | `ENUM(awaiting_contact, published, unpublished)` | system-set |  | M3 §5.1 FR-002 (OUT); M3 §6; M3 §5.2 BR-008 (unpublished, never deleted) |
 | `published` | `BOOLEAN` | system-set |  | M3 §5.1 FR-005 (OUT); M3 §5.2 BR-004 |
 | `blocked_reason` | `TEXT` | system-set |  | M3 §5.1 FR-005 (OUT) |
@@ -346,7 +348,7 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 | Column | Type (as declared) | Required | Key | Citation |
 |---|---|---|---|---|
 | `image_url` | `TEXT` | system-set | PK | M3 §5.1 FR-003 (OUT) |
-| `location_id` | *type not declared* | not declared | FK → `LOCATION` | M3 §6 ("belongs to Location") |
+| `location_id` | `UUID` | Req | FK → `LOCATION` | M3 §6 ("belongs to Location"); M3 §6.1 |
 | `image_source` | `TEXT` | Req |  | M3 §5.1 FR-003 |
 | `usage_right` | `TEXT` | Req |  | M3 §5.1 FR-003 |
 | `status` | `ENUM(pending, approved, hidden)` | system-set |  | M3 §5.1 FR-003 (OUT image_status); M10 §5.1 FR-002 (content_status) |
@@ -377,10 +379,10 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 | Column | Type (as declared) | Required | Key | Citation |
 |---|---|---|---|---|
 | `province_id` | `INTEGER` | Req | PK | M3 §5.1 FR-002 (province_id INTEGER) |
-| `name` | *type not declared* | not declared | UK | M3 §6 |
+| `name` | `VARCHAR(80)` | Req | UK | M3 §6; M3 §6.1 |
 | `slug` | `VARCHAR(80)` | Req | UK | M3 §5.1 FR-020 (province_slug) |
 | `region` | `ENUM(north, central, south)` | not declared |  | M3 §6; type from M3 §5.1 FR-007 (region) |
-| `merged_from` | *type not declared* | not declared |  | M3 §6; M3 §5.2 BR-006 |
+| `merged_from` | `VARCHAR(80)[]` | Opt |  | M3 §6; M3 §5.2 BR-006; M3 §6.1 |
 
 **Natural key:** name (one of the 34 units, M3 BR-006); slug.
 
@@ -420,14 +422,14 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 | `org_id` | `UUID` | system-set | PK | M4 §5.1 FR-001 (OUT) |
 | `slug` | `VARCHAR(160)` | system-set | UK | M4 §5.1 FR-001 (OUT) |
 | `org_name` | `VARCHAR(200)` | Req |  | M4 §5.1 FR-001 |
-| `legal_form` | *type not declared* | not declared |  | M4 §6 |
-| `founded_year` | *type not declared* | not declared |  | M4 §6 |
-| `hq_province` | *type not declared* | not declared | FK → `PROVINCE` | M4 §6 (a province — see Type conflicts) |
+| `legal_form` | `VARCHAR(60)` | Req |  | M4 §6; M4 §6.1 |
+| `founded_year` | `INTEGER` | Opt |  | M4 §6; M4 §6.1 |
+| `hq_province` | `INTEGER` | Opt | FK → `PROVINCE` | M4 §6 (a province — see Type conflicts); M4 §6.1 |
 | `service_groups` | `ENUM(full_production, permits_paperwork, casting, crew, camera_lighting, studios_interiors, location_management, transport_logistics, lodging_catering, interpreting, insurance_legal, post_production)[]` | Req |  | M4 §5.1 FR-001; M4 §5.2 BR-002 (12 fixed values) |
 | `provinces` | `INTEGER[]` | Req |  | M4 §5.1 FR-001 |
 | `verified_at` | `TIMESTAMPTZ` | system-set |  | M4 §5.1 FR-010 (OUT) |
-| `verified_until` | *type not declared* | not declared |  | M4 §6; M4 §5.2 BR-004 (12 months) |
-| `art13_eligible` | *type not declared* | not declared |  | M4 §6 |
+| `verified_until` | `DATE` | Opt |  | M4 §6; M4 §5.2 BR-004 (12 months); M4 §6.1 |
+| `art13_eligible` | `BOOLEAN` | Req |  | M4 §6; M4 §6.1 |
 | `org_status` | `ENUM(active, deactivated)` | Opt |  | M4 §5.1 FR-001; M4 §5.2 BR-008 (deactivated, never deleted) |
 
 **Natural key:** org_name + hq_province — proposed; a business registration number is not declared (open question).
@@ -441,8 +443,8 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 | `org_id` | `UUID` | Req | PK, FK → `ORGANISATION` | M4 §6 ("belongs to Organisation") |
 | `capability_desc_vi` | `TEXT` | Opt |  | M4 §5.1 FR-001 (§6 capability_desc) |
 | `capability_desc_en` | `TEXT` | Opt |  | M4 §5.1 FR-001 |
-| `portfolio` | *type not declared* | not declared |  | M4 §6 |
-| `intl_project_count` | *type not declared* | not declared |  | M4 §6 |
+| `portfolio` | `VARCHAR(200)[]` | Opt |  | M4 §6; M4 §6.1 |
+| `intl_project_count` | `INTEGER` | Req |  | M4 §6; M4 §6.1 |
 | `working_languages` | `CHAR(2)[]` | Opt |  | M4 §5.1 FR-001; M4 §6 |
 
 **Natural key:** org_id.
@@ -456,7 +458,7 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 | `org_id` | `UUID` | Req | PK, FK → `ORGANISATION` | M4 §6 |
 | `rate_card` | `JSONB` | Opt |  | M4 §5.1 FR-001 |
 | `past_clients` | `TEXT[]` | Opt |  | M4 §5.1 FR-001 |
-| `direct_contact` | *type not declared* | not declared |  | M4 §6 |
+| `direct_contact` | `VARCHAR(200)` | Opt |  | M4 §6; M4 §6.1 |
 
 **Natural key:** org_id.
 
@@ -471,7 +473,7 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 | `business_license` | `FILE` | Req |  | M4 §5.1 FR-008 (PDF max 25 MB) |
 | `reference_projects` | `TEXT[]` | Req |  | M4 §5.1 FR-008 (≥ 2) |
 | `status` | `ENUM(pending, approved, rejected)` | Opt |  | M4 §5.1 FR-009, FR-010 |
-| `decided_by` | *type not declared* | not declared | FK → `USER_ACCOUNT` | M4 §6 |
+| `decided_by` | `UUID` | Opt | FK → `USER_ACCOUNT` | M4 §6; M4 §6.1 |
 | `reason` | `TEXT` | Opt |  | M4 §5.1 FR-010 (required when rejected) |
 
 **Natural key:** org_id + submission time (not declared).
@@ -489,9 +491,9 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 | `note` | `TEXT` | Opt |  | M4 §5.1 FR-012 (max 1000 characters) |
 | `status` | `ENUM(pending, under_review, info_requested, accepted, declined, confirmed, withdrawn)` | system-set |  | M4 §5.1 FR-012 (pending), FR-014; M4 §5.2 BR-005 |
 | `response_note` | `TEXT` | Opt |  | M4 §5.1 FR-014 |
-| `sent_at` | *type not declared* | not declared |  | M4 §6 |
+| `sent_at` | `TIMESTAMPTZ` | Req |  | M4 §6; M4 §6.1 |
 | `responded_at` | `TIMESTAMPTZ` | system-set |  | M4 §5.1 FR-014 (OUT) |
-| `confirmed_at` | *type not declared* | not declared |  | M4 §6 |
+| `confirmed_at` | `TIMESTAMPTZ` | Opt |  | M4 §6; M4 §6.1 |
 
 **Natural key:** project_id + org_id while the request is open (M4 §3 Edge cases: a second open request is refused).
 
@@ -503,8 +505,8 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 |---|---|---|---|---|
 | `message_id` | `UUID` | system-set | PK | M4 §5.1 FR-014 (OUT) |
 | `request_id` | `UUID` | Req | FK → `COLLAB_REQUEST` | M4 §5.1 FR-014; M4 §6 |
-| `author_id` | *type not declared* | not declared | FK → `USER_ACCOUNT` | M4 §6 |
-| `created_at` | *type not declared* | not declared |  | M4 §6 |
+| `author_id` | `UUID` | Req | FK → `USER_ACCOUNT` | M4 §6; M4 §6.1 |
+| `created_at` | `TIMESTAMPTZ` | Req |  | M4 §6; M4 §6.1 |
 | `body` | `TEXT` | not declared |  | M4 §6; type of response_note, M4 §5.1 FR-014; M4 §5.2 BR-009 (never edited) |
 
 **Natural key:** request_id + author_id + created_at (message_id is the declared key, M4 FR-014).
@@ -548,7 +550,7 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 | `name_en` | `TEXT` | system-set |  | M5 §5.1 FR-001 (OUT) |
 | `basis` | `ENUM(law, common, location)` | system-set |  | M5 §5.1 FR-001 (OUT); M5 §5.2 BR-003 |
 | `template_url` | `TEXT` | system-set |  | M5 §5.1 FR-001 (OUT) |
-| `segments` | *type not declared* | not declared |  | M5 §6 |
+| `segments` | `ENUM(A, B, C)[]` | Req |  | M5 §6; M5 §6.1 |
 
 **Natural key:** doc_code.
 
@@ -573,10 +575,10 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 | `document_id` | `UUID` | system-set | PK | M5 §5.1 FR-002 (OUT) |
 | `project_id` | `UUID` | Req | FK → `DOCUMENT_SLOT` | M5 §5.1 FR-002 (with doc_code: the slot) |
 | `doc_code` | `VARCHAR(40)` | Req | FK → `DOCUMENT_SLOT` | M5 §5.1 FR-002 |
-| `file_path` | *type not declared* | not declared |  | M5 §6 (FR-002 declares file BYTEA — see Type conflicts) |
-| `version` | *type not declared* | not declared |  | M5 §6; M5 §5.1 FR-002 (previous versions kept) |
-| `uploaded_by` | *type not declared* | not declared | FK → `USER_ACCOUNT` | M5 §6 |
-| `uploaded_at` | *type not declared* | not declared |  | M5 §6 |
+| `file_path` | `TEXT` | Req |  | M5 §6 (FR-002 declares file BYTEA — see Type conflicts); M5 §6.1 |
+| `version` | `INTEGER` | Req |  | M5 §6; M5 §5.1 FR-002 (previous versions kept); M5 §6.1 |
+| `uploaded_by` | `UUID` | Req | FK → `USER_ACCOUNT` | M5 §6; M5 §6.1 |
+| `uploaded_at` | `TIMESTAMPTZ` | Req |  | M5 §6; M5 §6.1 |
 
 **Natural key:** project_id + doc_code + version.
 
@@ -592,7 +594,6 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 | `synopsis_en` | `TEXT` | Req |  | M5 §5.1 FR-004, FR-005 |
 | `project_meta` | `JSONB` | Req |  | M5 §5.1 FR-004 (copy of project data — see Structural findings) |
 | `pdf_url` | `TEXT` | system-set |  | M5 §5.1 FR-005 (OUT) |
-| `watermark` | `BOOLEAN` | system-set |  | M5 §5.1 FR-005 (OUT, always true); M5 §5.2 BR-001 |
 
 **Natural key:** project_id + doc_code.
 
@@ -620,7 +621,7 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 
 | Column | Type (as declared) | Required | Key | Citation |
 |---|---|---|---|---|
-| `project_id` | *type not declared* | not declared | PK, FK → `PROJECT` | M5 §6; M5 §5.2 BR-006 |
+| `project_id` | `UUID` | Req | PK, FK → `PROJECT` | M5 §6; M5 §5.2 BR-006; M5 §6.1 |
 | `term_en` | `VARCHAR(120)` | not declared | PK | M5 §5.1 FR-004 (glossary Opt); M5 §6 source_term |
 | `term_vi` | `VARCHAR(120)` | not declared |  | M5 §5.1 FR-004 (glossary Opt); M5 §6 target_term |
 
@@ -632,10 +633,10 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 
 | Column | Type (as declared) | Required | Key | Citation |
 |---|---|---|---|---|
-| `name` | *type not declared* | not declared | PK | M5 §6 |
-| `start_date` | *type not declared* | not declared | PK | M5 §6 |
-| `end_date` | *type not declared* | not declared |  | M5 §6 |
-| `is_expected` | *type not declared* | not declared |  | M5 §6; M5 §3 US-3 (band marked *expected*) |
+| `name` | `VARCHAR(120)` | Req | PK | M5 §6; M5 §6.1 |
+| `start_date` | `DATE` | Req | PK | M5 §6; M5 §6.1 |
+| `end_date` | `DATE` | Req |  | M5 §6; M5 §6.1 |
+| `is_expected` | `BOOLEAN` | Req |  | M5 §6; M5 §3 US-3 (band marked *expected*); M5 §6.1 |
 
 **Natural key:** name + start_date.
 
@@ -648,7 +649,7 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 | `interest_id` | `UUID` | system-set | PK | M7 §5.1 FR-001 (OUT) |
 | `project_id` | `UUID` | Req | FK → `PROJECT` | M7 §5.1 FR-001 |
 | `location_id` | `UUID` | Req | FK → `LOCATION` | M7 §5.1 FR-001 |
-| `created_at` | *type not declared* | not declared |  | M7 §6 |
+| `created_at` | `TIMESTAMPTZ` | Req |  | M7 §6; M7 §6.1 |
 
 **Natural key:** project_id + location_id — proposed (open question: may a project declare interest twice?).
 
@@ -659,14 +660,14 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 | Column | Type (as declared) | Required | Key | Citation |
 |---|---|---|---|---|
 | `interest_id` | `UUID` | Req | PK, FK → `LOCATION_INTEREST` | M7 §5.1 FR-002; M7 §6 |
-| `province_id` | *type not declared* | not declared | FK → `PROVINCE` | M7 §6 (derivable from the location — see Structural findings) |
+| `province_id` | `INTEGER` | Req | FK → `PROVINCE` | M7 §6 (derivable from the location — see Structural findings); M7 §6.1 |
 | `project_summary` | `TEXT` | Req |  | M7 §5.1 FR-002 |
 | `authority_email` | `VARCHAR(254)` | Req |  | M7 §5.1 FR-002 (copied from AUTHORITY_CONTACT) |
-| `drafted_at` | *type not declared* | not declared |  | M7 §6 |
+| `drafted_at` | `TIMESTAMPTZ` | Req |  | M7 §6; M7 §6.1 |
 | `reviewed_by` | `UUID` | Req | FK → `USER_ACCOUNT` | M7 §5.1 FR-002 |
-| `sent_at` | *type not declared* | not declared |  | M7 §6 |
+| `sent_at` | `TIMESTAMPTZ` | Opt |  | M7 §6; M7 §6.1 |
 | `delivery_status` | `ENUM(queued, sent, bounced)` | system-set |  | M7 §5.1 FR-002 (OUT) |
-| `received_at` | *type not declared* | not declared |  | M7 §6 |
+| `received_at` | `TIMESTAMPTZ` | Opt |  | M7 §6; M7 §6.1 |
 | `response` | `ENUM(received, info_needed, cannot_support)` | Req |  | M7 §5.1 FR-003; M7 §5.2 BR-003 |
 | `note` | `TEXT` | Opt |  | M7 §5.1 FR-003 |
 | `responded_at` | `TIMESTAMPTZ` | system-set |  | M7 §5.1 FR-003 (OUT) |
@@ -680,7 +681,7 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 | Column | Type (as declared) | Required | Key | Citation |
 |---|---|---|---|---|
 | `booking_id` | `UUID` | system-set | PK | M7 §5.1 FR-005 (OUT) |
-| `member_id` | *type not declared* | not declared | FK → `USER_ACCOUNT` | M7 §6 |
+| `member_id` | `UUID` | Req | FK → `USER_ACCOUNT` | M7 §6; M7 §6.1 |
 | `topic` | `ENUM(dossier, locations, partners, provincial_notice, general)` | Req |  | M7 §5.1 FR-005 |
 | `slot_start` | `TIMESTAMPTZ` | Req |  | M7 §5.1 FR-005 |
 | `timezone` | `VARCHAR(40)` | Req |  | M7 §5.1 FR-005 (IANA) |
@@ -703,8 +704,8 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 | `submitted_at` | `TIMESTAMPTZ` | system-set |  | M10 §5.1 FR-001 (OUT) |
 | `content_status` | `ENUM(pending, approved, hidden)` | system-set |  | M10 §5.1 FR-002 (OUT); M10 §5.2 BR-001 |
 | `reason` | `TEXT` | Opt |  | M10 §5.1 FR-002; M10 §5.2 BR-002 (required when hidden) |
-| `decided_by` | *type not declared* | not declared | FK → `USER_ACCOUNT` | M10 §6 |
-| `decided_at` | *type not declared* | not declared |  | M10 §6 |
+| `decided_by` | `UUID` | Opt | FK → `USER_ACCOUNT` | M10 §6; M10 §6.1 |
+| `decided_at` | `TIMESTAMPTZ` | Opt |  | M10 §6; M10 §6.1 |
 
 **Natural key:** organisation_id or location_image_id + submitted_at; one pending item per content (M10 §3 Edge cases: the queue keeps only the latest version).
 
@@ -736,7 +737,7 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 | `narrative_en` | `TEXT` | system-set |  | M10 §5.1 FR-006 (OUT) |
 | `reread_by` | `UUID` | Req | FK → `USER_ACCOUNT` | M10 §5.1 FR-007; M10 §5.2 BR-004 |
 | `report_pdf_url` | `TEXT` | system-set |  | M10 §5.1 FR-007 (OUT) |
-| `exported_at` | *type not declared* | not declared |  | M10 §6 |
+| `exported_at` | `TIMESTAMPTZ` | Opt |  | M10 §6; M10 §6.1 |
 
 **Natural key:** period_start + period_end.
 
@@ -744,21 +745,21 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 
 | Field | Source A (type / required) | Source B (type / required) | Decision |
 |---|---|---|---|
-| rule set version | M2 §5.1 FR-002: version INTEGER (OUT) | M2 §5.1 FR-004: rule_version VARCHAR(20) (OUT); M2 §3 US-1 "2026.08" | |
-| PROJECT.shoot_date | M0 §5.1 FR-001: DATE Opt | M5 §5.1 FR-007 and M2 §5.1 FR-017: DATE Req | |
-| segment_override | M1 §5.1 FR-002: ENUM(A, B, C) Opt | M1 §3 US-2: `segment_override = true` (boolean) | |
-| PRECHECK_RUN.lang | M2 §5.1 FR-005: lang ENUM(en, vi) Req | M2 §5.1 FR-007: locale ENUM(vi, en) Req | |
-| PROFILE.locale | SYS §6: attribute of Profile | SYS §5.1 FR-005: "stored in cookie `locale`" | |
-| DOCUMENT file | M5 §5.1 FR-002: file BYTEA Req | M5 §6: file_path (in private storage) | |
-| ORGANISATION.hq_province | M4 §6: hq_province (no type) | M3 §5.1 FR-002: province identifiers are INTEGER | |
-| working_languages | M4 §5.1 FR-001: CHAR(2)[] Opt on the profile input | M4 §6: attribute of OrganisationMemberLayer; M4 §5.1 FR-006 filter working_language CHAR(2) | |
-| BILINGUAL_PARAGRAPH.reviewed_by | M5 §5.1 FR-006: reviewer_id UUID Req | M5 §5.1 FR-004: paragraphs start as `machine` with no reviewer (must be Opt in storage) | |
-| LEGAL_RULE.approved_by | M2 §5.1 FR-003: approver_id UUID Req | M2 §3 US-3: a draft rule exists without an approver (must be Opt in storage) | |
-| LEGAL_RULE.citation | M2 §5.1 FR-002: citation VARCHAR(200) Req | M2 §3 US-3: a draft rule exists without a citation; M2 §5.2 BR-002 enforces it only for activation | |
-| CONSULTATION_BOOKING.officer_id | M7 §5.1 FR-006: officer_id UUID Req | M7 §5.1 FR-005: the booking exists before an officer is assigned (must be Opt in storage) | |
-| PROVINCE_NOTICE.reviewed_by / response | M7 §5.1 FR-002 reviewed_by Req; FR-003 response Req | M7 §3 US-1: notice drafted before any review or reply (must be Opt in storage) | |
-| LEGAL_RULE.topic | M2 §5.1 FR-002: topic ENUM(security, history, religion, privacy, dossier, public_order, heritage) Req; FR-001 filter_topic ENUM | M2 §5.1 FR-015: topic VARCHAR(60) Opt (public filter) | |
-| QUARTERLY_REPORT.reread_by | M10 §5.1 FR-007: reread_by UUID Req | M10 §3 US-3: a draft exists before anyone rereads it (must be Opt in storage) | |
+| rule set version | M2 §5.1 FR-002: version INTEGER (OUT) | M2 §5.1 FR-004: rule_version VARCHAR(20) (OUT); M2 §3 US-1 "2026.08" | VARCHAR(20), e.g. `2026.08` (FR-004 and US-1 win; FR-002's INTEGER is a slip). |
+| PROJECT.shoot_date | M0 §5.1 FR-001: DATE Opt | M5 §5.1 FR-007 and M2 §5.1 FR-017: DATE Req | Optional in storage; required by the functions that need it (M5 FR-007, M2 FR-017). |
+| segment_override | M1 §5.1 FR-002: ENUM(A, B, C) Opt | M1 §3 US-2: `segment_override = true` (boolean) | ENUM(A, B, C): the segment chosen by the override. |
+| PRECHECK_RUN.lang | M2 §5.1 FR-005: lang ENUM(en, vi) Req | M2 §5.1 FR-007: locale ENUM(vi, en) Req | `lang ENUM(en, vi)` (the F-M2-05 input). |
+| PROFILE.locale | SYS §6: attribute of Profile | SYS §5.1 FR-005: "stored in cookie `locale`" | Column on PROFILE for members; cookie only for guests. |
+| DOCUMENT file | M5 §5.1 FR-002: file BYTEA Req | M5 §6: file_path (in private storage) | `file_path TEXT` (M5 §6.1): the file stays in private storage. |
+| ORGANISATION.hq_province | M4 §6: hq_province (no type) | M3 §5.1 FR-002: province identifiers are INTEGER | INTEGER province_id (M4 §6.1), foreign key to PROVINCE. |
+| working_languages | M4 §5.1 FR-001: CHAR(2)[] Opt on the profile input | M4 §6: attribute of OrganisationMemberLayer; M4 §5.1 FR-006 filter working_language CHAR(2) | On ORGANISATION_MEMBER_LAYER as CHAR(2)[]; FR-006 filters on it. |
+| BILINGUAL_PARAGRAPH.reviewed_by | M5 §5.1 FR-006: reviewer_id UUID Req | M5 §5.1 FR-004: paragraphs start as `machine` with no reviewer (must be Opt in storage) | Optional in storage (machine paragraphs have no reviewer); required by F-M5-06. |
+| LEGAL_RULE.approved_by | M2 §5.1 FR-003: approver_id UUID Req | M2 §3 US-3: a draft rule exists without an approver (must be Opt in storage) | Optional in storage; CHECK `ck_legal_rule_approved_needs_signature` requires it when status = approved (M2 BR-002). |
+| LEGAL_RULE.citation | M2 §5.1 FR-002: citation VARCHAR(200) Req | M2 §3 US-3: a draft rule exists without a citation; M2 §5.2 BR-002 enforces it only for activation | Optional in storage; same CHECK requires it when status = approved (M2 BR-002). |
+| CONSULTATION_BOOKING.officer_id | M7 §5.1 FR-006: officer_id UUID Req | M7 §5.1 FR-005: the booking exists before an officer is assigned (must be Opt in storage) | Optional in storage until F-M7-06 assigns an officer. |
+| PROVINCE_NOTICE.reviewed_by / response | M7 §5.1 FR-002 reviewed_by Req; FR-003 response Req | M7 §3 US-1: notice drafted before any review or reply (must be Opt in storage) | Optional in storage until VFDA reviews and the province replies. |
+| LEGAL_RULE.topic | M2 §5.1 FR-002: topic ENUM(security, history, religion, privacy, dossier, public_order, heritage) Req; FR-001 filter_topic ENUM | M2 §5.1 FR-015: topic VARCHAR(60) Opt (public filter) | ENUM(security, history, religion, privacy, dossier, public_order, heritage); the public filter (FR-015) takes the same set. |
+| QUARTERLY_REPORT.reread_by | M10 §5.1 FR-007: reread_by UUID Req | M10 §3 US-3: a draft exists before anyone rereads it (must be Opt in storage) | Optional in storage; CHECK `ck_quarterly_report_reread_before_export` requires it before exported_at (M10 BR-004). |
 
 ## Structural findings
 
@@ -795,9 +796,10 @@ Reported only — nothing was fixed in the model.
 | polymorphic | AUDIT_LOG.target_id | Points at a row of any table, so it carries no foreign key (by design, M10 FR-008). Targets whose key is not a UUID (LOCATION_IMAGE image_url, RULE_SET_VERSION rule_version, DOCUMENT_TYPE doc_code) cannot be recorded in a UUID column. | OQ-04-25 |
 | writer | MODERATION_ITEM (content_type location_image) | M10 moderates location photos submitted by partners (M10 §1), but the only photo function, F-M3-03, is for VFDA staff; no function lets a partner submit a photo. | OQ-04-22 |
 | period | PROJECT; LOCATION_QUERY (period filter of DEMAND_INDEX) | The indicators are filtered by month, quarter or year (M10 FR-003, FR-005), but neither PROJECT nor LOCATION_QUERY declares when it was created. | OQ-04-21 |
-| minimality | PROVINCE_NOTICE.province_id | Derivable from LOCATION_INTEREST → LOCATION → province_id. | OQ-04-16 |
-| minimality | LEGAL_RULE.is_active vs status | is_active may be derivable from status = approved. | OQ-04-16 |
-| minimality | BILINGUAL_DOCUMENT.watermark | Always true (M5 FR-005) — a constant column. | OQ-04-16 |
+| minimality | PROVINCE_NOTICE.province_id | Kept as a deliberate exception: it records the province the notice was *addressed* to, which must not change if the location's province is later merged (M3 BR-006). Upkeep rule: set once from LOCATION_INTEREST → LOCATION.province_id when the notice is drafted, never updated (M7 §6.1). | OQ-04-16 (resolved) |
+| minimality | LEGAL_RULE.is_active vs status | Kept as a deliberate exception: the pre-check reads active rules on every call. Upkeep rule: is_active = (status = approved), enforced by CHECK `ck_legal_rule_active_matches_status`. | OQ-04-16 (resolved) |
+| minimality | BILINGUAL_DOCUMENT.watermark | Dropped 01/10/2026: always true (M5 FR-005) — the PDF renderer stamps every page (M5 BR-001); nothing to store. | OQ-04-16 (resolved) |
+| polymorphic | SEGMENT_DECISION.project_id / session_key | Resolved 01/10/2026: the single column `session_or_project_id` (two meanings, no possible foreign key) is split into `project_id` (FK → PROJECT) and `session_key`, with a CHECK that exactly one is set (M1 §6.1). | — |
 | 1NF | ORGANISATION.service_groups, provinces; LOCATION.scene_types, months_to_avoid; SEGMENT_DECISION.q4_needs | Arrays as declared; filtering and counting on them is exactly the use (M3 FR-007, M4 FR-005/006). Implied entities in 01. | 01 OQ 3 |
 
 ## Diagram
@@ -807,7 +809,7 @@ The relationship lines are byte-for-byte the lines of `03-erd.mmd`; only attribu
 ```mermaid
 erDiagram
     USER_ACCOUNT ||--|| PROFILE : "has"
-    PRODUCER_ORGANISATION ||..|{ PROFILE : "employs"
+    PRODUCER_ORGANISATION |o..o{ PROFILE : "employs"
     USER_ACCOUNT ||--|{ CONSENT : "gives"
     USER_ACCOUNT ||--o{ NOTIFICATION : "receives"
     NOTIFICATION |o..o| EMAIL_DELIVERY : "is emailed as"
@@ -880,17 +882,17 @@ erDiagram
         boolean email_verified "SYS s5.1 FR-001 (OUT)"
         enum role "SYS s5.1 FR-004; SYS s5.2 BR-002 (new account = member)"
         enum account_status "SYS s5.1 FR-004; SYS s5.2 BR-005 (deactivated and anonymised, never hard-deleted)"
-        string created_at "TYPE NOT DECLARED - SYS s6"
+        datetime created_at "SYS s6; SYS s6.1"
     }
     PROFILE {
         uuid user_id PK,FK "SYS s6 ('belongs to UserAccount')"
         string full_name "SYS s5.1 FR-001"
         enum crew_role "SYS s5.1 FR-001"
         enum locale "SYS s5.1 FR-005 (also said to live in a cookie - see Type conflicts)"
-        string producer_org_id FK "TYPE NOT DECLARED - SYS s6"
+        uuid producer_org_id FK "SYS s6; SYS s6.1"
     }
     PRODUCER_ORGANISATION {
-        string producer_org_id PK "TYPE NOT DECLARED - SYS s6 (Profile.producer_org_id)"
+        uuid producer_org_id PK "SYS s6 (Profile.producer_org_id); SYS s6.1"
         string org_name "SYS s5.1 FR-001"
         string country "SYS s5.1 FR-001"
         string website "SYS s5.1 FR-001"
@@ -898,7 +900,7 @@ erDiagram
     CONSENT {
         uuid user_id PK,FK "SYS s6"
         string consent_version PK "SYS s5.1 FR-001; SYS s5.2 BR-003"
-        string accepted_at "TYPE NOT DECLARED - SYS s6; SYS s5.2 BR-003 (timestamp)"
+        datetime accepted_at "SYS s6; SYS s5.2 BR-003 (timestamp); SYS s6.1"
     }
     NOTIFICATION {
         uuid notification_id PK "SYS s5.1 FR-007 (OUT)"
@@ -906,10 +908,10 @@ erDiagram
         string event_type "SYS s5.1 FR-007"
         string payload "declared JSONB - SYS s5.1 FR-007"
         datetime created_at "SYS s5.1 FR-007 (OUT)"
-        string read_at "TYPE NOT DECLARED - SYS s6; SYS s5.1 FR-009 (mark as read)"
+        datetime read_at "SYS s6; SYS s5.1 FR-009 (mark as read); SYS s6.1"
     }
     EMAIL_DELIVERY {
-        string email_delivery_id PK "TYPE NOT DECLARED - none - no identifier declared (open question)"
+        uuid email_delivery_id PK "SYS s6.1"
         uuid notification_id FK "SYS s6 ('may relate to a Notification')"
         string template_id "SYS s5.1 FR-008"
         string recipient_email "SYS s5.1 FR-008"
@@ -918,24 +920,25 @@ erDiagram
         string provider_message_id UK "SYS s5.1 FR-008 (OUT)"
     }
     SEGMENT_RULE {
-        string segment_rule_id PK "TYPE NOT DECLARED - M1 s6 (rule_id - renamed, see 01 conflicts)"
+        uuid segment_rule_id PK "M1 s6 (rule_id - renamed, see 01 conflicts); M1 s6.1"
         boolean q1_shoot_in_vn "M1 s6 (q1) = M1 s5.1 FR-002 q1_shoot_in_vn"
         enum q2_release "M1 s6 (q2) = M1 s5.1 FR-002"
         enum q3_producer "M1 s6 (q3) = M1 s5.1 FR-002"
         enum result_segment "M1 s6; type of segment from M1 s5.1 FR-002"
-        string version "TYPE NOT DECLARED - M1 s6"
+        string version "M1 s6; M1 s6.1"
     }
     SEGMENT_REQUIREMENT {
         enum segment PK "M1 s6; type from M1 s5.1 FR-002"
-        string requirement_code PK "TYPE NOT DECLARED - M1 s6"
-        string label_vi "TYPE NOT DECLARED - M1 s6"
-        string label_en "TYPE NOT DECLARED - M1 s6"
-        string needed "TYPE NOT DECLARED - M1 s6; M1 s3 US-1 (Needed / Not needed)"
+        string requirement_code PK "M1 s6; M1 s6.1"
+        string label_vi "M1 s6; M1 s6.1"
+        string label_en "M1 s6; M1 s6.1"
+        boolean needed "M1 s6; M1 s3 US-1 (Needed / Not needed); M1 s6.1"
     }
     SEGMENT_DECISION {
-        string segment_decision_id PK "TYPE NOT DECLARED - none - no identifier declared (open question)"
-        string session_or_project_id FK "TYPE NOT DECLARED - M1 s6 (one column for two meanings - see Structural findings)"
-        string segment_rule_id FK "TYPE NOT DECLARED - M1 s6 ('used by SegmentDecision')"
+        uuid segment_decision_id PK "M1 s6.1"
+        uuid project_id FK "M1 s6 ('belongs to Project (M0) once saved'); M1 s6.1"
+        string session_key "M1 s6 (anonymous session before sign-up); M1 s6.1"
+        uuid segment_rule_id FK "M1 s6 ('used by SegmentDecision'); M1 s6.1"
         boolean q1_shoot_in_vn "M1 s5.1 FR-002 (answers)"
         enum q2_release "M1 s5.1 FR-002 (Req when q1 = true)"
         enum q3_producer "M1 s5.1 FR-002 (Req when q1 = true)"
@@ -947,7 +950,7 @@ erDiagram
     }
     PROJECT {
         uuid project_id PK "M0 s5.1 FR-001 (OUT)"
-        string producer_org_id FK "TYPE NOT DECLARED - M0 s6 ('belongs to ProducerOrganisation')"
+        uuid producer_org_id FK "M0 s6 ('belongs to ProducerOrganisation'); M0 s6.1"
         string project_name "M0 s5.1 FR-001"
         enum format "M0 s5.1 FR-001"
         enum segment "M0 s5.1 FR-001; M1 s5.1 FR-003"
@@ -962,7 +965,7 @@ erDiagram
     PROJECT_MEMBER {
         uuid member_id PK "M0 s5.1 FR-004 (OUT)"
         uuid project_id FK "M0 s5.1 FR-004"
-        string user_id FK "TYPE NOT DECLARED - M0 s6 (user_id)"
+        uuid user_id FK "M0 s6 (user_id); M0 s6.1"
         string invitee_email "M0 s5.1 FR-004"
         enum permission "M0 s5.1 FR-004 (owner not in the set - see Structural findings)"
         enum invite_status "M0 s5.1 FR-004 (OUT)"
@@ -998,38 +1001,38 @@ erDiagram
     }
     RULE_SET_VERSION {
         string rule_version PK "M2 s5.1 FR-004 (OUT) - see Type conflicts"
-        string created_at "TYPE NOT DECLARED - M2 s6"
-        string created_by FK "TYPE NOT DECLARED - M2 s6"
+        datetime created_at "M2 s6; M2 s6.1"
+        uuid created_by FK "M2 s6; M2 s6.1"
     }
     PRECHECK_RUN {
         uuid brief_id PK "M2 s5.1 FR-007 (OUT)"
-        string project_id FK "TYPE NOT DECLARED - M2 s6 ('may belong to a Project')"
+        uuid project_id FK "M2 s6 ('may belong to a Project'); M2 s6.1"
         string rule_version FK "M2 s6; M2 s5.2 BR-007"
         string synopsis_hash "M2 s5.1 FR-007"
         enum lang "M2 s5.1 FR-005 (= locale ENUM(vi, en) in FR-007)"
         string flags "declared JSONB - M2 s5.1 FR-005"
         string country_guess "M2 s5.1 FR-007"
         enum attention_level "M2 s5.1 FR-006 (OUT); M2 s5.2 BR-004"
-        string created_at "TYPE NOT DECLARED - M2 s6"
+        datetime created_at "M2 s6; M2 s6.1"
     }
     PRECHECK_FINDING {
         uuid brief_id PK,FK "M2 s6 ('belongs to PrecheckRun')"
         string rule_code PK,FK "M2 s5.1 FR-006 (OUT findings)"
-        string span_start PK "TYPE NOT DECLARED - M2 s6"
-        string span_end "TYPE NOT DECLARED - M2 s6"
+        int span_start PK "M2 s6; M2 s6.1"
+        int span_end "M2 s6; M2 s6.1"
         string quoted_text "M2 s5.1 FR-006 (OUT)"
         string explanation_vi "M2 s5.1 FR-006 (OUT); M2 s6 (explanation)"
         string explanation_en "M2 s5.1 FR-006 (OUT)"
     }
     COMPLIANCE_RUN {
-        string run_id PK "TYPE NOT DECLARED - M2 s6"
-        string project_id FK "TYPE NOT DECLARED - M2 s6"
+        uuid run_id PK "M2 s6; M2 s6.1"
+        uuid project_id FK "M2 s6; M2 s6.1"
         string rule_version FK "M2 s6; M2 s5.2 BR-007"
-        string run_at "TYPE NOT DECLARED - M2 s6"
+        datetime run_at "M2 s6; M2 s6.1"
     }
     COMPLIANCE_FINDING {
         uuid finding_id PK "M2 s5.1 FR-014"
-        string run_id FK "TYPE NOT DECLARED - M2 s6 ('belongs to ComplianceRun')"
+        uuid run_id FK "M2 s6 ('belongs to ComplianceRun'); M2 s6.1"
         string rule_code FK "M2 s6; type from M2 s5.1 FR-006"
         string quoted_text "M2 s6; type from M2 s5.1 FR-006"
         enum finding_status "M2 s5.1 FR-014 (OUT)"
@@ -1055,13 +1058,14 @@ erDiagram
         string months_to_avoid "declared INTEGER[] - M3 s5.1 FR-002"
         enum permit_complexity "M3 s5.1 FR-002"
         string restriction_note "M3 s5.1 FR-002"
+        enum availability "M3 s5.1 FR-002; M3 s5.2 BR-010"
         enum intake_status "M3 s5.1 FR-002 (OUT); M3 s6; M3 s5.2 BR-008 (unpublished, never deleted)"
         boolean published "M3 s5.1 FR-005 (OUT); M3 s5.2 BR-004"
         string blocked_reason "M3 s5.1 FR-005 (OUT)"
     }
     LOCATION_IMAGE {
         string image_url PK "M3 s5.1 FR-003 (OUT)"
-        string location_id FK "TYPE NOT DECLARED - M3 s6 ('belongs to Location')"
+        uuid location_id FK "M3 s6 ('belongs to Location'); M3 s6.1"
         string image_source "M3 s5.1 FR-003"
         string usage_right "M3 s5.1 FR-003"
         enum status "M3 s5.1 FR-003 (OUT image_status); M10 s5.1 FR-002 (content_status)"
@@ -1078,10 +1082,10 @@ erDiagram
     }
     PROVINCE {
         int province_id PK "M3 s5.1 FR-002 (province_id INTEGER)"
-        string name UK "TYPE NOT DECLARED - M3 s6"
+        string name UK "M3 s6; M3 s6.1"
         string slug UK "M3 s5.1 FR-020 (province_slug)"
         enum region "M3 s6; type from M3 s5.1 FR-007 (region)"
-        string merged_from "TYPE NOT DECLARED - M3 s6; M3 s5.2 BR-006"
+        string merged_from "declared VARCHAR(80)[] - M3 s6; M3 s5.2 BR-006; M3 s6.1"
     }
     LOCATION_QUERY {
         uuid query_id PK "M3 s5.1 FR-011 (OUT)"
@@ -1100,29 +1104,29 @@ erDiagram
         uuid org_id PK "M4 s5.1 FR-001 (OUT)"
         string slug UK "M4 s5.1 FR-001 (OUT)"
         string org_name "M4 s5.1 FR-001"
-        string legal_form "TYPE NOT DECLARED - M4 s6"
-        string founded_year "TYPE NOT DECLARED - M4 s6"
-        string hq_province FK "TYPE NOT DECLARED - M4 s6 (a province - see Type conflicts)"
+        string legal_form "M4 s6; M4 s6.1"
+        int founded_year "M4 s6; M4 s6.1"
+        int hq_province FK "M4 s6 (a province - see Type conflicts); M4 s6.1"
         string service_groups "declared ENUM(full_production, permits_paperwork, casting, crew, camera_lighting, studios_interiors, location_management, transport_logistics, l"
         string provinces "declared INTEGER[] - M4 s5.1 FR-001"
         datetime verified_at "M4 s5.1 FR-010 (OUT)"
-        string verified_until "TYPE NOT DECLARED - M4 s6; M4 s5.2 BR-004 (12 months)"
-        string art13_eligible "TYPE NOT DECLARED - M4 s6"
+        date verified_until "M4 s6; M4 s5.2 BR-004 (12 months); M4 s6.1"
+        boolean art13_eligible "M4 s6; M4 s6.1"
         enum org_status "M4 s5.1 FR-001; M4 s5.2 BR-008 (deactivated, never deleted)"
     }
     ORGANISATION_MEMBER_LAYER {
         uuid org_id PK,FK "M4 s6 ('belongs to Organisation')"
         string capability_desc_vi "M4 s5.1 FR-001 (s6 capability_desc)"
         string capability_desc_en "M4 s5.1 FR-001"
-        string portfolio "TYPE NOT DECLARED - M4 s6"
-        string intl_project_count "TYPE NOT DECLARED - M4 s6"
+        string portfolio "declared VARCHAR(200)[] - M4 s6; M4 s6.1"
+        int intl_project_count "M4 s6; M4 s6.1"
         string working_languages "declared CHAR(2)[] - M4 s5.1 FR-001; M4 s6"
     }
     ORGANISATION_PRIVATE_LAYER {
         uuid org_id PK,FK "M4 s6"
         string rate_card "declared JSONB - M4 s5.1 FR-001"
         string past_clients "declared TEXT[] - M4 s5.1 FR-001"
-        string direct_contact "TYPE NOT DECLARED - M4 s6"
+        string direct_contact "M4 s6; M4 s6.1"
     }
     VERIFICATION_REQUEST {
         uuid request_id PK "M4 s5.1 FR-008 (OUT verification_request_id)"
@@ -1130,7 +1134,7 @@ erDiagram
         string business_license "declared FILE - M4 s5.1 FR-008 (PDF max 25 MB)"
         string reference_projects "declared TEXT[] - M4 s5.1 FR-008 ([]= 2)"
         enum status "M4 s5.1 FR-009, FR-010"
-        string decided_by FK "TYPE NOT DECLARED - M4 s6"
+        uuid decided_by FK "M4 s6; M4 s6.1"
         string reason "M4 s5.1 FR-010 (required when rejected)"
     }
     COLLAB_REQUEST {
@@ -1141,15 +1145,15 @@ erDiagram
         string note "M4 s5.1 FR-012 (max 1000 characters)"
         enum status "M4 s5.1 FR-012 (pending), FR-014; M4 s5.2 BR-005"
         string response_note "M4 s5.1 FR-014"
-        string sent_at "TYPE NOT DECLARED - M4 s6"
+        datetime sent_at "M4 s6; M4 s6.1"
         datetime responded_at "M4 s5.1 FR-014 (OUT)"
-        string confirmed_at "TYPE NOT DECLARED - M4 s6"
+        datetime confirmed_at "M4 s6; M4 s6.1"
     }
     COLLAB_MESSAGE {
         uuid message_id PK "M4 s5.1 FR-014 (OUT)"
         uuid request_id FK "M4 s5.1 FR-014; M4 s6"
-        string author_id FK "TYPE NOT DECLARED - M4 s6"
-        string created_at "TYPE NOT DECLARED - M4 s6"
+        uuid author_id FK "M4 s6; M4 s6.1"
+        datetime created_at "M4 s6; M4 s6.1"
         string body "M4 s6; type of response_note, M4 s5.1 FR-014; M4 s5.2 BR-009 (never edited)"
     }
     NDA_ACCEPTANCE {
@@ -1172,7 +1176,7 @@ erDiagram
         string name_en "M5 s5.1 FR-001 (OUT)"
         enum basis "M5 s5.1 FR-001 (OUT); M5 s5.2 BR-003"
         string template_url "M5 s5.1 FR-001 (OUT)"
-        string segments "TYPE NOT DECLARED - M5 s6"
+        string segments "declared ENUM(A, B, C)[] - M5 s6; M5 s6.1"
     }
     DOCUMENT_SLOT {
         uuid project_id PK,FK "M5 s5.1 FR-002; M5 s6"
@@ -1183,10 +1187,10 @@ erDiagram
         uuid document_id PK "M5 s5.1 FR-002 (OUT)"
         uuid project_id FK "M5 s5.1 FR-002 (with doc_code: the slot)"
         string doc_code FK "M5 s5.1 FR-002"
-        string file_path "TYPE NOT DECLARED - M5 s6 (FR-002 declares file BYTEA - see Type conflicts)"
-        string version "TYPE NOT DECLARED - M5 s6; M5 s5.1 FR-002 (previous versions kept)"
-        string uploaded_by FK "TYPE NOT DECLARED - M5 s6"
-        string uploaded_at "TYPE NOT DECLARED - M5 s6"
+        string file_path "M5 s6 (FR-002 declares file BYTEA - see Type conflicts); M5 s6.1"
+        int version "M5 s6; M5 s5.1 FR-002 (previous versions kept); M5 s6.1"
+        uuid uploaded_by FK "M5 s6; M5 s6.1"
+        datetime uploaded_at "M5 s6; M5 s6.1"
     }
     BILINGUAL_DOCUMENT {
         uuid project_id PK,FK "M5 s6"
@@ -1195,7 +1199,6 @@ erDiagram
         string synopsis_en "M5 s5.1 FR-004, FR-005"
         string project_meta "declared JSONB - M5 s5.1 FR-004 (copy of project data - see Structural findings)"
         string pdf_url "M5 s5.1 FR-005 (OUT)"
-        boolean watermark "M5 s5.1 FR-005 (OUT, always true); M5 s5.2 BR-001"
     }
     BILINGUAL_PARAGRAPH {
         uuid project_id PK,FK "M5 s6 (belongs to BilingualDocument)"
@@ -1209,39 +1212,39 @@ erDiagram
         datetime reviewed_at "M5 s5.1 FR-006 (OUT proofread_at); M5 s6"
     }
     PROJECT_GLOSSARY {
-        string project_id PK,FK "TYPE NOT DECLARED - M5 s6; M5 s5.2 BR-006"
+        uuid project_id PK,FK "M5 s6; M5 s5.2 BR-006; M5 s6.1"
         string term_en PK "M5 s5.1 FR-004 (glossary Opt); M5 s6 source_term"
         string term_vi "M5 s5.1 FR-004 (glossary Opt); M5 s6 target_term"
     }
     PUBLIC_HOLIDAY {
-        string name PK "TYPE NOT DECLARED - M5 s6"
-        string start_date PK "TYPE NOT DECLARED - M5 s6"
-        string end_date "TYPE NOT DECLARED - M5 s6"
-        string is_expected "TYPE NOT DECLARED - M5 s6; M5 s3 US-3 (band marked *expected*)"
+        string name PK "M5 s6; M5 s6.1"
+        date start_date PK "M5 s6; M5 s6.1"
+        date end_date "M5 s6; M5 s6.1"
+        boolean is_expected "M5 s6; M5 s3 US-3 (band marked *expected*); M5 s6.1"
     }
     LOCATION_INTEREST {
         uuid interest_id PK "M7 s5.1 FR-001 (OUT)"
         uuid project_id FK "M7 s5.1 FR-001"
         uuid location_id FK "M7 s5.1 FR-001"
-        string created_at "TYPE NOT DECLARED - M7 s6"
+        datetime created_at "M7 s6; M7 s6.1"
     }
     PROVINCE_NOTICE {
         uuid interest_id PK,FK "M7 s5.1 FR-002; M7 s6"
-        string province_id FK "TYPE NOT DECLARED - M7 s6 (derivable from the location - see Structural findings)"
+        int province_id FK "M7 s6 (derivable from the location - see Structural findings); M7 s6.1"
         string project_summary "M7 s5.1 FR-002"
         string authority_email "M7 s5.1 FR-002 (copied from AUTHORITY_CONTACT)"
-        string drafted_at "TYPE NOT DECLARED - M7 s6"
+        datetime drafted_at "M7 s6; M7 s6.1"
         uuid reviewed_by FK "M7 s5.1 FR-002"
-        string sent_at "TYPE NOT DECLARED - M7 s6"
+        datetime sent_at "M7 s6; M7 s6.1"
         enum delivery_status "M7 s5.1 FR-002 (OUT)"
-        string received_at "TYPE NOT DECLARED - M7 s6"
+        datetime received_at "M7 s6; M7 s6.1"
         enum response "M7 s5.1 FR-003; M7 s5.2 BR-003"
         string note "M7 s5.1 FR-003"
         datetime responded_at "M7 s5.1 FR-003 (OUT)"
     }
     CONSULTATION_BOOKING {
         uuid booking_id PK "M7 s5.1 FR-005 (OUT)"
-        string member_id FK "TYPE NOT DECLARED - M7 s6"
+        uuid member_id FK "M7 s6; M7 s6.1"
         enum topic "M7 s5.1 FR-005"
         datetime slot_start "M7 s5.1 FR-005"
         string timezone "M7 s5.1 FR-005 (IANA)"
@@ -1257,8 +1260,8 @@ erDiagram
         datetime submitted_at "M10 s5.1 FR-001 (OUT)"
         enum content_status "M10 s5.1 FR-002 (OUT); M10 s5.2 BR-001"
         string reason "M10 s5.1 FR-002; M10 s5.2 BR-002 (required when hidden)"
-        string decided_by FK "TYPE NOT DECLARED - M10 s6"
-        string decided_at "TYPE NOT DECLARED - M10 s6"
+        uuid decided_by FK "M10 s6; M10 s6.1"
+        datetime decided_at "M10 s6; M10 s6.1"
     }
     AUDIT_LOG {
         uuid audit_log_id PK "M10 s5.1 FR-008 (OUT)"
@@ -1276,7 +1279,7 @@ erDiagram
         string narrative_en "M10 s5.1 FR-006 (OUT)"
         uuid reread_by FK "M10 s5.1 FR-007; M10 s5.2 BR-004"
         string report_pdf_url "M10 s5.1 FR-007 (OUT)"
-        string exported_at "TYPE NOT DECLARED - M10 s6"
+        datetime exported_at "M10 s6; M10 s6.1"
     }
 ```
 
@@ -1299,9 +1302,9 @@ erDiagram
 | OQ-04-13 | [NEEDS CLARIFICATION: Initial and cancelled values of CONSULTATION_BOOKING.booking_status?] | No | M7 owner | Status left empty until VFDA confirms; no cancellation (seed follows this) | Unconfirmed bookings are indistinguishable from confirmed ones; a member cannot cancel. | Open |
 | OQ-04-14 | [NEEDS CLARIFICATION: After how many days does an unanswered collaboration request expire, and is `expired` a status?] | No | M4 owner | No expiry; member withdraws | Requests stay open forever and block a second request to the same partner. | Open |
 | OQ-04-15 | [NEEDS CLARIFICATION: Value sets of PROJECT.stage, LOCATION.intake_status, LOCATION_IMAGE.status, consultation topic, the 12 service groups and scene types.] | Yes | Module owners + VFDA | Values used in the seed are proposals, listed in data/seed/README.md | Code and seed invent their own values; screens and filters disagree. | Resolved 30/09/2026 — declared in §5.1: M0 FR-002 (stage), M3 FR-002 (intake_status, scene_types), M3 FR-003 / M10 FR-002 (image status — see Type conflicts), M7 FR-005 (topic), M4 FR-001 (service groups), M3 FR-007 (region), M2 FR-001/002 (rule topic). |
-| OQ-04-16 | [NEEDS CLARIFICATION: Drop derivable columns (PROVINCE_NOTICE.province_id, LEGAL_RULE.is_active, BILINGUAL_DOCUMENT.watermark)?] | No | M7, M2, M5 owners | Kept as declared | Two sources of the same truth can disagree. | Open |
-| OQ-04-17 | [NEEDS CLARIFICATION: Declare identifiers for EMAIL_DELIVERY and SEGMENT_DECISION (none in the spec; LOCATION_QUERY now has query_id, M3 FR-011).] | No | SYS, M1 owners | Placeholder keys *_id (type not declared) | Rows cannot be referenced from logs or support tickets. | Open |
-| OQ-04-18 | [NEEDS CLARIFICATION: Types for all columns marked *type not declared* (62 columns).] | Yes | Module owners | Seed uses text; generic diagram type string | The build agent will choose types itself. | Open |
+| OQ-04-16 | [NEEDS CLARIFICATION: Drop derivable columns (PROVINCE_NOTICE.province_id, LEGAL_RULE.is_active, BILINGUAL_DOCUMENT.watermark)?] | No | M7, M2, M5 owners | Kept as declared | Two sources of the same truth can disagree. | Resolved 01/10/2026 — watermark dropped; is_active kept with CHECK `ck_legal_rule_active_matches_status`; province_id kept as the province the notice was addressed to (M7 §6.1). See Structural findings, minimality. |
+| OQ-04-17 | [NEEDS CLARIFICATION: Declare identifiers for EMAIL_DELIVERY and SEGMENT_DECISION (none in the spec; LOCATION_QUERY now has query_id, M3 FR-011).] | No | SYS, M1 owners | Placeholder keys *_id (type not declared) | Rows cannot be referenced from logs or support tickets. | Resolved 01/10/2026 — email_delivery_id UUID (SYS §6.1) and segment_decision_id UUID (M1 §6.1). |
+| OQ-04-18 | [NEEDS CLARIFICATION: Types for all columns marked *type not declared* (62 columns on 30/09/2026).] | Yes | Module owners | Seed uses text; generic diagram type string | The build agent will choose types itself. | Resolved 01/10/2026 — every one is declared in section 6.1 of its module's Spec Document; no column is left without a type. |
 | OQ-04-19 | [NEEDS CLARIFICATION: The location data-entry template has "18 fields" (M3 FR-002) but the I/O contract lists 17. Which field is missing?] | No | M3 owner | 17 as listed | One template field has nowhere to be stored. | Open |
 | OQ-04-20 | [NEEDS CLARIFICATION: Where is the submitted version of a partner's content kept while the last approved version stays public (M10 BR-001)?] | Yes | M10 + M4 owners | Not modelled; MODERATION_ITEM holds only the reference and the decision | Approving has nothing to publish, or the waiting text overwrites the public one. | Open |
 | OQ-04-21 | [NEEDS CLARIFICATION: Add a creation time to PROJECT and LOCATION_QUERY so the demand index can be filtered by period (M10 FR-003, FR-005)?] | No | M0, M3, M10 owners | Not modelled; seed rows carry no creation time | Indicators cannot be computed for a month, quarter or year. | Open |
@@ -1312,4 +1315,4 @@ erDiagram
 
 
 ---
-*Human gate 4: fill the Decision column of the type conflicts and confirm every natural key. Signed: ____________________  Date: __________*
+*Human gate 4: the Decision column records the type applied in 04 and in the schema on 01/10/2026 — confirm or change it, and confirm every natural key. Signed: ____________________  Date: __________*
