@@ -42,7 +42,8 @@ CINEMATCH-DBIZ3.TeamC/
 │   │   ├── Session-01-MVP-Scope-GroupC.docx
 │   │   ├── specs/  screens/  data/
 │   └── env/
-│       └── environment-readiness-report.md
+│       ├── readiness-report.md
+│       └── evidence/            ← T1–T3 screenshots per member
 ├── data/
 │   ├── README.md
 │   ├── data-model-SYS.md … data-model-M10.md   ← one per module (9 files)
@@ -103,7 +104,7 @@ Functional requirement IDs restart in every module, so always quote them with th
 | Building or reviewing one module | `docs/spec/spec-document.md` → the module's `spec-<MODULE>.md` → the Screen Specs it names in §7 |
 | Building or reviewing one screen | `docs/screens/README.md` → `screen-spec-<ID>.md` → `img/<ID>.png` |
 | Building the database or reviewing the data | `data/README.md` → `data/data-model-<MODULE>.md` → `data/schema/` → `data/seed/` (whole model: `data/04-data-model.md`, verdict: `data/05-review.md`) |
-| Setting up your machine | `AGENTS.md` → `docs/env/environment-readiness-report.md` |
+| Setting up your machine | `AGENTS.md` → `docs/env/readiness-report.md` |
 | Submitting or printing | `docs/word/` |
 
 ## 4. The IDs are the glue
