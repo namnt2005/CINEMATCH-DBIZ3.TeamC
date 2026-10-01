@@ -71,7 +71,7 @@
 | 4 | Verification link in the email | tap | Verifies and creates a login session | SC-02 |
 | 5 | *Forgot password?* (Log in tab) | tap | — | SC-06 |
 | 6 | Terms / Policy links | tap | Open in a new tab | SC-43 / SC-42 |
-| 7 | *Contact VFDA for an invitation* | tap | Opens the booking form with topic *Supplier registration* | SC-33 |
+| 7 | *Contact VFDA for an invitation* | tap | Opens the booking form with topic *General* (`general`) and the note *Supplier registration* | SC-33 |
 
 ## 6. Screen-level rules
 
@@ -102,7 +102,10 @@
 
 ## 9. Open questions
 
-_Open questions are tracked outside this repository until they are resolved._
+| # | Question | Blocking? | Status |
+|---|---|---|---|
+| 1 | [NEEDS CLARIFICATION: should the production organisation be verified (e.g. via IMDb Pro or a business licence) before local authority contacts are shown] | Yes | Open |
+| 2 | [NEEDS CLARIFICATION: allow Google / Apple sign-in — less friction, but the organisation name is not captured up front] | No | Open |
 
 ## Completion checklist
 

@@ -1,1 +1,5 @@
-request_id,author_id,created_at,body
+message_id,request_id,author_id,created_at,body
+210cc813-c0dc-58e5-b3d4-05349cd2e5b3,0bf889da-e22c-5f2d-964f-50993f13e6c7,ccc2764e-7734-5390-9c71-46963d2f7820,2026-09-22T15:10:00+07:00,Happy to support. Proposal attached; rates available after the NDA.
+952cc9e1-1bf3-5919-9a53-7af86830d617,0bf889da-e22c-5f2d-964f-50993f13e6c7,4ef79de6-8efb-58f7-8514-9c0532345ac4,2026-09-22T18:05:00+07:00,Thank you. We will accept the NDA tomorrow and share the Ninh Bình schedule.
+ac15be3a-6905-52e7-a340-8eef8363fd1d,7cde0a0f-fe83-5e9e-852a-10bdf8333422,95f36904-6141-5469-8c63-712a80a4295e,2026-09-15T08:30:00+07:00,"Weekly schedule attached, as requested."
+e88fbfdc-bd33-53e5-9f6e-bbac3a37dcca,0bf889da-e22c-5f2d-964f-50993f13e6c7,ccc2764e-7734-5390-9c71-46963d2f7820,2026-09-23T09:20:00+07:00,Received. Our line producer can join the scouting in October.

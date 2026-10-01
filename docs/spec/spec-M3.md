@@ -106,7 +106,7 @@ This module helps a producer find places in Vietnam that fit the scenes they des
 
 ### 4.1 Usage flow — producer excerpt
 
-> Excerpt of `docs/architecture/usage-flow.md` flow 1. Diamond Q2 was added in Step 3 from F-M3-08 (40-point threshold) — awaiting Client confirmation.
+> Excerpt of `docs/architecture/usage-flow.md` flow 1. Diamond Q2 was added in Step 3 from F-M3-08 (40-point threshold) — confirmed by the Client.
 
 ```mermaid
 flowchart TD
@@ -118,7 +118,7 @@ flowchart TD
 
 ### 4.1b Usage flow — VFDA staff publishing a location
 
-> Excerpt of `usage-flow.md` flow 4, translated. Diamond Q1 added in Step 3 from F-M3-05.
+> Excerpt of `usage-flow.md` flow 4, translated. Diamond Q1 added in Step 3 from F-M3-05. Confirmed by the Client.
 
 ```mermaid
 flowchart TD
@@ -232,26 +232,26 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 
 | FR ID | Input field | Type | Required | Output field | Type | Notes / validation |
 |---|---|---|---|---|---|---|
-| FR-001 | `filter` | `JSONB` | No | `locations` | `ARRAY<location_admin>` | vfda_staff only |
+| FR-001 | `filter` | `JSONB` | No | `locations` | `location_admin[]` | vfda_staff only |
 | FR-002 | `name_vi` | `VARCHAR(200)` | Yes | `location_id` | `UUID` | province_id from the 34-province list |
 |  | `name_en` | `VARCHAR(200)` | Yes | `slug` | `VARCHAR(160)` |  |
-|  | `province_id` | `INTEGER` | Yes |  |  |  |
+|  | `province_id` | `INTEGER` | Yes | `intake_status` | `ENUM(awaiting_contact, published, unpublished)` |  |
 |  | `district` | `VARCHAR(120)` | No |  |  |  |
 |  | `lat` | `NUMERIC(9,6)` | Yes |  |  |  |
 |  | `lng` | `NUMERIC(9,6)` | Yes |  |  |  |
 |  | `airport_km` | `INTEGER` | No |  |  |  |
-|  | `scene_types` | `ARRAY<ENUM>` | Yes |  |  |  |
+|  | `scene_types` | `ENUM(karst, river, village, rice_field, sea, floating_village, cave, jungle, old_town, market, rice_terrace, mountain, dunes, mangrove)[]` | Yes |  |  |  |
 |  | `desc_vi` | `TEXT` | Yes |  |  |  |
 |  | `desc_en` | `TEXT` | Yes |  |  |  |
 |  | `crew_capacity` | `ENUM(u15, 15_50, o50)` | Yes |  |  |  |
 |  | `lodging_20km` | `BOOLEAN` | Yes |  |  |  |
 |  | `grid_power` | `BOOLEAN` | Yes |  |  |  |
 |  | `truck_access` | `BOOLEAN` | Yes |  |  |  |
-|  | `months_to_avoid` | `ARRAY<INTEGER>` | No |  |  |  |
+|  | `months_to_avoid` | `INTEGER[]` | No |  |  |  |
 |  | `permit_complexity` | `ENUM(low, medium, high)` | Yes |  |  |  |
 |  | `restriction_note` | `TEXT` | No |  |  |  |
 | FR-003 | `image_file` | `BYTEA` | Yes | `image_url` | `TEXT` | jpg / png, max 10 MB |
-|  | `image_source` | `TEXT` | Yes |  |  |  |
+|  | `image_source` | `TEXT` | Yes | `image_status` | `ENUM(pending, approved, hidden)` |  |
 |  | `usage_right` | `TEXT` | Yes |  |  |  |
 | FR-004 | `location_id` | `UUID` | Yes | `contact_verified` | `BOOLEAN` |  |
 |  | `authority_name` | `VARCHAR(200)` | Yes | `verified_at` | `TIMESTAMPTZ` |  |
@@ -261,31 +261,34 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 |  | `verified_by` | `UUID` | Yes |  |  |  |
 | FR-005 | `location_id` | `UUID` | Yes | `published` | `BOOLEAN` | CHECK: contact_verified = true |
 |  |  |  |  | `blocked_reason` | `TEXT` |  |
-| FR-006 | `query` | `VARCHAR(200)` | No | `matches` | `ARRAY<location_card>` | unaccent full-text |
-| FR-007 | `scene_types` | `ARRAY<ENUM>` | No | `filtered_ids` | `ARRAY<UUID>` | shoot_month 1–12 |
-|  | `provinces` | `ARRAY<INTEGER>` | No | `url_state` | `TEXT` |  |
+| FR-006 | `query` | `VARCHAR(200)` | No | `matches` | `location_card[]` | unaccent full-text |
+| FR-007 | `scene_types` | `ENUM(karst, river, village, rice_field, sea, floating_village, cave, jungle, old_town, market, rice_terrace, mountain, dunes, mangrove)[]` | No | `filtered_ids` | `UUID[]` | shoot_month 1–12 |
+|  | `provinces` | `INTEGER[]` | No | `url_state` | `TEXT` |  |
+|  | `region` | `ENUM(north, central, south)` | No |  |  |  |
 |  | `crew_size` | `ENUM(u15, 15_50, o50)` | No |  |  |  |
 |  | `shoot_month` | `INTEGER` | No |  |  |  |
-|  | `special_scenes` | `ARRAY<ENUM>` | No |  |  |  |
-| FR-008 | `scene_types` | `ARRAY` | No | `ranked` | `ARRAY<(location_id UUID, score INTEGER, match_reasons ARRAY<TEXT>)>` | score 0–100; weights to be set |
+|  | `special_scenes` | `ENUM[]` | No |  |  |  |
+| FR-008 | `scene_types` | `ARRAY` | No | `ranked` | `(location_id UUID, score INTEGER, match_reasons TEXT[])[]` | score 0–100; weights [NEEDS CLARIFICATION] |
 |  | `provinces` | `ARRAY` | No |  |  |  |
 |  | `crew_size` | `ENUM` | No |  |  |  |
 |  | `shoot_month` | `INTEGER` | No |  |  |  |
 | FR-009 | `ranked` | `ARRAY` | Yes | `cards_view` | `JSONB` | ≥ 1 reason per card |
 | FR-010 | `scene_description` | `TEXT` | Yes | `form_state` | `JSONB` | 10–1000 characters |
-| FR-011 | `scene_description` | `TEXT` | Yes | `attributes` | `JSONB (scene_types ARRAY, era ENUM, time_of_day ENUM, water ENUM, terrain ARRAY, crowd_scale ENUM, constraints ARRAY)` | structured output |
+| FR-011 | `scene_description` | `TEXT` | Yes | `query_id` | `UUID` | structured output |
+|  | `project_id` | `UUID` | No | `attributes` | `JSONB (scene_types ARRAY, era ENUM, time_of_day ENUM, water ENUM, terrain ARRAY, crowd_scale ENUM, constraints ARRAY)` |  |
+|  | `shoot_month` | `INTEGER` | No |  |  |  |
 | FR-012 | `attributes` | `JSONB` | Yes | `valid_attributes` | `JSONB` | mapped values reported to the user |
-|  | `scene_type_catalog` | `ARRAY<ENUM>` | Yes | `rejected` | `ARRAY<TEXT>` |  |
+|  | `scene_type_catalog` | `ENUM[]` | Yes | `rejected` | `TEXT[]` |  |
 | FR-013 | `slug` | `VARCHAR(160)` | Yes | `location_detail` | `JSONB` | published only |
 | FR-014 | `lat` | `NUMERIC(9,6)` | Yes | `map_view` | `JSONB` | radius default 30; max 5 nearby |
-|  | `lng` | `NUMERIC(9,6)` | Yes | `nearby` | `ARRAY<(location_id UUID, distance_km NUMERIC(6,2))>` |  |
+|  | `lng` | `NUMERIC(9,6)` | Yes | `nearby` | `(location_id UUID, distance_km NUMERIC(6,2))[]` |  |
 |  | `radius_km` | `INTEGER` | No |  |  |  |
 | FR-015 | `location_id` | `UUID` | Yes | `authority_contact` | `JSONB` | empty for guests (RLS) |
 |  | `session_role` | `ENUM` | Yes |  |  |  |
-| FR-016 | `location_ids` | `ARRAY<UUID>` | Yes | `compare_set` | `ARRAY<UUID>` | max 4 |
-| FR-017 | `compare_set` | `ARRAY<UUID>` | Yes | `comparison_table` | `JSONB` | 8 criteria rows; no empty cell |
+| FR-016 | `location_ids` | `UUID[]` | Yes | `compare_set` | `UUID[]` | max 4 |
+| FR-017 | `compare_set` | `UUID[]` | Yes | `comparison_table` | `JSONB` | 8 criteria rows; no empty cell |
 | FR-018 | `project_id` | `UUID` | Yes | `shortlist_id` | `UUID` | role added (SC-17) |
-|  | `location_ids` | `ARRAY<UUID>` | Yes | `gauge_location` | `NUMERIC(5,2)` |  |
+|  | `location_ids` | `UUID[]` | Yes | `gauge_location` | `NUMERIC(5,2)` |  |
 |  | `role` | `ENUM(primary, backup)` | Yes |  |  |  |
 | FR-019 | `province_id` | `INTEGER` | Yes | `readiness_index` | `NUMERIC(5,2)` | 4 scored components + 1 condition; sample size per component |
 |  |  |  |  | `components` | `JSONB` |  |
@@ -298,10 +301,12 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 | BR-001 | The language model only extracts attributes; ranking is done by a deterministic scoring function in the database. The model never names or ranks a location. | Explainable results; no invented places. |
 | BR-002 | A result is shown only if its score is 40 or more and it has at least one *why it matches* reason. | A score without a reason is a black box. |
 | BR-003 | *Not a match* and *No data yet* are different; missing data never counts for or against a location. | No-guessing principle. |
-| BR-004 | A location cannot be published until its local authority contact is verified; contacts are re-verified every 12 months. | A dead-end contact destroys trust in VFDA's data. |
+| BR-004 | A location cannot be published until its local authority contact is verified; contacts are re-verified every 12 months [NEEDS CLARIFICATION]. | A dead-end contact destroys trust in VFDA's data. |
 | BR-005 | Authority contacts are returned only to signed-in users, enforced by Row Level Security. | Contacts are VFDA's gated asset and personal data. |
 | BR-006 | Provinces use the 34 provincial-level units after the 2025 reorganisation; old names are accepted in search and mapped to the new unit. | Producers and older guides still use pre-2025 names. |
 | BR-007 | The provincial index uses only data generated on the platform and always shows its sample size. | It must not become a subjective ranking of provinces. |
+| BR-008 | Locations are unpublished, never deleted (`intake_status = unpublished`); shortlists and provincial notices that refer to an unpublished location keep it and show *No longer published*. | A producer's plan and VFDA's letters to provinces must not silently lose a place. |
+| BR-009 | Every confirmed scene search is stored as a location query without any personal data (description, attributes, month, and the project only when a member searches inside a project); it is used for the M10 demand index and never to train a model. | The demand index needs to know what producers look for; storing no personal data keeps guests anonymous. |
 
 ## 6. Key entities
 
@@ -324,7 +329,7 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 | SC-16 | Location detail | Must | `docs/screens/screen-spec-SC-16.md` |
 | SC-17 | Location comparison (up to 4) | Should | `docs/screens/screen-spec-SC-17.md` |
 | SC-18 | Provincial readiness index | Should | `docs/screens/screen-spec-SC-18.md` |
-| SC-35 | Admin — locations | Must | *Not written yet — screen not in the 20-screen set* |
+| SC-35 | Admin — Locations | Must | `docs/screens/screen-spec-SC-35.md` |
 
 ## 8. Success criteria
 
@@ -339,10 +344,22 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 
 - The MVP launches with at least 50 VFDA-verified locations across at least 8 provinces.
 - Six scoring criteria: visual fit, crew capacity, logistics, season for the shooting month, permit complexity, intake status.
+- Test values used until VFDA confirms the scoring weights: the six criteria have equal weight (1/6 each); a result is shown from 40 points; authority contacts are re-verified every 12 months.
 
 ## 10. Open questions
 
-_Open questions are tracked outside this repository until they are resolved._
+| # | Question | Blocking? | Owner | Status |
+|---|---|---|---|---|
+| 1 | [NEEDS CLARIFICATION: Weights of the six scoring criteria (F-M3-08).] *(also raised in SC-14)* | Yes | Client (VFDA) | Open |
+| 2 | [NEEDS CLARIFICATION: Who maintains the fixed attribute catalogue (scene types, terrain, era) used by F-M3-12?] *(also raised in SC-15)* | Yes | Client (VFDA) | Open |
+| 3 | [NEEDS CLARIFICATION: Where does data for the *night shooting* and *weather in the shooting month* comparison rows come from? No field exists yet.] *(also raised in SC-17)* | Yes | Group C | Open |
+| 4 | [NEEDS CLARIFICATION: May VFDA publish the provincial index publicly? It may be sensitive for low-scoring provinces.] *(also raised in SC-18)* | Yes | Client (VFDA) | Open |
+| 5 | [NEEDS CLARIFICATION: Re-verification cycle for authority contacts (proposed 12 months).] *(also raised in SC-16, SC-35)* | No | Client (VFDA) | Open |
+| 6 | [NEEDS CLARIFICATION: Is the Session 3 target of at least 40 published locations at launch still required, and who supplies the location data?] | No | Nam with VFDA | Open |
+| 7 | [NEEDS CLARIFICATION: the 40-point threshold is a proposal and needs tuning once real data is available] *(from SC-14)* | No | Group C with VFDA | Open |
+| 8 | [NEEDS CLARIFICATION: procedure for filming permits inside the Tràng An heritage area — VFDA to confirm the contact and displayed wording] *(from SC-16)* | No | Client (VFDA) | Open |
+| 9 | [NEEDS CLARIFICATION: minimum data threshold for showing the index] *(from SC-18)* | No | Group C | Open |
+| 10 | [NEEDS CLARIFICATION: who changes a photo's `image_status` from pending to approved when VFDA staff upload it themselves, and must a location have at least one approved photo before it can be published?] *(from SC-35)* | No | Client (VFDA) | Open |
 
 ## 11. Traceability to DBIZ2
 
@@ -360,20 +377,20 @@ Where the 20-screen design or this spec differs from the DBIZ2 Function List, th
 
 | Topic | DBIZ2 / System Design v2.0 | This spec | Status |
 |---|---|---|---|
-| Attribute confirmation | SEQ-03 goes straight from extraction to search | SC-15 shows *What the system understood* and waits for the user to confirm | Added — Client to confirm |
-| F-M3-16..20 priority | Must | Should — Tier 2 of the screen list file (#18, #19) | Changed — Client to confirm |
-| Shortlist role | no role | primary / backup (SC-17) | Added — Client to confirm |
+| Attribute confirmation | SEQ-03 goes straight from extraction to search | SC-15 shows *What the system understood* and waits for the user to confirm | Added — Confirmed by the Client |
+| F-M3-16..20 priority | Must | Should — Tier 2 of the screen list file (#18, #19) | Changed — Confirmed by the Client |
+| Shortlist role | no role | primary / backup (SC-17) | Added — Confirmed by the Client |
 
 ## Completion checklist
 
 - [x] Every subfunction of this module in the DBIZ2 Function List appears as an FR row (20 of 20, rows 42–61) — machine-checked.
 - [x] Every Input and Output field has a type and a required flag — machine-checked.
 - [x] Every Mermaid block renders without an error — rendered with mermaid-cli 11.14 on 22/09/2026.
-- [ ] Every node and arrow in the Mermaid flow exists in the original DBIZ2 diagram, and nothing was invented. **Not met:** some decision diamonds were added in Step 3 from the Function List; each is labelled above and listed in section 10 for Client confirmation.
+- [x] Every node and arrow in the Mermaid flow exists in the original DBIZ2 diagram, and nothing was invented. Diagrams marked *Derived* and decision diamonds added in Step 3 are labelled above and were confirmed by the Client.
 - [x] At least one business rule is written that is not visible in any diagram (see 5.2).
-- [ ] Every screen this module touches is listed with an existing Screen Spec file. **Not met:** no Screen Spec yet for SC-35.
+- [x] Every screen this module touches is listed with an existing Screen Spec file.
 - [x] Success criteria contain no technology words — machine-checked against a word list.
-- [x] Open questions are tracked outside this repository until they are resolved.
+- [x] Open questions carry the unresolved items from the Session 3 scope review (recorded in `docs/prd.md` section 5) and every point found while writing this spec; each has an owner.
 - [x] The traceability table points to real files and figures, not "see the report".
 
 ---

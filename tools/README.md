@@ -42,6 +42,7 @@ Paths are found automatically on macOS, Windows and Linux (`toolpaths.py`). To f
 | Step | Command | Writes |
 |---|---|---|
 | 1 | `python3 tools/build_docs.py --mermaid` | `docs/spec/spec-*.md`, `docs/screens/screen-spec-*.md`, `docs/mvp-scope.md` |
+| 1b | `python3 tools/build_index.py` | `docs/spec/spec-document.md`, `docs/spec/README.md`, `docs/screens/README.md` (run after step 2 as well) |
 | 2 | `python3 tools/build_data.py --mermaid` | `data/01`–`05`, `data/03-erd.mmd`, `data/seed/schema.json` |
 | 3 | `python3 tools/make_erd_views.py` | `docs/word/data/erd-views/erd-*.png` |
 | 4 | `python3 tools/make_word.py` | every `.docx` in `docs/word/` except Session 1 |
@@ -58,16 +59,18 @@ The generators are deterministic: on an unchanged repository they leave `git sta
 |---|---|
 | `check_env.py` | Session 6 environment and repository check (starter kit — do not edit) |
 | `build_docs.py` | Writes the Spec Documents, Screen Specs and MVP scope, and checks their cross-references |
-| `specs_a.py`, `specs_b.py` | Source data of the eight Spec Documents |
-| `s1_en.py`, `s2_en.py`, `s3_en.py` | Source data of the 20 Screen Specs |
+| `specs_a.py`, `specs_b.py`, `specs_c.py` | Source data of the nine Spec Documents (`specs_c.py` = M10) |
+| `s1_en.py` … `s7_en.py` | Source data of the 41 Screen Specs and mockups (`s4`–`s7` added 30/09/2026) |
+| `check_screens.py` | Checks one screen-data file (badges, states, navigation, FR IDs) and renders it to a scratch folder |
+| `build_index.py` | Writes `docs/spec/spec-document.md` (Spec Index), `docs/spec/README.md` and `docs/screens/README.md` |
+| `_srcedit.py` | Small helper used to append items to the spec source lists |
 | `base.py` | Mockup drawing helpers (used with `--img`) |
 | `mvp.py` | Source data of the MVP scope |
 | `build_data.py` | Writes the Session 5 data-model files |
 | `dm_model.py`, `dm_model2.py` | Source data of the data model (entities, columns, relationships) |
 | `make_erd_views.py` | One ERD picture per module, for the Word copies |
 | `make_word.py`, `fill_mvp_docx.py` | Word copies |
-| `strip_questions.py` | Removes open questions from the published files; the generators call it automatically |
 | `toolpaths.py` | Finds Chrome, mermaid-cli and pandoc on any operating system |
 | `check_en.py` | Checks that generated text is English only |
 
-Open questions are tracked outside this repository. The source-data scripts still carry them, so that nothing is lost; `strip_questions.py` removes them from every file the generators write.
+Open questions stay in the documents as `[NEEDS CLARIFICATION: …]` with an owner (Spec Document §10, Screen Spec §9, `data/05-review.md`).

@@ -8,7 +8,7 @@ short, factual and current.
 
 - Product: `CINEMATCH`, team `Team C`, course DBIZ3, VJCBI College, Foreign Trade University. Client: Vietnam Film Development Association (VFDA).
 - Current step of the course process: Environment setup (Session 6). Next step: `Specify and Clarify with Spec Kit (Session 7), then Plan (/speckit-plan)`.
-- Source of truth for requirements: `docs/spec/` (Spec Documents from Session 4). Start from `docs/spec/spec-document.md`, which indexes the eight module files.
+- Source of truth for requirements: `docs/spec/` (Spec Documents from Session 4). Start from `docs/spec/spec-document.md`, which indexes the nine module files. The product scope is `docs/prd.md`.
 - Source of truth for screens: `docs/screens/` (Screen Specs and mockups from Session 4).
 - Source of truth for data: `data/` (data model and seed package from Session 5).
 
@@ -42,13 +42,14 @@ short, factual and current.
 | `AGENTS.md` | humans | This file: the contract for AI agents |
 | `.gitignore`, `.gitattributes` | humans | Files Git ignores; line-ending rules for a mixed macOS/Windows team |
 | `docs/README.md` | humans | Guide to the `docs/` folder |
-| `docs/mvp-scope.md` | humans | MVP scope and MoSCoW priorities (Session 1) |
+| `docs/prd.md` | humans | MVP Scope v3 (PRD): the product scope for the build (read-only for agents) |
+| `docs/mvp-scope.md` | humans | MVP scope and MoSCoW priorities (Session 1 record) |
 | `docs/function-list.md` | humans | Full Function List: 119 subfunctions (read-only for agents) |
 | `docs/screen-list.md` | humans | Full Screen List: 48 screens (read-only for agents) |
 | `docs/architecture/` | humans | Context, system configuration, usage flow, sequence diagrams, use cases |
 | `docs/architecture/diagrams/` | humans | Picture versions of the architecture diagrams, redrawn from the Markdown |
 | `docs/spec/` | humans | Spec Documents, one per module, and the index `spec-document.md` (read-only for agents) |
-| `docs/screens/` | humans | 20 Screen Specs and their mockups in `img/` (read-only for agents) |
+| `docs/screens/` | humans | 41 Screen Specs and their mockups in `img/` (read-only for agents) |
 | `docs/word/` | generated | Word copies for submission, rebuilt by `tools/make_word.py` |
 | `docs/env/` | humans | Environment Readiness Report (Session 6) |
 | `data/` | humans | Data model, seed generator, seed files (read-only for agents) |
@@ -70,7 +71,7 @@ short, factual and current.
 | File or folder | Owner (member) |
 |---|---|
 | `AGENTS.md`, `README.md` | `Nam` |
-| `docs/spec/`, `docs/mvp-scope.md` | `Nam` |
+| `docs/spec/`, `docs/prd.md`, `docs/mvp-scope.md` | `Nam` |
 | `.specify/`, `.claude/`, `.agents/` (setup only) | `Nam` |
 | `docs/screens/`, `docs/screen-list.md` | `Member 2` |
 | `data/`, `tools/` | `Member 3` |

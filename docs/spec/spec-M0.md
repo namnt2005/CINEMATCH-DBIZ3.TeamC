@@ -85,7 +85,7 @@ This module gives each production one place to prepare its shoot in Vietnam and 
 
 ### 4.1 Usage flow — main producer journey (segments A and B)
 
-> Textualised from `docs/architecture/usage-flow.md` flow 1 (FLOW-01, Figure 3), translated to English. M0 is the hub node *DASH*. Diamonds Q2–Q4 were added in Session 4 Step 3 from Function List rules (not in the original figure) — **still awaiting Client confirmation**.
+> Textualised from `docs/architecture/usage-flow.md` flow 1 (FLOW-01, Figure 3), translated to English. M0 is the hub node *DASH*. Diamonds Q2–Q4 were added in Session 4 Step 3 from Function List rules (not in the original figure) — confirmed by the Client.
 
 ```mermaid
 flowchart TD
@@ -111,7 +111,7 @@ flowchart TD
 
 ### 4.2 Sequence — dashboard load
 
-> **Derived — no DBIZ2 sequence exists for the dashboard.** Written from F-M0-05..07 and SC-12. SEQ-05 (`sequence-diagrams.md`) shows the gauge being recalculated after a shortlist, which is the same mechanism.
+> **Derived — no DBIZ2 sequence exists for the dashboard.** Written from F-M0-05..07 and SC-12. SEQ-05 (`sequence-diagrams.md`) shows the gauge being recalculated after a shortlist, which is the same mechanism. Confirmed by the Client.
 
 ```mermaid
 sequenceDiagram
@@ -156,23 +156,24 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 |  | `shoot_date` | `DATE` | No |  |  |  |
 |  | `shoot_days_vn` | `INTEGER` | No |  |  |  |
 |  | `crew_size_band` | `ENUM(u15, 15_50, o50)` | No |  |  |  |
-|  | `provinces` | `ARRAY<INTEGER>` | No |  |  |  |
+|  | `provinces` | `INTEGER[]` | No |  |  |  |
 |  | `logline` | `VARCHAR(500)` | No |  |  |  |
 | FR-002 | `project_id` | `UUID` | Yes | `updated_at` | `TIMESTAMPTZ` | shoot_date must be after today |
 |  | `project_name` | `VARCHAR(200)` | No |  |  |  |
 |  | `shoot_date` | `DATE` | No |  |  |  |
 |  | `logline` | `VARCHAR(500)` | No |  |  |  |
-| FR-003 | `user_id` | `UUID` | Yes | `projects` | `ARRAY<project_summary>` | RLS: member projects only |
+|  | `stage` | `ENUM(draft, preparing, archived)` | No |  |  |  |
+| FR-003 | `user_id` | `UUID` | Yes | `projects` | `project_summary[]` | RLS: member projects only |
 | FR-004 | `project_id` | `UUID` | Yes | `member_id` | `UUID` | owner only |
 |  | `invitee_email` | `VARCHAR(254)` | Yes | `invite_status` | `ENUM(pending, accepted)` |  |
 |  | `permission` | `ENUM(view, edit)` | Yes |  |  |  |
 | FR-005 | `project_id` | `UUID` | Yes | `gauge_scores` | `JSONB` | weights from `segment_requirements` |
 |  |  |  |  | `readiness_total` | `NUMERIC(5,2)` |  |
 | FR-006 | `project_id` | `UUID` | Yes | `dashboard_view` | `JSONB` |  |
-| FR-007 | `gauge_scores` | `JSONB` | Yes | `next_actions` | `ARRAY<action_code VARCHAR(40)>` | one per gauge |
+| FR-007 | `gauge_scores` | `JSONB` | Yes | `next_actions` | `action_code VARCHAR(40)[]` | one per gauge |
 | FR-008 | `project_id` | `UUID` | Yes | `snapshot_id` | `UUID` | pg_cron, nightly |
 |  | `snapshot_date` | `DATE` | Yes |  |  |  |
-| FR-009 | `project_id` | `UUID` | Yes | `series` | `ARRAY<(date DATE, readiness_total NUMERIC(5,2))>` |  |
+| FR-009 | `project_id` | `UUID` | Yes | `series` | `(date DATE, readiness_total NUMERIC(5,2))[]` |  |
 |  | `from_date` | `DATE` | No |  |  |  |
 
 ### 5.2 Business rules
@@ -183,6 +184,7 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 | BR-002 | Gauges shown depend on segment: segment C has no *Dossier & permits* gauge; the *Logistics* gauge is shown as `—` until phase 2. | 0% and *not applicable* mean different things. |
 | BR-003 | Each gauge always has one next step; when a gauge is complete its next step reads *Done*. | The next step is the main information on the dashboard, not the percentage. |
 | BR-004 | Weights per segment are read from `segment_requirements`, never hard-coded. | VFDA must be able to change them without a release. |
+| BR-005 | Projects are archived, never deleted. An archived project (`stage = archived`) is read-only for its members, leaves the project list, and keeps its documents, requests and notices. | Collaboration requests, provincial notices and access logs refer to the project and must stay explainable. |
 
 ## 6. Key entities
 
@@ -200,7 +202,7 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 |---|---|---|---|
 | SC-10 | Project list / Create new project | Must | `docs/screens/screen-spec-SC-10.md` |
 | SC-12 | Readiness dashboard (5 gauges) | Must | `docs/screens/screen-spec-SC-12.md` |
-| SC-13 | Project settings | Must | *Not written yet — screen not in the 20-screen set* |
+| SC-13 | Project settings | Must | `docs/screens/screen-spec-SC-13.md` |
 
 ## 8. Success criteria
 
@@ -214,10 +216,18 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 
 - A project belongs to one producer organisation.
 - Overall readiness is a weighted average of the gauges that apply to the segment.
+- Test values used until VFDA confirms the gauge weights: every gauge that applies to the segment has the same weight (segments A and B: 5 gauges × 20 %; segment C: 4 gauges × 25 %); safety buffer = 7 days.
 
 ## 10. Open questions
 
-_Open questions are tracked outside this repository until they are resolved._
+| # | Question | Blocking? | Owner | Status |
+|---|---|---|---|---|
+| 1 | [NEEDS CLARIFICATION: Weights of the five gauges in the overall score, per segment.] *(also raised in SC-12)* | Yes | Client (VFDA) | Open |
+| 2 | [NEEDS CLARIFICATION: Is the 7-day safety buffer before the first shooting day editable by the producer?] *(also raised in SC-12)* | No | Client (VFDA) | Open |
+| 3 | [NEEDS CLARIFICATION: Can people outside the producer organisation (a lawyer, a freelance line producer) be invited to a project?] *(also raised in SC-10, SC-13)* | No | Client (VFDA) | Open |
+| 4 | [NEEDS CLARIFICATION: can a project change segment after dossier data exists, and how is the old data handled] *(from SC-10)* | No | Client (VFDA) | Open |
+| 5 | [NEEDS CLARIFICATION: can the owner change a member's permission, remove a member or cancel a pending invitation? F-M0-04 only covers inviting] *(from SC-13)* | No | Group C | Open |
+| 6 | [NEEDS CLARIFICATION: can an archived project be restored to *preparing*, and by whom?] *(from SC-13)* | No | Client (VFDA) | Open |
 
 ## 11. Traceability to DBIZ2
 
@@ -235,19 +245,19 @@ Where the 20-screen design or this spec differs from the DBIZ2 Function List, th
 
 | Topic | DBIZ2 / System Design v2.0 | This spec | Status |
 |---|---|---|---|
-| Project creation fields | F-M0-01: name, segment, shoot date, logline | format required; shoot days, crew size and provinces added (SC-10) | Changed — Client to confirm |
-| F-M0-09 priority | Must | Could — no chart on the SC-12 mockup | Changed — Client to confirm |
+| Project creation fields | F-M0-01: name, segment, shoot date, logline | format required; shoot days, crew size and provinces added (SC-10) | Changed — Confirmed by the Client |
+| F-M0-09 priority | Must | Could — no chart on the SC-12 mockup | Changed — Confirmed by the Client |
 
 ## Completion checklist
 
 - [x] Every subfunction of this module in the DBIZ2 Function List appears as an FR row (9 of 9, rows 12–20) — machine-checked.
 - [x] Every Input and Output field has a type and a required flag — machine-checked.
 - [x] Every Mermaid block renders without an error — rendered with mermaid-cli 11.14 on 22/09/2026.
-- [ ] Every node and arrow in the Mermaid flow exists in the original DBIZ2 diagram, and nothing was invented. **Not met:** some diagrams are marked *Derived* (no DBIZ2 figure exists); each is labelled above and listed in section 10 for Client confirmation.
+- [x] Every node and arrow in the Mermaid flow exists in the original DBIZ2 diagram, and nothing was invented. Diagrams marked *Derived* and decision diamonds added in Step 3 are labelled above and were confirmed by the Client.
 - [x] At least one business rule is written that is not visible in any diagram (see 5.2).
-- [ ] Every screen this module touches is listed with an existing Screen Spec file. **Not met:** no Screen Spec yet for SC-13.
+- [x] Every screen this module touches is listed with an existing Screen Spec file.
 - [x] Success criteria contain no technology words — machine-checked against a word list.
-- [x] Open questions are tracked outside this repository until they are resolved.
+- [x] Open questions carry the unresolved items from the Session 3 scope review (recorded in `docs/prd.md` section 5) and every point found while writing this spec; each has an owner.
 - [x] The traceability table points to real files and figures, not "see the report".
 
 ---

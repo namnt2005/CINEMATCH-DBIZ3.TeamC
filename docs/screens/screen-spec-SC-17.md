@@ -98,7 +98,9 @@
 
 ## 9. Open questions
 
-_Open questions are tracked outside this repository until they are resolved._
+| # | Question | Blocking? | Status |
+|---|---|---|---|
+| 1 | [NEEDS CLARIFICATION: data source for the *Night shooting* and *Weather by month* criteria — no matching field in `locations` yet] | Yes | Open |
 
 ## Completion checklist
 

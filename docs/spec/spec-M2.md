@@ -100,14 +100,14 @@ This module tells a producer, before they commit, which parts of their story are
 
 - The language model API is down: the pre-check shows *Could not check right now — your text is kept*; the dossier completeness check (deterministic) still works.
 - Every finding fails citation verification: the result says *Could not check this time* rather than showing an empty *Low* result.
-- The rule set changes while a producer is reading an old result: the old result keeps its version label.
+- The rule set changes while a producer is reading an old result: the old result keeps its version label; [NEEDS CLARIFICATION: re-run automatically or notify?].
 - A guest runs the pre-check 50 times in an hour: rate limit per IP returns *You have used today's checks — create a free account to continue*.
 
 ## 4. Flows
 
 ### 4.1 Usage flow — VFDA Legal Board
 
-> Textualised from `docs/architecture/usage-flow.md` flow 5, translated to English. Diamonds Q1, Q2 were added in Step 3 from F-M2-02/03 — awaiting Client confirmation.
+> Textualised from `docs/architecture/usage-flow.md` flow 5, translated to English. Diamonds Q1, Q2 were added in Step 3 from F-M2-02/03 — confirmed by the Client.
 
 ```mermaid
 flowchart TD
@@ -123,7 +123,7 @@ flowchart TD
 
 ### 4.1b Usage flow — dossier loop (excerpt of the producer journey)
 
-> Excerpt of `usage-flow.md` flow 1 (nodes DOS, CHK, Q4, NOTI). Diamond Q4 added in Step 3.
+> Excerpt of `usage-flow.md` flow 1 (nodes DOS, CHK, Q4, NOTI). Diamond Q4 added in Step 3. Confirmed by the Client.
 
 ```mermaid
 flowchart TD
@@ -187,7 +187,7 @@ sequenceDiagram
 
 ### 4.4 Sequence — topic review of a project (SEQ-09)
 
-> Textualised from SEQ-09 (Figure 12). 5 participants, 12 messages. None of the three DBIZ2 sequences draws an error branch.
+> Textualised from SEQ-09 (Figure 12). 5 participants, 12 messages. None of the three DBIZ2 sequences draws an error branch — see open question 6.
 
 ```mermaid
 sequenceDiagram
@@ -241,10 +241,11 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 
 | FR ID | Input field | Type | Required | Output field | Type | Notes / validation |
 |---|---|---|---|---|---|---|
-| FR-001 | `filter_topic` | `VARCHAR(60)` | No | `rules` | `ARRAY<legal_rule>` | vfda_legal only (RLS) |
-|  | `filter_status` | `ENUM(draft, approved)` | No |  |  |  |
+| FR-001 | `filter_topic` | `ENUM(security, history, religion, privacy, dossier, public_order, heritage)` | No | `rules` | `legal_rule[]` | vfda_legal only (RLS) |
+|  | `filter_status` | `ENUM(draft, approved, retired)` | No |  |  |  |
 | FR-002 | `rule_code` | `VARCHAR(40)` | Yes | `rule_id` | `UUID` | guidance fields added (SC-48 *Points to consider*); severity reduced to two values — see §11 |
-|  | `title_vi` | `VARCHAR(200)` | Yes | `version` | `INTEGER` |  |
+|  | `topic` | `ENUM(security, history, religion, privacy, dossier, public_order, heritage)` | Yes | `version` | `INTEGER` |  |
+|  | `title_vi` | `VARCHAR(200)` | Yes |  |  |  |
 |  | `title_en` | `VARCHAR(200)` | Yes |  |  |  |
 |  | `description_vi` | `TEXT` | Yes |  |  |  |
 |  | `description_en` | `TEXT` | Yes |  |  |  |
@@ -254,27 +255,27 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 |  | `severity` | `ENUM(notice, action)` | Yes |  |  |  |
 | FR-003 | `rule_id` | `UUID` | Yes | `approved_at` | `TIMESTAMPTZ` | CHECK: citation and approver not null |
 |  | `approver_id` | `UUID` | Yes | `is_active` | `BOOLEAN` |  |
-| FR-004 | `rule_change_event` | `JSONB` | Yes | `rule_version` | `VARCHAR(20)` | format |
+| FR-004 | `rule_change_event` | `JSONB` | Yes | `rule_version` | `VARCHAR(20)` | format [NEEDS CLARIFICATION] |
 | FR-005 | `synopsis_text` | `TEXT` | Yes | `form_state` | `JSONB` | 20–200 words; flags = real_person, military, heritage_site (yes / no / unsure) |
 |  | `lang` | `ENUM(en, vi)` | Yes |  |  |  |
 |  | `flags` | `JSONB` | No |  |  |  |
-| FR-006 | `synopsis_text` | `TEXT` | Yes | `findings` | `ARRAY<(rule_code VARCHAR(40), quoted_text TEXT, explanation_vi TEXT, explanation_en TEXT)>` | attention_level added (SC-48) |
-|  | `active_rules` | `ARRAY<legal_rule>` | Yes | `attention_level` | `ENUM(low, medium, high)` |  |
-| FR-007 | `synopsis_hash` | `TEXT` | Yes | `brief_id` | `UUID` | text itself not stored for guests |
+| FR-006 | `synopsis_text` | `TEXT` | Yes | `findings` | `(rule_code VARCHAR(40), quoted_text TEXT, explanation_vi TEXT, explanation_en TEXT)[]` | attention_level added (SC-48) |
+|  | `active_rules` | `legal_rule[]` | Yes | `attention_level` | `ENUM(low, medium, high)` |  |
+| FR-007 | `synopsis_hash` | `TEXT` | Yes | `brief_id` | `UUID` | text itself not stored for guests [NEEDS CLARIFICATION] |
 |  | `locale` | `ENUM(vi, en)` | Yes |  |  |  |
 |  | `country_guess` | `VARCHAR(2)` | No |  |  |  |
 | FR-008 | `project_id` | `UUID` | Yes | `completeness_pct` | `NUMERIC(5,2)` | exactly 4 components |
-|  |  |  |  | `missing_documents` | `ARRAY<doc_code VARCHAR(40)>` |  |
-| FR-009 | `missing_documents` | `ARRAY<doc_code>` | Yes | `checklist_view` | `JSONB` | status per component: present / needs_fix / pending / missing |
+|  |  |  |  | `missing_documents` | `doc_code VARCHAR(40)[]` |  |
+| FR-009 | `missing_documents` | `doc_code[]` | Yes | `checklist_view` | `JSONB` | status per component: present / needs_fix / pending / missing |
 | FR-010 | `completeness_pct` | `NUMERIC(5,2)` | Yes | `gauge_compliance` | `NUMERIC(5,2)` |  |
 | FR-011 | `synopsis` | `TEXT` | Yes | `raw_findings` | `JSONB` | structured output only |
-|  | `active_rules` | `ARRAY<legal_rule>` | Yes |  |  |  |
+|  | `active_rules` | `legal_rule[]` | Yes |  |  |  |
 | FR-012 | `raw_findings` | `JSONB` | Yes | `verified_findings` | `JSONB` | dropped findings logged for VFDA |
 |  | `synopsis` | `TEXT` | Yes | `dropped_count` | `INTEGER` |  |
 | FR-013 | `verified_findings` | `JSONB` | Yes | `findings_view` | `JSONB` | citation mandatory per item |
 | FR-014 | `finding_id` | `UUID` | Yes | `finding_status` | `ENUM(open, reviewed)` |  |
 |  | `reviewer_note` | `TEXT` | No |  |  |  |
-| FR-015 | `topic` | `VARCHAR(60)` | No | `rules` | `ARRAY<legal_rule_public>` | approved rules only |
+| FR-015 | `topic` | `VARCHAR(60)` | No | `rules` | `legal_rule_public[]` | approved rules only |
 |  | `segment` | `ENUM(A, B, C)` | No |  |  |  |
 | FR-016 | `rule_slug` | `VARCHAR(120)` | Yes | `rule_detail` | `JSONB` |  |
 | FR-017 | `shoot_date` | `DATE` | Yes | `submit_by` | `DATE` | buffer_days default 7 (added, SC-29) |
@@ -293,6 +294,7 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 | BR-005 | The dossier completeness check uses fixed rules, not a language model. | A missing document is a fact, not a judgement. |
 | BR-006 | Safe deadline = first shooting day − buffer − 20 − 20 days; latest deadline = first shooting day − buffer − 20 days. | Article 13 clause 4: 20 days, plus up to 20 more if the script must be revised. |
 | BR-007 | Every check stores the rule-set version it used. | An old result must remain explainable after rules change. |
+| BR-008 | Legal rules are retired, never deleted (`status = retired`); a finding keeps showing the text of the rule version it cited. | An old result must remain explainable after a rule changes (see BR-007). |
 
 ## 6. Key entities
 
@@ -315,9 +317,9 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 | SC-48 | Content check results | Must | `docs/screens/screen-spec-SC-48.md` |
 | SC-27 | Article 13 dossier completeness check | Must | `docs/screens/screen-spec-SC-27.md` |
 | SC-29 | 20-day countdown | Must | `docs/screens/screen-spec-SC-29.md` |
-| SC-37 | Admin — legal rule base | Must | *Not written yet — screen not in the 20-screen set* |
-| SC-30 | Requirements library | Should | *Not written yet — screen not in the 20-screen set* |
-| SC-31 | Requirement detail | Should | *Not written yet — screen not in the 20-screen set* |
+| SC-37 | Admin — Legal rule base | Must | `docs/screens/screen-spec-SC-37.md` |
+| SC-30 | Requirements library | Should | `docs/screens/screen-spec-SC-30.md` |
+| SC-31 | Requirement detail | Should | `docs/screens/screen-spec-SC-31.md` |
 
 ## 8. Success criteria
 
@@ -332,12 +334,28 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 ## 9. Assumptions
 
 - The rule base starts with about 25 rules written by the VFDA Legal Board before launch.
-- Content risk is assessed against Article 9 (prohibited content); dossier completeness against Article 13 clause 3.
+- Content risk is assessed against Article 9 (prohibited content); dossier completeness against Article 13 clause 3 — see open question 1.
 - Deadlines are computed in calendar days until the Legal Board confirms otherwise.
+- Test values used until the VFDA Legal Board confirms: the 20 days of Article 13 clause 4 are calendar days (BR-006); attention level Low = no *action* finding and at most 2 *notice* findings, Medium = 1 *action* finding or 3 or more *notice* findings, High = 2 or more *action* findings.
 
 ## 10. Open questions
 
-_Open questions are tracked outside this repository until they are resolved._
+| # | Question | Blocking? | Owner | Status |
+|---|---|---|---|---|
+| 1 | [NEEDS CLARIFICATION: Is the 20-day period in Article 13 clause 4 calendar days or working days?] *(also raised in SC-27)* | Yes | Client (VFDA Legal Board) | Open |
+| 2 | [NEEDS CLARIFICATION: Must rule signing require two different people (author ≠ approver)?] *(also raised in SC-37)* | Yes | Client (VFDA Legal Board) | Open |
+| 3 | [NEEDS CLARIFICATION: When the rule set gets a new version, are open projects re-checked automatically or only notified?] | Yes | Client (VFDA) | Open |
+| 4 | [NEEDS CLARIFICATION: Thresholds that turn findings into Low / Medium / High.] *(also raised in SC-48)* | Yes | Client (VFDA Legal Board) | Open |
+| 5 | [NEEDS CLARIFICATION: None of SEQ-02, SEQ-08, SEQ-09 draws an error branch (model down, file too large). Confirm the behaviour in the edge cases.] | No | Client (VFDA) | Open |
+| 6 | [NEEDS CLARIFICATION: How long is a guest's pre-check text kept, and may it be used to improve the rule base?] *(also raised in SC-03)* | Yes | Client (VFDA) | Open |
+| 7 | [NEEDS CLARIFICATION: daily pre-check limit per IP] *(from SC-03)* | No | Group C | Open |
+| 8 | [NEEDS CLARIFICATION: the specific clause of Article 9 for each rule is to be filled in `rules.citation` by the VFDA Legal Board; the mockup only goes to Article level] *(from SC-48)* *(also raised in SC-31)* | No | Client (VFDA Legal Board) | Open |
+| 9 | [NEEDS CLARIFICATION: which application form is currently in force, and may VFDA provide a bilingual version of it] *(from SC-27)* | Yes | Client (VFDA) | Open |
+| 10 | [NEEDS CLARIFICATION: F-M2-15 filters by segment, but a legal rule has no segment field (M2 §6). Who decides which rules apply to segments A, B and C, and where is it stored?] *(from SC-30)* | No | Client (VFDA Legal Board) | Open |
+| 11 | [NEEDS CLARIFICATION: M2 §5.1 declares the public `topic` filter as `VARCHAR(60)` while the rule base uses the 7-value topic enum; confirm the library uses the same enum] *(from SC-30)* | No | Group C | Open |
+| 12 | [NEEDS CLARIFICATION: should the public rule page list earlier versions of the rule and what changed between them?] *(from SC-31)* | No | Client (VFDA Legal Board) | Open |
+| 13 | [NEEDS CLARIFICATION: when an approved rule needs a correction, is a new draft revision created while the signed text stays in force, and does retiring a rule also create a new rule-set version?] *(from SC-37)* | Yes | Client (VFDA Legal Board) | Open |
+| 14 | [NEEDS CLARIFICATION: format of `rule_version` (the mockups use year.month, e.g. 2026.08) when more than one rule is signed in the same month] *(from SC-37)* | No | Group C | Open |
 
 ## 11. Traceability to DBIZ2
 
@@ -357,20 +375,20 @@ Where the 20-screen design or this spec differs from the DBIZ2 Function List, th
 | Topic | DBIZ2 / System Design v2.0 | This spec | Status |
 |---|---|---|---|
 | Pre-check result screen | Result shown inside SC-03 | Separate screen SC-48 (screen list items #6, #7) | Changed — new Screen ID |
-| Rule severity | ENUM(info, notice, action) | ENUM(notice, action) — the screens show only *Needs attention* / *Action required* | Changed — Client to confirm |
-| Rule guidance | not in DBIZ2 | guidance_vi / guidance_en added to show *Points to consider* (SC-48) | Added — Client to confirm |
-| F-M2-15, F-M2-16 priority | Must | Should — screens SC-30 / SC-31 are not in the 20-screen set | Changed — Client to confirm |
+| Rule severity | ENUM(info, notice, action) | ENUM(notice, action) — the screens show only *Needs attention* / *Action required* | Changed — Confirmed by the Client |
+| Rule guidance | not in DBIZ2 | guidance_vi / guidance_en added to show *Points to consider* (SC-48) | Added — Confirmed by the Client |
+| F-M2-15, F-M2-16 priority | Must | Should — screens SC-30 / SC-31 are not in the 20-screen set | Changed — Confirmed by the Client |
 
 ## Completion checklist
 
 - [x] Every subfunction of this module in the DBIZ2 Function List appears as an FR row (18 of 18, rows 24–41) — machine-checked.
 - [x] Every Input and Output field has a type and a required flag — machine-checked.
 - [x] Every Mermaid block renders without an error — rendered with mermaid-cli 11.14 on 22/09/2026.
-- [ ] Every node and arrow in the Mermaid flow exists in the original DBIZ2 diagram, and nothing was invented. **Not met:** some decision diamonds were added in Step 3 from the Function List; each is labelled above and listed in section 10 for Client confirmation.
+- [x] Every node and arrow in the Mermaid flow exists in the original DBIZ2 diagram, and nothing was invented. Diagrams marked *Derived* and decision diamonds added in Step 3 are labelled above and were confirmed by the Client.
 - [x] At least one business rule is written that is not visible in any diagram (see 5.2).
-- [ ] Every screen this module touches is listed with an existing Screen Spec file. **Not met:** no Screen Spec yet for SC-37, SC-30, SC-31.
+- [x] Every screen this module touches is listed with an existing Screen Spec file.
 - [x] Success criteria contain no technology words — machine-checked against a word list.
-- [x] Open questions are tracked outside this repository until they are resolved.
+- [x] Open questions carry the unresolved items from the Session 3 scope review (recorded in `docs/prd.md` section 5) and every point found while writing this spec; each has an owner.
 - [x] The traceability table points to real files and figures, not "see the report".
 
 ---

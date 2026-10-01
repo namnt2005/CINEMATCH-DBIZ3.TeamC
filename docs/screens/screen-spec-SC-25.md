@@ -6,7 +6,7 @@
 
 | Field | Value |
 |---|---|
-| Screen ID | `SC-25` |
+| Screen ID | `SC-25` (also covers `SC-24`) |
 | Screen name | Collaboration request + status tracking |
 | Actor | Member / Partner |
 | Priority | Must |
@@ -102,7 +102,10 @@
 
 ## 9. Open questions
 
-_Open questions are tracked outside this repository until they are resolved._
+| # | Question | Blocking? | Status |
+|---|---|---|---|
+| 1 | [NEEDS CLARIFICATION: will VFDA provide a standard NDA template, or does each partner use its own NDA] | Yes | Open |
+| 2 | [NEEDS CLARIFICATION: after how many days without a response does a request expire automatically] | No | Open |
 
 ## Completion checklist
 

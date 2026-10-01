@@ -95,7 +95,10 @@
 
 ## 9. Open questions
 
-_Open questions are tracked outside this repository until they are resolved._
+| # | Question | Blocking? | Status |
+|---|---|---|---|
+| 1 | [NEEDS CLARIFICATION: how long are guest summaries kept, and are they used to improve the rule set — privacy policy wording needed] | Yes | Open |
+| 2 | [NEEDS CLARIFICATION: daily pre-check limit per IP] | No | Open |
 
 ## Completion checklist
 

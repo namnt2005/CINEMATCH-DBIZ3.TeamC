@@ -98,7 +98,10 @@
 
 ## 9. Open questions
 
-_Open questions are tracked outside this repository until they are resolved._
+| # | Question | Blocking? | Status |
+|---|---|---|---|
+| 1 | [NEEDS CLARIFICATION: criteria for VFDA to grant the *Eligible to sign service agreements* badge — which registered business lines qualify] | Yes | Open |
+| 2 | [NEEDS CLARIFICATION: can an organisation choose to hide its international project count] | No | Open |
 
 ## Completion checklist
 

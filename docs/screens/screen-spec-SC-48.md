@@ -19,7 +19,7 @@
 **Notes against Screen List v2.0**
 
 - **New Screen ID.** Screen List v2.0 did not have this screen (results were part of `SC-03`). `SC-48` has been added to `docs/screen-list.md`.
-- The screen list file says *"highlight risk points under Article 13"*. The mockup and spec use **Article 9** for content, because Article 9 of the Cinema Law 2022 defines prohibited content; Article 13 defines the dossier components and is checked on `SC-27`. The team needs to confirm this interpretation.
+- The screen list file says *"highlight risk points under Article 13"*. The mockup and spec use **Article 9** for content, because Article 9 of the Cinema Law 2022 defines prohibited content; Article 13 defines the dossier components and is checked on `SC-27`. Group C adopted this interpretation, and the Screen List note was updated to match.
 
 ## 1. Purpose
 
@@ -104,7 +104,10 @@
 
 ## 9. Open questions
 
-_Open questions are tracked outside this repository until they are resolved._
+| # | Question | Blocking? | Status |
+|---|---|---|---|
+| 1 | [NEEDS CLARIFICATION: the specific clause of Article 9 for each rule is to be filled in `rules.citation` by the VFDA Legal Board; the mockup only goes to Article level] | No | Open |
+| 2 | [NEEDS CLARIFICATION: thresholds for mapping number of findings × severity to Low / Medium / High] | Yes | Open |
 
 ## Completion checklist
 

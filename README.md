@@ -17,6 +17,7 @@ CINEMATCH-DBIZ3.TeamC/
 ├── .gitignore  .gitattributes
 ├── docs/
 │   ├── README.md              ← guide to the docs/ folder
+│   ├── prd.md                 ← MVP Scope v3 (PRD) for the Session 7 midterm
 │   ├── mvp-scope.md
 │   ├── function-list.md
 │   ├── screen-list.md
@@ -29,11 +30,11 @@ CINEMATCH-DBIZ3.TeamC/
 │   │   └── diagrams/          ← picture versions (to be added)
 │   ├── spec/
 │   │   ├── README.md
-│   │   ├── spec-document.md   ← index of the eight module specs
-│   │   └── spec-SYS.md  spec-M0.md … spec-M7.md
+│   │   ├── spec-document.md   ← Spec Index of the nine module specs
+│   │   └── spec-SYS.md  spec-M0.md … spec-M7.md  spec-M10.md
 │   ├── screens/
 │   │   ├── README.md
-│   │   ├── screen-spec-SC-01.md … screen-spec-SC-48.md
+│   │   ├── screen-spec-SC-01.md … screen-spec-SC-48.md  (41 files)
 │   │   └── img/SC-01.png … SC-48.png
 │   ├── word/                  ← Word copies for submission
 │   │   ├── Session-01-MVP-Scope-GroupC.docx
@@ -49,7 +50,7 @@ CINEMATCH-DBIZ3.TeamC/
 │   ├── 05-review.md
 │   └── seed/
 │       ├── README.md  schema.json  generate_seed.py  check_seed.py
-│       └── <table>.csv  (43 files)
+│       └── <table>.csv  (46 files)
 └── tools/
     ├── README.md              ← what each script does and what it needs
     ├── check_env.py           ← Session 6 environment check
@@ -59,11 +60,11 @@ CINEMATCH-DBIZ3.TeamC/
 | Folder | What it holds | How many |
 |---|---|---|
 | `docs/` | MVP scope, the full Function List and Screen List, five textualized architecture diagrams | 119 subfunctions · 48 screens |
-| `docs/spec/` | One Spec Document per module, plus an index | 8 specs · 95 functional requirements |
-| `docs/screens/` | One Screen Spec and one annotated mockup per screen | 20 specs · 20 images |
-| `docs/word/` | Word copies for submission — same content as the Markdown | 34 files + ERD views |
+| `docs/spec/` | One Spec Document per module, plus an index | 9 specs · 104 functional requirements |
+| `docs/screens/` | One Screen Spec and one annotated mockup per screen — every MVP screen | 41 specs · 41 images |
+| `docs/word/` | Word copies for submission — same content as the Markdown | 58 files + ERD views |
 | `docs/env/` | Environment Readiness Report for Session 6 | 1 report |
-| `data/` | Entity dictionary, CRUD matrix, conceptual ERD, logical model, review; seed data with its generator and integrity check | 47 entities · 43 tables · 374 seed rows |
+| `data/` | Entity dictionary, CRUD matrix, conceptual ERD, logical model, review; seed data with its generator and integrity check | 51 entities · 46 tables · 423 seed rows |
 | `tools/` | The environment check and the generators that rebuild `docs/`, `data/` and `docs/word/` | — |
 
 Four rules govern the structure: one module per spec file, one screen per image file, DBIZ2 IDs reused unchanged, and everything text except the screen mockups. The data package adds one more: every entity, column and relationship cites the spec line it came from.
@@ -119,7 +120,7 @@ Because of this chain a reader can start anywhere — a badge on a picture, a ro
 
 **Viewing.** GitHub and the Antigravity IDE or VS Code Markdown preview (with a Mermaid preview extension) render every Markdown file and every Mermaid diagram, including `data/03-erd.mmd`.
 
-**Reading the mockups.** All 20 mockups follow a single fictional project, so the numbers on different screens can be checked against each other:
+**Reading the mockups.** All 41 mockups follow a single fictional project, so the numbers on different screens can be checked against each other:
 
 > *The Last Ferry* — Harbour Line Films (Korea), segment A (foreign production filming in Vietnam), first shooting day **15/03/2027**.
 > Readiness **58 %** · safe submission deadline **27/01/2027** · best-matching location Tràng An, match score **91**.
@@ -142,12 +143,12 @@ The generators are deterministic: running them on an unchanged repository leaves
 
 ## 6. What this package does and does not settle
 
-The package was checked so that a reader can rely on it: all 95 Function List rows of the eight specified modules are covered by a functional requirement, all 256 callout badges match their inventory rows, every navigation target named in a Screen Spec exists in the Screen List, every input and output field has a type and a required mark, every diagram renders, and the seed data passes its integrity check.
+The package was checked so that a reader can rely on it: all 104 Function List rows in MVP scope are covered by a functional requirement in one of the nine Spec Documents, all 545 callout badges match their inventory rows, every navigation target named in a Screen Spec exists in the Screen List, every input and output field has a type and a required mark, every diagram renders, and the seed data passes its integrity check.
 
 Some things are deliberately not settled yet:
 
-- **Open questions** — for VFDA and for the team — are tracked outside this repository until they are answered. When an answer arrives, the document it concerns is updated; section 10 of each Spec Document and section 9 of each Screen Spec say so.
-- **Gaps in coverage:** no Screen Spec yet for the admin screens `SC-35`, `SC-36`, `SC-37`, and no Spec Document for module `M10`; modules `M6`, `M8`, `M9` are *Won't* for this release.
+- **Open questions** — for VFDA and for the team — are listed where they belong, as `[NEEDS CLARIFICATION: …]` with an owner: section 10 of each Spec Document (74, of which 29 blocking), section 9 of each Screen Spec, and `data/05-review.md` for the data model (35, of which 14 blocking). Section 9 of each Spec Document gives the test values used until the Client answers.
+- **Scope limits:** modules `M6`, `M8`, `M9` are *Won't* for this release and have no Spec Document.
 - **Human gates:** checklist items left unticked with their reason, the “Checked by a person” and “Verified by” lines, and the *Decision* and *Resolution* columns of the data files are left for a person to fill.
 
 Where the screen design differs from the DBIZ2 Function List, nothing was changed silently: every divergence is recorded in §11.1 *Reconciliation* of the module spec concerned.

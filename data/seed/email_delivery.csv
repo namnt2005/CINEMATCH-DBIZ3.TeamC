@@ -1,7 +1,7 @@
 email_delivery_id,notification_id,template_id,recipient_email,variables,delivery_status,provider_message_id
 16e4d955-f527-586a-bd9e-6aabead0abbb,7255187b-fb16-5249-afb3-038258f77a36,collab_request_new,lan.pham@benxua.example.vn,"{""project"":""The Last Ferry""}",sent,re_7f3a1d
-5773cfee-8e63-50d7-9e14-284ab859238b,5ba90d85-cb4b-5dc9-a87a-1f622ec2df1b,collab_request_status,minjun.park@harbourline.example.kr,"{""status"":""accepted""}",sent,re_7f3a1c
-7d1a1ab6-99e7-509a-abc5-e06499c89f41,4e9e47bd-c4c3-5eaa-bb17-1d25e4a75162,consultation_reminder,minjun.park@harbourline.example.kr,"{""slot"":""2026-10-06T08:00:00+07:00""}",queued,
+5773cfee-8e63-50d7-9e14-284ab859238b,5ba90d85-cb4b-5dc9-a87a-1f622ec2df1b,collab_request_status,lena.park@harbourline.example.kr,"{""status"":""accepted""}",sent,re_7f3a1c
+7d1a1ab6-99e7-509a-abc5-e06499c89f41,4e9e47bd-c4c3-5eaa-bb17-1d25e4a75162,consultation_reminder,lena.park@harbourline.example.kr,"{""slot"":""2026-10-06T08:00:00+07:00""}",queued,
 af6979fa-5d7a-5386-aead-3d8600c179ef,99774bb2-dcc7-5718-ab03-90fbf533ce2d,collab_request_status,yui.tanaka@sakuralane.example.jp,"{""status"":""declined""}",sent,re_7f3a20
 b80188be-7588-55b5-8f5e-bd387ff9cc31,470cabae-052f-5ddb-a279-4345900be257,province_notice_reply,sophie.laurent@lumierenord.example.fr,"{""province"":""Cần Thơ""}",sent,re_7f3a1e
 ccbfa19b-6905-57b0-82da-d08c3eee28a7,,province_notice,vanphong@ubnd.example.vn,"{""interest"":""i6""}",bounced,re_7f3a1f

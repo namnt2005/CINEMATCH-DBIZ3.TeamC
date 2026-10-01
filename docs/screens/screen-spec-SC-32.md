@@ -97,7 +97,10 @@
 
 ## 9. Open questions
 
-_Open questions are tracked outside this repository until they are resolved._
+| # | Question | Blocking? | Status |
+|---|---|---|---|
+| 1 | [NEEDS CLARIFICATION: does VFDA have the authority / established practice to send notices to Provincial People's Committees, and what is the official letter template] | Yes | Open |
+| 2 | [NEEDS CLARIFICATION: should the notice go to the Provincial People's Committee or the provincial Department of Culture] | Yes | Open |
 
 ## Completion checklist
 

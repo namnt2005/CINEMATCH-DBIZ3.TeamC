@@ -1,11 +1,12 @@
 location_id,authority_name,contact_name,contact_phone,contact_email,verified_by,verified_at,contact_verified
-009c57a1-cd44-57a7-84cf-58100927c571,Ban Quản lý Vườn quốc gia Mũi Cà Mau,Tạ Thị Kim Ngân,+84 290 3880 555,vqg@muicamau.example.vn,515529a9-46d9-559c-aab4-e5fb31eedeea,2016-01-04T10:00:00+07:00,true
-0889fb2d-3178-5598-93ae-3e3693dbe58a,Ban Quản lý vịnh Hạ Long,Hoàng Văn Sơn,+84 203 3846 592,phim@halongbay.example.vn,515529a9-46d9-559c-aab4-e5fb31eedeea,2026-04-12T10:00:00+07:00,true
-0bad9e61-4903-510e-9ded-67ad619da8b5,UBND xã Đồng Văn,Vàng Mí Sính,+84 219 3856 201,,515529a9-46d9-559c-aab4-e5fb31eedeea,2026-08-19T10:00:00+07:00,true
-162abff9-9986-52d0-80a6-75fd4e7403f5,UBND phường Mũi Né,Phan Văn Lộc,+84 252 3847 000,,74749444-a35e-5c4b-892b-2f8cb8cf80b9,,false
-29b80495-6dbd-5d4f-b320-96ae8ccf0729,UBND phường Hoa Lư,Đinh Thị Mai,+84 229 3618 204,,515529a9-46d9-559c-aab4-e5fb31eedeea,2026-05-21T10:00:00+07:00,true
-607132bd-b05b-52c6-900f-5f2928c17a9e,Ban Quản lý Quần thể danh thắng Tràng An,Bùi Văn Thành,+84 229 3890 112,lienhe@trangan.example.vn,515529a9-46d9-559c-aab4-e5fb31eedeea,2026-05-20T10:00:00+07:00,true
-8a12db2b-bfe3-582a-82d9-95a786d33175,Trung tâm Quản lý bảo tồn di sản văn hóa Hội An,Nguyễn Thị Hoa,+84 235 3861 327,disan@hoian.example.vn,515529a9-46d9-559c-aab4-e5fb31eedeea,2026-06-18T10:00:00+07:00,true
-8e10fbb0-a00d-5a68-b790-daad86a8d593,UBND phường Cái Răng,Lâm Văn Hùng,+84 292 3846 110,,515529a9-46d9-559c-aab4-e5fb31eedeea,2026-07-15T10:00:00+07:00,true
-980bcd8e-75c9-5cda-8b31-049fa39f9109,Ban Quản lý Vườn quốc gia Phong Nha – Kẻ Bàng,Trương Quang Hải,+84 232 3677 021,,515529a9-46d9-559c-aab4-e5fb31eedeea,2026-06-02T10:00:00+07:00,true
-e64436a4-8286-5ed0-9902-6eb45545eb7b,UBND xã Mù Cang Chải,Giàng A Páo,+84 216 3878 045,,515529a9-46d9-559c-aab4-e5fb31eedeea,2026-07-08T10:00:00+07:00,true
+009c57a1-cd44-57a7-84cf-58100927c571,Ban Quản lý Vườn quốc gia Mũi Cà Mau,Tạ Thị Kim Ngân,+84 000 000 110,vqg@muicamau.example.vn,515529a9-46d9-559c-aab4-e5fb31eedeea,2016-01-04T10:00:00+07:00,true
+0889fb2d-3178-5598-93ae-3e3693dbe58a,Ban Quản lý vịnh Hạ Long,Hoàng Văn Sơn,+84 000 000 103,phim@halongbay.example.vn,515529a9-46d9-559c-aab4-e5fb31eedeea,2026-04-12T10:00:00+07:00,true
+0bad9e61-4903-510e-9ded-67ad619da8b5,UBND xã Đồng Văn,Vàng Mí Sính,+84 000 000 108,,515529a9-46d9-559c-aab4-e5fb31eedeea,2026-08-19T10:00:00+07:00,true
+162abff9-9986-52d0-80a6-75fd4e7403f5,UBND phường Mũi Né,Phan Văn Lộc,+84 000 000 109,,74749444-a35e-5c4b-892b-2f8cb8cf80b9,,false
+29b80495-6dbd-5d4f-b320-96ae8ccf0729,UBND phường Hoa Lư,Đinh Thị Mai,+84 000 000 102,,515529a9-46d9-559c-aab4-e5fb31eedeea,2026-05-21T10:00:00+07:00,true
+607132bd-b05b-52c6-900f-5f2928c17a9e,Ban Quản lý Quần thể danh thắng Tràng An,Bùi Văn Thành,+84 000 000 101,lienhe@trangan.example.vn,515529a9-46d9-559c-aab4-e5fb31eedeea,2026-05-20T10:00:00+07:00,true
+8a12db2b-bfe3-582a-82d9-95a786d33175,Trung tâm Quản lý bảo tồn di sản văn hóa Hội An,Nguyễn Thị Hoa,+84 000 000 105,disan@hoian.example.vn,515529a9-46d9-559c-aab4-e5fb31eedeea,2026-06-18T10:00:00+07:00,true
+8e10fbb0-a00d-5a68-b790-daad86a8d593,UBND phường Cái Răng,Lâm Văn Hùng,+84 000 000 107,,515529a9-46d9-559c-aab4-e5fb31eedeea,2026-07-15T10:00:00+07:00,true
+980bcd8e-75c9-5cda-8b31-049fa39f9109,Ban Quản lý Vườn quốc gia Phong Nha – Kẻ Bàng,Trương Quang Hải,+84 000 000 104,,515529a9-46d9-559c-aab4-e5fb31eedeea,2026-06-02T10:00:00+07:00,true
+ae2760b4-7a9b-5528-a202-39e5a1d456f0,UBND phường Hồng Gai,Vũ Thị Hằng,+84 000 000 111,,515529a9-46d9-559c-aab4-e5fb31eedeea,2026-06-15T10:00:00+07:00,true
+e64436a4-8286-5ed0-9902-6eb45545eb7b,UBND xã Mù Cang Chải,Giàng A Páo,+84 000 000 106,,515529a9-46d9-559c-aab4-e5fb31eedeea,2026-07-08T10:00:00+07:00,true

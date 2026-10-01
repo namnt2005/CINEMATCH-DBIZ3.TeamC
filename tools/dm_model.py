@@ -3,27 +3,28 @@
 Every claim carries a citation in the scheme  <MODULE> §<section> <ID>  (INPUT MAP, 01).
 FR numbers restart in each module: FR-008 in spec-M3.md is DBIZ2 F-M3-08."""
 
-GENERATED = "2026-09-28"
+GENERATED = "2026-09-30"
 SOURCES = "FUNCTIONS, FIELDS, ENTITIES, RULES, SCENARIOS, FLOWS, SCREENS, BOUNDARY"
 
 INPUT_MAP = """INPUT MAP
 I am providing the following slots. Treat every slot not listed here as ABSENT, and apply the
 degradation rules rather than inventing the missing material.
 
-  FUNCTIONS = section 5 FR tables of the 8 module Spec Documents in docs/spec/
-              (spec-SYS, spec-M1, spec-M0, spec-M2, spec-M3, spec-M4, spec-M5, spec-M7), 95 rows
+  FUNCTIONS = section 5 FR tables of the 9 module Spec Documents in docs/spec/
+              (spec-SYS, spec-M1, spec-M0, spec-M2, spec-M3, spec-M4, spec-M5, spec-M7, spec-M10),
+              104 rows (Spec Documents of 30/09/2026)
   FIELDS    = section 5.1 "Input / Output contract" of the same documents
               (every field typed, inputs marked Req / Opt)
-  ENTITIES  = section 6 "Key entities" of the same documents, 47 declared entities
+  ENTITIES  = section 6 "Key entities" of the same documents, 51 declared entities
   RULES     = section 5.2 "Business rules" of the same documents (BR-001 ... per module)
   SCENARIOS = section 3 user stories US-n with Given / When / Then, plus "Edge cases"
   FLOWS     = section 4 Mermaid blocks (usage flows 4.1, sequence diagrams 4.2+)
   SCREENS   = section 7 tables + docs/screens/screen-spec-<ID>.md (20 Screen Specs)
   BOUNDARY  = section 1 "Depends on" (external: Supabase Auth / PostgreSQL / Storage,
-              Resend email, language-model API, OpenStreetMap tiles, PostGIS)
+              Resend email, language-model API, PDF rendering, OpenStreetMap tiles, PostGIS)
 
-  Out of this input: module M10 (VFDA back office) has no Spec Document yet, and
-  M6, M8, M9 are Won't for this release (docs/mvp-scope.md §4).
+  Out of this input: M6, M8, M9 are Won't for this release (docs/mvp-scope.md §4).
+  The M10 screens (SC-34, SC-38 .. SC-41) have no Screen Spec file yet.
 
 CITATION SCHEME = <MODULE> §<section> <ID>
   e.g. "M3 §5.1 FR-008" (field row of F-M3-08) | "M3 §5.2 BR-004" | "M3 §3 US-2" | "M3 §6"
@@ -35,7 +36,7 @@ CITATION SCHEME = <MODULE> §<section> <ID>
 ENTITIES = [
  # SYS
  ("USER_ACCOUNT","A person's sign-in identity on CINEMATCH, carrying exactly one of six roles.","THING","SYS",
-  "UserAccount; user; recipient_id; viewer_id; reviewer_id; approver_id; officer_id; member_id; author_id; verified_by; decided_by; uploaded_by","SYS §6; SYS §5.1 FR-001, FR-004"),
+  "UserAccount; user; recipient_id; viewer_id; reviewer_id; approver_id; officer_id; member_id; author_id; verified_by; decided_by; uploaded_by; submitted_by; admin_id; actor_id; reread_by","SYS §6; SYS §5.1 FR-001, FR-004; SYS §5.2 BR-005"),
  ("PROFILE","The personal details shown for an account: name, crew role and preferred language.","THING","SYS",
   "Profile","SYS §6; SYS §5.1 FR-001"),
  ("PRODUCER_ORGANISATION","The production company a producer signs up on behalf of.","THING","SYS",
@@ -55,7 +56,7 @@ ENTITIES = [
   "SegmentDecision; answers; journey_config","M1 §6; M1 §5.1 FR-002"),
  # M0
  ("PROJECT","A film or content production a producer is preparing to shoot in Vietnam.","THING","M0",
-  "Project; project_summary","M0 §6; M0 §5.1 FR-001"),
+  "Project; project_summary","M0 §6; M0 §5.1 FR-001, FR-002; M0 §5.2 BR-005"),
  ("PROJECT_MEMBER","A person's access to one project, with view or edit permission.","THING","M0",
   "ProjectMember; invitee","M0 §6; M0 §5.1 FR-004"),
  ("PROJECT_PROVINCE","A province a project plans to shoot in.","THING","M0",
@@ -66,7 +67,7 @@ ENTITIES = [
   "ReadinessSnapshot; series","M0 §6; M0 §5.1 FR-008"),
  # M2
  ("LEGAL_RULE","A content or dossier rule written and signed by the VFDA Legal Board, with its legal citation.","THING","M2",
-  "LegalRule; legal_rule; legal_rule_public; rule","M2 §6; M2 §5.1 FR-002"),
+  "LegalRule; legal_rule; legal_rule_public; rule","M2 §6; M2 §5.1 FR-001, FR-002; M2 §5.2 BR-008"),
  ("RULE_SET_VERSION","A numbered edition of the active rule set, created each time a rule is activated.","EVENT","M2",
   "RuleSetVersion; rule_version; version","M2 §6; M2 §5.1 FR-004"),
  ("PRECHECK_RUN","One 200-word content pre-check, kept as a demand data point.","EVENT","M2",
@@ -83,22 +84,22 @@ ENTITIES = [
   "LicensingTimeline; milestones; timeline_view","M2 §6 (\"derived from Project.shoot_date\"); M2 §5.2 BR-006"),
  # M3
  ("LOCATION","A filming location in Vietnam described and published by VFDA staff.","THING","M3",
-  "Location; location_card; location_admin; location_detail","M3 §6; M3 §5.1 FR-002"),
+  "Location; location_card; location_admin; location_detail","M3 §6; M3 §5.1 FR-002; M3 §5.2 BR-008"),
  ("LOCATION_IMAGE","A photo of a location with its source and usage right.","THING","M3",
   "LocationImage; image","M3 §6; M3 §5.1 FR-003"),
  ("AUTHORITY_CONTACT","The local authority office and person to contact about filming at a location, verified by VFDA.","THING","M3",
   "AuthorityContact; location_authority_contacts; authority_contact","M3 §6; M3 §5.1 FR-004"),
  ("PROVINCE","One of the 34 provincial-level units after the 2025 reorganisation.","THING","M3",
   "Province; province_page; hq_province","M3 §6; M3 §5.2 BR-006"),
- ("LOCATION_QUERY","A scene description a user typed and the attributes extracted from it.","EVENT","M3",
-  "LocationQuery; scene_description; attributes","M3 §6; M3 §5.1 FR-010, FR-011"),
+ ("LOCATION_QUERY","A scene description a user typed and the attributes extracted from it, stored without personal data.","EVENT","M3",
+  "LocationQuery; query_id; scene_description; attributes","M3 §6; M3 §5.1 FR-010, FR-011; M3 §5.2 BR-009"),
  ("PROJECT_SHORTLIST","A location a project has kept as its primary or backup choice.","THING","M3",
   "ProjectShortlist; shortlist","M3 §6; M3 §5.1 FR-018"),
  ("PROVINCE_READINESS","A province's readiness index computed from platform data, with sample sizes.","DERIVED","M3",
   "ProvinceReadiness; readiness_index","M3 §6 (\"derived from Locations, Organisations, Notices\"); M3 §5.2 BR-007"),
  # M4
  ("ORGANISATION","A Vietnamese service company listed in the partner directory.","THING","M4",
-  "Organisation; partner; supplier; org_card; public_profile","M4 §6; M4 §5.1 FR-001"),
+  "Organisation; partner; supplier; org_card; public_profile","M4 §6; M4 §5.1 FR-001; M4 §5.2 BR-008"),
  ("ORGANISATION_MEMBER_LAYER","The part of a partner profile visible to signed-in members.","THING","M4",
   "OrganisationMemberLayer; member_profile","M4 §6; M4 §5.2 BR-001"),
  ("ORGANISATION_PRIVATE_LAYER","The part of a partner profile visible only after an accepted request and NDA.","THING","M4",
@@ -107,8 +108,8 @@ ENTITIES = [
   "VerificationRequest; verification_request_id; verification_request","M4 §6; M4 §5.1 FR-008"),
  ("COLLAB_REQUEST","A producer's request to a partner to work on one project, followed to confirmation.","EVENT","M4",
   "CollabRequest; collab_request; collaboration request","M4 §6; M4 §5.1 FR-012"),
- ("COLLAB_MESSAGE","A message written inside a collaboration request.","EVENT","M4",
-  "CollabMessage","M4 §6"),
+ ("COLLAB_MESSAGE","A message written inside a collaboration request, including every response note; never edited once sent.","EVENT","M4",
+  "CollabMessage; collab_message; message_id","M4 §6; M4 §5.1 FR-014; M4 §5.2 BR-009"),
  ("NDA_ACCEPTANCE","One party's acceptance of a given NDA version for one collaboration request.","EVENT","M4",
   "NdaAcceptance; nda_acceptance_id","M4 §6; M4 §5.1 FR-017"),
  ("DOCUMENT_ACCESS_LOG","A record that one person viewed one shared document at one time.","EVENT","M4",
@@ -124,8 +125,8 @@ ENTITIES = [
   "BilingualDocument; bilingual draft","M5 §6; M5 §5.1 FR-004"),
  ("BILINGUAL_PARAGRAPH","One aligned source/Vietnamese paragraph pair of a bilingual draft, with its proofreading status.","THING","M5",
   "BilingualParagraph; paragraphs","M5 §6; M5 §5.1 FR-004, FR-006"),
- ("PROJECT_GLOSSARY","A project's agreed translation of one term.","THING","M5",
-  "ProjectGlossary","M5 §6"),
+ ("PROJECT_GLOSSARY","A project's agreed translation of one term, applied to every later draft of that project.","THING","M5",
+  "ProjectGlossary; project_glossary; glossary","M5 §6; M5 §5.1 FR-004; M5 §5.2 BR-006"),
  ("PUBLIC_HOLIDAY","A public holiday period shown on the licensing timeline, official or expected.","THING","M5",
   "PublicHoliday; holiday bands","M5 §6; M5 §5.1 FR-008"),
  # M7
@@ -135,6 +136,15 @@ ENTITIES = [
   "ProvinceNotice; notice; response_status","M7 §6; M7 §5.1 FR-002, FR-003"),
  ("CONSULTATION_BOOKING","A member's booked consultation slot with a VFDA officer.","EVENT","M7",
   "ConsultationBooking; booking","M7 §6; M7 §5.1 FR-005"),
+ # M10
+ ("MODERATION_ITEM","A partner's published content (profile text or location photo) waiting for, or carrying, VFDA staff's approve-or-hide decision.","EVENT","M10",
+  "ModerationItem; moderation_queue; content_id","M10 §6; M10 §5.1 FR-001, FR-002; M10 §5.2 BR-001"),
+ ("AUDIT_LOG","A permanent record of one administrative action: who did what to which record, and when.","EVENT","M10",
+  "AuditLog; audit_log; audit_entries; audit log (SYS BR-002)","M10 §6; M10 §5.1 FR-008; M10 §5.2 BR-005"),
+ ("DEMAND_INDEX","The six demand indicators of a reporting period, each with its sample size, computed from platform data.","DERIVED","M10",
+  "DemandIndex; demand_index; filtered_index; dashboard_view (M10)","M10 §6 (\"not stored\"); M10 §5.1 FR-003; M10 §5.2 BR-003"),
+ ("QUARTERLY_REPORT","A quarterly demand report with its bilingual commentary, reread by a staff member before it is exported.","THING","M10",
+  "QuarterlyReport; report_id; report","M10 §6; M10 §5.1 FR-006, FR-007; M10 §5.2 BR-004"),
 ]
 DERIVED = [e[0] for e in ENTITIES if e[2] == "DERIVED"]
 STORED = [e[0] for e in ENTITIES if e[2] != "DERIVED"]
@@ -145,22 +155,24 @@ IMPLIED = [
   "§6 names OrganisationServices in a relationship but never declares it; FR-001 stores it as an array."),
  ("provinces ARRAY<INTEGER> (organisation)", "M4 §5.1 FR-001; M4 §6 (\"has many ... OrganisationProvinces\")",
   "Same as above: a relationship to an undeclared OrganisationProvinces entity."),
- ("audit log (\"every grant is written to the audit log\")", "SYS §5.2 BR-002; M4 §1 Depends on \"M10 (audit log)\"",
-  "Must remember who granted what and when; owned by M10, which has no Spec Document yet."),
  ("partner user ↔ organisation (\"a partner create and edit its organisation\")", "M4 §5.1 FR-001",
   "Something must record which accounts may edit which organisation; no field or entity carries it."),
  ("invitee_email VARCHAR(254)", "M0 §5.1 FR-004; M0 §3 US-3 (\"sees the project after accepting\")",
   "An invitation to an email that has no account yet must be remembered until accepted; ProjectMember carries user_id only."),
  ("message_key VARCHAR(120) (bilingual display dictionary)", "SYS §5.1 FR-006",
   "Every interface string is read from a dictionary keyed by message_key; no entity holds it."),
- ("scene_type_catalog ARRAY<ENUM>", "M3 §5.1 FR-012; M3 §10 (\"Who maintains the fixed attribute catalogue\")",
-  "A maintained catalogue (with mappings for unknown words) is data, not a fixed enum."),
+ ("scene_type_catalog ENUM[]", "M3 §5.1 FR-012; M3 §10 (\"Who maintains the fixed attribute catalogue\")",
+  "Scene types are now a declared enum (M3 §5.1 FR-002), but the catalogue also covers terrain and era and maps unknown words — that is maintained data."),
  ("slot_start TIMESTAMPTZ (offered consultation slots)", "M7 §5.1 FR-005",
   "A member picks a slot, so available slots must exist somewhere before the booking."),
- ("filter_topic / topic VARCHAR(60); segment filter", "M2 §5.1 FR-001, FR-015",
-  "Rules are filtered by topic and by segment, but LegalRule declares neither; rule ↔ segment is many-to-many."),
+ ("segment filter (legal rules)", "M2 §5.1 FR-015",
+  "Public rules are filtered by segment, but LegalRule declares no segment; rule ↔ segment is many-to-many. (Topic is now declared, M2 §5.1 FR-002.)"),
  ("rate limit per IP", "M2 §5.1 FR-005; M2 §3 Edge cases (\"50 times in an hour\")",
   "Counting pre-checks per IP needs remembered counts; may be infrastructure, not domain data."),
+ ("submitted content (pending version)", "M10 §5.2 BR-001; M10 §3 US-1",
+  "The last approved text stays public while the new one waits, so the waiting version must be stored somewhere; MODERATION_ITEM declares no content column."),
+ ("prepared_by (quarterly report)", "M10 §6 (QuarterlyReport \"prepared by UserAccount\")",
+  "Only reread_by is declared; who prepared the report is named in the relationship but has no field."),
 ]
 
 # (type, items, sources, what must be decided)  — Decision column left empty for a human
@@ -201,6 +213,16 @@ CONFLICTS = [
   "Proposed owner SYS; M4/M7 call F-SYS-08."),
  ("shared ownership","DOCUMENT_ACCESS_LOG declared by M4 about DOCUMENT owned by M5","M4 §6; M5 §6",
   "Which module owns the access log: M4 (who shares) or M5 (who stores)?"),
+ ("synonym","LOCATION_QUERY scene_description / shoot_month (FIELDS) = description / month (ENTITIES)","M3 §5.1 FR-011; M3 §6",
+  "Canonical proposed: the FIELDS names scene_description and shoot_month (used in 04)."),
+ ("synonym","PROJECT_GLOSSARY term_en / term_vi (FIELDS) = source_term / target_term (ENTITIES)","M5 §5.1 FR-004; M5 §6",
+  "Canonical proposed: the FIELDS names term_en and term_vi (used in 04)."),
+ ("synonym","AUDIT_LOG admin_id (write) = actor_id (search filter)","M10 §5.1 FR-008, FR-009",
+  "Same person column under two names. Canonical proposed: admin_id."),
+ ("collision","MODERATION_ITEM refers to \"Organisation or LocationImage\" through one content_id","M10 §6; M10 §5.1 FR-001",
+  "One reference to two tables cannot carry a foreign key. Modelled as two nullable FKs with a CHECK (see 04 Structural findings); confirm."),
+ ("shared ownership","AUDIT_LOG written by the admin screens of M2, M3, M4 and by SYS role grants","M10 §1 Out of scope; SYS §5.2 BR-002",
+  "Proposed owner M10; other modules never insert rows themselves — a trigger writes them (M10 §4.3, F-M10-08)."),
 ]
 
 OQ_01 = [
@@ -209,7 +231,8 @@ OQ_01 = [
  ("[NEEDS CLARIFICATION: Declare ORGANISATION_SERVICE and ORGANISATION_PROVINCE, or keep arrays on ORGANISATION?]","No","M4 owner","Arrays as declared in FR-001","Arrays break 1NF: filtering by province and counting per service group (M3 index) becomes slower and harder to constrain."),
  ("[NEEDS CLARIFICATION: Which entity records that a partner account may edit an organisation?]","Yes","M4 owner","None modelled; flagged","Without it RLS cannot decide who edits an organisation profile (F-M4-01)."),
  ("[NEEDS CLARIFICATION: How is an invitation to an email without an account stored until accepted?]","Yes","M0 owner","invitee_email kept on PROJECT_MEMBER with user_id empty","A member row without a user breaks the \"belongs to UserAccount\" relationship."),
- ("[NEEDS CLARIFICATION: Where does the audit log live before M10 has a Spec Document?]","Yes","Nam (M10)","Not modelled in this package","SYS BR-002 and M4 depend on it; RLS for grants cannot be audited."),
+ ("[NEEDS CLARIFICATION: Where does the audit log live before M10 has a Spec Document?]","Yes","Nam (M10)","Not modelled in this package","SYS BR-002 and M4 depend on it; RLS for grants cannot be audited.",
+  "Resolved 30/09/2026 — M10 now has a Spec Document: AUDIT_LOG is modelled from M10 §6 and §5.1 FR-008, append-only (M10 §5.2 BR-005)."),
 ]
 
 # ---------------------------------------------------------------- S2 CRUD (long form)
@@ -219,7 +242,8 @@ CRUD = [
  ("F-SYS-01","PRODUCER_ORGANISATION","C","SYS §5.1 FR-001 (org_name, country, website)"),("F-SYS-01","CONSENT","C","SYS §5.1 FR-001 (consent_version)"),
  ("F-SYS-02","USER_ACCOUNT","R","SYS §5.1 FR-002"),
  ("F-SYS-03","USER_ACCOUNT","RU","SYS §5.1 FR-003 (new_password; via Supabase Auth, SYS §5.2 BR-004)"),
- ("F-SYS-04","USER_ACCOUNT","RU","SYS §5.1 FR-004 (role)"),
+ ("F-SYS-04","USER_ACCOUNT","RU","SYS §5.1 FR-004 (role, account_status); SYS §5.2 BR-005 (deactivated, never deleted)"),
+ ("F-SYS-04","PROFILE","U","SYS §5.2 BR-005 (name replaced by an anonymous value within 30 days)"),
  ("F-SYS-07","NOTIFICATION","C","SYS §5.1 FR-007"),
  ("F-SYS-08","EMAIL_DELIVERY","CU","SYS §5.1 FR-008 (delivery_status; retried up to 3 times)"),
  ("F-SYS-09","NOTIFICATION","RU","SYS §5.1 FR-009 (list; mark as read)"),
@@ -231,7 +255,7 @@ CRUD = [
  ("F-M1-03","SEGMENT_REQUIREMENT","R","M1 §5.1 FR-003 (journey_config)"),
  ("F-M0-01","PROJECT","C","M0 §5.1 FR-001"),("F-M0-01","PROJECT_MEMBER","C","M0 §5.1 FR-001 (\"make the creator its owner\")"),
  ("F-M0-01","PROJECT_PROVINCE","C","M0 §5.1 FR-001 (provinces)"),("F-M0-01","PROVINCE","R","M0 §5.1 FR-001 (\"from the 34-province list\")"),
- ("F-M0-02","PROJECT","U","M0 §5.1 FR-002"),
+ ("F-M0-02","PROJECT","U","M0 §5.1 FR-002 (stage); M0 §5.2 BR-005 (archived, never deleted)"),
  ("F-M0-03","PROJECT","R","M0 §5.1 FR-003"),("F-M0-03","PROJECT_MEMBER","R","M0 §5.1 FR-003 (RLS: member projects only)"),
  ("F-M0-03","READINESS_VIEW","R","M0 §5.1 FR-003 (readiness, next step)"),
  ("F-M0-04","PROJECT_MEMBER","C","M0 §5.1 FR-004"),
@@ -241,7 +265,7 @@ CRUD = [
  ("F-M0-08","READINESS_SNAPSHOT","C","M0 §5.1 FR-008"),("F-M0-08","READINESS_VIEW","R","M0 §5.1 FR-008"),
  ("F-M0-09","READINESS_SNAPSHOT","R","M0 §5.1 FR-009"),
  ("F-M2-01","LEGAL_RULE","R","M2 §5.1 FR-001"),
- ("F-M2-02","LEGAL_RULE","CU","M2 §5.1 FR-002 (\"create and edit\")"),
+ ("F-M2-02","LEGAL_RULE","CU","M2 §5.1 FR-002 (\"create and edit\"; topic)"),
  ("F-M2-03","LEGAL_RULE","U","M2 §5.1 FR-003 (approved_at, is_active)"),
  ("F-M2-04","RULE_SET_VERSION","C","M2 §5.1 FR-004"),
  ("F-M2-06","LEGAL_RULE","R","M2 §5.1 FR-006 (active_rules)"),("F-M2-06","PRECHECK_RUN","U","M2 §5.1 FR-006 (attention_level)"),
@@ -261,8 +285,8 @@ CRUD = [
  ("F-M2-17","LICENSING_TIMELINE","R","M2 §5.1 FR-017; M2 §5.2 BR-006"),("F-M2-17","PROJECT","R","M2 §6 (\"derived from Project.shoot_date\")"),
  ("F-M2-18","LICENSING_TIMELINE","R","M2 §5.1 FR-018"),
  ("F-M3-01","LOCATION","R","M3 §5.1 FR-001"),
- ("F-M3-02","LOCATION","CU","M3 §5.1 FR-002 (\"create and edit\")"),("F-M3-02","PROVINCE","R","M3 §5.1 FR-002 (province_id)"),
- ("F-M3-03","LOCATION_IMAGE","C","M3 §5.1 FR-003"),
+ ("F-M3-02","LOCATION","CU","M3 §5.1 FR-002 (\"create and edit\"; intake_status); M3 §5.2 BR-008 (unpublished, never deleted)"),("F-M3-02","PROVINCE","R","M3 §5.1 FR-002 (province_id)"),
+ ("F-M3-03","LOCATION_IMAGE","C","M3 §5.1 FR-003 (image_status)"),
  ("F-M3-04","AUTHORITY_CONTACT","CU","M3 §5.1 FR-004 (record; verified_by, verified_at)"),
  ("F-M3-05","LOCATION","U","M3 §5.1 FR-005 (published)"),("F-M3-05","AUTHORITY_CONTACT","R","M3 §5.1 FR-005 (CHECK contact_verified)"),
  ("F-M3-06","LOCATION","R","M3 §5.1 FR-006"),
@@ -270,6 +294,7 @@ CRUD = [
  ("F-M3-08","LOCATION","R","M3 §5.1 FR-008"),("F-M3-09","LOCATION","R","M3 §5.1 FR-009"),
  ("F-M3-13","LOCATION","R","M3 §5.1 FR-013"),("F-M3-13","LOCATION_IMAGE","R","M3 §5.1 FR-013 (photos)"),
  ("F-M3-13","PROVINCE","R","M3 §5.1 FR-013"),
+ ("F-M3-11","LOCATION_QUERY","C","M3 §5.1 FR-011 (query_id); M3 §5.2 BR-009 (stored without personal data)"),
  ("F-M3-14","LOCATION","R","M3 §5.1 FR-014 (nearby published)"),
  ("F-M3-15","AUTHORITY_CONTACT","R","M3 §5.1 FR-015; M3 §5.2 BR-005"),
  ("F-M3-17","LOCATION","R","M3 §5.1 FR-017"),
@@ -277,8 +302,10 @@ CRUD = [
  ("F-M3-19","PROVINCE_READINESS","R","M3 §5.1 FR-019"),("F-M3-19","LOCATION","R","M3 §6 (derived from Locations)"),
  ("F-M3-19","ORGANISATION","R","M3 §6 (derived from ... Organisations)"),("F-M3-19","PROVINCE_NOTICE","R","M3 §6 (derived from ... Notices); M7 §5.2 BR-004"),
  ("F-M3-20","PROVINCE","R","M3 §5.1 FR-020"),("F-M3-20","PROVINCE_READINESS","R","M3 §5.1 FR-020"),
- ("F-M4-01","ORGANISATION","CU","M4 §5.1 FR-001"),("F-M4-01","ORGANISATION_MEMBER_LAYER","CU","M4 §5.1 FR-001 (capability, languages)"),
+ ("F-M4-01","ORGANISATION","CU","M4 §5.1 FR-001 (org_status); M4 §5.2 BR-008 (deactivated, never deleted)"),("F-M4-01","ORGANISATION_MEMBER_LAYER","CU","M4 §5.1 FR-001 (capability, languages)"),
  ("F-M4-01","ORGANISATION_PRIVATE_LAYER","CU","M4 §5.1 FR-001 (rate card, past clients)"),
+ ("F-M4-01","COLLAB_REQUEST","U","M4 §5.2 BR-008 (open requests to a deactivated organisation closed as withdrawn)"),
+ ("F-M4-01","MODERATION_ITEM","C","M10 §3 US-1 (\"the change appears in the moderation queue\"); M10 §5.2 BR-001"),
  ("F-M4-02","ORGANISATION","R","M4 §5.1 FR-002"),
  ("F-M4-03","ORGANISATION_MEMBER_LAYER","R","M4 §5.1 FR-003"),
  ("F-M4-04","ORGANISATION_PRIVATE_LAYER","R","M4 §5.1 FR-004"),("F-M4-04","COLLAB_REQUEST","R","M4 §5.1 FR-004 (request_status)"),
@@ -292,7 +319,7 @@ CRUD = [
  ("F-M4-11","ORGANISATION","RU","M4 §5.1 FR-011 (\"remove the badge when it expires\")"),("F-M4-11","NOTIFICATION","C","M4 §5.1 FR-011 (reminder_notification_id)"),
  ("F-M4-12","COLLAB_REQUEST","C","M4 §5.1 FR-012"),("F-M4-12","PROJECT","R","M4 §5.1 FR-012 (\"tied to one of their projects\")"),
  ("F-M4-13","COLLAB_REQUEST","R","M4 §5.1 FR-013"),
- ("F-M4-14","COLLAB_REQUEST","U","M4 §5.1 FR-014"),
+ ("F-M4-14","COLLAB_REQUEST","U","M4 §5.1 FR-014"),("F-M4-14","COLLAB_MESSAGE","C","M4 §5.1 FR-014 (message_id); M4 §5.2 BR-009"),
  ("F-M4-15","NOTIFICATION","C","M4 §5.1 FR-015 (\"in-app\")"),("F-M4-15","EMAIL_DELIVERY","C","M4 §5.1 FR-015 (\"and by email\")"),
  ("F-M4-16","COLLAB_REQUEST","R","M4 §5.1 FR-016"),("F-M4-16","READINESS_VIEW","R","M4 §5.1 FR-016 (gauge_partner)"),
  ("F-M4-17","NDA_ACCEPTANCE","C","M4 §5.1 FR-017"),
@@ -303,6 +330,7 @@ CRUD = [
  ("F-M5-02","DOCUMENT","C","M5 §5.1 FR-002 (\"upload and replace\"; previous versions kept)"),
  ("F-M5-03","DOCUMENT_SLOT","R","M5 §5.1 FR-003"),
  ("F-M5-04","BILINGUAL_DOCUMENT","C","M5 §5.1 FR-004 (structure_version)"),("F-M5-04","BILINGUAL_PARAGRAPH","C","M5 §5.1 FR-004 (paragraphs)"),
+ ("F-M5-04","PROJECT_GLOSSARY","CR","M5 §5.1 FR-004 (glossary term_en, term_vi); M5 §5.2 BR-006 (applied to every later draft)"),
  ("F-M5-05","BILINGUAL_PARAGRAPH","R","M5 §5.1 FR-005 (synopsis_en, synopsis_vi)"),
  ("F-M5-06","BILINGUAL_PARAGRAPH","U","M5 §5.1 FR-006 (proofread_at)"),
  ("F-M5-07","PROJECT","U","M5 §5.1 FR-007 (shoot_date, buffer_days)"),
@@ -315,6 +343,26 @@ CRUD = [
  ("F-M7-05","CONSULTATION_BOOKING","C","M7 §5.1 FR-005"),
  ("F-M7-06","CONSULTATION_BOOKING","U","M7 §5.1 FR-006"),
  ("F-M7-07","CONSULTATION_BOOKING","R","M7 §5.1 FR-007"),("F-M7-07","NOTIFICATION","C","M7 §5.1 FR-007 (2 records)"),
+ ("F-M10-01","MODERATION_ITEM","R","M10 §5.1 FR-001 (moderation_queue, filter content_type)"),
+ ("F-M10-02","MODERATION_ITEM","RU","M10 §5.1 FR-002 (content_status, reason); M10 §5.2 BR-002"),
+ ("F-M10-02","ORGANISATION_MEMBER_LAYER","U","M10 §3 US-1 (\"the new text is public within one minute\")"),
+ ("F-M10-02","LOCATION_IMAGE","U","M10 §5.1 FR-001 note (location_image moderated), FR-002 (content_status)"),
+ ("F-M10-03","DEMAND_INDEX","R","M10 §5.1 FR-003; M10 §5.2 BR-003"),
+ ("F-M10-03","PROJECT","R","M10 §6 (DemandIndex \"derived from Project\")"),
+ ("F-M10-03","PRODUCER_ORGANISATION","R","M10 §6 (\"derived from ... ProducerOrganisation\")"),
+ ("F-M10-03","LOCATION_QUERY","R","M10 §6 (\"derived from ... LocationQuery\"); M3 §5.2 BR-009"),
+ ("F-M10-03","PROJECT_PROVINCE","R","M10 §6 (\"derived from ... ProjectProvince\")"),
+ ("F-M10-03","COLLAB_REQUEST","R","M10 §6 (\"derived from ... CollabRequest\"); M10 §4.2"),
+ ("F-M10-03","SEGMENT_DECISION","R","M10 §1 Depends on (\"M1 (segment decisions) — sources of the demand index\")"),
+ ("F-M10-03","PRECHECK_RUN","R","M10 §1 Depends on (\"M2 (pre-check runs)\")"),
+ ("F-M10-03","PROJECT_SHORTLIST","R","M10 §1 Depends on (\"M3 (location queries, shortlists)\")"),
+ ("F-M10-04","DEMAND_INDEX","R","M10 §5.1 FR-004 (vfda_staff and admin only)"),
+ ("F-M10-05","DEMAND_INDEX","R","M10 §5.1 FR-005 (period month / quarter / year)"),
+ ("F-M10-06","DEMAND_INDEX","R","M10 §5.1 FR-006"),
+ ("F-M10-06","QUARTERLY_REPORT","C","M10 §5.1 FR-006 (narrative_vi, narrative_en); FR-007 (report_id exists before export)"),
+ ("F-M10-07","QUARTERLY_REPORT","RU","M10 §5.1 FR-007 (reread_by, report_pdf_url); M10 §5.2 BR-004"),
+ ("F-M10-08","AUDIT_LOG","C","M10 §5.1 FR-008; M10 §5.2 BR-005 (append-only, written by a trigger)"),
+ ("F-M10-09","AUDIT_LOG","R","M10 §5.1 FR-009 (actor_id, action, from_date, to_date)"),
 ]
 # functions with no entity (anomaly kind 4) and the reason read from the spec
 NO_ENTITY = {
@@ -323,8 +371,7 @@ NO_ENTITY = {
  "F-SYS-10":"Builds a search index but does not say which entities' text is indexed (SYS §5.1 FR-010).",
  "F-M1-01":"Returns three static segment labels (M1 §5.1 FR-001); not about stored data.",
  "F-M2-05":"Accepts and validates the summary (M2 §5.1 FR-005); the stored run is created by F-M2-07.",
- "F-M3-10":"Accepts the scene description (M3 §5.1 FR-010); nothing says it is stored.",
- "F-M3-11":"Extracts attributes (M3 §5.1 FR-011); nothing says LOCATION_QUERY is written.",
+ "F-M3-10":"Accepts the scene description (M3 §5.1 FR-010); the query is stored by F-M3-11 (M3 §5.2 BR-009).",
  "F-M3-12":"Validates attributes against a catalogue (M3 §5.1 FR-012) that is not a declared entity.",
  "F-M3-16":"Keeps the compare selection \"on reload\" (M3 §5.1 FR-016), apparently in the browser.",
 }
@@ -332,12 +379,15 @@ NO_ENTITY = {
 
 OQ_02 = [
  ("[NEEDS CLARIFICATION: Which function writes COMPLIANCE_RUN? No function runs the content check on a project; F-M2-06/11/12 only speak of a synopsis.]","Yes","M2 owner","F-M2-12 writes COMPLIANCE_FINDING when the synopsis belongs to a project","Project content checks (M2 US-2, SC-48 for members) cannot be traced to a stored run and version."),
- ("[NEEDS CLARIFICATION: Is LOCATION_QUERY stored (F-M3-10/11), and for how long?]","No","M3 owner","Not stored; entity kept as declared, no rows written","If stored, it holds user text (privacy) and becomes a demand signal for M10."),
+ ("[NEEDS CLARIFICATION: Is LOCATION_QUERY stored (F-M3-10/11), and for how long?]","No","M3 owner","Not stored; entity kept as declared, no rows written","If stored, it holds user text (privacy) and becomes a demand signal for M10.",
+  "Resolved 30/09/2026 — stored by F-M3-11 without personal data and used for the M10 demand index (M3 §5.2 BR-009; M3 §5.1 FR-011 query_id). How long it is kept is still not stated."),
  ("[NEEDS CLARIFICATION: Does F-M2-12 verify findings for both the guest pre-check and the project check?]","No","M2 owner","Yes, both","If only the pre-check, project findings would be shown unverified — breaks M2 BR-001."),
- ("[NEEDS CLARIFICATION: Who loads SEGMENT_RULE, SEGMENT_REQUIREMENT, DOCUMENT_TYPE, PROVINCE and PUBLIC_HOLIDAY? No function creates them.]","Yes","Nam + VFDA","Loaded by seed script; VFDA edits through the database until M10 exists","The M1 decision table and the M5 kit are VFDA-approved content; without an edit function every change needs a developer."),
+ ("[NEEDS CLARIFICATION: Who loads SEGMENT_RULE, SEGMENT_REQUIREMENT, DOCUMENT_TYPE, PROVINCE and PUBLIC_HOLIDAY? No function creates them — M10's Spec Document has none either.]","Yes","Nam + VFDA","Loaded by seed script; VFDA edits through the database until a function exists","The M1 decision table and the M5 kit are VFDA-approved content; without an edit function every change needs a developer."),
  ("[NEEDS CLARIFICATION: Which function creates DOCUMENT_SLOT rows, and which sets their state?]","Yes","M5 owner","F-M5-01 creates one slot per required document type when the kit first opens; state derived by rules","Without slots, F-M2-08 has nothing to count and component status cannot be stored."),
- ("[NEEDS CLARIFICATION: Is COLLAB_MESSAGE in scope? No function writes or reads messages (SC-25 shows none).]","No","M4 owner","Out of scope; entity left unused","If in scope, a send/read function and a Screen Spec section are missing."),
- ("[NEEDS CLARIFICATION: Is PROJECT_GLOSSARY in scope? No function writes or reads it.]","No","M5 owner","Out of scope; entity left unused","Translation consistency across paragraphs (SC-28) would rely on the model alone."),
- ("[NEEDS CLARIFICATION: Who reads CONSENT, SEGMENT_DECISION, RULE_SET_VERSION, PROJECT_PROVINCE and EMAIL_DELIVERY? Each is written but never read by a function.]","No","Owners of SYS, M1, M2, M0","Kept for audit and for M10 reports","Write-only data costs storage and privacy review without a user; M10's spec must claim them."),
+ ("[NEEDS CLARIFICATION: Is COLLAB_MESSAGE in scope? No function writes or reads messages (SC-25 shows none).]","No","M4 owner","Out of scope; entity left unused","If in scope, a send/read function and a Screen Spec section are missing.",
+  "Resolved 30/09/2026 — in scope: F-M4-14 stores every response note and reply as a message (M4 §5.1 FR-014 message_id; M4 §5.2 BR-009). No function reads messages yet (02 anomaly kind 2)."),
+ ("[NEEDS CLARIFICATION: Is PROJECT_GLOSSARY in scope? No function writes or reads it.]","No","M5 owner","Out of scope; entity left unused","Translation consistency across paragraphs (SC-28) would rely on the model alone.",
+  "Resolved 30/09/2026 — in scope: F-M5-04 stores and applies the project's glossary (M5 §5.1 FR-004 glossary; M5 §5.2 BR-006)."),
+ ("[NEEDS CLARIFICATION: Who reads CONSENT, RULE_SET_VERSION and EMAIL_DELIVERY? Each is written but never read by a function. (SEGMENT_DECISION and PROJECT_PROVINCE are now read by F-M10-03.)]","No","Owners of SYS, M2","Kept for audit","Write-only data costs storage and privacy review without a user."),
  ("[NEEDS CLARIFICATION: Does F-M1-01 read segment labels from the display dictionary (F-SYS-06) or from SEGMENT_REQUIREMENT?]","No","M1 owner","Display dictionary","If from SEGMENT_REQUIREMENT, labels need columns there."),
 ]

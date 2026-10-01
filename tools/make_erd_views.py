@@ -16,7 +16,7 @@ if __name__ == "__main__":
     t = tempfile.mkdtemp()
     if not toolpaths.mmdc():
         raise SystemExit("mermaid-cli (mmdc) is not installed: npm install -g @mermaid-js/mermaid-cli")
-    for mod in ["SYS", "M1", "M0", "M2", "M3", "M4", "M5", "M7"]:
+    for mod in ["SYS", "M1", "M0", "M2", "M3", "M4", "M5", "M7", "M10"]:
         rels = [r for r in R if owner[r[4]] == mod]
         src = "erDiagram\n" + "\n".join(rel_line(r) for r in rels) + "\n"
         src += {"M1": "    SEGMENT_REQUIREMENT\n", "M5": "    PUBLIC_HOLIDAY\n"}.get(mod, "")

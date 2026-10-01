@@ -1,0 +1,5 @@
+content_id,content_type,organisation_id,location_image_id,submitted_by,submitted_at,content_status,reason,decided_by,decided_at
+54649af7-01c2-5a09-94ef-afdcc54b7efb,org_profile,35683fa1-af07-55a0-8bdd-276a37becc29,,1396ef42-92a1-55ca-bfd0-199050d5411b,2026-09-26T16:20:00+07:00,pending,,,
+a79d7371-885f-58d3-9713-4629f93c580f,org_profile,35683fa1-af07-55a0-8bdd-276a37becc29,,1396ef42-92a1-55ca-bfd0-199050d5411b,2026-09-11T10:00:00+07:00,approved,,515529a9-46d9-559c-aab4-e5fb31eedeea,2026-09-12T09:30:00+07:00
+b47a7088-d50f-54e7-990f-f9480c426a6a,location_image,,https://storage.cinematch.example/locations/mui-ne/01.jpg,1396ef42-92a1-55ca-bfd0-199050d5411b,2026-09-02T14:00:00+07:00,hidden,Source and usage right are unclear; upload a photo you own or have a licence for.,74749444-a35e-5c4b-892b-2f8cb8cf80b9,2026-09-03T10:15:00+07:00
+e3f7e9d8-70ea-5759-90fa-483610f325b9,location_image,,https://storage.cinematch.example/locations/cai-rang/02.jpg,1396ef42-92a1-55ca-bfd0-199050d5411b,2026-09-27T11:05:00+07:00,pending,,,

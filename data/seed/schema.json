@@ -6,6 +6,7 @@
    "email",
    "email_verified",
    "role",
+   "account_status",
    "created_at"
   ],
   "pk": [
@@ -24,8 +25,13 @@
     "vfda_staff",
     "vfda_legal",
     "admin"
+   ],
+   "account_status": [
+    "active",
+    "deactivated"
    ]
-  }
+  },
+  "array_enums": {}
  },
  "PROFILE": {
   "table": "profile",
@@ -69,7 +75,8 @@
     "vi",
     "en"
    ]
-  }
+  },
+  "array_enums": {}
  },
  "PRODUCER_ORGANISATION": {
   "table": "producer_organisation",
@@ -87,7 +94,8 @@
    "country"
   ],
   "fk": [],
-  "enums": {}
+  "enums": {},
+  "array_enums": {}
  },
  "CONSENT": {
   "table": "consent",
@@ -111,7 +119,8 @@
     "ref_column": "user_id"
    }
   ],
-  "enums": {}
+  "enums": {},
+  "array_enums": {}
  },
  "NOTIFICATION": {
   "table": "notification",
@@ -138,7 +147,8 @@
     "ref_column": null
    }
   ],
-  "enums": {}
+  "enums": {},
+  "array_enums": {}
  },
  "EMAIL_DELIVERY": {
   "table": "email_delivery",
@@ -172,7 +182,8 @@
     "sent",
     "bounced"
    ]
-  }
+  },
+  "array_enums": {}
  },
  "SEGMENT_RULE": {
   "table": "segment_rule",
@@ -207,7 +218,8 @@
     "B",
     "C"
    ]
-  }
+  },
+  "array_enums": {}
  },
  "SEGMENT_REQUIREMENT": {
   "table": "segment_requirement",
@@ -230,7 +242,8 @@
     "B",
     "C"
    ]
-  }
+  },
+  "array_enums": {}
  },
  "SEGMENT_DECISION": {
   "table": "segment_decision",
@@ -286,6 +299,15 @@
     "B",
     "C"
    ]
+  },
+  "array_enums": {
+   "q4_needs": [
+    "locations",
+    "crew",
+    "cast",
+    "equipment",
+    "logistics"
+   ]
   }
  },
  "PROJECT": {
@@ -337,8 +359,14 @@
     "u15",
     "15_50",
     "o50"
+   ],
+   "stage": [
+    "draft",
+    "preparing",
+    "archived"
    ]
-  }
+  },
+  "array_enums": {}
  },
  "PROJECT_MEMBER": {
   "table": "project_member",
@@ -379,7 +407,8 @@
     "pending",
     "accepted"
    ]
-  }
+  },
+  "array_enums": {}
  },
  "PROJECT_PROVINCE": {
   "table": "project_province",
@@ -406,7 +435,8 @@
     "ref_column": "province_id"
    }
   ],
-  "enums": {}
+  "enums": {},
+  "array_enums": {}
  },
  "READINESS_SNAPSHOT": {
   "table": "readiness_snapshot",
@@ -430,7 +460,8 @@
     "ref_column": "project_id"
    }
   ],
-  "enums": {}
+  "enums": {},
+  "array_enums": {}
  },
  "LEGAL_RULE": {
   "table": "legal_rule",
@@ -466,6 +497,7 @@
    "guidance_en",
    "citation",
    "severity",
+   "topic",
    "rule_slug",
    "approved_by"
   ],
@@ -486,11 +518,22 @@
     "notice",
     "action"
    ],
+   "topic": [
+    "security",
+    "history",
+    "religion",
+    "privacy",
+    "dossier",
+    "public_order",
+    "heritage"
+   ],
    "status": [
     "draft",
-    "approved"
+    "approved",
+    "retired"
    ]
-  }
+  },
+  "array_enums": {}
  },
  "RULE_SET_VERSION": {
   "table": "rule_set_version",
@@ -510,7 +553,8 @@
     "ref_column": null
    }
   ],
-  "enums": {}
+  "enums": {},
+  "array_enums": {}
  },
  "PRECHECK_RUN": {
   "table": "precheck_run",
@@ -554,7 +598,8 @@
     "medium",
     "high"
    ]
-  }
+  },
+  "array_enums": {}
  },
  "PRECHECK_FINDING": {
   "table": "precheck_finding",
@@ -587,7 +632,8 @@
     "ref_column": "rule_code"
    }
   ],
-  "enums": {}
+  "enums": {},
+  "array_enums": {}
  },
  "COMPLIANCE_RUN": {
   "table": "compliance_run",
@@ -613,7 +659,8 @@
     "ref_column": "rule_version"
    }
   ],
-  "enums": {}
+  "enums": {},
+  "array_enums": {}
  },
  "COMPLIANCE_FINDING": {
   "table": "compliance_finding",
@@ -648,7 +695,8 @@
     "open",
     "reviewed"
    ]
-  }
+  },
+  "array_enums": {}
  },
  "LOCATION": {
   "table": "location",
@@ -711,6 +759,29 @@
     "low",
     "medium",
     "high"
+   ],
+   "intake_status": [
+    "awaiting_contact",
+    "published",
+    "unpublished"
+   ]
+  },
+  "array_enums": {
+   "scene_types": [
+    "karst",
+    "river",
+    "village",
+    "rice_field",
+    "sea",
+    "floating_village",
+    "cave",
+    "jungle",
+    "old_town",
+    "market",
+    "rice_terrace",
+    "mountain",
+    "dunes",
+    "mangrove"
    ]
   }
  },
@@ -737,7 +808,14 @@
     "ref_column": "location_id"
    }
   ],
-  "enums": {}
+  "enums": {
+   "status": [
+    "pending",
+    "approved",
+    "hidden"
+   ]
+  },
+  "array_enums": {}
  },
  "AUTHORITY_CONTACT": {
   "table": "authority_contact",
@@ -773,7 +851,8 @@
     "ref_column": null
    }
   ],
-  "enums": {}
+  "enums": {},
+  "array_enums": {}
  },
  "PROVINCE": {
   "table": "province",
@@ -792,22 +871,29 @@
    "slug"
   ],
   "fk": [],
-  "enums": {}
+  "enums": {
+   "region": [
+    "north",
+    "central",
+    "south"
+   ]
+  },
+  "array_enums": {}
  },
  "LOCATION_QUERY": {
   "table": "location_query",
   "columns": [
-   "location_query_id",
+   "query_id",
    "project_id",
-   "description",
-   "attributes",
-   "month"
+   "scene_description",
+   "shoot_month",
+   "attributes"
   ],
   "pk": [
-   "location_query_id"
+   "query_id"
   ],
   "required": [
-   "description"
+   "scene_description"
   ],
   "fk": [
    {
@@ -816,7 +902,8 @@
     "ref_column": "project_id"
    }
   ],
-  "enums": {}
+  "enums": {},
+  "array_enums": {}
  },
  "PROJECT_SHORTLIST": {
   "table": "project_shortlist",
@@ -851,7 +938,8 @@
     "primary",
     "backup"
    ]
-  }
+  },
+  "array_enums": {}
  },
  "ORGANISATION": {
   "table": "organisation",
@@ -866,7 +954,8 @@
    "provinces",
    "verified_at",
    "verified_until",
-   "art13_eligible"
+   "art13_eligible",
+   "org_status"
   ],
   "pk": [
    "org_id"
@@ -883,7 +972,28 @@
     "ref_column": null
    }
   ],
-  "enums": {}
+  "enums": {
+   "org_status": [
+    "active",
+    "deactivated"
+   ]
+  },
+  "array_enums": {
+   "service_groups": [
+    "full_production",
+    "permits_paperwork",
+    "casting",
+    "crew",
+    "camera_lighting",
+    "studios_interiors",
+    "location_management",
+    "transport_logistics",
+    "lodging_catering",
+    "interpreting",
+    "insurance_legal",
+    "post_production"
+   ]
+  }
  },
  "ORGANISATION_MEMBER_LAYER": {
   "table": "organisation_member_layer",
@@ -908,7 +1018,8 @@
     "ref_column": "org_id"
    }
   ],
-  "enums": {}
+  "enums": {},
+  "array_enums": {}
  },
  "ORGANISATION_PRIVATE_LAYER": {
   "table": "organisation_private_layer",
@@ -931,7 +1042,8 @@
     "ref_column": "org_id"
    }
   ],
-  "enums": {}
+  "enums": {},
+  "array_enums": {}
  },
  "VERIFICATION_REQUEST": {
   "table": "verification_request",
@@ -970,7 +1082,8 @@
     "approved",
     "rejected"
    ]
-  }
+  },
+  "array_enums": {}
  },
  "COLLAB_REQUEST": {
   "table": "collab_request",
@@ -1016,22 +1129,24 @@
     "confirmed",
     "withdrawn"
    ]
-  }
+  },
+  "array_enums": {}
  },
  "COLLAB_MESSAGE": {
   "table": "collab_message",
   "columns": [
+   "message_id",
    "request_id",
    "author_id",
    "created_at",
    "body"
   ],
   "pk": [
-   "request_id",
-   "author_id",
-   "created_at"
+   "message_id"
   ],
-  "required": [],
+  "required": [
+   "request_id"
+  ],
   "fk": [
    {
     "column": "request_id",
@@ -1044,7 +1159,8 @@
     "ref_column": null
    }
   ],
-  "enums": {}
+  "enums": {},
+  "array_enums": {}
  },
  "NDA_ACCEPTANCE": {
   "table": "nda_acceptance",
@@ -1077,7 +1193,8 @@
     "producer",
     "partner"
    ]
-  }
+  },
+  "array_enums": {}
  },
  "DOCUMENT_ACCESS_LOG": {
   "table": "document_access_log",
@@ -1106,7 +1223,8 @@
     "ref_column": null
    }
   ],
-  "enums": {}
+  "enums": {},
+  "array_enums": {}
  },
  "DOCUMENT_TYPE": {
   "table": "document_type",
@@ -1129,7 +1247,8 @@
     "common",
     "location"
    ]
-  }
+  },
+  "array_enums": {}
  },
  "DOCUMENT_SLOT": {
   "table": "document_slot",
@@ -1165,7 +1284,8 @@
     "pending",
     "missing"
    ]
-  }
+  },
+  "array_enums": {}
  },
  "DOCUMENT": {
   "table": "document",
@@ -1202,7 +1322,8 @@
     "ref_column": null
    }
   ],
-  "enums": {}
+  "enums": {},
+  "array_enums": {}
  },
  "BILINGUAL_DOCUMENT": {
   "table": "bilingual_document",
@@ -1235,7 +1356,8 @@
     "ref_column": "doc_code"
    }
   ],
-  "enums": {}
+  "enums": {},
+  "array_enums": {}
  },
  "BILINGUAL_PARAGRAPH": {
   "table": "bilingual_paragraph",
@@ -1285,18 +1407,19 @@
     "machine",
     "reviewed"
    ]
-  }
+  },
+  "array_enums": {}
  },
  "PROJECT_GLOSSARY": {
   "table": "project_glossary",
   "columns": [
    "project_id",
-   "source_term",
-   "target_term"
+   "term_en",
+   "term_vi"
   ],
   "pk": [
    "project_id",
-   "source_term"
+   "term_en"
   ],
   "required": [],
   "fk": [
@@ -1306,7 +1429,8 @@
     "ref_column": "project_id"
    }
   ],
-  "enums": {}
+  "enums": {},
+  "array_enums": {}
  },
  "PUBLIC_HOLIDAY": {
   "table": "public_holiday",
@@ -1322,7 +1446,8 @@
   ],
   "required": [],
   "fk": [],
-  "enums": {}
+  "enums": {},
+  "array_enums": {}
  },
  "LOCATION_INTEREST": {
   "table": "location_interest",
@@ -1351,7 +1476,8 @@
     "ref_column": "location_id"
    }
   ],
-  "enums": {}
+  "enums": {},
+  "array_enums": {}
  },
  "PROVINCE_NOTICE": {
   "table": "province_notice",
@@ -1407,7 +1533,8 @@
     "info_needed",
     "cannot_support"
    ]
-  }
+  },
+  "array_enums": {}
  },
  "CONSULTATION_BOOKING": {
   "table": "consultation_booking",
@@ -1442,10 +1569,134 @@
    }
   ],
   "enums": {
+   "topic": [
+    "dossier",
+    "locations",
+    "partners",
+    "provincial_notice",
+    "general"
+   ],
    "booking_status": [
     "confirmed",
     "rescheduled"
    ]
-  }
+  },
+  "array_enums": {}
+ },
+ "MODERATION_ITEM": {
+  "table": "moderation_item",
+  "columns": [
+   "content_id",
+   "content_type",
+   "organisation_id",
+   "location_image_id",
+   "submitted_by",
+   "submitted_at",
+   "content_status",
+   "reason",
+   "decided_by",
+   "decided_at"
+  ],
+  "pk": [
+   "content_id"
+  ],
+  "required": [
+   "content_id"
+  ],
+  "fk": [
+   {
+    "column": "organisation_id",
+    "references": "ORGANISATION",
+    "ref_column": null
+   },
+   {
+    "column": "location_image_id",
+    "references": "LOCATION_IMAGE",
+    "ref_column": null
+   },
+   {
+    "column": "submitted_by",
+    "references": "USER_ACCOUNT",
+    "ref_column": null
+   },
+   {
+    "column": "decided_by",
+    "references": "USER_ACCOUNT",
+    "ref_column": null
+   }
+  ],
+  "enums": {
+   "content_type": [
+    "org_profile",
+    "location_image",
+    "showcase"
+   ],
+   "content_status": [
+    "pending",
+    "approved",
+    "hidden"
+   ]
+  },
+  "array_enums": {}
+ },
+ "AUDIT_LOG": {
+  "table": "audit_log",
+  "columns": [
+   "audit_log_id",
+   "action",
+   "admin_id",
+   "target_id",
+   "logged_at"
+  ],
+  "pk": [
+   "audit_log_id"
+  ],
+  "required": [
+   "action",
+   "admin_id"
+  ],
+  "fk": [
+   {
+    "column": "admin_id",
+    "references": "USER_ACCOUNT",
+    "ref_column": null
+   }
+  ],
+  "enums": {},
+  "array_enums": {}
+ },
+ "QUARTERLY_REPORT": {
+  "table": "quarterly_report",
+  "columns": [
+   "report_id",
+   "period_start",
+   "period_end",
+   "demand_index",
+   "narrative_vi",
+   "narrative_en",
+   "reread_by",
+   "report_pdf_url",
+   "exported_at"
+  ],
+  "pk": [
+   "report_id"
+  ],
+  "required": [
+   "report_id",
+   "period_start",
+   "period_end",
+   "demand_index",
+   "narrative_vi",
+   "reread_by"
+  ],
+  "fk": [
+   {
+    "column": "reread_by",
+    "references": "USER_ACCOUNT",
+    "ref_column": null
+   }
+  ],
+  "enums": {},
+  "array_enums": {}
  }
 }

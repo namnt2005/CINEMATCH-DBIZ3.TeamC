@@ -1,0 +1,20 @@
+{
+  "version": "1.0.1",
+  "integration_state_schema": 1,
+  "installed_integrations": [
+    "agy",
+    "claude"
+  ],
+  "integration_settings": {
+    "agy": {
+      "script": "py",
+      "invoke_separator": "-"
+    },
+    "claude": {
+      "script": "py",
+      "invoke_separator": "-"
+    }
+  },
+  "integration": "agy",
+  "default_integration": "agy"
+}

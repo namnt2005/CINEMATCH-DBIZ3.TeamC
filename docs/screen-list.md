@@ -9,7 +9,7 @@
 | Screens in total | 48 |
 | In MVP scope | 44 |
 | Out of MVP scope | 4 |
-| With mockup + Screen Spec | 20 (section 2) |
+| With mockup + Screen Spec | all 44 in MVP scope — 41 Screen Specs, three of which also cover a merged screen (`docs/screens/README.md`) |
 
 ## 1. Screens in MVP scope
 
@@ -58,9 +58,9 @@
 | Admin | M10 — VFDA back office | SC-41 | Admin — Audit log | Search admin actions | `/admin/audit` | — | Should |
 | Guest | SYS — Platform foundation | SC-42 | Privacy policy | Bilingual, consent recorded | `/privacy` | A,B,C | Must |
 | Guest | SYS — Platform foundation | SC-43 | Terms of use | Bilingual | `/terms` | A,B,C | Must |
-| Guest / Member | M2 — Content and dossier checks | SC-48 | Content check results | **New.** Attention level, highlighted passages, citations, points to consider | `/pre-check/r/[id]` | A,B | Must |
+| Guest / Member | M2 — Content and dossier checks | SC-48 | Content check results | **New.** Attention level under Article 9 (prohibited content), highlighted passages, citations, points to consider | `/pre-check/r/[id]` | A,B | Must |
 
-## 2. The 20 screens with a mockup and a Screen Spec
+## 2. The team's 20 priority screens
 
 | # | Tier | Group | Screen (as in the team's screen list file) | Screen ID | Note |
 |---|---|---|---|---|---|
@@ -85,7 +85,7 @@
 | 19 | 2 | M3·3 | Provincial readiness index | SC-18 | |
 | 20 | 2 | M7·1 | Provincial People's Committee notice | SC-32 | |
 
-**Must screens still without a mockup:** `SC-35`, `SC-36`, `SC-37` (admin tools for locations, verification and legal rules). The modules cannot run without them — see the MVP Scope backlog item 7.
+Every other screen in MVP scope received a mockup and a Screen Spec on 30/09/2026, including the admin screens `SC-34`–`SC-41`; the full list is in `docs/screens/README.md`.
 
 ## 3. Screens out of MVP scope
 

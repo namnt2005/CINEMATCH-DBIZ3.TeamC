@@ -96,7 +96,10 @@
 
 ## 9. Open questions
 
-_Open questions are tracked outside this repository until they are resolved._
+| # | Question | Blocking? | Status |
+|---|---|---|---|
+| 1 | [NEEDS CLARIFICATION: VFDA to confirm the official names of the 12 service groups (mockup uses a proposed list)] | Yes | Open |
+| 2 | [NEEDS CLARIFICATION: written criteria for granting the VFDA Verified badge] | Yes | Open |
 
 ## Completion checklist
 

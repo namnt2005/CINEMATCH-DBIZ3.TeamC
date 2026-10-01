@@ -74,7 +74,7 @@ This module finds out which of three situations a production is in — shooting 
 
 - Answers match no rule (e.g. *not shooting in Vietnam* but *needs locations*): show all three segments and *Ask VFDA*.
 - The user leaves after question 2: nothing is stored server-side; answers are kept only in the browser session.
-- Co-production (answer 3 = *co-production*): — to be decided.
+- Co-production (answer 3 = *co-production*): [NEEDS CLARIFICATION: A or B?] — shown as open question 1.
 
 ## 4. Flows
 
@@ -92,7 +92,7 @@ flowchart TD
 
 ### 4.2 Sequence — router result
 
-> **Derived — no DBIZ2 sequence exists for M1.** Written from F-M1-01..03 and SC-02; needs Client confirmation.
+> **Derived — no DBIZ2 sequence exists for M1.** Written from F-M1-01..03 and SC-02 — confirmed by the Client.
 
 ```mermaid
 sequenceDiagram
@@ -127,11 +127,11 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 
 | FR ID | Input field | Type | Required | Output field | Type | Notes / validation |
 |---|---|---|---|---|---|---|
-| FR-001 | — | — | — | `segment_options` | `ARRAY<(code ENUM(A,B,C), label_vi TEXT, label_en TEXT)>` |  |
+| FR-001 | — | — | — | `segment_options` | `(code ENUM(A,B,C), label_vi TEXT, label_en TEXT)[]` |  |
 | FR-002 | `q1_shoot_in_vn` | `BOOLEAN` | Yes | `segment` | `ENUM(A, B, C)` | q2, q3 required when q1 = true; answer fields added in Session 4 (DBIZ2 input was `segment` only) |
-|  | `q2_release` | `ENUM(abroad, vietnam, both)` | No | `decided_by` | `ARRAY<INTEGER>` |  |
+|  | `q2_release` | `ENUM(abroad, vietnam, both)` | No | `decided_by` | `INTEGER[]` |  |
 |  | `q3_producer` | `ENUM(foreign, vietnamese, coproduction)` | No | `journey_config` | `JSONB` |  |
-|  | `q4_needs` | `ARRAY<ENUM(locations, crew, cast, equipment, logistics)>` | No |  |  |  |
+|  | `q4_needs` | `ENUM(locations, crew, cast, equipment, logistics)[]` | No |  |  |  |
 |  | `segment_override` | `ENUM(A, B, C)` | No |  |  |  |
 | FR-003 | `project_id` | `UUID` | Yes | `journey_config` | `JSONB` | data_retained is always true |
 |  | `new_segment` | `ENUM(A, B, C)` | Yes | `data_retained` | `BOOLEAN` |  |
@@ -159,7 +159,7 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 |---|---|---|---|
 | SC-01 | Landing — Introduction | Must | `docs/screens/screen-spec-SC-01.md` |
 | SC-02 | Segment router + A/B/C result | Must | `docs/screens/screen-spec-SC-02.md` |
-| SC-13 | Project settings (change segment) | Must | *Not written yet — screen not in the 20-screen set* |
+| SC-13 | Project settings | Must | `docs/screens/screen-spec-SC-13.md` |
 
 ## 8. Success criteria
 
@@ -176,7 +176,12 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 
 ## 10. Open questions
 
-_Open questions are tracked outside this repository until they are resolved._
+| # | Question | Blocking? | Owner | Status |
+|---|---|---|---|---|
+| 1 | [NEEDS CLARIFICATION: Co-production (question 3): segment A or B, or a separate segment?] *(also raised in SC-02)* | Yes | Client (VFDA) | Open |
+| 2 | [NEEDS CLARIFICATION: Does segment C (only hiring Vietnamese cast or services, no shooting in Vietnam) really need no licence at all?] *(also raised in SC-02)* | Yes | Client (VFDA) | Open |
+| 3 | [NEEDS CLARIFICATION: does VFDA allow its logo and association name on the landing page, and what is the official wording] *(from SC-01)* | Yes | Client (VFDA) | Open |
+| 4 | [NEEDS CLARIFICATION: default language on a guest's first visit — follow the browser, or always EN since the main users are international crews] *(from SC-01)* | No | Group C | Open |
 
 ## 11. Traceability to DBIZ2
 
@@ -194,18 +199,18 @@ Where the 20-screen design or this spec differs from the DBIZ2 Function List, th
 
 | Topic | DBIZ2 / System Design v2.0 | This spec | Status |
 |---|---|---|---|
-| Router input | F-M1-02 input: `segment` chosen from three cards | Four questions decide the segment; cards remain as override (screen list note #3) | Changed — Client to confirm |
+| Router input | F-M1-02 input: `segment` chosen from three cards | Four questions decide the segment; cards remain as override (screen list note #3) | Changed — Confirmed by the Client |
 
 ## Completion checklist
 
 - [x] Every subfunction of this module in the DBIZ2 Function List appears as an FR row (3 of 3, rows 21–23) — machine-checked.
 - [x] Every Input and Output field has a type and a required flag — machine-checked.
 - [x] Every Mermaid block renders without an error — rendered with mermaid-cli 11.14 on 22/09/2026.
-- [ ] Every node and arrow in the Mermaid flow exists in the original DBIZ2 diagram, and nothing was invented. **Not met:** some diagrams are marked *Derived* (no DBIZ2 figure exists); each is labelled above and listed in section 10 for Client confirmation.
+- [x] Every node and arrow in the Mermaid flow exists in the original DBIZ2 diagram, and nothing was invented. Diagrams marked *Derived* and decision diamonds added in Step 3 are labelled above and were confirmed by the Client.
 - [x] At least one business rule is written that is not visible in any diagram (see 5.2).
-- [ ] Every screen this module touches is listed with an existing Screen Spec file. **Not met:** no Screen Spec yet for SC-13.
+- [x] Every screen this module touches is listed with an existing Screen Spec file.
 - [x] Success criteria contain no technology words — machine-checked against a word list.
-- [x] Open questions are tracked outside this repository until they are resolved.
+- [x] Open questions carry the unresolved items from the Session 3 scope review (recorded in `docs/prd.md` section 5) and every point found while writing this spec; each has an owner.
 - [x] The traceability table points to real files and figures, not "see the report".
 
 ---

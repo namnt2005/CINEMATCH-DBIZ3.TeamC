@@ -94,7 +94,10 @@
 
 ## 9. Open questions
 
-_Open questions are tracked outside this repository until they are resolved._
+| # | Question | Blocking? | Status |
+|---|---|---|---|
+| 1 | [NEEDS CLARIFICATION: must the proofreader be Vietnamese / a certified translator, and must the proofreader be named in the submitted dossier] | No | Open |
+| 2 | [NEEDS CLARIFICATION: which machine translation service to use — the script is the production's confidential document] | Yes | Open |
 
 ## Completion checklist
 
