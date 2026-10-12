@@ -1,0 +1,99 @@
+{
+  "version": "1.0.0",
+  "updated_at": "2026-10-12",
+  "scene_types": [
+    "karst",
+    "river",
+    "village",
+    "rice_field",
+    "sea",
+    "floating_village",
+    "cave",
+    "jungle",
+    "old_town",
+    "market",
+    "rice_terrace",
+    "mountain",
+    "dunes",
+    "mangrove"
+  ],
+  "crew_capacity": [
+    "u15",
+    "15_50",
+    "o50"
+  ],
+  "permit_complexity": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "availability": [
+    "open",
+    "survey_in_progress",
+    "paused"
+  ],
+  "era": [
+    "contemporary",
+    "historical_pre1950",
+    "war_1950_1975",
+    "postwar_1975_2000",
+    "1970s"
+  ],
+  "time_of_day": [
+    "day",
+    "night",
+    "dawn",
+    "dusk",
+    "golden_hour"
+  ],
+  "water": [
+    "river",
+    "sea",
+    "lake",
+    "waterfall",
+    "none"
+  ],
+  "terrain": [
+    "karst",
+    "mountain",
+    "delta",
+    "coastline",
+    "dunes",
+    "cave"
+  ],
+  "synonyms": {
+    "fishing village": "floating_village",
+    "waterside village": "floating_village",
+    "làng chài": "floating_village",
+    "ferry landing": "river",
+    "landing": "river",
+    "bến phà": "river",
+    "bến thuyền": "river",
+    "limestone": "karst",
+    "limestone karsts": "karst",
+    "núi đá vôi": "karst",
+    "sand dunes": "dunes",
+    "đồi cát": "dunes",
+    "ocean": "sea",
+    "beach": "sea",
+    "biển": "sea",
+    "forest": "jungle",
+    "rainforest": "jungle",
+    "rừng": "jungle",
+    "ancient town": "old_town",
+    "phố cổ": "old_town",
+    "bazaar": "market",
+    "chợ": "market",
+    "paddy": "rice_field",
+    "ruộng lúa": "rice_field",
+    "cavern": "cave",
+    "grotto": "cave",
+    "hang động": "cave"
+  },
+  "province_mergers_post_2025": {
+    "Quảng Nam": "Đà Nẵng",
+    "quang nam": "Đà Nẵng",
+    "Hà Tây": "Hà Nội",
+    "ha tay": "Hà Nội"
+  }
+}

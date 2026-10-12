@@ -20,6 +20,7 @@ tools/_anomalies.pkl
 
 # Node
 node_modules/
+.next/
 
 # Personal agent settings (shared settings stay committed)
 CLAUDE.local.md
