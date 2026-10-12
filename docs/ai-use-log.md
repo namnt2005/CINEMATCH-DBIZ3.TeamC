@@ -15,6 +15,7 @@ an empty cell means the review is still due. Rules: `.specify/memory/constitutio
 | 7 | 01/10/2026 | 7 | Claude | Build the portable SQL schema and the load check (gate G3), tested on SQLite and PostgreSQL 16 | `tools/build_schema.py`, `data/schema/` | | | |
 | 8 | 01/10/2026 | 7 | Claude | Reconstruct the *Data Model and Mockup Data* template from the Session 5 lecture and the rubric, and generate one file per module | `tools/dm_rules.py`, `tools/build_dm_docs.py`, `data/data-model-*.md` | | | |
 | 9 | 01/10/2026 | 7 | Claude | Align the Screen Spec field names with the data model; fill the constitution; update READMEs, function and screen lists; restore `docs/function-list.md` (emptied by mistake in commit `6f4e993`) | `tools/s*_en.py`, `.specify/memory/constitution.md`, `README.md`, `docs/`, `data/README.md` | | | |
+| 10 | 12/10/2026 | 8 | Antigravity | Resolve M3 spec/data-model gaps: remove unsupported special_scenes from F-M3-07 to align with 18-field template; define scene_type_catalog as version-controlled config in F-M3-12 while preserving blocking Open Question #2 for VFDA approval; rebuild spec and refresh feature snapshot | `docs/function-list.md`, `tools/specs_b.py`, `docs/spec/spec-M3.md`, `specs/001-m3-core/spec.md`, `docs/ai-use-log.md` | | | |
 
 ## How the output was checked by script
 

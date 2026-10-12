@@ -211,7 +211,7 @@ sequenceDiagram
 | FR-004 | F-M3-04 | The system MUST record the local authority contact of a location with who verified it and when. | VFDA Staff | Must |
 | FR-005 | F-M3-05 | The system MUST refuse to publish a location whose authority contact is not verified (database constraint). | VFDA Staff | Must |
 | FR-006 | F-M3-06 | The system MUST return locations for a search typed with or without Vietnamese diacritics. | Guest | Must |
-| FR-007 | F-M3-07 | The system MUST filter by scene type, province or region, crew size, shooting month and special scenes, and keep the filter state in the page URL. | Guest | Must |
+| FR-007 | F-M3-07 | The system MUST filter by scene type, province or region, crew size and shooting month, and keep the filter state in the page URL. | Guest | Must |
 | FR-008 | F-M3-08 | The system MUST score each published location from 0 to 100 on six criteria in a database function and hide results below 40. | System | Must |
 | FR-009 | F-M3-09 | The system MUST show every result with its score, at least one *why it matches* reason and any mismatch or missing data. | Guest | Must |
 | FR-010 | F-M3-10 | The system MUST accept a free-text scene description in English or Vietnamese. | Guest | Must |
@@ -268,7 +268,6 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 |  | `region` | `ENUM(north, central, south)` | No |  |  |  |
 |  | `crew_size` | `ENUM(u15, 15_50, o50)` | No |  |  |  |
 |  | `shoot_month` | `INTEGER` | No |  |  |  |
-|  | `special_scenes` | `ENUM[]` | No |  |  |  |
 | FR-008 | `scene_types` | `ARRAY` | No | `ranked` | `(location_id UUID, score INTEGER, match_reasons TEXT[])[]` | score 0–100; weights [NEEDS CLARIFICATION] |
 |  | `provinces` | `ARRAY` | No |  |  |  |
 |  | `crew_size` | `ENUM` | No |  |  |  |
@@ -278,7 +277,7 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 | FR-011 | `scene_description` | `TEXT` | Yes | `query_id` | `UUID` | structured output |
 |  | `project_id` | `UUID` | No | `attributes` | `JSONB (scene_types ARRAY, era ENUM, time_of_day ENUM, water ENUM, terrain ARRAY, crowd_scale ENUM, constraints ARRAY)` |  |
 |  | `shoot_month` | `INTEGER` | No |  |  |  |
-| FR-012 | `attributes` | `JSONB` | Yes | `valid_attributes` | `JSONB` | mapped values reported to the user |
+| FR-012 | `attributes` | `JSONB` | Yes | `valid_attributes` | `JSONB` | mapped values reported to the user; validated against version-controlled application config |
 |  | `scene_type_catalog` | `ENUM[]` | Yes | `rejected` | `TEXT[]` |  |
 | FR-013 | `slug` | `VARCHAR(160)` | Yes | `location_detail` | `JSONB` | published only |
 | FR-014 | `lat` | `NUMERIC(9,6)` | Yes | `map_view` | `JSONB` | radius default 30; max 5 nearby |
@@ -363,7 +362,7 @@ Types and required flags of the attributes above that no field in 5.1 declares (
 | # | Question | Blocking? | Owner | Status |
 |---|---|---|---|---|
 | 1 | [NEEDS CLARIFICATION: Weights of the six scoring criteria (F-M3-08).] *(also raised in SC-14)* | Yes | Client (VFDA) | Open |
-| 2 | [NEEDS CLARIFICATION: Who maintains the fixed attribute catalogue (scene types, terrain, era) used by F-M3-12?] *(also raised in SC-15)* | Yes | Client (VFDA) | Open |
+| 2 | [NEEDS CLARIFICATION: Who in VFDA approves the fixed attribute catalogue content and synonym mappings used by F-M3-12? Technical storage is version-controlled application configuration (JSON/TS) in code.] *(also raised in SC-15)* | Yes | Client (VFDA) | Open |
 | 3 | [NEEDS CLARIFICATION: Where does data for the *night shooting* and *weather in the shooting month* comparison rows come from? No field exists yet.] *(also raised in SC-17)* | Yes | Group C | Open |
 | 4 | [NEEDS CLARIFICATION: May VFDA publish the provincial index publicly? It may be sensitive for low-scoring provinces.] *(also raised in SC-18)* | Yes | Client (VFDA) | Open |
 | 5 | [NEEDS CLARIFICATION: Re-verification cycle for authority contacts (proposed 12 months).] *(also raised in SC-16, SC-35)* | No | Client (VFDA) | Open |
@@ -393,12 +392,13 @@ Where the 20-screen design or this spec differs from the DBIZ2 Function List, th
 | F-M3-16..20 priority | Must | Should — Tier 2 of the screen list file (#18, #19) | Changed — Confirmed by the Client |
 | Shortlist role | no role | primary / backup (SC-17) | Added — Confirmed by the Client |
 | Location availability | not in DBIZ2 | availability ENUM(open, survey_in_progress, paused) set by VFDA staff; sixth scoring criterion (BR-010) | Added — Group C decision 01/10/2026 |
+| Special scenes filter | special_scenes ENUM[] in DBIZ2 Function List row 48 | special_scenes removed; filtering uses 14-value scene_types enum, province/region, crew_size and shoot_month (reconciled with 18-field location template in FR-002) | Reconciled — confirmed by team |
 
 ## Completion checklist
 
 - [x] Every subfunction of this module in the DBIZ2 Function List appears as an FR row (20 of 20, rows 42–61) — machine-checked.
 - [x] Every Input and Output field has a type and a required flag — machine-checked.
-- [x] Every Mermaid block renders without an error — rendered with mermaid-cli 11.14 on 22/09/2026.
+- [ ] Every Mermaid block renders without an error — NOT verified.
 - [x] Every node and arrow in the Mermaid flow exists in the original DBIZ2 diagram, and nothing was invented. Diagrams marked *Derived* and decision diamonds added in Step 3 are labelled above and were confirmed by the Client.
 - [x] At least one business rule is written that is not visible in any diagram (see 5.2).
 - [x] Every screen this module touches is listed with an existing Screen Spec file.
