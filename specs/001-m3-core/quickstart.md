@@ -29,7 +29,9 @@ git switch 001-m3-core
 # 2. Check repository environment readiness
 python3 tools/check_env.py --repo
 
-# 3. Verify specification snapshot integrity
+# 3. Choose the active feature on this laptop (.specify/feature.json is not in Git),
+#    then verify the specification snapshot integrity
+python3 tools/start_feature.py --use specs/001-m3-core
 python3 tools/start_feature.py --check
 
 # 4. Install dependencies
@@ -48,7 +50,9 @@ git switch 001-m3-core
 # 2. Check repository environment readiness
 py tools/check_env.py --repo
 
-# 3. Verify specification snapshot integrity
+# 3. Choose the active feature on this laptop (.specify/feature.json is not in Git),
+#    then verify the specification snapshot integrity
+py tools/start_feature.py --use specs/001-m3-core
 py tools/start_feature.py --check
 
 # 4. Install dependencies

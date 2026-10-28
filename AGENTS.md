@@ -7,7 +7,8 @@ short, factual and current.
 ## 1. Project
 
 - Product: `CINEMATCH`, team `Team C`, course DBIZ3, VJCBI College, Foreign Trade University. Client: Vietnam Film Development Association (VFDA).
-- Current step of the course process: Midterm review (Session 7) done. Next step: `Specify and Clarify with Spec Kit (Session 8), then Plan (/speckit-plan)`.
+- Current step of the course process: Session 10 (integration and debugging). Feature `specs/001-m3-core` (M3 location discovery, US-1) is built on branch `001-m3-core`; US-2 (tasks T028–T042) is open. Next: finish M3, tag `mvp-alpha`, then build the next module in the order M3 → SYS → M1 → M0 → M7 → M4 → M2 → M5 → M10.
+- Decisions on blocking open questions (28/10/2026, provisional until VFDA confirms) are in `tools/decisions.py` and printed in the `## Clarifications` section of each Spec Document. Build from them; do not reopen them without the human.
 - Source of truth for requirements: `docs/spec/` (Spec Documents from Session 4). Start from `docs/spec/spec-document.md`, which indexes the nine module files. The product scope is `docs/prd.md`.
 - Source of truth for screens: `docs/screens/` (Screen Specs and mockups from Session 4).
 - Source of truth for data: `data/` (data model, physical schema and seed package from Session 5). Start from `data/data-model-<MODULE>.md`.
@@ -15,9 +16,10 @@ short, factual and current.
 
 ## 2. Tech stack
 
-- Planned: Next.js + Supabase (PostgreSQL). The specs already assume it in SYS FR-002, SYS BR-004 and M5. It is confirmed or changed at the Plan step (`/speckit-plan`).
-- The schema in `data/schema/` is portable SQL (SQLite 3 and PostgreSQL 14+), so it does not depend on that choice.
-- Until then: do not create application code, do not add dependencies, do not scaffold frameworks.
+- Confirmed 28/10/2026: Next.js 14 (App Router, JavaScript) on Node.js 22; Supabase (PostgreSQL, Auth, Row Level Security, Storage) for the shared database; Vercel for hosting; Google Gemini API for the language model, with the rule-based scene extractor kept as the fallback (`LLM_PROVIDER=mock`).
+- Local development and tests: `node:sqlite` loads the seed CSV files into memory; tests use the Node test runner (`node --test`). No Supabase key is needed to run the tests.
+- The schema in `data/schema/` is portable SQL (SQLite 3 and PostgreSQL 14+); the same files are applied to Supabase.
+- Add a new dependency only when the current `plan.md` names it; say why in the pull request.
 
 ## 3. Commands that are safe to run
 
@@ -25,6 +27,8 @@ short, factual and current.
 - `python3 data/seed/generate_seed.py && python3 data/seed/check_seed.py` : regenerates the seed data (46 files `NN_<table>.csv`, 427 rows); must end with `PASS` and leave `git status` clean.
 - `python3 data/schema/load_check.py` : creates an empty database from `data/schema/schema-*.sql` and loads the seed files in filename order; must end with `PASS` (add `--postgres "<DSN>"` to also test PostgreSQL).
 - `python3 tools/check_screens.py s1_en --out /tmp/screens` (one call per `s1_en` … `s7_en`) : checks one screen-data file and renders it to a scratch folder outside the repository.
+- `npm install`, `npm test`, `npm run dev`, `npm run build` : install, run all tests, start the local site (http://localhost:3000), production build.
+- `python3 tools/start_feature.py <MODULE> --name <topic>` and `--check` : start a Spec Kit feature from a Spec Document and check that the snapshot has not drifted.
 - `git status`, `git diff` : always allowed.
 
 ## 4. Hard rules
@@ -64,23 +68,35 @@ short, factual and current.
 | `.specify/` | Spec Kit | Templates and scripts (created in step C5); `memory/constitution.md` is the project constitution, filled 01/10/2026 and owned by humans |
 | `.claude/` | Claude Code | Spec Kit skills and shared settings (created in step C5) |
 | `.agents/rules/` | humans | Always-on workspace rule pointing to this file (created in step C6) |
+| `specs/NNN-<module>-<topic>/` | Spec Kit + humans | One folder per feature: `spec.md` (snapshot of the Spec Document), `plan.md`, `research.md`, `data-model.md`, `contracts/`, `quickstart.md`, `tasks.md` |
+| `app/`, `lib/` | humans + agents | Next.js pages and API routes (`app/`), shared code such as the scorer `lib/scoring/engine.js` and the database loader (`lib/db/`) |
+| `tests/` | humans + agents | `unit/`, `contracts/`, `foundational/` tests run by `npm test`; test names cite the FR or BR they check |
+| `config/` | humans | Version-controlled configuration, e.g. `scene-catalog.json` (changed only by a reviewed pull request) |
+| `docs/build/` | humans | Build log, MVP Alpha checklist, constitution starter |
+| `docs/test/` | humans | Integration contract and test plan (Session 10) |
 
 ## 6. Conventions
 
 - Start every task from an up-to-date main: `git switch main`, `git pull`, then a new branch.
-- Branch names: `<member>/<short-topic>`, for example `nam/env-setup`.
+- Branch names: a Spec Kit feature uses its folder name (`001-m3-core`); other work uses `<member>/<short-topic>`, for example `nam/env-setup`.
+- Build one thin vertical slice at a time (one user story: screen + API + data + tests), test first: write the failing test, then the code.
+- After each slice: append a row to `docs/ai-use-log.md` and an entry with the commit hash to `docs/build/build-log.md`.
 - One owner per shared file (see section 7). Others propose changes to that file through a pull request.
 - Commit messages: `type: summary` where type is one of `feat`, `fix`, `docs`, `chore`, `test`.
 - Language: code, comments and commit messages in English.
 
 ## 7. File owners
 
+Proposed 28/10/2026; the team corrects this table if roles differ.
+
 | File or folder | Owner (member) |
 |---|---|
-| `AGENTS.md`, `README.md` | `Nam` |
-| `docs/spec/`, `docs/prd.md`, `docs/mvp-scope.md` | `Nam` |
-| `.specify/`, `.claude/`, `.agents/` (setup only) | `Nam` |
-| `docs/screens/`, `docs/screen-list.md` | `Member 2` |
-| `data/`, `tools/` | `Member 3` |
-| `docs/architecture/`, `docs/function-list.md` | `Member 4` |
-| `docs/env/` | `Member 4` |
+| `AGENTS.md`, `README.md`, `.specify/`, `.claude/`, `.agents/` | Nguyễn Trần Nam |
+| `docs/spec/`, `docs/prd.md`, `docs/mvp-scope.md`, `tools/decisions.py` | Nguyễn Trần Nam |
+| `docs/screens/`, `docs/screen-list.md` | Nguyễn Linh Chi |
+| `data/`, `tools/` (generators) | Nguyễn Huy Trung |
+| `docs/architecture/`, `docs/function-list.md` | Lê Mỹ Linh |
+| `docs/env/`, `.env.example` | Phạm Hà Chi |
+| `docs/test/`, `tests/` | Trịnh Loan Trang |
+| `docs/build/`, `docs/ai-use-log.md` | Nguyễn Quốc Tuấn |
+| `specs/NNN-*`, `app/`, `lib/` | the owner of the module being built (see `docs/build/build-log.md`) |

@@ -13,6 +13,18 @@
 | Approved by (Client role) | *Not yet — VFDA project lead (and VFDA Legal Board for legal rules)* |
 | DBIZ2 source | Function List rows 24–41 (F-M2-01 .. F-M2-18); Use Case UC-02, UC-03, UC-04, UC-19, UC-21; Screens SC-03, SC-48, SC-27, SC-29, SC-30, SC-31, SC-37 |
 
+## Clarifications
+
+### Session 2026-10-28 (Group C, provisional — the owner in §10 confirms before launch)
+
+- Q1: Is the 20-day period in Article 13 clause 4 calendar days or working days? → A: Working days: weekends and dates of type PUBLIC_HOLIDAY are excluded when counting the 20 days. Same decision as M5 question 7.
+- Q2: Must rule signing require two different people (author ≠ approver)? → A: One person is enough to sign a rule (author may equal approver). The audit log still records who signed.
+- Q3: When the rule set gets a new version, are open projects re-checked automatically or only notified? → A: Notify only. Open projects are not re-checked automatically; their owners get a notification and the Content gauge drops 30 points until the producer re-runs the check.
+- Q4: Thresholds that turn findings into Low / Medium / High. → A: Keep the test thresholds: High = 2 or more *action* findings; Medium = 1 *action* finding or 3 or more *notice* findings; otherwise Low.
+- Q6: How long is a guest's pre-check text kept, and may it be used to improve the rule base? → A: Pre-check text is not stored (hash only) and is not used to improve the rule base. Same decision as SYS question 9.
+- Q9: which application form is currently in force, and may VFDA provide a bilingual version of it → A: Use *Mẫu số 01, Phụ lục I* of Circular 17/2022/TT-BVHTTDL (in force from 15/02/2023, amended by Circular 11/2023/TT-BVHTTDL) — application for a licence to provide film shooting services using Vietnamese locations — plus the *Phụ lục IV* commitment on Article 9. The team prepares an unofficial English reading aid; VFDA confirms the version before launch.
+- Q13: when an approved rule needs a correction, is a new draft revision created while the signed text stays in force, and does retiring a rule also create a new rule-set version? → A: Correcting an approved rule creates a new draft revision; the signed text stays in force until the revision is signed. Retiring a rule creates a new rule-set version.
+
 ## 1. Purpose and scope
 
 This module tells a producer, before they commit, which parts of their story are likely to be looked at closely by the reviewing authority and whether their licence dossier has the four components Article 13 requires. Every finding cites the rule written and signed by the VFDA Legal Board; the system never interprets the law on its own.
@@ -292,7 +304,7 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 | BR-003 | The words *approved*, *accepted*, *legally compliant* and *safe* never appear in results, including when nothing is found. | Only the competent authority decides. |
 | BR-004 | The attention level is derived deterministically from the number and severity of verified findings, never from a model score. | A precise-looking number from a model gives false certainty. |
 | BR-005 | The dossier completeness check uses fixed rules, not a language model. | A missing document is a fact, not a judgement. |
-| BR-006 | Safe deadline = first shooting day − buffer − 20 − 20 days; latest deadline = first shooting day − buffer − 20 days. | Article 13 clause 4: 20 days, plus up to 20 more if the script must be revised. |
+| BR-006 | Safe deadline = first shooting day − buffer − 20 − 20 working days; latest deadline = first shooting day − buffer − 20 working days. Working days exclude Saturdays, Sundays and dates of type PUBLIC_HOLIDAY (Clarifications Q1). | Article 13 clause 4: 20 days, plus up to 20 more if the script must be revised. |
 | BR-007 | Every check stores the rule-set version it used. | An old result must remain explainable after rules change. |
 | BR-008 | Legal rules are retired, never deleted (`status = retired`); a finding keeps showing the text of the rule version it cited. | An old result must remain explainable after a rule changes (see BR-007). |
 
@@ -352,26 +364,26 @@ Types and required flags of the attributes above that no field in 5.1 declares (
 
 - The rule base starts with about 25 rules written by the VFDA Legal Board before launch.
 - Content risk is assessed against Article 9 (prohibited content); dossier completeness against Article 13 clause 3 — see open question 1.
-- Deadlines are computed in calendar days until the Legal Board confirms otherwise.
-- Test values used until the VFDA Legal Board confirms: the 20 days of Article 13 clause 4 are calendar days (BR-006); attention level Low = no *action* finding and at most 2 *notice* findings, Medium = 1 *action* finding or 3 or more *notice* findings, High = 2 or more *action* findings.
+- Deadlines are computed in working days (Group C decision 28/10/2026, Clarifications Q1) until the Legal Board confirms.
+- Test values used until the VFDA Legal Board confirms: the 20 days of Article 13 clause 4 are working days (BR-006, decided 28/10/2026); attention level Low = no *action* finding and at most 2 *notice* findings, Medium = 1 *action* finding or 3 or more *notice* findings, High = 2 or more *action* findings.
 
 ## 10. Open questions
 
 | # | Question | Blocking? | Owner | Status |
 |---|---|---|---|---|
-| 1 | [NEEDS CLARIFICATION: Is the 20-day period in Article 13 clause 4 calendar days or working days?] *(also raised in SC-27)* | Yes | Client (VFDA Legal Board) | Open |
-| 2 | [NEEDS CLARIFICATION: Must rule signing require two different people (author ≠ approver)?] *(also raised in SC-37)* | Yes | Client (VFDA Legal Board) | Open |
-| 3 | [NEEDS CLARIFICATION: When the rule set gets a new version, are open projects re-checked automatically or only notified?] | Yes | Client (VFDA) | Open |
-| 4 | [NEEDS CLARIFICATION: Thresholds that turn findings into Low / Medium / High.] *(also raised in SC-48)* | Yes | Client (VFDA Legal Board) | Open |
+| 1 | [NEEDS CLARIFICATION: Is the 20-day period in Article 13 clause 4 calendar days or working days?] *(also raised in SC-27)* | Yes | Client (VFDA Legal Board) | Decided (provisional, VFDA to confirm) — see Clarifications |
+| 2 | [NEEDS CLARIFICATION: Must rule signing require two different people (author ≠ approver)?] *(also raised in SC-37)* | Yes | Client (VFDA Legal Board) | Decided (provisional, VFDA to confirm) — see Clarifications |
+| 3 | [NEEDS CLARIFICATION: When the rule set gets a new version, are open projects re-checked automatically or only notified?] | Yes | Client (VFDA) | Decided (provisional, VFDA to confirm) — see Clarifications |
+| 4 | [NEEDS CLARIFICATION: Thresholds that turn findings into Low / Medium / High.] *(also raised in SC-48)* | Yes | Client (VFDA Legal Board) | Decided (provisional, VFDA to confirm) — see Clarifications |
 | 5 | [NEEDS CLARIFICATION: None of SEQ-02, SEQ-08, SEQ-09 draws an error branch (model down, file too large). Confirm the behaviour in the edge cases.] | No | Client (VFDA) | Open |
-| 6 | [NEEDS CLARIFICATION: How long is a guest's pre-check text kept, and may it be used to improve the rule base?] *(also raised in SC-03)* | Yes | Client (VFDA) | Open |
+| 6 | [NEEDS CLARIFICATION: How long is a guest's pre-check text kept, and may it be used to improve the rule base?] *(also raised in SC-03)* | Yes | Client (VFDA) | Decided (provisional, VFDA to confirm) — see Clarifications |
 | 7 | [NEEDS CLARIFICATION: daily pre-check limit per IP] *(from SC-03)* | No | Group C | Open |
 | 8 | [NEEDS CLARIFICATION: the specific clause of Article 9 for each rule is to be filled in `legal_rule.citation` by the VFDA Legal Board; the mockup only goes to Article level] *(from SC-48)* *(also raised in SC-31)* | No | Client (VFDA Legal Board) | Open |
-| 9 | [NEEDS CLARIFICATION: which application form is currently in force, and may VFDA provide a bilingual version of it] *(from SC-27)* | Yes | Client (VFDA) | Open |
+| 9 | [NEEDS CLARIFICATION: which application form is currently in force, and may VFDA provide a bilingual version of it] *(from SC-27)* | Yes | Client (VFDA) | Decided (provisional, VFDA to confirm) — see Clarifications |
 | 10 | [NEEDS CLARIFICATION: F-M2-15 filters by segment, but a legal rule has no segment field (M2 §6). Who decides which rules apply to segments A, B and C, and where is it stored?] *(from SC-30)* | No | Client (VFDA Legal Board) | Open |
 | 11 | [NEEDS CLARIFICATION: M2 §5.1 declares the public `topic` filter as `VARCHAR(60)` while the rule base uses the 7-value topic enum; confirm the library uses the same enum] *(from SC-30)* | No | Group C | Open |
 | 12 | [NEEDS CLARIFICATION: should the public rule page list earlier versions of the rule and what changed between them?] *(from SC-31)* | No | Client (VFDA Legal Board) | Open |
-| 13 | [NEEDS CLARIFICATION: when an approved rule needs a correction, is a new draft revision created while the signed text stays in force, and does retiring a rule also create a new rule-set version?] *(from SC-37)* | Yes | Client (VFDA Legal Board) | Open |
+| 13 | [NEEDS CLARIFICATION: when an approved rule needs a correction, is a new draft revision created while the signed text stays in force, and does retiring a rule also create a new rule-set version?] *(from SC-37)* | Yes | Client (VFDA Legal Board) | Decided (provisional, VFDA to confirm) — see Clarifications |
 | 14 | [NEEDS CLARIFICATION: format of `rule_version` (the mockups use year.month, e.g. 2026.08) when more than one rule is signed in the same month] *(from SC-37)* | No | Group C | Open |
 
 ## 11. Traceability to DBIZ2

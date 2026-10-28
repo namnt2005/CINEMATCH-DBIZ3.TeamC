@@ -85,6 +85,8 @@ Every attribute traces to a §5.1 field, a §6.1 declared type, a key, or a deli
 | `permit_complexity` | `ENUM(low, medium, high)` | Req |  | §5.1 field | M3 §5.1 FR-002 |
 | `restriction_note` | `TEXT` | Opt |  | §5.1 field | M3 §5.1 FR-002 |
 | `availability` | `ENUM(open, survey_in_progress, paused)` | Req |  | §5.1 field | M3 §5.1 FR-002; M3 §5.2 BR-010 |
+| `night_shooting_allowed` | `ENUM(yes, no, ask)` | Opt |  | §5.1 field | M3 §5.1 FR-002; M3 Clarifications Q3 (28/10/2026) |
+| `rainy_months` | `INTEGER[]` | Opt |  | §5.1 field | M3 §5.1 FR-002; M3 Clarifications Q3 (28/10/2026) |
 | `intake_status` | `ENUM(awaiting_contact, published, unpublished)` | system-set |  | §5.1 field | M3 §5.1 FR-002 (OUT); M3 §6; M3 §5.2 BR-008 (unpublished, never deleted) |
 | `published` | `BOOLEAN` | system-set |  | §5.1 field | M3 §5.1 FR-005 (OUT); M3 §5.2 BR-004 |
 | `blocked_reason` | `TEXT` | system-set |  | §5.1 field | M3 §5.1 FR-005 (OUT) |
@@ -211,6 +213,8 @@ erDiagram
         enum permit_complexity
         string restriction_note
         enum availability
+        enum night_shooting_allowed
+        string rainy_months
         enum intake_status
         boolean published
         string blocked_reason
@@ -262,7 +266,7 @@ Renders with mermaid-cli: **yes**.
 |---|---|---|---|---|
 | Entities owned and stored (catalogue §2) | 6 | entity blocks in the ERD (§5) | 6 | ✓ |
 | Entities owned and stored (catalogue §2) | 6 | tables in `schema-M3.sql` | 6 | ✓ |
-| Attributes (§3) | 50 | columns in `schema-M3.sql` | 50 | ✓ |
+| Attributes (§3) | 52 | columns in `schema-M3.sql` | 52 | ✓ |
 | Relationships with the child in this module (§4) | 7 | FOREIGN KEY constraints in `schema-M3.sql` | 7 | ✓ |
 | Relationships touching this module (§4) | 12 | relationship lines in the ERD (§5) | 12 | ✓ |
 | Seed files of this module (§9) | 6 | tables in `schema-M3.sql` | 6 | ✓ |
@@ -271,7 +275,7 @@ Renders with mermaid-cli: **yes**.
 
 | Table | 1NF | 2NF | 3NF |
 |---|---|---|---|
-| `LOCATION` | exception: `scene_types`, `months_to_avoid` (array) | ✓ single-column key | exception: `published` |
+| `LOCATION` | exception: `scene_types`, `months_to_avoid`, `rainy_months` (array) | ✓ single-column key | exception: `published` |
 | `LOCATION_IMAGE` | ✓ | ✓ single-column key | ✓ |
 | `AUTHORITY_CONTACT` | ✓ | ✓ single-column key | ✓ |
 | `PROVINCE` | exception: `merged_from` (array) | ✓ single-column key | ✓ |
@@ -285,6 +289,7 @@ Renders with mermaid-cli: **yes**.
 | `LOCATION.published` | 3NF (depends on intake_status) | M3 FR-005 output, read by every search | CHECK `ck_location_published_matches_status` |
 | `LOCATION.scene_types` | 1NF (list in one column) | filtered and shown as a list | see note below |
 | `LOCATION.months_to_avoid` | 1NF (list in one column) | filtered and shown as a list | see note below |
+| `LOCATION.rainy_months` | 1NF (list in one column) | filtered and shown as a list | see note below |
 | `PROVINCE.merged_from` | 1NF (list in one column) | filtered and shown as a list | see note below |
 
 Kept as a JSON array (1NF exception): the whole list is what functions filter and show; every value is checked against its declared set by seed_rules.py and, at the Plan step, by the input validation (01 OQ 3).
@@ -295,7 +300,7 @@ Kept as a JSON array (1NF exception): the whole list is what functions filter an
 
 | Rule | Statement | Enforced in | Named object | Seed rows that show it |
 |---|---|---|---|---|
-| BR-001 | The language model only extracts attributes; ranking is done by a deterministic scoring function in the database. The model never names or ranks a location. | APP (Plan step) | Edge Function returns attributes only; ranking in function `search_locations` | `24_location_query.csv` — An old wooden ferry crossing a calm ri · 3 — the query stores extracted attributes, never a ranking |
+| BR-001 | The language model only extracts attributes; ranking is done by a deterministic server-side scoring function. The model never names or ranks a location. | APP (Plan step) | Edge Function returns attributes only; ranking in function `search_locations` | `24_location_query.csv` — An old wooden ferry crossing a calm ri · 3 — the query stores extracted attributes, never a ranking |
 | BR-002 | A result is shown only if its score is 40 or more and it has at least one *why it matches* reason. | VIEW (Plan step) | function `search_locations` filters score ≥ 40 and ≥ 1 reason | `21_location.csv` — ca-mau-cape · published · open; ha-long · published · survey_in_progress (+7) — only published locations are scored |
 | BR-003 | *Not a match* and *No data yet* are different; missing data never counts for or against a location. | APP (Plan step) | scoring treats an empty field as *No data yet* | `21_location.csv` — cai-rang · published · open — no month to avoid recorded |
 | BR-004 | A location cannot be published until its local authority contact is verified; contacts are re-verified every 12 months [NEEDS CLARIFICATION]. | SCHEMA + SEED CHECK + TRIGGER (Plan step) | `ck_location_published_matches_status`; seed_rules (contact verified); trigger `trg_location_publish_needs_contact` | `21_location.csv` — mui-ne · awaiting_contact · open — contact not verified → awaiting_contact, not published<br>`23_authority_contact.csv` — Ban Quản lý Vườn quốc gia Mũi Cà Mau · true · 2016-01-04T10:00:00+07:00 — contact verified in 2016 — older than the 12-month cycle |
@@ -308,7 +313,7 @@ Kept as a JSON array (1NF exception): the whole list is what functions filter an
 
 ## 8. Schema (mandatory)
 
-`data/schema/schema-M3.sql` — 6 tables in load order: `province`, `location`, `location_image`, `authority_contact`, `location_query`, `project_shortlist`; 7 foreign keys; 10 CHECK constraints. Portable SQL (SQLite 3 and PostgreSQL 14+).
+`data/schema/schema-M3.sql` — 6 tables in load order: `province`, `location`, `location_image`, `authority_contact`, `location_query`, `project_shortlist`; 7 foreign keys; 11 CHECK constraints. Portable SQL (SQLite 3 and PostgreSQL 14+).
 
 Load test: `python3 data/schema/load_check.py` runs every schema file, then every seed file in filename order with foreign keys on — **PASS** (also on PostgreSQL 16 with `--postgres`).
 
@@ -350,6 +355,9 @@ Computed from the seed files. (a) every enumerated value has a row; (b) empty st
 | `LOCATION.availability` | `open` | 9 row(s), e.g. ca-mau-cape · published · open |
 | `LOCATION.availability` | `survey_in_progress` | 1 row(s), e.g. ha-long · published · survey_in_progress |
 | `LOCATION.availability` | `paused` | 1 row(s), e.g. phong-nha · published · paused |
+| `LOCATION.night_shooting_allowed` | `yes` | 4 row(s), e.g. ha-long · published · survey_in_progress |
+| `LOCATION.night_shooting_allowed` | `no` | 2 row(s), e.g. trang-an · published · open |
+| `LOCATION.night_shooting_allowed` | `ask` | 5 row(s), e.g. ca-mau-cape · published · open |
 | `LOCATION.intake_status` | `awaiting_contact` | 1 row(s), e.g. mui-ne · awaiting_contact · open |
 | `LOCATION.intake_status` | `published` | 9 row(s), e.g. ca-mau-cape · published · open |
 | `LOCATION.intake_status` | `unpublished` | 1 row(s), e.g. cua-van · unpublished · open |

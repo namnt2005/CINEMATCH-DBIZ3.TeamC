@@ -1,6 +1,6 @@
 <!--
 Sync Impact Report:
-- Version change: 1.0.0 → 1.0.0 (Adopted canonical course convention constitution for Session 8)
+- Version change: 1.0.0 → 2.0.0 (MAJOR: all five principles were redefined on 2026-10-07 to the course convention; the version number is corrected on 2026-10-28 as the Governance rule requires)
 - Modified principles:
   - Principle I: "The specs are the source of truth (NON-NEGOTIABLE)" → "I. The spec is the source of truth" (aligned to course convention)
   - Principle II: "Scope discipline" → "II. Business rules are test-first (non-negotiable)" (redefined to course convention)
@@ -48,4 +48,4 @@ Amend only by pull request reviewed by two members; bump the version (MAJOR when
 
 Technology choices are NOT part of the constitution; they belong in `plan.md`.
 
-**Version**: 1.0.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-07
+**Version**: 2.0.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-28

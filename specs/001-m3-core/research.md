@@ -124,3 +124,17 @@ Adhere to Constitution Principle II: *"Every business rule (BR-xxx) and every ac
 
 ### Unresolved Decisions Requiring Team Confirmation
 - **Testing Framework**: Selection of test runner/framework for the JavaScript/Next.js application (e.g., Node.js built-in test runner, Jest, or another runner) requires team confirmation.
+
+---
+
+## Addendum 2026-10-28 — open items resolved
+
+The decisions below close the items this research left for team confirmation. Where they change an earlier section, this addendum wins.
+
+| Earlier item | Resolution |
+|---|---|
+| Language and styling (line 27) | JavaScript (ES modules) with plain CSS in `app/globals.css`; no TypeScript or CSS framework in the MVP. |
+| Scoring in a PostgreSQL function (lines 34–49) | **Changed.** Scoring runs in one deterministic server-side function, `lib/scoring/engine.js`, so it is identical on the local `node:sqlite` database and on Supabase and can be unit-tested without a database. BR-001 still holds: the model never names or ranks a location. Weights: scene fit 35, season 15, crew 15, logistics 15, permit 10, availability 10 (spec Clarifications Q1). Province is a filter, not a criterion. Recorded in spec-M3 §11.1. |
+| Language model provider (line 72) | Google Gemini API through `LLM_PROVIDER=gemini` and `GEMINI_API_KEY` in `.env`. The rule-based extractor stays as the fallback and as the default for tests (`LLM_PROVIDER=mock`). Real scripts go only to the paid tier (spec-M5 Clarifications Q3). |
+| Authentication timing (line 91) | Mock role header `x-mock-role` until the SYS slice; then Supabase Auth with six roles and Row Level Security. |
+| Testing framework (line 126) | Node.js built-in test runner (`npm test`). |

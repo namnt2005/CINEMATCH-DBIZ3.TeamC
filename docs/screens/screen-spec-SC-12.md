@@ -43,7 +43,7 @@
 | 8 | Gauge action button | Button | static; target per gauge | — | — |
 | 9 | *Logistics* gauge (not yet available) | Chart (gauge) | static | — | shows `—`, not 0% |
 | 10 | Safe submission deadline strip | Text | `F-M5-08` — safe submission date and days remaining | No | hidden when there is no first shooting day or for segment C |
-| 11 | Recent activity | List | project `activity_log`, 3 latest items | No | — |
+| 11 | Recent activity | List | project `notification` rows (`event_type`), 3 latest items | No | — |
 | 12 | *Book a consultation with VFDA* button | Button | static | — | — |
 
 ## 4. States
@@ -78,7 +78,7 @@
 | SR-052 | Scores are computed by the DB view `v_project_readiness`, **not in the browser** — every place shows the same number. | TL5 §M0 |
 | SR-053 | Number of gauges by segment: segment C has **no** *Dossier & permits* gauge; weights are read from `segment_requirement`. | TL4 §2 |
 | SR-054 | A gauge that doesn't apply shows `—`, not 0% — these are two different things. | No-guessing principle |
-| SR-055 | Every module writes to the dashboard via the `readiness_changed` event; the dashboard never reads other modules' tables directly. | Screen list file — note #5 |
+| SR-055 | Every module writes to the dashboard via a `notification` of `event_type` *readiness_changed* and the `readiness_snapshot` table; the dashboard never reads other modules' tables directly. | Screen list file — note #5 |
 | SR-056 | The deadline strip uses **the same calculation function** as `SC-29`; the two screens must never show different dates. | Consistency principle |
 
 ## 7. Linked requirements

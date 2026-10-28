@@ -13,6 +13,15 @@
 | Approved by (Client role) | *Not yet — VFDA project lead (and VFDA Legal Board for legal rules)* |
 | DBIZ2 source | Function List rows 89–95 (F-M7-01 .. F-M7-07); Use Case UC-22, UC-23; Screens SC-32, SC-33 |
 
+## Clarifications
+
+### Session 2026-10-28 (Group C, provisional — the owner in §10 confirms before launch)
+
+- Q1: Does VFDA have the mandate / practice to send notices to Provincial People's Committees, and what is the official template? → A: The system does not send notices on VFDA's behalf. It produces a notice draft that the crew downloads and sends themselves.
+- Q2: Is the notice addressed to the People's Committee or to the provincial Department of Culture? → A: Follows from question 1: the crew chooses the recipient (People's Committee or provincial Department of Culture) when downloading the draft.
+- Q3: Automatic sending (DBIZ2 SEQ-11) or VFDA staff review before sending (SC-32)? → A: No automatic sending. A VFDA staff member reviews the draft in SC-32 before the crew can download the final version.
+- Q5: Which days and hours does VFDA offer for consultations, and how long is one slot? → A: No slot calendar in the MVP. The crew sends a consultation request; VFDA staff reply with a proposed time by email.
+
 ## 1. Purpose and scope
 
 This module lets a producer tell the provinces where they plan to shoot, through VFDA, and see each province's reply; it also lets them book a consultation with VFDA staff. It turns VFDA's relationships with local governments into something a foreign producer can use.
@@ -211,11 +220,11 @@ Types and required flags of the attributes above that no field in 5.1 declares (
 
 | # | Question | Blocking? | Owner | Status |
 |---|---|---|---|---|
-| 1 | [NEEDS CLARIFICATION: Does VFDA have the mandate / practice to send notices to Provincial People's Committees, and what is the official template?] *(also raised in SC-32)* | Yes | Client (VFDA) | Open |
-| 2 | [NEEDS CLARIFICATION: Is the notice addressed to the People's Committee or to the provincial Department of Culture?] *(also raised in SC-32)* | Yes | Client (VFDA) | Open |
-| 3 | [NEEDS CLARIFICATION: Automatic sending (DBIZ2 SEQ-11) or VFDA staff review before sending (SC-32)?] | Yes | Client (VFDA) | Open |
+| 1 | [NEEDS CLARIFICATION: Does VFDA have the mandate / practice to send notices to Provincial People's Committees, and what is the official template?] *(also raised in SC-32)* | Yes | Client (VFDA) | Decided (provisional, VFDA to confirm) — see Clarifications |
+| 2 | [NEEDS CLARIFICATION: Is the notice addressed to the People's Committee or to the provincial Department of Culture?] *(also raised in SC-32)* | Yes | Client (VFDA) | Decided (provisional, VFDA to confirm) — see Clarifications |
+| 3 | [NEEDS CLARIFICATION: Automatic sending (DBIZ2 SEQ-11) or VFDA staff review before sending (SC-32)?] | Yes | Client (VFDA) | Decided (provisional, VFDA to confirm) — see Clarifications |
 | 4 | [NEEDS CLARIFICATION: After how many working days without reply should VFDA follow up?] | No | Client (VFDA) | Open |
-| 5 | [NEEDS CLARIFICATION: Which days and hours does VFDA offer for consultations, and how long is one slot?] *(from SC-33)* | Yes | Client (VFDA) | Open |
+| 5 | [NEEDS CLARIFICATION: Which days and hours does VFDA offer for consultations, and how long is one slot?] *(from SC-33)* | Yes | Client (VFDA) | Decided (provisional, VFDA to confirm) — see Clarifications |
 | 6 | [NEEDS CLARIFICATION: How is the consultation held (video call, phone, at the VFDA office) and who sends the joining details?] *(from SC-33)* | No | Client (VFDA) | Open |
 
 ## 11. Traceability to DBIZ2

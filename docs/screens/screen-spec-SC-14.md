@@ -42,7 +42,7 @@
 | 3 | Additional filters | Toggle | region, shooting month, only locations open to productions | No | written to the URL (`nuqs`) |
 | 4 | Result count + sort | Text + Toggle | count of results above threshold; sort by score / name / distance | — | — |
 | 5 | Result card | List | `location.name_en`, `province.name`, `province.region`, `location_image.image_url (first approved)` | — | `published` locations only |
-| 6 | Match score | Text | `F-M3-08` — 0–100 score computed in the database | — | only cards scoring ≥ 40 are shown |
+| 6 | Match score | Text | `F-M3-08` — 0–100 score computed by the server-side scorer | — | only cards scoring ≥ 40 are shown |
 | 7 | Why it matches | Text | generated from the matched criteria — not written by a language model | **Yes** | at least one reason; no reason, no card |
 | 8 | Not a match / notes | Text | unmatched criteria, missing data, seasonal warnings for the shooting month | No | *No data yet* is distinct from *Not a match* |
 | 9 | Compare checkbox | Toggle (checkbox) | session comparison basket | — | max 4 |
@@ -105,7 +105,7 @@
 
 | # | Question | Blocking? | Status |
 |---|---|---|---|
-| 1 | [NEEDS CLARIFICATION: criterion weights in the scoring formula — VFDA to approve before configuring `scoring_weights`] | Yes | Open |
+| 1 | [NEEDS CLARIFICATION: criterion weights in the scoring formula — VFDA to approve the weights in spec-M3 Clarifications Q1 (`WEIGHTS` in the scorer)] | Yes | Open |
 | 2 | [NEEDS CLARIFICATION: the 40-point threshold is a proposal and needs tuning once real data is available] | No | Open |
 
 ## Completion checklist

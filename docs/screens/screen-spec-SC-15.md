@@ -72,7 +72,7 @@
 
 | Rule ID | Rule | Source |
 |---|---|---|
-| SR-091 | **Two separate steps:** the language model only *extracts attributes*; *ranking* is done by the deterministic scorer in the database. The model never proposes location names itself. | TL4 — hybrid M3 design |
+| SR-091 | **Two separate steps:** the language model only *extracts attributes*; *ranking* is done by the deterministic scorer on the server. The model never proposes location names itself. | TL4 — hybrid M3 design |
 | SR-092 | Users **can see and edit** every attribute before searching. The search only uses the attributes shown in the block. | Anti-black-box principle |
 | SR-093 | Every attribute must come from the fixed catalogue; unknown terms are **mapped** to the nearest value and flagged clearly, never silently dropped. | F-M3-12 |
 | SR-094 | Guests can use it too; the *Link to project* field is shown to members only. | TL4 §3 |

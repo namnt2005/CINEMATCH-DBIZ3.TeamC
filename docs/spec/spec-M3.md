@@ -13,6 +13,15 @@
 | Approved by (Client role) | *Not yet — VFDA project lead (and VFDA Legal Board for legal rules)* |
 | DBIZ2 source | Function List rows 42–61 (F-M3-01 .. F-M3-20); Use Case UC-07 .. UC-12; Screens SC-14, SC-15, SC-16, SC-17, SC-18, SC-35 |
 
+## Clarifications
+
+### Session 2026-10-28 (Group C, provisional — the owner in §10 confirms before launch)
+
+- Q1: Weights of the six scoring criteria (F-M3-08). → A: Scene fit first: scene fit 35%, season 15%, crew 15%, logistics 15%, permit 10%, availability 10%.
+- Q2: Who in VFDA approves the fixed attribute catalogue content and synonym mappings used by F-M3-12? Technical storage is version-controlled application configuration (JSON/TS) in code. → A: The team keeps `config/scene-catalog.json` (with a `version` number) and changes it only through a reviewed pull request approved by the M3 owner; VFDA confirms the content before launch.
+- Q3: Where does data for the *night shooting* and *weather in the shooting month* comparison rows come from? No field exists yet. → A: Add two LOCATION fields: `night_shooting_allowed` (yes / no / ask) and `rainy_months` (list of month numbers 1–12). VFDA staff fill them when verifying a location.
+- Q4: May VFDA publish the provincial index publicly? It may be sensitive for low-scoring provinces. → A: The provincial index is shown to signed-in members only, never on public pages, and always with its sample size.
+
 ## 1. Purpose and scope
 
 This module helps a producer find places in Vietnam that fit the scenes they describe, explains why each place fits, and shows who in local government to contact. VFDA staff maintain and verify the location data; each province gets a readiness index built only from activity on the platform.
@@ -206,13 +215,13 @@ sequenceDiagram
 | FR ID | DBIZ2 Subfunction ID | Requirement (system MUST ...) | Actor | Priority |
 |---|---|---|---|---|
 | FR-001 | F-M3-01 | The system MUST list all locations, including unpublished ones, to VFDA staff. | VFDA Staff | Must |
-| FR-002 | F-M3-02 | The system MUST let VFDA staff create and edit a location with the 18 fields of the data-entry template. | VFDA Staff | Must |
+| FR-002 | F-M3-02 | The system MUST let VFDA staff create and edit a location with the 20 fields of the data-entry template (18 original fields plus night_shooting_allowed and rainy_months, added 28/10/2026). | VFDA Staff | Must |
 | FR-003 | F-M3-03 | The system MUST store location photos with their source and usage right. | VFDA Staff | Must |
 | FR-004 | F-M3-04 | The system MUST record the local authority contact of a location with who verified it and when. | VFDA Staff | Must |
 | FR-005 | F-M3-05 | The system MUST refuse to publish a location whose authority contact is not verified (database constraint). | VFDA Staff | Must |
 | FR-006 | F-M3-06 | The system MUST return locations for a search typed with or without Vietnamese diacritics. | Guest | Must |
 | FR-007 | F-M3-07 | The system MUST filter by scene type, province or region, crew size and shooting month, and keep the filter state in the page URL. | Guest | Must |
-| FR-008 | F-M3-08 | The system MUST score each published location from 0 to 100 on six criteria in a database function and hide results below 40. | System | Must |
+| FR-008 | F-M3-08 | The system MUST score each published location from 0 to 100 on six weighted criteria in one deterministic server-side scoring function and hide results below 40. | System | Must |
 | FR-009 | F-M3-09 | The system MUST show every result with its score, at least one *why it matches* reason and any mismatch or missing data. | Guest | Must |
 | FR-010 | F-M3-10 | The system MUST accept a free-text scene description in English or Vietnamese. | Guest | Must |
 | FR-011 | F-M3-11 | The system MUST extract structured attributes from the description with a language model filling a fixed template; the model MUST NOT choose or rank locations. | System | Must |
@@ -251,6 +260,8 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 |  | `permit_complexity` | `ENUM(low, medium, high)` | Yes |  |  |  |
 |  | `restriction_note` | `TEXT` | No |  |  |  |
 |  | `availability` | `ENUM(open, survey_in_progress, paused)` | Yes |  |  |  |
+|  | `night_shooting_allowed` | `ENUM(yes, no, ask)` | No |  |  |  |
+|  | `rainy_months` | `INTEGER[]` | No |  |  |  |
 | FR-003 | `image_file` | `BYTEA` | Yes | `image_url` | `TEXT` | jpg / png, max 10 MB |
 |  | `image_source` | `TEXT` | Yes | `image_status` | `ENUM(pending, approved, hidden)` |  |
 |  | `usage_right` | `TEXT` | Yes |  |  |  |
@@ -268,7 +279,7 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 |  | `region` | `ENUM(north, central, south)` | No |  |  |  |
 |  | `crew_size` | `ENUM(u15, 15_50, o50)` | No |  |  |  |
 |  | `shoot_month` | `INTEGER` | No |  |  |  |
-| FR-008 | `scene_types` | `ARRAY` | No | `ranked` | `(location_id UUID, score INTEGER, match_reasons TEXT[])[]` | score 0–100; weights [NEEDS CLARIFICATION] |
+| FR-008 | `scene_types` | `ARRAY` | No | `ranked` | `(location_id UUID, score INTEGER, match_reasons TEXT[])[]` | score 0–100; weights in Clarifications Q1 |
 |  | `provinces` | `ARRAY` | No |  |  |  |
 |  | `crew_size` | `ENUM` | No |  |  |  |
 |  | `shoot_month` | `INTEGER` | No |  |  |  |
@@ -298,7 +309,7 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 
 | Rule ID | Rule | Why it exists |
 |---|---|---|
-| BR-001 | The language model only extracts attributes; ranking is done by a deterministic scoring function in the database. The model never names or ranks a location. | Explainable results; no invented places. |
+| BR-001 | The language model only extracts attributes; ranking is done by a deterministic server-side scoring function. The model never names or ranks a location. | Explainable results; no invented places. |
 | BR-002 | A result is shown only if its score is 40 or more and it has at least one *why it matches* reason. | A score without a reason is a black box. |
 | BR-003 | *Not a match* and *No data yet* are different; missing data never counts for or against a location. | No-guessing principle. |
 | BR-004 | A location cannot be published until its local authority contact is verified; contacts are re-verified every 12 months [NEEDS CLARIFICATION]. | A dead-end contact destroys trust in VFDA's data. |
@@ -355,16 +366,16 @@ Types and required flags of the attributes above that no field in 5.1 declares (
 
 - The MVP launches with at least 50 VFDA-verified locations across at least 8 provinces.
 - Six scoring criteria: visual fit, crew capacity, logistics, season for the shooting month, permit complexity, availability (BR-010).
-- Test values used until VFDA confirms the scoring weights: the six criteria have equal weight (1/6 each); availability scores open = full, survey_in_progress = half, paused = 0; a result is shown from 40 points; authority contacts are re-verified every 12 months.
+- Scoring weights decided by Group C on 28/10/2026 (Clarifications Q1, VFDA to confirm): scene fit 35, season 15, crew 15, logistics 15, permit 10, availability 10; a criterion with no data scores half its weight (BR-003); availability scores open = full, survey_in_progress = half, paused = 0; province is a filter, not a criterion; a result is shown from 40 points; authority contacts are re-verified every 12 months.
 
 ## 10. Open questions
 
 | # | Question | Blocking? | Owner | Status |
 |---|---|---|---|---|
-| 1 | [NEEDS CLARIFICATION: Weights of the six scoring criteria (F-M3-08).] *(also raised in SC-14)* | Yes | Client (VFDA) | Open |
-| 2 | [NEEDS CLARIFICATION: Who in VFDA approves the fixed attribute catalogue content and synonym mappings used by F-M3-12? Technical storage is version-controlled application configuration (JSON/TS) in code.] *(also raised in SC-15)* | Yes | Client (VFDA) | Open |
-| 3 | [NEEDS CLARIFICATION: Where does data for the *night shooting* and *weather in the shooting month* comparison rows come from? No field exists yet.] *(also raised in SC-17)* | Yes | Group C | Open |
-| 4 | [NEEDS CLARIFICATION: May VFDA publish the provincial index publicly? It may be sensitive for low-scoring provinces.] *(also raised in SC-18)* | Yes | Client (VFDA) | Open |
+| 1 | [NEEDS CLARIFICATION: Weights of the six scoring criteria (F-M3-08).] *(also raised in SC-14)* | Yes | Client (VFDA) | Decided (provisional, VFDA to confirm) — see Clarifications |
+| 2 | [NEEDS CLARIFICATION: Who in VFDA approves the fixed attribute catalogue content and synonym mappings used by F-M3-12? Technical storage is version-controlled application configuration (JSON/TS) in code.] *(also raised in SC-15)* | Yes | Client (VFDA) | Decided (provisional, VFDA to confirm) — see Clarifications |
+| 3 | [NEEDS CLARIFICATION: Where does data for the *night shooting* and *weather in the shooting month* comparison rows come from? No field exists yet.] *(also raised in SC-17)* | Yes | Group C | Decided (provisional, VFDA to confirm) — see Clarifications |
+| 4 | [NEEDS CLARIFICATION: May VFDA publish the provincial index publicly? It may be sensitive for low-scoring provinces.] *(also raised in SC-18)* | Yes | Client (VFDA) | Decided (provisional, VFDA to confirm) — see Clarifications |
 | 5 | [NEEDS CLARIFICATION: Re-verification cycle for authority contacts (proposed 12 months).] *(also raised in SC-16, SC-35)* | No | Client (VFDA) | Open |
 | 6 | [NEEDS CLARIFICATION: The launch target is 50 VFDA-verified locations in at least 8 provinces (Group C decision 01/10/2026, replacing the Session 3 figure of 40). Who supplies the location data, and by when?] | No | Nam with VFDA | Open |
 | 7 | [NEEDS CLARIFICATION: the 40-point threshold is a proposal and needs tuning once real data is available] *(from SC-14)* | No | Group C with VFDA | Open |
@@ -393,12 +404,13 @@ Where the 20-screen design or this spec differs from the DBIZ2 Function List, th
 | Shortlist role | no role | primary / backup (SC-17) | Added — Confirmed by the Client |
 | Location availability | not in DBIZ2 | availability ENUM(open, survey_in_progress, paused) set by VFDA staff; sixth scoring criterion (BR-010) | Added — Group C decision 01/10/2026 |
 | Special scenes filter | special_scenes ENUM[] in DBIZ2 Function List row 48 | special_scenes removed; filtering uses 14-value scene_types enum, province/region, crew_size and shoot_month (reconciled with 18-field location template in FR-002) | Reconciled — confirmed by team |
+| Scoring engine location | F-M3-08: database function, 100-point scale over six criteria (Function List row 49) | One deterministic server-side scoring function with weights scene fit 35, season 15, crew 15, logistics 15, permit 10, availability 10; province is a filter (Clarifications Q1, 28/10/2026) | Group C decision — VFDA to confirm weights |
 
 ## Completion checklist
 
 - [x] Every subfunction of this module in the DBIZ2 Function List appears as an FR row (20 of 20, rows 42–61) — machine-checked.
 - [x] Every Input and Output field has a type and a required flag — machine-checked.
-- [ ] Every Mermaid block renders without an error — NOT verified.
+- [x] Every Mermaid block renders without an error — rendered with mermaid-cli 11.14 on 22/09/2026.
 - [x] Every node and arrow in the Mermaid flow exists in the original DBIZ2 diagram, and nothing was invented. Diagrams marked *Derived* and decision diamonds added in Step 3 are labelled above and were confirmed by the Client.
 - [x] At least one business rule is written that is not visible in any diagram (see 5.2).
 - [x] Every screen this module touches is listed with an existing Screen Spec file.

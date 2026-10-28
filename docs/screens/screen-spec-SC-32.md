@@ -44,7 +44,7 @@
 | 5 | 4-step progress | Chart (stepper) | `drafted_at`, `sent_at`, `received_at`, `responded_at` | Yes | exactly 4 steps |
 | 6 | Reply status | Text | `province_notice.response` — Received / More info needed / Cannot support at this time / Waiting | Yes | enum; always has text |
 | 7 | Reply content + next step | Text | `province_notice.note` entered by VFDA from the province's official letter | — | — |
-| 8 | Notice letter preview | Container | `notice_templates` template drafted by VFDA | — | read-only for members |
+| 8 | Notice letter preview | Container | `province_notice.project_summary` — draft reviewed by VFDA staff, downloaded and sent by the crew (spec-M7 Clarifications) | — | read-only for members |
 | 9 | Project details included in the notice | Text | `project.*`, confirmed locations, confirmed partners | Yes | must include: project, dates, location, crew size, Vietnamese company |
 | 10 | *Ask VFDA to send notice* button | Button | creates `location_interest`; a `province_notice` is drafted with `delivery_status` empty until VFDA reviews it (M7 FR-001, FR-002) | — | requires shooting dates and a location in the province |
 | 11 | *+ Add province* button | Button | static | — | — |

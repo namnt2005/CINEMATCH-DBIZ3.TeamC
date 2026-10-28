@@ -25,9 +25,9 @@
  },
  "M3": {
   "tables": 6,
-  "columns": 50,
+  "columns": 52,
   "fks": 7,
-  "checks": 10
+  "checks": 11
  },
  "M4": {
   "tables": 8,

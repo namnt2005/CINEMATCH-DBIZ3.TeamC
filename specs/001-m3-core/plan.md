@@ -1,6 +1,6 @@
 # Implementation Plan: Location Discovery (M3 Core Slice)
 
-**Branch**: `001-m3-core` | **Date**: 2026-10-12 | **Spec**: [specs/001-m3-core/spec.md](file:///Users/adm/CINEMATCH-DBIZ3.TeamC/specs/001-m3-core/spec.md)
+**Branch**: `001-m3-core` | **Date**: 2026-10-12 | **Spec**: [spec.md](spec.md) (snapshot refreshed 2026-10-28 after the Clarifications were added)
 
 **Input**: Feature specification from `/specs/001-m3-core/spec.md` (synced from `docs/spec/spec-M3.md`)
 
@@ -15,7 +15,7 @@ This plan defines the minimal vertical slice for Module 3 (Location Discovery), 
   - Accept free-text scene description in English or Vietnamese (`SC-15`, F-M3-10).
   - Extract structured attributes via Next.js Route Handler / Edge Function calling the Language Model API, validated and mapped against an in-code catalog (`config/scene-catalog.json`, F-M3-11, F-M3-12, BR-001).
   - Search and filter by scene type, province/region, crew size, and shoot month (`SC-14`, F-M3-06, F-M3-07).
-  - Rank locations using the deterministic 6-criteria database scoring engine, hiding results `< 40` and explaining match reasons (`SC-14`, F-M3-08, F-M3-09, BR-001, BR-002, BR-003, BR-010).
+  - Rank locations using the deterministic 6-criteria server-side scoring engine (`lib/scoring/engine.js`, weights from spec Clarifications Q1), hiding results `< 40` and explaining match reasons (`SC-14`, F-M3-08, F-M3-09, BR-001, BR-002, BR-003, BR-010).
   - Persist confirmed search queries to `location_query` without personal data (F-M3-11, BR-009).
 - **Optional Scope (Time Permitting): User Story US-2 (P2) — Contact the local authority**:
   - Public location detail page with photos, logistics, season, and nearby locations within 30 km calculated via PostGIS (`SC-16`, F-M3-13, F-M3-14).
@@ -30,13 +30,13 @@ This plan defines the minimal vertical slice for Module 3 (Location Discovery), 
 
 ## Technical Context
 
-**Language/Version**: JavaScript / TypeScript *(Choice requires team confirmation; Node.js >= 22 required by repository environment check `tools/check_env.py`)*
+**Language/Version**: JavaScript (ES modules) on Node.js 22 *(confirmed 2026-10-28; Node 22 is required by `tools/check_env.py` and provides `node:sqlite`)*
 
-**Primary Dependencies**: Next.js, `@supabase/supabase-js`, Leaflet *(Documented in `AGENTS.md`, `docs/architecture/system-configuration.md`, `docs/function-list.md` row 55, and `docs/screens/screen-spec-SC-14.md`. Specific package versions require team confirmation)*
+**Primary Dependencies**: Next.js 14.2 (App Router), React 18. Added when the slice needs them: `@supabase/supabase-js` (Supabase Auth and database, Session 11), `@google/genai` (Gemini scene extraction behind `LLM_PROVIDER=gemini`), Leaflet (map, `SC-14` map view).
 
-**Storage**: Supabase (PostgreSQL with PostGIS and Row Level Security, documented in `docs/architecture/system-configuration.md`). Schema defined in `data/schema/schema-M3.sql`.
+**Storage**: Local and tests: `node:sqlite` (in-memory) loaded from `data/seed/*.csv` by `lib/db/`. Shared and production: Supabase (PostgreSQL with Row Level Security; PostGIS for the 30 km nearby query in US-2). Schema defined in `data/schema/schema-M3.sql` for both.
 
-**Testing**: Repository schema and seed verification via `python3 data/schema/load_check.py`. *(Application test framework requires team confirmation)*
+**Testing**: Node.js test runner (`npm test` → `node --test`) for unit, contract and foundational tests in `tests/`; schema and seed verification via `python3 data/schema/load_check.py`.
 
 **Target Platform**: Vercel (Application tier) + Supabase (Data tier) per `docs/architecture/system-configuration.md`. Local development runs on macOS and Windows.
 
@@ -52,7 +52,7 @@ This plan defines the minimal vertical slice for Module 3 (Location Discovery), 
 
 ## Constitution Check
 
-*GATE: Evaluated against `.specify/memory/constitution.md` (v1.0.0).*
+*GATE: Evaluated against `.specify/memory/constitution.md` (v2.0.0).*
 
 | Principle | Requirement | Plan Conformance | Status |
 |---|---|---|---|
@@ -120,11 +120,14 @@ tests/                              # Automated test suites (runner requires tea
 
 ---
 
-## Decisions Requiring Team Confirmation
+## Decisions (resolved 2026-10-28)
 
-1. **Next.js Router Architecture & Version**: Whether to use Next.js App Router or Pages Router, and the specific Next.js release version.
-2. **Programming Language & Tooling**: Confirmation of TypeScript vs JavaScript, and choice of styling solution.
-3. **Application Testing Framework**: Selection of test runner/framework for application code (e.g., Node.js test runner, Jest, or alternative).
-4. **Language Model API Provider**: Selection of the specific LLM service/vendor for F-M3-11.
-5. **Scoring Criteria Weights**: Client (VFDA) confirmation of official scoring weights for F-M3-08 (Open Question #1).
-6. **Scene Attribute Catalog**: Client (VFDA) confirmation of catalog contents and synonym mappings for F-M3-12 (Open Question #2).
+| # | Question | Decision |
+|---|---|---|
+| 1 | Next.js router and version | App Router, Next.js 14.2 (as built). |
+| 2 | Language and styling | JavaScript (ES modules); plain CSS in `app/globals.css`. TypeScript is not introduced in the MVP. |
+| 3 | Test framework | Node.js built-in test runner (`node --test`). |
+| 4 | Language model provider | Google Gemini API (`LLM_PROVIDER=gemini`, key in `.env`); the rule-based extractor stays as the fallback and the test default (`LLM_PROVIDER=mock`). |
+| 5 | Scoring weights (Open Question 1) | Scene fit 35, season 15, crew 15, logistics 15, permit 10, availability 10 — spec Clarifications Q1, provisional until VFDA confirms. Implemented in `WEIGHTS`, pinned by `tests/unit/scoring-weights.test.js`. |
+| 6 | Scene catalogue (Open Question 2) | `config/scene-catalog.json` with a `version` field, changed only through a reviewed pull request approved by the M3 owner; VFDA confirms before launch. |
+| 7 | Night shooting and rainy season (Open Question 3) | New LOCATION fields `night_shooting_allowed` and `rainy_months` (data model and seed rebuilt 2026-10-28); a rainy shooting month earns half the season points. |

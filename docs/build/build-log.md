@@ -12,7 +12,7 @@ did and what the humans decided.
 
 | Feature folder | Module | User stories in this slice | Owner | Branch | Status |
 |---|---|---|---|---|---|
-| `specs/001-m3-core` | M3 (Location Discovery) | US-1 (P1 primary scope, MVP); US-2 (P2 optional scope for this slice) | Nam Tran | `001-m3-core` | Tasks Ready |
+| `specs/001-m3-core` | M3 (Location Discovery) | US-1 (P1 primary scope, MVP); US-2 (P2 optional scope for this slice) | Nam Tran | `001-m3-core` | US-1 built (T001–T027); US-2 open (T028–T042) |
 
 > **Note on Scope & Priority (I1)**: User Story US-2 is classified as P1 in the source specification (`docs/spec/spec-M3.md`). For this M3 thin vertical slice, US-2 is treated as P2 optional scope (time permitting) in `plan.md` and `tasks.md` to ensure US-1 delivers an independent, demonstrable MVP without blocker dependencies. The source specification's original priority (P1) is preserved and remains unchanged unless formal team approval is granted.
 
@@ -29,7 +29,7 @@ did and what the humans decided.
 | Human review | Accepted. Refined `tasks.md` to establish test-first ordering for every business rule and acceptance scenario; confirmed non-blocking status for workstation environment checks. |
 | Tests | `SQLite PASS — 9 schema files, 46 tables created; 46 seed files, 427 rows loaded in filename order; no foreign-key error` |
 | Spec issues found | I1 (US-2 P2 slice priority vs spec P1), A1 (scoring weights open question), A2 (contact verification cadence open question), S1 (tooling choices pending team confirmation). |
-| Commit | `001-m3-core` (uncommitted work tree) |
+| Commit | `af34933` on `001-m3-core` (all four entries were committed together on 12/10/2026) |
 
 ### Entry 2: 12/10/2026 Nam Tran
 
@@ -42,7 +42,7 @@ did and what the humans decided.
 | Human review | Accepted. TDD Red phase: Foundational tests pass (8 passed); all 11 US-1 tests fail as expected because no implementation code (T019-T027) was written yet. |
 | Tests | `8 passed, 11 failed` (`npm test`) |
 | Spec issues found | none |
-| Commit | `001-m3-core` (uncommitted work tree) |
+| Commit | `af34933` on `001-m3-core` (all four entries were committed together on 12/10/2026) |
 
 ### Entry 3: 12/10/2026 Nam Tran
 
@@ -55,7 +55,7 @@ did and what the humans decided.
 | Human review | Accepted. TDD Green phase: All 31 tests across 13 suites pass. US-1 MVP fully functional and verified independently. |
 | Tests | `31 passed, 0 failed` (`npm test`) |
 | Spec issues found | none |
-| Commit | `001-m3-core` (uncommitted work tree) |
+| Commit | `af34933` on `001-m3-core` (all four entries were committed together on 12/10/2026) |
 
 ### Entry 4: 12/10/2026 Nam Tran
 
@@ -68,7 +68,20 @@ did and what the humans decided.
 | Human review | Accepted. Dependencies installed cleanly without peer conflicts. All 31 tests pass. Dev server starts and serves HTTP 200 on all endpoints. |
 | Tests | `31 passed, 0 failed` (`npm test`) |
 | Spec issues found | none |
-| Commit | `001-m3-core` (uncommitted work tree) |
+| Commit | `af34933` on `001-m3-core` (all four entries were committed together on 12/10/2026) |
+
+### Entry 5: 28/10/2026 Nam Tran
+
+| Field | Value |
+|---|---|
+| Path and agent | Claude (Cowork), reviewed by Nam Tran |
+| Command and argument | Apply the 28/10/2026 decisions on blocking open questions (no Spec Kit command) |
+| Feature and tasks | `specs/001-m3-core` (spec snapshot refreshed); all nine Spec Documents |
+| What the agent produced | `tools/decisions.py` (new) and `tools/build_docs.py` (Clarifications section); `tools/specs_a.py`, `specs_b.py`, `s1_en.py`–`s3_en.py`, `dm_model2.py`, `data/seed/generate_seed.py` edited, then `docs/spec/`, `docs/screens/`, `data/` rebuilt; `lib/scoring/engine.js` weights; `tests/unit/scoring-weights.test.js` (new); `plan.md`, `research.md`, `quickstart.md`, `AGENTS.md`, constitution v2.0.0 |
+| Human review | Pending — review on the pull request `docs/gd3-decisions-alignment`. |
+| Tests | `36 passed, 0 failed` (`npm test`); seed check PASS; load check PASS; `next build` OK |
+| Spec issues found | 22 stale field names in screen specs fixed at the source; `docs/function-list.md` row 48 restored to the DBIZ2 original (the change is recorded in spec-M3 §11.1 instead) |
+| Commit | *(fill in after commit)* |
 
 ## 3. Spec issues found while building
 
@@ -78,9 +91,9 @@ is never fixed silently in code.
 | # | Found at (step, entry) | Issue | Where it went in the spec | Status |
 |---|---|---|---|---|
 | 1 | Step 3, Entry 1 | Priority notation divergence (I1): US-2 is treated as P2 optional scope for this M3 thin vertical slice to ensure US-1 is demonstrable independently, while preserving US-2 (P1) in `docs/spec/spec-M3.md` unless team approves changing source spec. | `docs/spec/spec-M3.md` retains US-2 (P1); `plan.md` and `tasks.md` track P2 optional. | Resolved for this slice. |
-| 2 | Step 3, Entry 1 | Scoring criteria weights (A1): FR-008 scoring function criteria weights marked `[NEEDS CLARIFICATION]`. Open question with VFDA. | `docs/spec/spec-M3.md` §5.1 / `plan.md` Open Question #1. | Open — planned follow-up with VFDA project lead. Interim: baseline equal weights in `lib/scoring/engine.js`. |
+| 2 | Step 3, Entry 1 | Scoring criteria weights (A1): FR-008 scoring function criteria weights marked `[NEEDS CLARIFICATION]`. Open question with VFDA. | `docs/spec/spec-M3.md` §5.1 / `plan.md` Open Question #1. | Decided 28/10/2026 (provisional): scene fit 35, season 15, crew 15, logistics 15, permit 10, availability 10 — spec-M3 Clarifications Q1; engine and test updated (Entry 5). |
 | 3 | Step 3, Entry 1 | Local authority contact re-verification interval (A2): BR-004 12-month re-verification policy marked `[NEEDS CLARIFICATION]`. | `docs/spec/spec-M3.md` §5.2 / `plan.md` Open Question #2. | Open — planned follow-up with VFDA in Session 11. Interim: existing seed `verified_at` metadata used. |
-| 4 | Step 3, Entry 1 | Tooling & stack choices pending team confirmation (S1): Next.js router paradigm, language (TS vs JS), test runner, and LLM vendor need team decision. | `plan.md` §Decisions Requiring Team Confirmation & `AGENTS.md` §2. | Open — pending team confirmation. No application code or scaffolding until confirmed. |
+| 4 | Step 3, Entry 1 | Tooling & stack choices pending team confirmation (S1): Next.js router paradigm, language (TS vs JS), test runner, and LLM vendor need team decision. | `plan.md` §Decisions Requiring Team Confirmation & `AGENTS.md` §2. | Resolved 28/10/2026: App Router, JavaScript, Node test runner, Google Gemini (mock fallback) — `plan.md` §Decisions and `AGENTS.md` §2. |
 
 ## 4. Agent mistakes worth remembering
 

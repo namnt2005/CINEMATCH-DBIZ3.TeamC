@@ -13,6 +13,12 @@
 | Approved by (Client role) | *Not yet — VFDA project lead (and VFDA Legal Board for legal rules)* |
 | DBIZ2 source | Function List rows 12–20 (F-M0-01 .. F-M0-09); Use Case UC-05, UC-06; Screens SC-10, SC-11, SC-12, SC-13 |
 
+## Clarifications
+
+### Session 2026-10-28 (Group C, provisional — the owner in §10 confirms before launch)
+
+- Q1: Weights of the five gauges in the overall score, per segment. → A: Equal weights. Segments A and B: four gauges at 25% each. Segment C: three gauges at 33.3% each. The Logistics gauge has weight 0 in the overall score in every segment (it is shown but not counted).
+
 ## 1. Purpose and scope
 
 This module gives each production one place to prepare its shoot in Vietnam and shows, on five gauges, how ready it is and what to do next. Every other module reports its progress here.
@@ -235,7 +241,7 @@ Types and required flags of the attributes above that no field in 5.1 declares (
 
 | # | Question | Blocking? | Owner | Status |
 |---|---|---|---|---|
-| 1 | [NEEDS CLARIFICATION: Weights of the five gauges in the overall score, per segment.] *(also raised in SC-12)* | Yes | Client (VFDA) | Open |
+| 1 | [NEEDS CLARIFICATION: Weights of the five gauges in the overall score, per segment.] *(also raised in SC-12)* | Yes | Client (VFDA) | Decided (provisional, VFDA to confirm) — see Clarifications |
 | 2 | [NEEDS CLARIFICATION: Is the 7-day safety buffer before the first shooting day editable by the producer?] *(also raised in SC-12)* | No | Client (VFDA) | Open |
 | 3 | [NEEDS CLARIFICATION: Can people outside the producer organisation (a lawyer, a freelance line producer) be invited to a project?] *(also raised in SC-10, SC-13)* | No | Client (VFDA) | Open |
 | 4 | [NEEDS CLARIFICATION: can a project change segment after dossier data exists, and how is the old data handled] *(from SC-10)* | No | Client (VFDA) | Open |
