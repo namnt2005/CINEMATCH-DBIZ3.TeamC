@@ -168,11 +168,11 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 
 | Rule ID | Rule | Why it exists |
 |---|---|---|
-| BR-001 | Notices are sent in VFDA's name, never directly by the producer. | VFDA is the relationship holder with local government. |
+| BR-001 | The system never sends a notice. It drafts the notice; a VFDA staff member reviews it (SC-32); only the approved version can be downloaded, and the producer sends it to the recipient they choose (Clarifications Q1–Q3, 28/10/2026). | VFDA's mandate to write to provinces is unconfirmed; a human still checks every notice. |
 | BR-002 | Every notice states that it does not replace the filming licence from the Ministry of Culture, Sports and Tourism. | Avoids a province or producer mistaking it for permission. |
 | BR-003 | The province's reply is one of three final values; the free-text note is kept as entered. | Consistent tracking and reporting. |
 | BR-004 | Reply times feed the provincial readiness index (M3). | Makes responsiveness visible and comparable. |
-| BR-005 | Consultation booking (SC-33) is offered only after VFDA has declared its staffed hours and reply time; until then SC-33 shows VFDA's contact email instead of the booking form. | A booking form nobody answers does more harm than no form (TL4 §5.7, TL5 M7·2). |
+| BR-005 | In the MVP, SC-33 is a consultation request, not a slot calendar: the member sends topic and preferred times, and VFDA staff reply with a proposed time by email (Clarifications Q5, 28/10/2026). A slot calendar is offered only after VFDA declares its staffed hours. | A booking form nobody answers does more harm than no form (TL4 §5.7, TL5 M7·2). |
 
 ## 6. Key entities
 
@@ -243,7 +243,8 @@ Where the 20-screen design or this spec differs from the DBIZ2 Function List, th
 
 | Topic | DBIZ2 / System Design v2.0 | This spec | Status |
 |---|---|---|---|
-| Notice dispatch | Sent automatically by a database webhook (SEQ-11) | Drafted automatically, reviewed and sent by VFDA staff (SC-32) | Open — see §10 |
+| Notice dispatch | Sent automatically by a database webhook (SEQ-11); F-M7-02 sends from VFDA's domain | Drafted automatically, reviewed by VFDA staff (SC-32), downloaded and sent by the producer; `delivery_status` records the download, not an email (BR-001) | Group C decision 28/10/2026 — VFDA to confirm |
+| Consultation booking | F-M7-05..07: slot booking with time zones, confirmation and reminders | Request + email reply in the MVP (BR-005); F-M7-05..07 kept for a later phase | Group C decision 28/10/2026 — VFDA to confirm |
 | Module priority | Must | Should — Tier 2 of the screen list file (#20) | Changed — Confirmed by the Client |
 | Booking availability | Booking always open (F-M7-05) | Offered only once VFDA declares staffed hours (BR-005) | Added — Group C decision 01/10/2026 |
 

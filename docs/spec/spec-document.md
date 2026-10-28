@@ -179,11 +179,11 @@ All business rules, as written in §5.2 of each module file:
 | M5 | BR-004 | The document list is generated from `segment_requirements` plus shortlisted locations; it is never hard-coded. |
 | M5 | BR-005 | The countdown uses the same calculation as M2 (F-M2-17) and the dashboard. |
 | M5 | BR-006 | Glossary terms a project adds (SC-28) are stored with the project (`project_glossary`) and applied to every later draft of that project. |
-| M7 | BR-001 | Notices are sent in VFDA's name, never directly by the producer. |
+| M7 | BR-001 | The system never sends a notice. It drafts the notice; a VFDA staff member reviews it (SC-32); only the approved version can be downloaded, and the producer sends it to the recipient they choose (Clarifications Q1–Q3, 28/10/2026). |
 | M7 | BR-002 | Every notice states that it does not replace the filming licence from the Ministry of Culture, Sports and Tourism. |
 | M7 | BR-003 | The province's reply is one of three final values; the free-text note is kept as entered. |
 | M7 | BR-004 | Reply times feed the provincial readiness index (M3). |
-| M7 | BR-005 | Consultation booking (SC-33) is offered only after VFDA has declared its staffed hours and reply time; until then SC-33 shows VFDA's contact email instead of the booking form. |
+| M7 | BR-005 | In the MVP, SC-33 is a consultation request, not a slot calendar: the member sends topic and preferred times, and VFDA staff reply with a proposed time by email (Clarifications Q5, 28/10/2026). A slot calendar is offered only after VFDA declares its staffed hours. |
 | M10 | BR-001 | Content published by partners (profile text, photos) is shown to the public only after VFDA staff approve it; until then the last approved version stays public. |
 | M10 | BR-002 | Hiding content requires a written reason, which is sent to the author. |
 | M10 | BR-003 | Every indicator shows the number of records it was computed from; below 5 records it shows *Not enough data* instead of a value. |
