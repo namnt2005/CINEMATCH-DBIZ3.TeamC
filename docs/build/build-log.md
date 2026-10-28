@@ -81,7 +81,7 @@ did and what the humans decided.
 | Human review | Pending — review on the pull request `docs/gd3-decisions-alignment`. |
 | Tests | `36 passed, 0 failed` (`npm test`); seed check PASS; load check PASS; `next build` OK |
 | Spec issues found | 22 stale field names in screen specs fixed at the source; `docs/function-list.md` row 48 restored to the DBIZ2 original (the change is recorded in spec-M3 §11.1 instead) |
-| Commit | *(fill in after commit)* |
+| Commit | `65d5c5e` on `docs/gd3-decisions-alignment` |
 
 ## 3. Spec issues found while building
 
