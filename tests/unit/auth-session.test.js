@@ -33,4 +33,18 @@ describe('Session Authorization Helper (lib/auth/session.js)', () => {
     assert.equal(session.role, 'vfda_staff');
     assert.equal(session.isAuthenticated, true);
   });
+
+  test('resolves the other signed-in roles of ck_user_account_role (partner, vfda_legal, admin)', () => {
+    for (const role of ['partner', 'vfda_legal', 'admin']) {
+      const session = resolveSessionRole({ 'x-mock-role': role });
+      assert.equal(session.role, role);
+      assert.equal(session.isAuthenticated, true);
+    }
+  });
+
+  test('treats an unknown x-mock-role as guest', () => {
+    const session = resolveSessionRole({ 'x-mock-role': 'superuser' });
+    assert.equal(session.role, 'guest');
+    assert.equal(session.isAuthenticated, false);
+  });
 });

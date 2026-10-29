@@ -65,6 +65,11 @@
 - [X] T026 [US1] Implement scene description input and attribute confirmation UI (SC-15) in app/locations/match/page.js
 - [X] T027 [US1] Implement location search results grid with match reasons and filter controls (SC-14) in app/locations/page.js
 
+### Follow-up for User Story 1 (added 2026-10-30)
+
+- [X] T043 [P] [US1] Create unit test for result-card name clamp style verifying `WebkitLineClamp: 2`, `display: '-webkit-box'`, `WebkitBoxOrient: 'vertical'` and `overflow: 'hidden'` so long names show at most 2 lines + "…" (SC-14 #5) in tests/unit/card-name-clamp.test.js
+- [X] T044 [US1] Extract the clamp style into app/locations/card-styles.js and apply it to the `name_en` heading and the `name_vi • province` line of each result card in app/locations/page.js; add `title={loc.name_en}` so the full name stays readable; full text stays in the DOM for screen readers (verifies T043)
+
 **Checkpoint**: User Story 1 is fully functional and independently testable (MVP complete).
 
 ---
@@ -81,20 +86,22 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation.**
 
-- [ ] T028 [P] [US2] Create contract test for public location detail endpoint verifying photos, logistics, season notes, and contact redaction for guests (US-2 Scenario 2.1, F-M3-13) in tests/contracts/location-detail.test.js
-- [ ] T029 [P] [US2] Create contract test for gated authority contact endpoint verifying verified contact returned for members (US-2 Scenario 2.2, F-M3-15) in tests/contracts/authority-contact.test.js
-- [ ] T030 [P] [US2] Create unit test for authority contact verification metadata and verification status enforcement (BR-004) in tests/unit/contact-verification.test.js
-- [ ] T031 [P] [US2] Create unit test for Row Level Security policy and role-gated access preventing contact leakage to anonymous guests (BR-005) in tests/unit/contact-rls.test.js
-- [ ] T032 [P] [US2] Create unit test for PostGIS nearby location calculation within 30 km radius (F-M3-14) in tests/unit/nearby-locations.test.js
+- [X] T028 [P] [US2] Create contract test for public location detail endpoint verifying photos, logistics, `season.months_to_avoid`, `season.rainy_months` (array) and `season.night_shooting_allowed` (`yes`/`no`/`ask`/`null`) using seed `trang-an` (`no`, `[6,7,8]`) and `tam-coc` (`ask`, `[]`); the raw response body contains no `contact_phone`, `contact_email` or `+84 000 000`; unpublished slugs (`mui-ne`, `cua-van`) return 404 (US-2 Scenario 2.1, F-M3-13, Clarifications Q3) in tests/contracts/location-detail.test.js
+- [X] T029 [P] [US2] Create contract test for gated authority contact endpoint `GET /api/locations/:slug/authority-contact` verifying `x-mock-role: member` or `vfda_staff` gets 200 with authority, contact person, phone, email and `verified_at`, and a guest gets 401 `UNAUTHENTICATED` with `signup_url` and no phone or email in the body (US-2 Scenario 2.2, F-M3-15, BR-005) in tests/contracts/authority-contact.test.js
+- [X] T030 [P] [US2] Create unit test for authority contact verification metadata verifying only contacts with `contact_verified = true` are returned, with `verified_by` and `verified_at` (BR-004); do not assert the 12-month re-verification cycle, which is still Open Question 5 (seed `ca-mau-cape` was verified in 2016) in tests/unit/contact-verification.test.js
+- [X] T031 [P] [US2] Create unit test for the role gate in the data access layer, the local stand-in for Row Level Security on `node:sqlite`: for a guest, `getAuthorityContact()` returns `null` without running any query on `authority_contact` (spy on `query`/`getOne`) (BR-005, SR-111); the Supabase RLS policy itself is deferred to Session 11 per plan.md Complexity Tracking in tests/unit/contact-rls.test.js
+- [X] T032 [P] [US2] Create unit test for the local Haversine nearby calculation verifying published locations only, within 30 km, at most 5, sorted by distance, excluding the location itself (F-M3-14, SC-16 #12); PostGIS `ST_DWithin` replaces it on Supabase in tests/unit/nearby-locations.test.js
+- [X] T045 [P] [US2] Create unit test for season and night-shooting display labels (BR-003, SR-113): `yes` → *Night shooting allowed*, `no` → *Not allowed*, `ask` → *Ask the local authority*, `null` → *No data yet*; `rainy_months` `[6,7,8]` → *Jun, Jul, Aug*, `[]` → *No rainy months recorded* (matches lib/scoring/engine.js, which gives `[]` full season points), `null` → *No data yet* in tests/unit/season-facts.test.js
 
 ### Implementation for User Story 2
 
-- [ ] T033 [US2] Implement PostGIS nearby location query service within 30 km radius in lib/db/nearby.js (verifies T032)
-- [ ] T034 [US2] Implement authority contact data access service with verification checks in lib/db/contacts.js (verifies T030, T031)
-- [ ] T035 [US2] Implement Route Handler for public location detail and nearby locations in app/api/locations/[slug]/route.js (verifies T028)
-- [ ] T036 [US2] Implement Route Handler for gated authority contact in app/api/locations/[id]/contact/route.js (verifies T029)
-- [ ] T037 [US2] Implement Leaflet + OpenStreetMap interactive map component in app/components/map/location-map.js
-- [ ] T038 [US2] Implement location detail page view with photo gallery, logistics, and gated contact card (SC-16) in app/locations/[slug]/page.js
+- [X] T033 [US2] Implement nearby location query service within 30 km radius using Haversine on `node:sqlite`, keeping the function signature so PostGIS can replace it, in lib/db/nearby.js (verifies T032)
+- [X] T034 [US2] Implement `getAuthorityContact(locationId, session)` that checks the role before querying and returns verified contacts only in lib/db/contacts.js (verifies T030, T031)
+- [X] T046 [US2] Implement season and night-shooting label helper in lib/locations/season-facts.js (verifies T045)
+- [X] T035 [US2] Implement Route Handler for public location detail and nearby locations returning `season.night_shooting_allowed`, `season.rainy_months` and `has_verified_contact`, never joining contact phone or email, and 404 when `intake_status != published`; reuse `getLocationBySlug` and `getLocationImages` (lib/db/locations.js) and `resolveSessionRole` (lib/auth/session.js) in app/api/locations/[slug]/route.js (verifies T028)
+- [X] T036 [US2] Implement Route Handler for gated authority contact that resolves `location_id` from the slug in app/api/locations/[slug]/authority-contact/route.js (same dynamic segment name as T035; `[id]` beside `[slug]` breaks the Next.js build) (verifies T029)
+- [X] T037 [US2] Implement Leaflet + OpenStreetMap interactive map component in app/components/map/location-map.js
+- [X] T038 [US2] Implement location detail page view with photo gallery, logistics, a *Seasons and permits* block showing rainy months and night shooting through lib/locations/season-facts.js, and a gated contact card; guests see the dashed box *Local authority contacts are visible to members only* with *Sign up free* / *Log in*, and the page does not fetch the contact for guests so the page source holds no phone number (SC-16, SR-111, SC-004) in app/locations/[slug]/page.js
 
 **Checkpoint**: User Story 2 is functional and independently testable alongside User Story 1.
 
@@ -106,10 +113,10 @@
 
 **Note on Environment Checks**: Workstation environment checks (such as Git version in `tools/check_env.py`) are non-blocking advisory checks and do NOT block the delivery, completion, or demonstration of the US-1 MVP.
 
-- [ ] T039 [P] Execute environment and repository check via python3 tools/check_env.py --repo (advisory, non-blocking for US-1 MVP)
-- [ ] T040 [P] Verify database schema and seed integrity via python3 data/schema/load_check.py
-- [ ] T041 [P] Verify feature specification snapshot consistency via python3 tools/start_feature.py --check
-- [ ] T042 Execute complete quickstart validation scenarios on macOS and Windows in specs/001-m3-core/quickstart.md
+- [X] T039 [P] Execute environment and repository check via python3 tools/check_env.py --repo (advisory, non-blocking for US-1 MVP)
+- [X] T040 [P] Verify database schema and seed integrity via python3 data/schema/load_check.py
+- [X] T041 [P] Verify feature specification snapshot consistency via python3 tools/start_feature.py --check
+- [ ] T042 Add and execute quickstart validation scenarios on macOS and Windows in specs/001-m3-core/quickstart.md: (a) guest opens `/locations/trang-an` and the page source has no `+84`; (b) member sees the contact with its verification date; (c) `tam-coc` shows *Ask the local authority* and *No rainy months recorded*; (d) the `ca-mau-cape` card (200-character name) is clamped to 2 lines + "…" at desktop width and about 375 px
 
 ---
 
@@ -130,7 +137,7 @@
 
 ### Within Each User Story
 
-- Automated tests MUST be written and fail before implementation code (T008–T018 before T019–T027; T028–T032 before T033–T038).
+- Automated tests MUST be written and fail before implementation code (T008–T018 before T019–T027; T043 before T044; T028–T032 and T045 before T033–T038 and T046).
 - Domain scoring and catalog services before Route Handlers.
 - Route Handlers / endpoints before UI pages.
 - Story verified independently before moving to next priority.
@@ -141,8 +148,8 @@
 
 - **Setup Phase**: T002 and T003 can execute in parallel once T001 is initialized.
 - **Foundational Phase**: T004 and T006 can execute in parallel.
-- **User Story 1 Tests**: T008, T009, T010, T011, T012, T013, T014, T015, T016, T017, and T018 can all be written in parallel.
-- **User Story 2 Tests**: T028, T029, T030, T031, and T032 can all be written in parallel.
+- **User Story 1 Tests**: T008, T009, T010, T011, T012, T013, T014, T015, T016, T017, T018, and T043 can all be written in parallel.
+- **User Story 2 Tests**: T028, T029, T030, T031, T032, and T045 can all be written in parallel.
 - **Polish Phase**: T039, T040, and T041 can execute in parallel.
 
 ---
@@ -162,7 +169,7 @@
 ### Incremental Delivery (User Story 2 Added)
 
 1. If time permits after US-1 validation, proceed to Phase 4: User Story 2 (`T028`–`T038`):
-   - Write tests `T028`–`T032` and see them fail.
-   - Implement `T033`–`T038` until all tests pass.
+   - Write tests `T028`–`T032` and `T045` and see them fail.
+   - Implement `T033`–`T038` and `T046` until all tests pass.
 2. Validate US-2 independently.
 3. Execute Phase 5 Polish tasks (`T039`–`T042`).

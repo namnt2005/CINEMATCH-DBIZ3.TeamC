@@ -1,7 +1,7 @@
 # Contract: Location Detail & Authority Contact API (M3)
 
 Feature: `001-m3-core`  
-Source: `specs/001-m3-core/spec.md` (FR-013, FR-014, FR-015, BR-004, BR-005)  
+Source: `specs/001-m3-core/spec.md` (FR-002, FR-013, FR-014, FR-015, BR-003, BR-004, BR-005, Clarifications Q3)  
 Screen: `SC-16` (Location Detail)  
 
 ---
@@ -42,7 +42,8 @@ Returns public location details, photos, logistics, and nearby locations within 
   },
   "season": {
     "months_to_avoid": [7, 8],
-    "notes": "Rainy season in July-August may raise water levels inside caves."
+    "rainy_months": [6, 7, 8],
+    "night_shooting_allowed": "no"
   },
   "permit_complexity": "medium",
   "availability": "open",
@@ -58,12 +59,20 @@ Returns public location details, photos, logistics, and nearby locations within 
       "location_id": "b4c3d2e1-2222-4000-8000-000000000002",
       "slug": "tam-coc-bich-dong",
       "name_en": "Tam Coc - Bich Dong",
+      "name_vi": "Tam Cốc – Bích Động",
+      "coordinates": { "lat": 20.215000, "lng": 105.938000 },
       "distance_km": 8.4
     }
   ],
   "has_verified_contact": true
 }
 ```
+*Season fields (Clarifications Q3, 28/10/2026):* `night_shooting_allowed` is `yes`, `no`, `ask` or `null` (no data yet). `rainy_months` is a list of month numbers 1–12; `[]` means VFDA recorded no rainy month, `null` means no data yet (BR-003).
+
+*Nearby (F-M3-14):* published locations only, within 30 km, at most 5, closest first; `[]` when none. `coordinates` places them on the SC-16 mini map. Local: Haversine on `node:sqlite`; Supabase: PostGIS `ST_DWithin`.
+
+*Not published:* a slug whose `intake_status` is not `published` returns `404 Not Found`.
+
 *Security Rule:* Authority phone and email are NOT included in this payload.
 
 ---
@@ -72,8 +81,8 @@ Returns public location details, photos, logistics, and nearby locations within 
 
 Returns verified local authority contact information. Enforced by Row Level Security in Postgres and route authorization middleware.
 
-- **Endpoint**: `GET /api/locations/:id/authority-contact`
-- **Auth**: Required (`role IN ('member', 'vfda_staff')`)
+- **Endpoint**: `GET /api/locations/:slug/authority-contact` (same dynamic segment as the detail endpoint; the handler resolves `location_id` from the slug)
+- **Auth**: Required (`role IN ('member', 'partner', 'vfda_staff', 'vfda_legal', 'admin')` — any signed-in role, SYS Clarifications Q1); the contact must have `contact_verified = true` (BR-004)
 
 ### Unauthenticated Response (401 Unauthorized / 403 Forbidden)
 ```json
