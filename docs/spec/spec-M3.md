@@ -106,7 +106,7 @@ This module helps a producer find places in Vietnam that fit the scenes they des
 
 ### Edge cases
 
-- The model fails to extract attributes: the user is offered the filter search instead; the typed description is kept.
+- The language model fails to extract attributes (network error, rate limit 429, no answer within 8 seconds, or not configured): the rule-based extractor answers instead and the screen says *Đang dùng chế độ dự phòng* (fallback mode); the extracted attributes stay editable and the typed description is kept. Reason: decision of 28/10/2026 to keep the rule-based extractor as the fallback.
 - No location reaches 40 points: show the three nearest with the criteria they miss, plus *Ask VFDA* — never a blank page.
 - An old province name is searched (e.g. *Quảng Nam*): it maps to the merged province (Đà Nẵng) and says so.
 - A fifth location is added to the compare tray: refused with *Maximum 4 — remove one to add another*.

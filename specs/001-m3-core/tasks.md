@@ -70,6 +70,13 @@
 - [X] T043 [P] [US1] Create unit test for result-card name clamp style verifying `WebkitLineClamp: 2`, `display: '-webkit-box'`, `WebkitBoxOrient: 'vertical'` and `overflow: 'hidden'` so long names show at most 2 lines + "…" (SC-14 #5) in tests/unit/card-name-clamp.test.js
 - [X] T044 [US1] Extract the clamp style into app/locations/card-styles.js and apply it to the `name_en` heading and the `name_vi • province` line of each result card in app/locations/page.js; add `title={loc.name_en}` so the full name stays readable; full text stays in the DOM for screen readers (verifies T043)
 
+### Follow-up for User Story 1: Gemini scene extractor (added 2026-10-30)
+
+- [X] T047 [P] [US1] Create unit and contract tests for the Gemini scene extractor with a fake client (no network): valid JSON becomes catalogue attributes; values outside the catalogue are dropped and reported (F-M3-12); timeout, 429, network error, invalid JSON and missing key/model fall back to the rule-based extractor; never a location name or score in the result or the prompt (BR-001); the API key never appears in the result; `LLM_PROVIDER=mock` never calls Gemini (F-M3-10, F-M3-11) in tests/unit/gemini-extractor.test.js and tests/contracts/extract-scene-provider.test.js
+- [X] T048 [US1] Implement the common extractor interface `extractScene()` in lib/extraction/index.js with the rule-based extractor moved to lib/extraction/rule-extractor.js and the Gemini extractor (`@google/genai`, model from `GEMINI_MODEL`, JSON schema, 8-second limit) in lib/extraction/gemini-extractor.js; report every dropped value in lib/catalog/validator.js (SR-093); call it from app/api/locations/extract-scene/route.js; key read from `process.env` on the server only (verifies T047)
+- [X] T049 [P] [US1] Create unit test for SC-15 view helpers: month field defaults to *Bất kỳ tháng nào* (null) and is preset only from a returned `shoot_month` (BR-003); crew-size and time-of-day chips; *Bộ trích: Gemini* / *Bộ trích: luật* line in tests/unit/scene-match-view.test.js
+- [X] T050 [US1] Implement SC-15 view helpers in app/locations/match/match-view.js and use them in app/locations/match/page.js, with the *Đang dùng chế độ dự phòng* banner and the list of dropped values (verifies T049)
+
 **Checkpoint**: User Story 1 is fully functional and independently testable (MVP complete).
 
 ---
@@ -137,7 +144,7 @@
 
 ### Within Each User Story
 
-- Automated tests MUST be written and fail before implementation code (T008–T018 before T019–T027; T043 before T044; T028–T032 and T045 before T033–T038 and T046).
+- Automated tests MUST be written and fail before implementation code (T008–T018 before T019–T027; T043 before T044; T047 before T048; T049 before T050; T028–T032 and T045 before T033–T038 and T046).
 - Domain scoring and catalog services before Route Handlers.
 - Route Handlers / endpoints before UI pages.
 - Story verified independently before moving to next priority.
@@ -148,7 +155,7 @@
 
 - **Setup Phase**: T002 and T003 can execute in parallel once T001 is initialized.
 - **Foundational Phase**: T004 and T006 can execute in parallel.
-- **User Story 1 Tests**: T008, T009, T010, T011, T012, T013, T014, T015, T016, T017, T018, and T043 can all be written in parallel.
+- **User Story 1 Tests**: T008, T009, T010, T011, T012, T013, T014, T015, T016, T017, T018, T043, T047, and T049 can all be written in parallel.
 - **User Story 2 Tests**: T028, T029, T030, T031, T032, and T045 can all be written in parallel.
 - **Polish Phase**: T039, T040, and T041 can execute in parallel.
 
