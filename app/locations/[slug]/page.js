@@ -165,7 +165,13 @@ export default function LocationDetailPage({ params }) {
         />
 
         {/* Local authority contact (SC-16 #10) */}
-        {canSeeAuthorityContact(session) ? (
+        {canSeeAuthorityContact(session) && !contact ? (
+          // Published, but staff changed the contact and it awaits verification again (decision D4)
+          <section style={{ border: '1px dashed #f59e0b', borderRadius: '0.5rem', padding: '1.25rem', backgroundColor: '#fffbeb' }}>
+            <h2 style={{ fontSize: '1.125rem', fontWeight: '600', color: '#111827', margin: '0 0 0.5rem' }}>Liên hệ chính quyền địa phương</h2>
+            <p style={{ color: '#92400e', fontSize: '0.875rem', margin: 0 }}>Liên hệ đang chờ VFDA xác minh lại.</p>
+          </section>
+        ) : canSeeAuthorityContact(session) ? (
           <FactBlock
             title="Liên hệ chính quyền địa phương"
             facts={[
