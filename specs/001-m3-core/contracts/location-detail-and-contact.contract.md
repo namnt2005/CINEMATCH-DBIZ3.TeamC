@@ -78,7 +78,7 @@ Returns public location details, photos, logistics, and nearby locations within 
 Returns verified local authority contact information. Enforced by Row Level Security in Postgres and route authorization middleware.
 
 - **Endpoint**: `GET /api/locations/:slug/authority-contact` (same dynamic segment as the detail endpoint; the handler resolves `location_id` from the slug)
-- **Auth**: Required (`role IN ('member', 'vfda_staff')`)
+- **Auth**: Required (`role IN ('member', 'partner', 'vfda_staff', 'vfda_legal', 'admin')` — any signed-in role, SYS Clarifications Q1); the contact must have `contact_verified = true` (BR-004)
 
 ### Unauthenticated Response (401 Unauthorized / 403 Forbidden)
 ```json

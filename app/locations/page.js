@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { deserializeFilterState, serializeFilterState } from './use-filter-state.js';
+import { cardNameStyle } from './card-styles.js';
 
 export default function LocationsSearchPage() {
   const [locations, setLocations] = useState([]);
@@ -158,17 +159,22 @@ export default function LocationsSearchPage() {
                 }}
               >
                 <div style={{ padding: '1.25rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
-                    <div>
-                      <h3 style={{ fontSize: '1.125rem', fontWeight: 'bold', color: '#111827', margin: 0 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.75rem', marginBottom: '0.75rem' }}>
+                    {/* minWidth 0 lets the name shrink so the clamp applies instead of pushing the score badge */}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <h3 title={loc.name_en} style={{ ...cardNameStyle, fontSize: '1.125rem', fontWeight: 'bold', color: '#111827', margin: 0 }}>
                         {loc.name_en}
                       </h3>
+                      <div title={loc.name_vi} style={{ ...cardNameStyle, fontSize: '0.875rem', color: '#6b7280' }}>
+                        {loc.name_vi}
+                      </div>
                       <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
-                        {loc.name_vi} • {loc.province_name}
+                        {loc.province_name}
                       </div>
                     </div>
                     <span
                       style={{
+                        flexShrink: 0,
                         backgroundColor: loc.score >= 70 ? '#dcfce7' : '#fef9c3',
                         color: loc.score >= 70 ? '#166534' : '#854d0e',
                         padding: '0.25rem 0.625rem',
