@@ -1,7 +1,7 @@
 # Contract: Location Detail & Authority Contact API (M3)
 
 Feature: `001-m3-core`  
-Source: `specs/001-m3-core/spec.md` (FR-013, FR-014, FR-015, BR-004, BR-005)  
+Source: `specs/001-m3-core/spec.md` (FR-002, FR-013, FR-014, FR-015, BR-003, BR-004, BR-005, Clarifications Q3)  
 Screen: `SC-16` (Location Detail)  
 
 ---
@@ -42,7 +42,8 @@ Returns public location details, photos, logistics, and nearby locations within 
   },
   "season": {
     "months_to_avoid": [7, 8],
-    "notes": "Rainy season in July-August may raise water levels inside caves."
+    "rainy_months": [6, 7, 8],
+    "night_shooting_allowed": "no"
   },
   "permit_complexity": "medium",
   "availability": "open",
@@ -64,6 +65,10 @@ Returns public location details, photos, logistics, and nearby locations within 
   "has_verified_contact": true
 }
 ```
+*Season fields (Clarifications Q3, 28/10/2026):* `night_shooting_allowed` is `yes`, `no`, `ask` or `null` (no data yet). `rainy_months` is a list of month numbers 1–12; `[]` means VFDA recorded no rainy month, `null` means no data yet (BR-003).
+
+*Not published:* a slug whose `intake_status` is not `published` returns `404 Not Found`.
+
 *Security Rule:* Authority phone and email are NOT included in this payload.
 
 ---
@@ -72,7 +77,7 @@ Returns public location details, photos, logistics, and nearby locations within 
 
 Returns verified local authority contact information. Enforced by Row Level Security in Postgres and route authorization middleware.
 
-- **Endpoint**: `GET /api/locations/:id/authority-contact`
+- **Endpoint**: `GET /api/locations/:slug/authority-contact` (same dynamic segment as the detail endpoint; the handler resolves `location_id` from the slug)
 - **Auth**: Required (`role IN ('member', 'vfda_staff')`)
 
 ### Unauthenticated Response (401 Unauthorized / 403 Forbidden)
