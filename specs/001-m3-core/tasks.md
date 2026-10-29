@@ -95,13 +95,13 @@
 
 ### Implementation for User Story 2
 
-- [ ] T033 [US2] Implement nearby location query service within 30 km radius using Haversine on `node:sqlite`, keeping the function signature so PostGIS can replace it, in lib/db/nearby.js (verifies T032)
+- [X] T033 [US2] Implement nearby location query service within 30 km radius using Haversine on `node:sqlite`, keeping the function signature so PostGIS can replace it, in lib/db/nearby.js (verifies T032)
 - [X] T034 [US2] Implement `getAuthorityContact(locationId, session)` that checks the role before querying and returns verified contacts only in lib/db/contacts.js (verifies T030, T031)
-- [ ] T046 [US2] Implement season and night-shooting label helper in lib/locations/season-facts.js (verifies T045)
-- [ ] T035 [US2] Implement Route Handler for public location detail and nearby locations returning `season.night_shooting_allowed`, `season.rainy_months` and `has_verified_contact`, never joining contact phone or email, and 404 when `intake_status != published`; reuse `getLocationBySlug` and `getLocationImages` (lib/db/locations.js) and `resolveSessionRole` (lib/auth/session.js) in app/api/locations/[slug]/route.js (verifies T028)
+- [X] T046 [US2] Implement season and night-shooting label helper in lib/locations/season-facts.js (verifies T045)
+- [X] T035 [US2] Implement Route Handler for public location detail and nearby locations returning `season.night_shooting_allowed`, `season.rainy_months` and `has_verified_contact`, never joining contact phone or email, and 404 when `intake_status != published`; reuse `getLocationBySlug` and `getLocationImages` (lib/db/locations.js) and `resolveSessionRole` (lib/auth/session.js) in app/api/locations/[slug]/route.js (verifies T028)
 - [X] T036 [US2] Implement Route Handler for gated authority contact that resolves `location_id` from the slug in app/api/locations/[slug]/authority-contact/route.js (same dynamic segment name as T035; `[id]` beside `[slug]` breaks the Next.js build) (verifies T029)
-- [ ] T037 [US2] Implement Leaflet + OpenStreetMap interactive map component in app/components/map/location-map.js
-- [ ] T038 [US2] Implement location detail page view with photo gallery, logistics, a *Seasons and permits* block showing rainy months and night shooting through lib/locations/season-facts.js, and a gated contact card; guests see the dashed box *Local authority contacts are visible to members only* with *Sign up free* / *Log in*, and the page does not fetch the contact for guests so the page source holds no phone number (SC-16, SR-111, SC-004) in app/locations/[slug]/page.js
+- [X] T037 [US2] Implement Leaflet + OpenStreetMap interactive map component in app/components/map/location-map.js
+- [X] T038 [US2] Implement location detail page view with photo gallery, logistics, a *Seasons and permits* block showing rainy months and night shooting through lib/locations/season-facts.js, and a gated contact card; guests see the dashed box *Local authority contacts are visible to members only* with *Sign up free* / *Log in*, and the page does not fetch the contact for guests so the page source holds no phone number (SC-16, SR-111, SC-004) in app/locations/[slug]/page.js
 
 **Checkpoint**: User Story 2 is functional and independently testable alongside User Story 1.
 
@@ -113,9 +113,9 @@
 
 **Note on Environment Checks**: Workstation environment checks (such as Git version in `tools/check_env.py`) are non-blocking advisory checks and do NOT block the delivery, completion, or demonstration of the US-1 MVP.
 
-- [ ] T039 [P] Execute environment and repository check via python3 tools/check_env.py --repo (advisory, non-blocking for US-1 MVP)
-- [ ] T040 [P] Verify database schema and seed integrity via python3 data/schema/load_check.py
-- [ ] T041 [P] Verify feature specification snapshot consistency via python3 tools/start_feature.py --check
+- [X] T039 [P] Execute environment and repository check via python3 tools/check_env.py --repo (advisory, non-blocking for US-1 MVP)
+- [X] T040 [P] Verify database schema and seed integrity via python3 data/schema/load_check.py
+- [X] T041 [P] Verify feature specification snapshot consistency via python3 tools/start_feature.py --check
 - [ ] T042 Add and execute quickstart validation scenarios on macOS and Windows in specs/001-m3-core/quickstart.md: (a) guest opens `/locations/trang-an` and the page source has no `+84`; (b) member sees the contact with its verification date; (c) `tam-coc` shows *Ask the local authority* and *No rainy months recorded*; (d) the `ca-mau-cape` card (200-character name) is clamped to 2 lines + "…" at desktop width and about 375 px
 
 ---

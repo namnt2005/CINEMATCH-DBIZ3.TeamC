@@ -3,6 +3,9 @@ import { notFound } from 'next/navigation';
 import { getLocationDetail } from '../../../lib/db/location-detail.js';
 import { resolveSessionRole } from '../../../lib/auth/session.js';
 import { canSeeAuthorityContact, getAuthorityContact } from '../../../lib/db/contacts.js';
+import { noDataLabel, nightShootingLabel, rainyMonthsLabel, monthsToAvoidLabel } from '../../../lib/locations/season-facts.js';
+import LocationMap from '../../components/map/location-map.js';
+import LocationPhoto from './location-photo.js';
 
 // SC-16 #4 labels (M3 BR-010)
 const AVAILABILITY = {
@@ -12,10 +15,9 @@ const AVAILABILITY = {
 };
 
 // Empty fields read "no data yet", never "no" (BR-003, SR-113)
-const NO_DATA = 'Chưa có dữ liệu';
+const NO_DATA = noDataLabel('vi');
 
 const CREW_CAPACITY = { u15: 'Dưới 15 người', '15_50': '15–50 người', o50: 'Trên 50 người' };
-const NIGHT_SHOOTING = { yes: 'Có', no: 'Không', ask: 'Hỏi địa phương' };
 const PERMIT_COMPLEXITY = { low: 'Thấp', medium: 'Trung bình', high: 'Cao' };
 
 function yesNo(value) {
@@ -26,13 +28,6 @@ function yesNo(value) {
 
 function fromMap(map, value) {
   return map[value] || NO_DATA;
-}
-
-// null = no data yet; [] = VFDA recorded none (convention agreed for rainy_months and months_to_avoid)
-function monthList(months, emptyLabel) {
-  if (!Array.isArray(months)) return NO_DATA;
-  if (months.length === 0) return emptyLabel;
-  return 'Tháng ' + [...months].map(Number).sort((a, b) => a - b).join(', ');
 }
 
 // verified_at is stored with its own offset; show the calendar date as written (DD/MM/YYYY)
@@ -61,8 +56,8 @@ function FactBlock({ title, facts }) {
 
 /**
  * SC-16 Location detail — header, scene types, availability, approved photos (F-M3-13),
- * Logistics (#8), Seasons and permits (#9) and the local authority contact (#10).
- * Province index and the map come with the rest of T038.
+ * Logistics (#8), Seasons and permits (#9), the local authority contact (#10)
+ * and the mini map with nearby locations (#12). The province index (#11) is not built yet.
  */
 export default function LocationDetailPage({ params }) {
   const location = getLocationDetail(params.slug);
@@ -139,20 +134,7 @@ export default function LocationDetailPage({ params }) {
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.5rem' }}>
           {location.images.map(image => (
-            <figure
-              key={image.image_url}
-              style={{ margin: 0, border: '1px solid #e5e7eb', borderRadius: '0.5rem', overflow: 'hidden', backgroundColor: '#ffffff' }}
-            >
-              <img
-                src={image.image_url}
-                alt={location.name_en}
-                style={{ display: 'block', width: '100%', aspectRatio: '4 / 3', objectFit: 'cover', backgroundColor: '#f3f4f6' }}
-              />
-              <figcaption style={{ padding: '0.75rem', fontSize: '0.8125rem', color: '#4b5563' }}>
-                <div><strong>Source:</strong> {image.image_source}</div>
-                <div><strong>Usage right:</strong> {image.usage_right}</div>
-              </figcaption>
-            </figure>
+            <LocationPhoto key={image.image_url} image={image} alt={location.name_en} />
           ))}
         </div>
       )}
@@ -174,9 +156,9 @@ export default function LocationDetailPage({ params }) {
         <FactBlock
           title="Mùa & giấy phép"
           facts={[
-            ['Tháng nên tránh', monthList(location.season.months_to_avoid, 'Không có tháng cần tránh')],
-            ['Tháng mưa', monthList(location.season.rainy_months, 'Không có tháng mưa')],
-            ['Quay đêm', fromMap(NIGHT_SHOOTING, location.season.night_shooting_allowed)],
+            ['Tháng nên tránh', monthsToAvoidLabel(location.season.months_to_avoid, 'vi')],
+            ['Tháng mưa', rainyMonthsLabel(location.season.rainy_months, 'vi')],
+            ['Quay đêm', nightShootingLabel(location.season.night_shooting_allowed, 'vi')],
             ['Độ phức tạp giấy phép', fromMap(PERMIT_COMPLEXITY, location.permit_complexity)],
             ['Lưu ý hạn chế', location.restriction_note || NO_DATA]
           ]}
@@ -216,6 +198,28 @@ export default function LocationDetailPage({ params }) {
           </section>
         )}
       </div>
+
+      {/* Mini map + nearby published locations within 30 km (SC-16 #12, F-M3-14) */}
+      <section style={{ marginTop: '1.5rem', border: '1px solid #e5e7eb', borderRadius: '0.5rem', padding: '1.25rem', backgroundColor: '#ffffff' }}>
+        <h2 style={{ fontSize: '1.125rem', fontWeight: '600', color: '#111827', margin: '0 0 0.75rem' }}>Địa điểm gần đây</h2>
+        <LocationMap center={location.coordinates} name={location.name_en} nearby={location.nearby_locations} />
+        {location.nearby_locations.length === 0 ? (
+          <p style={{ color: '#6b7280', fontSize: '0.875rem', margin: '0.75rem 0 0' }}>
+            Chưa có địa điểm đã đăng nào trong vòng 30 km.
+          </p>
+        ) : (
+          <ul style={{ listStyle: 'none', padding: 0, margin: '0.75rem 0 0', fontSize: '0.875rem' }}>
+            {location.nearby_locations.map(place => (
+              <li key={place.slug} style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', padding: '0.5rem 0', borderTop: '1px solid #f3f4f6' }}>
+                <a href={`/locations/${place.slug}`} style={{ color: '#2563eb', textDecoration: 'none' }}>
+                  {place.name_vi} <span style={{ color: '#6b7280' }}>({place.name_en})</span>
+                </a>
+                <span style={{ color: '#374151', whiteSpace: 'nowrap' }}>{place.distance_km.toLocaleString('vi-VN')} km</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
     </div>
   );
 }

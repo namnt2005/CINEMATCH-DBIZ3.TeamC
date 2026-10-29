@@ -59,6 +59,8 @@ Returns public location details, photos, logistics, and nearby locations within 
       "location_id": "b4c3d2e1-2222-4000-8000-000000000002",
       "slug": "tam-coc-bich-dong",
       "name_en": "Tam Coc - Bich Dong",
+      "name_vi": "Tam Cốc – Bích Động",
+      "coordinates": { "lat": 20.215000, "lng": 105.938000 },
       "distance_km": 8.4
     }
   ],
@@ -66,6 +68,8 @@ Returns public location details, photos, logistics, and nearby locations within 
 }
 ```
 *Season fields (Clarifications Q3, 28/10/2026):* `night_shooting_allowed` is `yes`, `no`, `ask` or `null` (no data yet). `rainy_months` is a list of month numbers 1–12; `[]` means VFDA recorded no rainy month, `null` means no data yet (BR-003).
+
+*Nearby (F-M3-14):* published locations only, within 30 km, at most 5, closest first; `[]` when none. `coordinates` places them on the SC-16 mini map. Local: Haversine on `node:sqlite`; Supabase: PostGIS `ST_DWithin`.
 
 *Not published:* a slug whose `intake_status` is not `published` returns `404 Not Found`.
 

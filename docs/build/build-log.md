@@ -12,7 +12,7 @@ did and what the humans decided.
 
 | Feature folder | Module | User stories in this slice | Owner | Branch | Status |
 |---|---|---|---|---|---|
-| `specs/001-m3-core` | M3 (Location Discovery) | US-1 (P1 primary scope, MVP); US-2 (P2 optional scope for this slice) | Nam Tran | `001-m3-core` | US-1 built (T001–T027); US-2 open (T028–T042) |
+| `specs/001-m3-core` | M3 (Location Discovery) | US-1 (P1 primary scope, MVP); US-2 (P2 optional scope for this slice) | Nam Tran | `001-m3-core` (US-1), `001-m3-core-us2` (US-2) | US-1 built (T001–T027, card name clamp T043–T044); US-2 built (T028–T038, T045–T046); Polish T039–T041 done, T042 open |
 
 > **Note on Scope & Priority (I1)**: User Story US-2 is classified as P1 in the source specification (`docs/spec/spec-M3.md`). For this M3 thin vertical slice, US-2 is treated as P2 optional scope (time permitting) in `plan.md` and `tasks.md` to ensure US-1 delivers an independent, demonstrable MVP without blocker dependencies. The source specification's original priority (P1) is preserved and remains unchanged unless formal team approval is granted.
 
@@ -83,6 +83,19 @@ did and what the humans decided.
 | Spec issues found | 22 stale field names in screen specs fixed at the source; `docs/function-list.md` row 48 restored to the DBIZ2 original (the change is recorded in spec-M3 §11.1 instead) |
 | Commit | `65d5c5e` on `docs/gd3-decisions-alignment` |
 
+### Entry 6: 30/10/2026 Nam Tran
+
+| Field | Value |
+|---|---|
+| Path and agent | Claude Code (VS Code extension), run by Nam Tran |
+| Command and argument | Plan mode to align US-2 tasks with the 28/10 Clarifications; `/speckit-implement` for the US-2 test tasks (T028–T032, T043, T045), then the US-2 implementation (T033–T038, T044, T046) in reviewed steps; closing checks `npm test`, `npm run build`, `uv run tools/start_feature.py --check`, `python3 tools/check_env.py --repo`, `python3 data/schema/load_check.py` |
+| Feature and tasks | `specs/001-m3-core`, tasks `T028` to `T046` (T042 still open) |
+| What the agent produced | Code: `app/api/locations/[slug]/route.js`, `app/api/locations/[slug]/authority-contact/route.js`, `app/locations/[slug]/page.js`, `app/locations/[slug]/location-photo.js`, `app/components/map/location-map.js`, `app/locations/card-styles.js`, `lib/db/location-detail.js`, `lib/db/contacts.js`, `lib/db/nearby.js`, `lib/locations/season-facts.js`, `lib/api/errors.js` (new); `lib/auth/session.js`, `lib/db/locations.js`, `app/locations/page.js`, `package.json` (Leaflet 1.9.4) edited. Tests: `tests/contracts/location-detail.test.js`, `location-detail-nearby.test.js`, `authority-contact.test.js`, `tests/unit/contact-verification.test.js`, `contact-rls.test.js`, `nearby-locations.test.js`, `season-facts.test.js`, `season-facts-vi.test.js`, `card-name-clamp.test.js` (new); `tests/unit/auth-session.test.js` extended. Docs: `tasks.md`, `plan.md`, `contracts/location-detail-and-contact.contract.md` |
+| Human review | Accepted by Nam Tran, who reviewed each step in the session. Decisions: `rainy_months` `[]` = no rainy month, `null` = no data yet (same as `months_to_avoid`), `engine.js` unchanged; contact endpoint keeps `/authority-contact`; contacts go to every signed-in role (member, partner, vfda_staff, vfda_legal, admin; SYS Clarifications Q1); SC-16 labels in Vietnamese; seed long names kept as an edge case. |
+| Tests | TDD Red: `64 tests, 36 passed, 28 failed` (all new tests failing on missing modules). Final: `75 passed, 0 failed` across 23 suites (`npm test`); `next build` OK; `start_feature.py --check` OK; `check_env.py --repo` 0 FAIL, 1 WARN (uncommitted changes); `load_check.py` SQLite PASS |
+| Spec issues found | Rows 5–9 of section 3 |
+| Commit | `95be8be` and `ac5e04e` on `001-m3-core-us2`; the closing changes are not committed yet |
+
 ## 3. Spec issues found while building
 
 Every gap the build uncovers goes back to `docs/spec/` as an open question or a spec change. It
@@ -94,9 +107,16 @@ is never fixed silently in code.
 | 2 | Step 3, Entry 1 | Scoring criteria weights (A1): FR-008 scoring function criteria weights marked `[NEEDS CLARIFICATION]`. Open question with VFDA. | `docs/spec/spec-M3.md` §5.1 / `plan.md` Open Question #1. | Decided 28/10/2026 (provisional): scene fit 35, season 15, crew 15, logistics 15, permit 10, availability 10 — spec-M3 Clarifications Q1; engine and test updated (Entry 5). |
 | 3 | Step 3, Entry 1 | Local authority contact re-verification interval (A2): BR-004 12-month re-verification policy marked `[NEEDS CLARIFICATION]`. | `docs/spec/spec-M3.md` §5.2 / `plan.md` Open Question #2. | Open — planned follow-up with VFDA in Session 11. Interim: existing seed `verified_at` metadata used. |
 | 4 | Step 3, Entry 1 | Tooling & stack choices pending team confirmation (S1): Next.js router paradigm, language (TS vs JS), test runner, and LLM vendor need team decision. | `plan.md` §Decisions Requiring Team Confirmation & `AGENTS.md` §2. | Resolved 28/10/2026: App Router, JavaScript, Node test runner, Google Gemini (mock fallback) — `plan.md` §Decisions and `AGENTS.md` §2. |
+| 5 | Step 4, Entry 6 | `tasks.md` placed `app/api/locations/[id]/` beside `[slug]/`, which breaks the Next.js build; the contract used a third path. | `tasks.md` T036 and the contract now use `/api/locations/:slug/authority-contact`. | Resolved 30/10/2026. |
+| 6 | Step 4, Entry 6 | `rainy_months` and `months_to_avoid`: does `[]` mean "none" or "no data"? | Team decision: `[]` = none recorded, `null` = no data yet; recorded in `tasks.md` T045 and the contract. | Resolved 30/10/2026. |
+| 7 | Step 4, Entry 6 | `lib/scoring/engine.js` reads a `null` month list as `[]`, so a location with no rainy-month data gets full season points instead of half (BR-003, §9 Assumptions). No seed row is affected today. | Not yet in the spec; needs a task. | Open. |
+| 8 | Step 4, Entry 6 | The detail contract has no `restriction_note`, but SC-16 #9 shows it and the API returns it. | `contracts/location-detail-and-contact.contract.md` §1 still to be updated. | Open. |
+| 9 | Step 4, Entry 6 | The 12-month contact re-verification (BR-004, Open Question 5) is not enforced; seed `ca-mau-cape` was verified in 2016 and is still shown. | Same as row 3. | Open — waits for VFDA. |
 
 ## 4. Agent mistakes worth remembering
 
 | Entry | What went wrong | How it was caught | Prevention |
 |---|---|---|---|
 | Entry 1 | Initial draft of `tasks.md` placed domain scoring implementation in Foundational phase before unit test tasks in US-1 phase. | Caught during Step 3 checklist review against Constitution Principle II. | Ensure all business rule and acceptance scenario tests strictly precede implementation tasks in execution order. |
+| Entry 2 | `getLocationImages` in `lib/db/locations.js` ordered by `image_id`, a column `location_image` does not have; the query would fail on first use. | Found in Entry 6 when the detail page first read photos. | Fixed to `image_url`; check column names against `data/schema/` when writing a query. |
+| Entry 6 | The T031 test first used `admin` as an example of an unknown role, but `admin` is a valid role in `ck_user_account_role`. | Caught when the contact role list was given (SYS Clarifications Q1). | Take role names from `data/schema/schema-SYS.sql`, not from the mock helper. |
