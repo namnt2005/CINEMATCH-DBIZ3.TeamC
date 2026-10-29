@@ -45,7 +45,7 @@ MODULES.append(dict(
        acc=["**Given** Ninh Bình with enough data, **When** the province page opens, **Then** the index, its components, their sample sizes and the calculation method are shown.",
             "**Given** a province with fewer than the minimum data points, **When** the page opens, **Then** the index shows `—` with *Not enough data yet*."]),
  ],
- edge=["The model fails to extract attributes: the user is offered the filter search instead; the typed description is kept.",
+ edge=["The language model fails to extract attributes (network error, rate limit 429, no answer within 8 seconds, or not configured): the rule-based extractor answers instead and the screen says *Đang dùng chế độ dự phòng* (fallback mode); the extracted attributes stay editable and the typed description is kept. Reason: decision of 28/10/2026 to keep the rule-based extractor as the fallback.",
        "No location reaches 40 points: show the three nearest with the criteria they miss, plus *Ask VFDA* — never a blank page.",
        "An old province name is searched (e.g. *Quảng Nam*): it maps to the merged province (Đà Nẵng) and says so.",
        "A fifth location is added to the compare tray: refused with *Maximum 4 — remove one to add another*."],

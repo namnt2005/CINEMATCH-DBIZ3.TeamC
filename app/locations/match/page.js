@@ -1,7 +1,22 @@
 'use client';
 
 import React, { useState } from 'react';
-import { serializeFilterState } from '../use-filter-state.js';
+import {
+  DEFAULT_SHOOT_MONTH,
+  monthOptions,
+  monthFromExtraction,
+  monthFromSelect,
+  searchQuery,
+  extractionChips,
+  extractorLabel
+} from './match-view.js';
+
+const CHIP_COLORS = {
+  scene: { backgroundColor: '#dbeafe', color: '#1e40af' },
+  era: { backgroundColor: '#e0e7ff', color: '#3730a3' },
+  crew: { backgroundColor: '#f3e8ff', color: '#6b21a8' },
+  time: { backgroundColor: '#fef3c7', color: '#92400e' }
+};
 
 export default function SceneMatchPage() {
   const [description, setDescription] = useState(
@@ -10,7 +25,7 @@ export default function SceneMatchPage() {
   const [loading, setLoading] = useState(false);
   const [extractedData, setExtractedData] = useState(null);
   const [error, setError] = useState(null);
-  const [shootMonth, setShootMonth] = useState(9);
+  const [shootMonth, setShootMonth] = useState(DEFAULT_SHOOT_MONTH);
 
   const handleAnalyze = async () => {
     if (!description || description.trim().length < 10) {
@@ -35,6 +50,8 @@ export default function SceneMatchPage() {
 
       const data = await res.json();
       setExtractedData(data);
+      // BR-003: a description without a month leaves the field empty, even after an earlier one had a month
+      setShootMonth(monthFromExtraction(data));
     } catch (err) {
       setError(err.message);
     } finally {
@@ -45,13 +62,7 @@ export default function SceneMatchPage() {
   const handleSearch = () => {
     if (!extractedData || !extractedData.attributes) return;
 
-    const queryParams = serializeFilterState({
-      scene_types: extractedData.attributes.scene_types || [],
-      crew_size: extractedData.attributes.crowd_scale || null,
-      shoot_month: shootMonth || null
-    });
-
-    window.location.href = `/locations${queryParams}`;
+    window.location.href = `/locations${searchQuery(extractedData, shootMonth)}`;
   };
 
   return (
@@ -115,9 +126,28 @@ export default function SceneMatchPage() {
       {/* What the System Understood */}
       {extractedData && (
         <section style={{ backgroundColor: '#f9fafb', padding: '1.5rem', borderRadius: '0.5rem', border: '1px solid #e5e7eb', marginBottom: '2rem' }}>
-          <h2 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1rem', color: '#1f2937' }}>
+          <h2 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.25rem', color: '#1f2937' }}>
             What the system understood
           </h2>
+          {/* Which extractor answered, for testers (Gemini or rule-based) */}
+          <div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '1rem' }}>
+            {extractorLabel(extractedData)}
+          </div>
+
+          {/* Gemini unavailable: the rule-based extractor answered (SC-15 error state) */}
+          {extractedData.fallback && (
+            <div role="status" style={{ marginBottom: '1rem', padding: '0.75rem', backgroundColor: '#e0f2fe', borderRadius: '0.375rem', color: '#075985', fontSize: '0.875rem' }}>
+              <strong>Đang dùng chế độ dự phòng.</strong> Không gọi được mô hình ngôn ngữ nên hệ thống dùng bộ trích theo luật; hãy kiểm tra và sửa các tiêu chí bên dưới trước khi tìm.
+            </div>
+          )}
+
+          {/* Values outside the catalogue were dropped (F-M3-12, SR-093) */}
+          {extractedData.rejected && extractedData.rejected.length > 0 && (
+            <div style={{ marginBottom: '1rem', padding: '0.75rem', backgroundColor: '#fee2e2', borderRadius: '0.375rem', color: '#991b1b', fontSize: '0.875rem' }}>
+              <strong>Not in the catalogue, dropped:</strong>{' '}
+              {extractedData.rejected.map(v => `“${v}”`).join(', ')}
+            </div>
+          )}
 
           {/* Mapped synonyms warning */}
           {extractedData.mapped_synonyms && extractedData.mapped_synonyms.length > 0 && (
@@ -134,31 +164,20 @@ export default function SceneMatchPage() {
 
           {/* Extracted attribute chips */}
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1.5rem' }}>
-            {extractedData.attributes.scene_types?.map((type) => (
+            {extractionChips(extractedData).map(chip => (
               <span
-                key={type}
+                key={chip.key}
                 style={{
-                  backgroundColor: '#dbeafe',
-                  color: '#1e40af',
+                  ...CHIP_COLORS[chip.kind],
                   padding: '0.25rem 0.75rem',
                   borderRadius: '9999px',
                   fontSize: '0.875rem',
-                  fontWeight: '500'
+                  fontWeight: chip.kind === 'scene' ? '500' : 'normal'
                 }}
               >
-                Scene: {type}
+                {chip.label}
               </span>
             ))}
-            {extractedData.attributes.era && (
-              <span style={{ backgroundColor: '#e0e7ff', color: '#3730a3', padding: '0.25rem 0.75rem', borderRadius: '9999px', fontSize: '0.875rem' }}>
-                Era: {extractedData.attributes.era}
-              </span>
-            )}
-            {extractedData.attributes.crowd_scale && (
-              <span style={{ backgroundColor: '#f3e8ff', color: '#6b21a8', padding: '0.25rem 0.75rem', borderRadius: '9999px', fontSize: '0.875rem' }}>
-                Crew: {extractedData.attributes.crowd_scale}
-              </span>
-            )}
           </div>
 
           {/* Planned shoot month */}
@@ -168,12 +187,12 @@ export default function SceneMatchPage() {
             </label>
             <select
               id="shoot-month"
-              value={shootMonth}
-              onChange={(e) => setShootMonth(parseInt(e.target.value, 10))}
+              value={shootMonth === null ? '' : String(shootMonth)}
+              onChange={(e) => setShootMonth(monthFromSelect(e.target.value))}
               style={{ padding: '0.5rem', borderRadius: '0.375rem', border: '1px solid #d1d5db' }}
             >
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((m) => (
-                <option key={m} value={m}>Month {m}</option>
+              {monthOptions().map(option => (
+                <option key={option.value || 'any'} value={option.value}>{option.label}</option>
               ))}
             </select>
           </div>
