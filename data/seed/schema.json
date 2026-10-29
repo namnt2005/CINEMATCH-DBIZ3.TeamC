@@ -833,6 +833,8 @@
    "permit_complexity",
    "restriction_note",
    "availability",
+   "night_shooting_allowed",
+   "rainy_months",
    "intake_status",
    "published",
    "blocked_reason"
@@ -878,6 +880,11 @@
     "open",
     "survey_in_progress",
     "paused"
+   ],
+   "night_shooting_allowed": [
+    "yes",
+    "no",
+    "ask"
    ],
    "intake_status": [
     "awaiting_contact",

@@ -13,6 +13,14 @@
 | Approved by (Client role) | *Not yet — VFDA project lead (and VFDA Legal Board for legal rules)* |
 | DBIZ2 source | Function List rows 81–88 (F-M5-01 .. F-M5-08); Use Case UC-18, UC-20, UC-21; Screens SC-26, SC-28, SC-29 |
 
+## Clarifications
+
+### Session 2026-10-28 (Group C, provisional — the owner in §10 confirms before launch)
+
+- Q1: Document list for segment C. → A: Minimum list for segment C: crew passports and visas, service contract with the Vietnamese partner, shooting schedule with locations, and a local permit when shooting in a public place. Marked *awaiting VFDA confirmation*.
+- Q3: Which translation service may process scripts, which are confidential? → A: Only the paid Google Gemini API (data not used for training) may process real scripts, and only after the user ticks a consent box. The free tier is used with synthetic sample scripts only.
+- Q7: are the "20 days" calendar days or working days — if working days, the safe deadline moves about 3 weeks earlier → A: Working days (weekends and PUBLIC_HOLIDAY excluded). Same decision as M2 question 1.
+
 ## 1. Purpose and scope
 
 This module gives each project the list of documents its segment needs, stores them, helps turn the English script summary into a Vietnamese draft that a person proofreads, and counts back from the first shooting day to the latest safe date to file. Nothing it produces is presented as final: every generated document is a draft for a human.
@@ -230,13 +238,13 @@ Types and required flags of the attributes above that no field in 5.1 declares (
 
 | # | Question | Blocking? | Owner | Status |
 |---|---|---|---|---|
-| 1 | [NEEDS CLARIFICATION: Document list for segment C.] *(also raised in SC-26)* | Yes | Client (VFDA Legal Board) | Open |
+| 1 | [NEEDS CLARIFICATION: Document list for segment C.] *(also raised in SC-26)* | Yes | Client (VFDA Legal Board) | Decided (provisional, VFDA to confirm) — see Clarifications |
 | 2 | [NEEDS CLARIFICATION: Who may mark a paragraph proofread: any project member, or only the confirmed Vietnamese partner?] | No | Client (VFDA) | Open |
-| 3 | [NEEDS CLARIFICATION: Which translation service may process scripts, which are confidential?] *(also raised in SC-28)* | Yes | Group C + Client | Open |
+| 3 | [NEEDS CLARIFICATION: Which translation service may process scripts, which are confidential?] *(also raised in SC-28)* | Yes | Group C + Client | Decided (provisional, VFDA to confirm) — see Clarifications |
 | 4 | [NEEDS CLARIFICATION: Are *foreign crew list* and *provincial notice* required anywhere, or only common practice?] *(also raised in SC-26)* | No | Client (VFDA Legal Board) | Open |
 | 5 | [NEEDS CLARIFICATION: Official Lunar New Year 2027 holiday dates.] *(also raised in SC-29)* | No | Client (VFDA) | Open |
 | 6 | [NEEDS CLARIFICATION: must the proofreader be Vietnamese / a certified translator, and must the proofreader be named in the submitted dossier] *(from SC-28)* | No | Client (VFDA Legal Board) | Open |
-| 7 | [NEEDS CLARIFICATION: are the "20 days" calendar days or working days — if working days, the safe deadline moves about 3 weeks earlier] *(from SC-29)* | Yes | Client (VFDA Legal Board) — same question as spec-M2.md | Open |
+| 7 | [NEEDS CLARIFICATION: are the "20 days" calendar days or working days — if working days, the safe deadline moves about 3 weeks earlier] *(from SC-29)* | Yes | Client (VFDA Legal Board) — same question as spec-M2.md | Decided (provisional, VFDA to confirm) — see Clarifications |
 
 ## 11. Traceability to DBIZ2
 

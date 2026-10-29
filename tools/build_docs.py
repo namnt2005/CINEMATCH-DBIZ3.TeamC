@@ -5,6 +5,7 @@
 import os, re, sys, subprocess, tempfile, shutil
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import importlib
+from decisions import DECISIONS, DATE as DEC_DATE, STATUS as DEC_STATUS
 import s1_en, s2_en, s3_en, specs_a, specs_b, specs_c, specs_types, mvp
 _EXTRA = [importlib.import_module(n) for n in ("s4_en", "s5_en", "s6_en", "s7_en")
           if os.path.exists(os.path.join(os.path.dirname(os.path.abspath(__file__)), n + ".py"))]
@@ -250,8 +251,17 @@ def module_md(m, mermaid_ok):
                 oq.append([f"{q} *(from {s['sid']})*", "Yes" if b else "No", how[1], "Open"])
     for k, sids in also.items():
         oq[k][0] += f" *(also raised in {', '.join(sids)})*"
+    clar = []
+    for (dm, n), (word, answer) in sorted(DECISIONS.items(), key=lambda kv: kv[0][1]):
+        if dm != mid:
+            continue
+        assert n <= len(oq) and word.lower() in oq[n - 1][0].lower(), f"decision {dm} #{n}: question text has no '{word}' — renumbered?"
+        oq[n - 1][3] = f"{DEC_STATUS} — see Clarifications"
+        q = oq[n - 1][0].replace("[NEEDS CLARIFICATION: ", "").split("]")[0].strip()
+        clar.append(f"- Q{n}: {q} → A: {answer}")
     oq = [tuple(r) for r in oq]
     oq = [(i + 1,) + r for i, r in enumerate(oq)]
+    clar_md = ("## Clarifications\n\n" + f"### Session {DEC_DATE} (Group C, provisional — the owner in §10 confirms before launch)\n\n" + "\n".join(clar) + "\n\n") if clar else ""
     # checklist
     fr_ok = len(m["fr"]) == EXPECTED[mid] and [parse_fid(f)[1] for f, *_ in m["fr"]] == list(range(1, EXPECTED[mid] + 1))
     io_ok = not io_problems and set(m["io"]) == set(f for f, *_ in m["fr"])
@@ -283,7 +293,7 @@ def module_md(m, mermaid_ok):
 | Approved by (Client role) | *Not yet — VFDA project lead (and VFDA Legal Board for legal rules)* |
 | DBIZ2 source | {m['source']} |
 
-## 1. Purpose and scope
+{clar_md}## 1. Purpose and scope
 
 {m['purpose']}
 

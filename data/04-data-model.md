@@ -8,7 +8,7 @@ sources: FUNCTIONS, FIELDS, ENTITIES, RULES, SCENARIOS, FLOWS, SCREENS, BOUNDARY
 
 # Logical Data Model — CINEMATCH
 
-46 tables, 313 columns. Every column is **copied** from a FIELDS row (section 5.1) or an ENTITIES attribute (section 6), with its declared type and Req / Opt flag. *system-set* = an output field (the system fills it); *not declared* = no flag in the input.
+46 tables, 315 columns. Every column is **copied** from a FIELDS row (section 5.1) or an ENTITIES attribute (section 6), with its declared type and Req / Opt flag. *system-set* = an output field (the system fills it); *not declared* = no flag in the input.
 
 **Every column has a declared type** — the types of the section 6 attributes that no 5.1 field declares come from section 6.1 of the owning Spec Document (cited as `<MODULE> §6.1`). Technical columns (`created_at`, `updated_at`) appear only where the spec declares them. The physical schema built from this model is in `data/schema/schema-<MODULE>.sql`; one readable view per module is in `data/data-model-<MODULE>.md`.
 
@@ -335,6 +335,8 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 | `permit_complexity` | `ENUM(low, medium, high)` | Req |  | M3 §5.1 FR-002 |
 | `restriction_note` | `TEXT` | Opt |  | M3 §5.1 FR-002 |
 | `availability` | `ENUM(open, survey_in_progress, paused)` | Req |  | M3 §5.1 FR-002; M3 §5.2 BR-010 |
+| `night_shooting_allowed` | `ENUM(yes, no, ask)` | Opt |  | M3 §5.1 FR-002; M3 Clarifications Q3 (28/10/2026) |
+| `rainy_months` | `INTEGER[]` | Opt |  | M3 §5.1 FR-002; M3 Clarifications Q3 (28/10/2026) |
 | `intake_status` | `ENUM(awaiting_contact, published, unpublished)` | system-set |  | M3 §5.1 FR-002 (OUT); M3 §6; M3 §5.2 BR-008 (unpublished, never deleted) |
 | `published` | `BOOLEAN` | system-set |  | M3 §5.1 FR-005 (OUT); M3 §5.2 BR-004 |
 | `blocked_reason` | `TEXT` | system-set |  | M3 §5.1 FR-005 (OUT) |
@@ -1059,6 +1061,8 @@ erDiagram
         enum permit_complexity "M3 s5.1 FR-002"
         string restriction_note "M3 s5.1 FR-002"
         enum availability "M3 s5.1 FR-002; M3 s5.2 BR-010"
+        enum night_shooting_allowed "M3 s5.1 FR-002; M3 Clarifications Q3 (28/10/2026)"
+        string rainy_months "declared INTEGER[] - M3 s5.1 FR-002; M3 Clarifications Q3 (28/10/2026)"
         enum intake_status "M3 s5.1 FR-002 (OUT); M3 s6; M3 s5.2 BR-008 (unpublished, never deleted)"
         boolean published "M3 s5.1 FR-005 (OUT); M3 s5.2 BR-004"
         string blocked_reason "M3 s5.1 FR-005 (OUT)"

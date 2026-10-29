@@ -20,10 +20,10 @@ tools/_anomalies.pkl
 
 # Node
 node_modules/
+.next/
 
 # Personal agent settings (shared settings stay committed)
 CLAUDE.local.md
 .claude/settings.local.json
 tools/_ref.docx
-/CINEMATCH-DBIZ3.TeamC/
 /CINEMATCH-DBIZ3.TeamC/

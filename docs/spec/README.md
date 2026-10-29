@@ -6,16 +6,16 @@ Word copies are in `../word/specs/`.
 
 | File | Module ID | Module | FR rows | Screen Specs used | Open questions |
 |---|---|---|---|---|---|
-| [`spec-SYS.md`](spec-SYS.md) | SYS | Platform foundation — accounts, roles, bilingual UI, notifications, search | 11 (10 Must) | SC-04, SC-06, SC-07, SC-08, SC-09, SC-42, SC-43 | 11 (2 blocking) |
-| [`spec-M1.md`](spec-M1.md) | M1 | Segment router | 3 (3 Must) | SC-01, SC-02, SC-13 | 4 (3 blocking) |
-| [`spec-M0.md`](spec-M0.md) | M0 | Project workspace and readiness dashboard | 9 (8 Must) | SC-10, SC-12, SC-13 | 6 (1 blocking) |
-| [`spec-M2.md`](spec-M2.md) | M2 | Content pre-check and Article 13 dossier check | 18 (16 Must) | SC-03, SC-27, SC-29, SC-30, SC-31, SC-37, SC-48 | 14 (7 blocking) |
-| [`spec-M3.md`](spec-M3.md) | M3 | Location discovery | 20 (15 Must) | SC-14, SC-15, SC-16, SC-17, SC-18, SC-35 | 10 (4 blocking) |
-| [`spec-M4.md`](spec-M4.md) | M4 | Vietnamese service partners | 19 (17 Must) | SC-19, SC-20, SC-21, SC-22, SC-23, SC-25, SC-36 | 8 (4 blocking) |
-| [`spec-M5.md`](spec-M5.md) | M5 | Dossier kit, bilingual drafts and countdown | 8 (8 Must) | SC-26, SC-28, SC-29 | 7 (3 blocking) |
-| [`spec-M7.md`](spec-M7.md) | M7 | VFDA support — provincial notices and consultations | 7 (0 Must) | SC-32, SC-33 | 6 (4 blocking) |
-| [`spec-M10.md`](spec-M10.md) | M10 | VFDA back office — moderation, demand index, quarterly report, audit log | 9 (3 Must) | SC-34, SC-38, SC-39, SC-40, SC-41 | 8 (1 blocking) |
-| **Total** |  |  | **104** |  | **74 (29 blocking)** |
+| [`spec-SYS.md`](spec-SYS.md) | SYS | Platform foundation — accounts, roles, bilingual UI, notifications, search | 11 (10 Must) | SC-04, SC-06, SC-07, SC-08, SC-09, SC-42, SC-43 | 9 (0 blocking) |
+| [`spec-M1.md`](spec-M1.md) | M1 | Segment router | 3 (3 Must) | SC-01, SC-02, SC-13 | 1 (0 blocking) |
+| [`spec-M0.md`](spec-M0.md) | M0 | Project workspace and readiness dashboard | 9 (8 Must) | SC-10, SC-12, SC-13 | 5 (0 blocking) |
+| [`spec-M2.md`](spec-M2.md) | M2 | Content pre-check and Article 13 dossier check | 18 (16 Must) | SC-03, SC-27, SC-29, SC-30, SC-31, SC-37, SC-48 | 7 (0 blocking) |
+| [`spec-M3.md`](spec-M3.md) | M3 | Location discovery | 20 (15 Must) | SC-14, SC-15, SC-16, SC-17, SC-18, SC-35 | 6 (0 blocking) |
+| [`spec-M4.md`](spec-M4.md) | M4 | Vietnamese service partners | 19 (17 Must) | SC-19, SC-20, SC-21, SC-22, SC-23, SC-25, SC-36 | 4 (0 blocking) |
+| [`spec-M5.md`](spec-M5.md) | M5 | Dossier kit, bilingual drafts and countdown | 8 (8 Must) | SC-26, SC-28, SC-29 | 4 (0 blocking) |
+| [`spec-M7.md`](spec-M7.md) | M7 | VFDA support — provincial notices and consultations | 7 (0 Must) | SC-32, SC-33 | 2 (0 blocking) |
+| [`spec-M10.md`](spec-M10.md) | M10 | VFDA back office — moderation, demand index, quarterly report, audit log | 9 (3 Must) | SC-34, SC-38, SC-39, SC-40, SC-41 | 7 (0 blocking) |
+| **Total** |  |  | **104** |  | **45 (0 blocking)** |
 
 ## How to read a Spec Document
 

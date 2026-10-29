@@ -40,7 +40,7 @@
 | 5 | Document group | Container | `document_type.basis` | — | — |
 | 6 | Document row | List | `document_slot` generated from `segment_requirement` + confirmed locations | Yes | — |
 | 7 | Basis label | Text | `document_type.basis` — Required by law / Commonly requested / Location-specific | Yes | enum, 3 values |
-| 8 | *Download template* link | Link | `document_templates` provided by VFDA | — | hidden when no template exists |
+| 8 | *Download template* link | Link | `document_type.template_url` provided by VFDA | — | hidden when no template exists |
 | 9 | Document status | Text | `document_slot.state` — Present / Needs fixing / Pending / Missing | Yes | same status set as `SC-27` |
 | 10 | Row action | Button / Link | View / Upload / Draft bilingual / View request | — | — |
 | 11 | *Differences by segment* block | Text | `segment_requirement.label_en` approved by VFDA | Yes | — |

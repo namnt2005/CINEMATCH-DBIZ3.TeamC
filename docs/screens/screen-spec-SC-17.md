@@ -39,7 +39,7 @@
 |---|---|---|---|---|---|
 | 1 | Navigation bar | Header | static | — | — |
 | 2 | *Compare n / 4* title + context | Header | number of columns; current query and shooting month | — | — |
-| 3 | Location column | List | `location.name_en`, `province.name`, `cover_image` | — | 2–4 columns |
+| 3 | Location column | List | `location.name_en`, `province.name`, first approved `location_image.image_url` | — | 2–4 columns |
 | 4 | Match score | Text | `F-M3-08` for the current query | — | — |
 | 5 | Add-location slot | Button | static | — | hidden when 4 columns are filled |
 | 6 | Criteria row | List | 8 fixed criteria | — | fixed order |

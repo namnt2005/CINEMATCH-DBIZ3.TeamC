@@ -13,6 +13,15 @@
 | Approved by (Client role) | *Not yet — VFDA project lead (and VFDA Legal Board for legal rules)* |
 | DBIZ2 source | Function List rows 62–80 (F-M4-01 .. F-M4-19); Use Case UC-13 .. UC-17; Screens SC-19, SC-20, SC-21, SC-22, SC-23, SC-24, SC-25, SC-36 |
 
+## Clarifications
+
+### Session 2026-10-28 (Group C, provisional — the owner in §10 confirms before launch)
+
+- Q1: Official names of the 12 service groups (the mockup uses a proposed list). → A: Keep the 12 proposed service groups and add a standard Vietnamese label to each.
+- Q2: Written criteria for awarding VFDA Verified. → A: VFDA Verified is awarded on legal documents only (valid business registration certificate). It is valid for 12 months.
+- Q3: Criteria for the *eligible to sign a service agreement under Article 13* flag. → A: The flag `art13_eligible` is set only when the business registration lists a film-service business line and VFDA confirms it. The profile shows the disclaimer *not legal advice*.
+- Q4: Is the NDA mutual and standard (one VFDA text) or supplied by each partner? → A: One standard, mutual, bilingual NDA with a version number. The team drafts it; VFDA reviews it before launch.
+
 ## 1. Purpose and scope
 
 This module connects foreign producers with Vietnamese companies that can legally act as their service partner, which Article 13 requires for a filming licence. VFDA verifies each company; producers see more of a company's profile as trust builds, and every collaboration request is tracked to a confirmed partnership.
@@ -344,10 +353,10 @@ Types and required flags of the attributes above that no field in 5.1 declares (
 
 | # | Question | Blocking? | Owner | Status |
 |---|---|---|---|---|
-| 1 | [NEEDS CLARIFICATION: Official names of the 12 service groups (the mockup uses a proposed list).] *(also raised in SC-19, SC-21)* | Yes | Client (VFDA) | Open |
-| 2 | [NEEDS CLARIFICATION: Written criteria for awarding VFDA Verified.] *(also raised in SC-19, SC-22, SC-36)* | Yes | Client (VFDA) | Open |
-| 3 | [NEEDS CLARIFICATION: Criteria for the *eligible to sign a service agreement under Article 13* flag.] *(also raised in SC-20, SC-36)* | Yes | Client (VFDA) | Open |
-| 4 | [NEEDS CLARIFICATION: Is the NDA mutual and standard (one VFDA text) or supplied by each partner?] *(also raised in SC-25)* | Yes | Client (VFDA) | Open |
+| 1 | [NEEDS CLARIFICATION: Official names of the 12 service groups (the mockup uses a proposed list).] *(also raised in SC-19, SC-21)* | Yes | Client (VFDA) | Decided (provisional, VFDA to confirm) — see Clarifications |
+| 2 | [NEEDS CLARIFICATION: Written criteria for awarding VFDA Verified.] *(also raised in SC-19, SC-22, SC-36)* | Yes | Client (VFDA) | Decided (provisional, VFDA to confirm) — see Clarifications |
+| 3 | [NEEDS CLARIFICATION: Criteria for the *eligible to sign a service agreement under Article 13* flag.] *(also raised in SC-20, SC-36)* | Yes | Client (VFDA) | Decided (provisional, VFDA to confirm) — see Clarifications |
+| 4 | [NEEDS CLARIFICATION: Is the NDA mutual and standard (one VFDA text) or supplied by each partner?] *(also raised in SC-25)* | Yes | Client (VFDA) | Decided (provisional, VFDA to confirm) — see Clarifications |
 | 5 | [NEEDS CLARIFICATION: After how many days does an unanswered request expire?] *(also raised in SC-25, SC-23)* | No | Client (VFDA) | Open |
 | 6 | [NEEDS CLARIFICATION: can an organisation choose to hide its international project count] *(from SC-20)* | No | Client (VFDA) | Open |
 | 7 | [NEEDS CLARIFICATION: Do changes to structured fields (service groups, provinces, rate card) also wait in moderation, or only profile text and photos?] *(from SC-21)* | No | Client (VFDA) | Open |

@@ -13,6 +13,15 @@
 | Approved by (Client role) | *Not yet — VFDA project lead (and VFDA Legal Board for legal rules)* |
 | DBIZ2 source | Function List rows 89–95 (F-M7-01 .. F-M7-07); Use Case UC-22, UC-23; Screens SC-32, SC-33 |
 
+## Clarifications
+
+### Session 2026-10-28 (Group C, provisional — the owner in §10 confirms before launch)
+
+- Q1: Does VFDA have the mandate / practice to send notices to Provincial People's Committees, and what is the official template? → A: The system does not send notices on VFDA's behalf. It produces a notice draft that the crew downloads and sends themselves.
+- Q2: Is the notice addressed to the People's Committee or to the provincial Department of Culture? → A: Follows from question 1: the crew chooses the recipient (People's Committee or provincial Department of Culture) when downloading the draft.
+- Q3: Automatic sending (DBIZ2 SEQ-11) or VFDA staff review before sending (SC-32)? → A: No automatic sending. A VFDA staff member reviews the draft in SC-32 before the crew can download the final version.
+- Q5: Which days and hours does VFDA offer for consultations, and how long is one slot? → A: No slot calendar in the MVP. The crew sends a consultation request; VFDA staff reply with a proposed time by email.
+
 ## 1. Purpose and scope
 
 This module lets a producer tell the provinces where they plan to shoot, through VFDA, and see each province's reply; it also lets them book a consultation with VFDA staff. It turns VFDA's relationships with local governments into something a foreign producer can use.
@@ -159,11 +168,11 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 
 | Rule ID | Rule | Why it exists |
 |---|---|---|
-| BR-001 | Notices are sent in VFDA's name, never directly by the producer. | VFDA is the relationship holder with local government. |
+| BR-001 | The system never sends a notice. It drafts the notice; a VFDA staff member reviews it (SC-32); only the approved version can be downloaded, and the producer sends it to the recipient they choose (Clarifications Q1–Q3, 28/10/2026). | VFDA's mandate to write to provinces is unconfirmed; a human still checks every notice. |
 | BR-002 | Every notice states that it does not replace the filming licence from the Ministry of Culture, Sports and Tourism. | Avoids a province or producer mistaking it for permission. |
 | BR-003 | The province's reply is one of three final values; the free-text note is kept as entered. | Consistent tracking and reporting. |
 | BR-004 | Reply times feed the provincial readiness index (M3). | Makes responsiveness visible and comparable. |
-| BR-005 | Consultation booking (SC-33) is offered only after VFDA has declared its staffed hours and reply time; until then SC-33 shows VFDA's contact email instead of the booking form. | A booking form nobody answers does more harm than no form (TL4 §5.7, TL5 M7·2). |
+| BR-005 | In the MVP, SC-33 is a consultation request, not a slot calendar: the member sends topic and preferred times, and VFDA staff reply with a proposed time by email (Clarifications Q5, 28/10/2026). A slot calendar is offered only after VFDA declares its staffed hours. | A booking form nobody answers does more harm than no form (TL4 §5.7, TL5 M7·2). |
 
 ## 6. Key entities
 
@@ -211,11 +220,11 @@ Types and required flags of the attributes above that no field in 5.1 declares (
 
 | # | Question | Blocking? | Owner | Status |
 |---|---|---|---|---|
-| 1 | [NEEDS CLARIFICATION: Does VFDA have the mandate / practice to send notices to Provincial People's Committees, and what is the official template?] *(also raised in SC-32)* | Yes | Client (VFDA) | Open |
-| 2 | [NEEDS CLARIFICATION: Is the notice addressed to the People's Committee or to the provincial Department of Culture?] *(also raised in SC-32)* | Yes | Client (VFDA) | Open |
-| 3 | [NEEDS CLARIFICATION: Automatic sending (DBIZ2 SEQ-11) or VFDA staff review before sending (SC-32)?] | Yes | Client (VFDA) | Open |
+| 1 | [NEEDS CLARIFICATION: Does VFDA have the mandate / practice to send notices to Provincial People's Committees, and what is the official template?] *(also raised in SC-32)* | Yes | Client (VFDA) | Decided (provisional, VFDA to confirm) — see Clarifications |
+| 2 | [NEEDS CLARIFICATION: Is the notice addressed to the People's Committee or to the provincial Department of Culture?] *(also raised in SC-32)* | Yes | Client (VFDA) | Decided (provisional, VFDA to confirm) — see Clarifications |
+| 3 | [NEEDS CLARIFICATION: Automatic sending (DBIZ2 SEQ-11) or VFDA staff review before sending (SC-32)?] | Yes | Client (VFDA) | Decided (provisional, VFDA to confirm) — see Clarifications |
 | 4 | [NEEDS CLARIFICATION: After how many working days without reply should VFDA follow up?] | No | Client (VFDA) | Open |
-| 5 | [NEEDS CLARIFICATION: Which days and hours does VFDA offer for consultations, and how long is one slot?] *(from SC-33)* | Yes | Client (VFDA) | Open |
+| 5 | [NEEDS CLARIFICATION: Which days and hours does VFDA offer for consultations, and how long is one slot?] *(from SC-33)* | Yes | Client (VFDA) | Decided (provisional, VFDA to confirm) — see Clarifications |
 | 6 | [NEEDS CLARIFICATION: How is the consultation held (video call, phone, at the VFDA office) and who sends the joining details?] *(from SC-33)* | No | Client (VFDA) | Open |
 
 ## 11. Traceability to DBIZ2
@@ -234,7 +243,8 @@ Where the 20-screen design or this spec differs from the DBIZ2 Function List, th
 
 | Topic | DBIZ2 / System Design v2.0 | This spec | Status |
 |---|---|---|---|
-| Notice dispatch | Sent automatically by a database webhook (SEQ-11) | Drafted automatically, reviewed and sent by VFDA staff (SC-32) | Open — see §10 |
+| Notice dispatch | Sent automatically by a database webhook (SEQ-11); F-M7-02 sends from VFDA's domain | Drafted automatically, reviewed by VFDA staff (SC-32), downloaded and sent by the producer; `delivery_status` records the download, not an email (BR-001) | Group C decision 28/10/2026 — VFDA to confirm |
+| Consultation booking | F-M7-05..07: slot booking with time zones, confirmation and reminders | Request + email reply in the MVP (BR-005); F-M7-05..07 kept for a later phase | Group C decision 28/10/2026 — VFDA to confirm |
 | Module priority | Must | Should — Tier 2 of the screen list file (#20) | Changed — Confirmed by the Client |
 | Booking availability | Booking always open (F-M7-05) | Offered only once VFDA declares staffed hours (BR-005) | Added — Group C decision 01/10/2026 |
 

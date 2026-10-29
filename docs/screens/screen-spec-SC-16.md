@@ -40,8 +40,8 @@
 | 5 | English + Vietnamese name + province | Header | `location.name_vi`, `name_en`, `province.name` | Yes | — |
 | 6 | Match score for the project | Text | `F-M3-08` for the query linked to the open project | No | shown only when arriving from search results |
 | 7 | Description | Text | `location.desc_en` | Yes | — |
-| 8 | *Logistics* block | List | `crew_capacity_band`, `nearest_airport_km`, `accommodation_within_20km`, `truck_access` | Yes | missing data → *no data yet* |
-| 9 | *Seasons and permits* block | List | `avoid_months`, `permit_notes`, `drone_note`, `verified_at` | Yes | same as above |
+| 8 | *Logistics* block | List | `location.crew_capacity`, `location.airport_km`, `location.lodging_20km`, `location.grid_power`, `location.truck_access` | Yes | missing data → *no data yet* |
+| 9 | *Seasons and permits* block | List | `location.months_to_avoid`, `location.rainy_months`, `location.night_shooting_allowed`, `location.permit_complexity`, `location.restriction_note`, `authority_contact.verified_at` | Yes | same as above |
 | 10 | *Local authority contact* block | Container | `authority_contact` | Yes (members) | **Guests: RLS returns 0 rows, the table is not queried** |
 | 11 | *Province readiness* block | Text | `v_province_readiness.readiness_index` and its 3 main components | Yes | same source as `SC-18` |
 | 12 | Mini map + nearby within 30 km | Map + List | PostGIS `ST_DWithin` on `location.lat, location.lng` | No | max 5, sorted by distance |

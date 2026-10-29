@@ -311,6 +311,10 @@ LOC = [  # key, prov, vi, en, district, lat, lng, airport, scenes, crew, lodge, 
 UNPUBLISHED = {"cua-van": "Unpublished by VFDA: the floating village has moved ashore (2026-09)."}
 # M3 BR-010 — set by VFDA staff; a paused location stays published and visible with its label
 AVAIL = {"ha-long": "survey_in_progress", "phong-nha": "paused"}
+# M3 Clarifications Q3 (28/10/2026) — synthetic values; VFDA staff fill the real ones when verifying
+NIGHT = {"trang-an": "no", "ha-long": "yes", "phong-nha": "no", "hoi-an": "yes", "cai-rang": "yes", "mui-ne": "yes"}
+RAIN = {"trang-an": [6, 7, 8], "ha-long": [6, 7, 8], "phong-nha": [9, 10, 11], "hoi-an": [9, 10, 11], "mu-cang-chai": [6, 7, 8],
+        "cai-rang": [5, 6, 7, 8, 9, 10], "dong-van": [6, 7, 8], "mui-ne": [8, 9, 10], "ca-mau-cape": [5, 6, 7, 8, 9, 10], "cua-van": [6, 7, 8]}
 LID = {k: U("location:" + k) for k, *_ in LOC}
 for k, prov, vi, en, dist, lat, lng, air, sc, crew, lo, pw, tr, av, pc, pub in LOC:
     add("LOCATION", location_id=LID[k], slug=k, province_id=P[prov], name_vi=vi, name_en=en, district=dist,
@@ -320,6 +324,7 @@ for k, prov, vi, en, dist, lat, lng, air, sc, crew, lo, pw, tr, av, pc, pub in L
         months_to_avoid=J(av), permit_complexity=pc,
         restriction_note="Drones need a separate airspace permit." if k in ("ha-long","trang-an") else "",
         availability=AVAIL.get(k, "open"),
+        night_shooting_allowed=NIGHT.get(k, "ask"), rainy_months=J(RAIN.get(k, [])),
         intake_status="published" if pub else "unpublished" if k in UNPUBLISHED else "awaiting_contact", published=str(pub).lower(),
         blocked_reason="" if pub else UNPUBLISHED.get(k, "Authority contact not verified (M3 BR-004)."))
 for k, n, src, right, st in [("trang-an",1,"VFDA field visit 2026-05","VFDA owned","approved"),("trang-an",2,"Ninh Bình Tourism Department","Licensed to VFDA","approved"),

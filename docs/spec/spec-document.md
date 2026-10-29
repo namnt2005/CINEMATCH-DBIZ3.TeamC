@@ -10,16 +10,16 @@ It adds no requirement of its own. If this index and a module file ever disagree
 
 | Module | File | Scope | Functional requirements | Business rules | User stories | Screens (§7) | Open questions (§10) |
 |---|---|---|---|---|---|---|---|
-| SYS | [`spec-SYS.md`](spec-SYS.md) | Platform foundation — accounts, roles, bilingual UI, notifications, search | 11 | 5 | 4 | SC-04, SC-06, SC-07, SC-08, SC-09, SC-42, SC-43 | 11 (2 blocking) |
-| M1 | [`spec-M1.md`](spec-M1.md) | Segment router | 3 | 4 | 3 | SC-01, SC-02, SC-13 | 4 (3 blocking) |
-| M0 | [`spec-M0.md`](spec-M0.md) | Project workspace and readiness dashboard | 9 | 5 | 3 | SC-10, SC-12, SC-13 | 6 (1 blocking) |
-| M2 | [`spec-M2.md`](spec-M2.md) | Content pre-check and Article 13 dossier check | 18 | 8 | 5 | SC-03, SC-27, SC-29, SC-30, SC-31, SC-37, SC-48 | 14 (7 blocking) |
-| M3 | [`spec-M3.md`](spec-M3.md) | Location discovery | 20 | 10 | 5 | SC-14, SC-15, SC-16, SC-17, SC-18, SC-35 | 10 (4 blocking) |
-| M4 | [`spec-M4.md`](spec-M4.md) | Vietnamese service partners | 19 | 9 | 4 | SC-19, SC-20, SC-21, SC-22, SC-23, SC-25, SC-36 | 8 (4 blocking) |
-| M5 | [`spec-M5.md`](spec-M5.md) | Dossier kit, bilingual drafts and countdown | 8 | 6 | 3 | SC-26, SC-28, SC-29 | 7 (3 blocking) |
-| M7 | [`spec-M7.md`](spec-M7.md) | VFDA support — provincial notices and consultations | 7 | 5 | 3 | SC-32, SC-33 | 6 (4 blocking) |
-| M10 | [`spec-M10.md`](spec-M10.md) | VFDA back office — moderation, demand index, quarterly report, audit log | 9 | 5 | 4 | SC-34, SC-38, SC-39, SC-40, SC-41 | 8 (1 blocking) |
-| **Total** |  |  | **104** | **57** | **34** | 41 screens | **74 (29 blocking)** |
+| SYS | [`spec-SYS.md`](spec-SYS.md) | Platform foundation — accounts, roles, bilingual UI, notifications, search | 11 | 5 | 4 | SC-04, SC-06, SC-07, SC-08, SC-09, SC-42, SC-43 | 9 (0 blocking) |
+| M1 | [`spec-M1.md`](spec-M1.md) | Segment router | 3 | 4 | 3 | SC-01, SC-02, SC-13 | 1 (0 blocking) |
+| M0 | [`spec-M0.md`](spec-M0.md) | Project workspace and readiness dashboard | 9 | 5 | 3 | SC-10, SC-12, SC-13 | 5 (0 blocking) |
+| M2 | [`spec-M2.md`](spec-M2.md) | Content pre-check and Article 13 dossier check | 18 | 8 | 5 | SC-03, SC-27, SC-29, SC-30, SC-31, SC-37, SC-48 | 7 (0 blocking) |
+| M3 | [`spec-M3.md`](spec-M3.md) | Location discovery | 20 | 10 | 5 | SC-14, SC-15, SC-16, SC-17, SC-18, SC-35 | 6 (0 blocking) |
+| M4 | [`spec-M4.md`](spec-M4.md) | Vietnamese service partners | 19 | 9 | 4 | SC-19, SC-20, SC-21, SC-22, SC-23, SC-25, SC-36 | 4 (0 blocking) |
+| M5 | [`spec-M5.md`](spec-M5.md) | Dossier kit, bilingual drafts and countdown | 8 | 6 | 3 | SC-26, SC-28, SC-29 | 4 (0 blocking) |
+| M7 | [`spec-M7.md`](spec-M7.md) | VFDA support — provincial notices and consultations | 7 | 5 | 3 | SC-32, SC-33 | 2 (0 blocking) |
+| M10 | [`spec-M10.md`](spec-M10.md) | VFDA back office — moderation, demand index, quarterly report, audit log | 9 | 5 | 4 | SC-34, SC-38, SC-39, SC-40, SC-41 | 7 (0 blocking) |
+| **Total** |  |  | **104** | **57** | **34** | 41 screens | **45 (0 blocking)** |
 
 Modules `M6`, `M8` and `M9` are *Won't* for this release (see `docs/prd.md` section 4.4) and have no Spec Document.
 
@@ -151,10 +151,10 @@ All business rules, as written in §5.2 of each module file:
 | M2 | BR-003 | The words *approved*, *accepted*, *legally compliant* and *safe* never appear in results, including when nothing is found. |
 | M2 | BR-004 | The attention level is derived deterministically from the number and severity of verified findings, never from a model score. |
 | M2 | BR-005 | The dossier completeness check uses fixed rules, not a language model. |
-| M2 | BR-006 | Safe deadline = first shooting day − buffer − 20 − 20 days; latest deadline = first shooting day − buffer − 20 days. |
+| M2 | BR-006 | Safe deadline = first shooting day − buffer − 20 − 20 working days; latest deadline = first shooting day − buffer − 20 working days. Working days exclude Saturdays, Sundays and dates of type PUBLIC_HOLIDAY (Clarifications Q1). |
 | M2 | BR-007 | Every check stores the rule-set version it used. |
 | M2 | BR-008 | Legal rules are retired, never deleted (`status = retired`); a finding keeps showing the text of the rule version it cited. |
-| M3 | BR-001 | The language model only extracts attributes; ranking is done by a deterministic scoring function in the database. The model never names or ranks a location. |
+| M3 | BR-001 | The language model only extracts attributes; ranking is done by a deterministic server-side scoring function. The model never names or ranks a location. |
 | M3 | BR-002 | A result is shown only if its score is 40 or more and it has at least one *why it matches* reason. |
 | M3 | BR-003 | *Not a match* and *No data yet* are different; missing data never counts for or against a location. |
 | M3 | BR-004 | A location cannot be published until its local authority contact is verified; contacts are re-verified every 12 months [NEEDS CLARIFICATION]. |
@@ -179,11 +179,11 @@ All business rules, as written in §5.2 of each module file:
 | M5 | BR-004 | The document list is generated from `segment_requirements` plus shortlisted locations; it is never hard-coded. |
 | M5 | BR-005 | The countdown uses the same calculation as M2 (F-M2-17) and the dashboard. |
 | M5 | BR-006 | Glossary terms a project adds (SC-28) are stored with the project (`project_glossary`) and applied to every later draft of that project. |
-| M7 | BR-001 | Notices are sent in VFDA's name, never directly by the producer. |
+| M7 | BR-001 | The system never sends a notice. It drafts the notice; a VFDA staff member reviews it (SC-32); only the approved version can be downloaded, and the producer sends it to the recipient they choose (Clarifications Q1–Q3, 28/10/2026). |
 | M7 | BR-002 | Every notice states that it does not replace the filming licence from the Ministry of Culture, Sports and Tourism. |
 | M7 | BR-003 | The province's reply is one of three final values; the free-text note is kept as entered. |
 | M7 | BR-004 | Reply times feed the provincial readiness index (M3). |
-| M7 | BR-005 | Consultation booking (SC-33) is offered only after VFDA has declared its staffed hours and reply time; until then SC-33 shows VFDA's contact email instead of the booking form. |
+| M7 | BR-005 | In the MVP, SC-33 is a consultation request, not a slot calendar: the member sends topic and preferred times, and VFDA staff reply with a proposed time by email (Clarifications Q5, 28/10/2026). A slot calendar is offered only after VFDA declares its staffed hours. |
 | M10 | BR-001 | Content published by partners (profile text, photos) is shown to the public only after VFDA staff approve it; until then the last approved version stays public. |
 | M10 | BR-002 | Hiding content requires a written reason, which is sent to the author. |
 | M10 | BR-003 | Every indicator shows the number of records it was computed from; below 5 records it shows *Not enough data* instead of a value. |

@@ -40,6 +40,8 @@ CREATE TABLE location (
     permit_complexity VARCHAR(20) NOT NULL,
     restriction_note TEXT,
     availability VARCHAR(20) NOT NULL,
+    night_shooting_allowed VARCHAR(20),
+    rainy_months JSONB,
     intake_status VARCHAR(20),
     published BOOLEAN,
     blocked_reason TEXT,
@@ -48,6 +50,7 @@ CREATE TABLE location (
     CONSTRAINT ck_location_crew_capacity CHECK (crew_capacity IN ('u15', '15_50', 'o50')),
     CONSTRAINT ck_location_permit_complexity CHECK (permit_complexity IN ('low', 'medium', 'high')),
     CONSTRAINT ck_location_availability CHECK (availability IN ('open', 'survey_in_progress', 'paused')),
+    CONSTRAINT ck_location_night_shooting_allowed CHECK (night_shooting_allowed IN ('yes', 'no', 'ask')),
     CONSTRAINT ck_location_intake_status CHECK (intake_status IN ('awaiting_contact', 'published', 'unpublished')),
     CONSTRAINT fk_location_province_id FOREIGN KEY (province_id) REFERENCES province (province_id),
     -- M3 BR-004, BR-008 — published only in the published state

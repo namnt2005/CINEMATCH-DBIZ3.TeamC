@@ -39,7 +39,7 @@
 | 4 | Safety buffer | Toggle (dropdown) | `project.buffer_days` — 0 / 7 / 14 / 21 | Yes | default 7 |
 | 5 | *Safe submission deadline* card | Text | `F-M2-17`: first shooting day − buffer − 20 − 20; days remaining | Yes | most prominent element on screen |
 | 6 | Timeline axis | Chart (timeline) | from today to after the first shooting day, monthly ticks | Yes | — |
-| 7 | Milestone | Chart marker | `timeline_milestones` — partner confirmed, Vietnamese version done, safe deadline, latest deadline, first shooting day | Yes | overdue milestones turn red |
+| 7 | Milestone | Chart marker | milestones computed by F-M2-17 from `project.shoot_date`, `project.buffer_days` and `public_holiday` — partner confirmed, Vietnamese version done, safe deadline, latest deadline, first shooting day | Yes | overdue milestones turn red |
 | 8 | Smooth-path bar | Chart bar | submission date → +20 days | Yes | — |
 | 9 | One-resubmission bar | Chart bar | submission date → +40 days | Yes | — |
 | 10 | Today line | Chart marker | current date | — | — |
@@ -74,7 +74,7 @@
 | SR-172 | Always show the consequence of submitting late (e.g. *result after the first shooting day*). Never soften bad news. | Honesty principle |
 | SR-173 | The **same calculation function** is used by `SC-12`, `SC-27` and this screen. | Consistency principle |
 | SR-174 | Public holidays are read from the `public_holiday` table; dates without an official calendar are clearly marked *expected*. | No-guessing principle |
-| SR-175 | Calculated in **calendar days** until the VFDA Legal Board confirms the method (see open questions). | Interim assumption |
+| SR-175 | Calculated in **working days** (weekends and public holidays excluded) — Group C decision 28/10/2026, VFDA Legal Board to confirm. | spec-M2.md Clarifications Q1 |
 
 ## 7. Linked requirements
 

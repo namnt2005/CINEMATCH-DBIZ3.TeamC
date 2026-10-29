@@ -13,6 +13,12 @@
 | Approved by (Client role) | *Not yet — VFDA project lead (and VFDA Legal Board for legal rules)* |
 | DBIZ2 source | Function List rows 96–104 (F-M10-01 .. F-M10-09); Use Case UC-24, UC-25, UC-26; Screens SC-34, SC-38, SC-39, SC-40, SC-41 |
 
+## Clarifications
+
+### Session 2026-10-28 (Group C, provisional — the owner in §10 confirms before launch)
+
+- Q1: Indicator 4 (budget scale of location needs) and indicator 6 (bottleneck most reported) need fields that no function collects today. Add a budget band and a *main obstacle* question to project creation, or drop the two indicators? → A: Deferred to after the MVP. Indicators 4 and 6 stay in the spec, marked *post-launch*; no new project fields are added now.
+
 ## 1. Purpose and scope
 
 This module is VFDA's own workspace: staff review what users publish before the public sees it, follow how much international demand the platform receives, and send a quarterly report built from those figures. It also keeps a permanent record of every administrative action, so that VFDA can always show who changed what and when.
@@ -260,7 +266,7 @@ Types and required flags of the attributes above that no field in 5.1 declares (
 
 | # | Question | Blocking? | Owner | Status |
 |---|---|---|---|---|
-| 1 | [NEEDS CLARIFICATION: Indicator 4 (budget scale of location needs) and indicator 6 (bottleneck most reported) need fields that no function collects today. Add a budget band and a *main obstacle* question to project creation, or drop the two indicators?] *(also raised in SC-39)* | Yes | Group C (M0 owner) with VFDA | Open |
+| 1 | [NEEDS CLARIFICATION: Indicator 4 (budget scale of location needs) and indicator 6 (bottleneck most reported) need fields that no function collects today. Add a budget band and a *main obstacle* question to project creation, or drop the two indicators?] *(also raised in SC-39)* | Yes | Group C (M0 owner) with VFDA | Decided (provisional, VFDA to confirm) — see Clarifications |
 | 2 | [NEEDS CLARIFICATION: Who must reread and sign the quarterly report before it is sent — any staff member, or a named VFDA leader?] *(also raised in SC-40)* | No | Client (VFDA) | Open |
 | 3 | [NEEDS CLARIFICATION: How long are audit records kept (proposed: for the life of the platform)?] *(also raised in SC-41)* | No | Client (VFDA) | Open |
 | 4 | [NEEDS CLARIFICATION: Must profile *edits* by an already verified partner also go through moderation, or only the first publication?] *(also raised in SC-38)* | No | Client (VFDA) | Open |

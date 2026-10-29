@@ -39,7 +39,7 @@
 | # | Element | Type | Content / data source | Required | Validation |
 |---|---|---|---|---|---|
 | 1 | Navigation bar | Header | static | — | — |
-| 2 | Title + check run details | Header + Text | `precheck_run.created_at`, `ruleset_version`, word count, language | Yes | must include the rule set version |
+| 2 | Title + check run details | Header + Text | `precheck_run.created_at`, `precheck_run.rule_version`, word count, language | Yes | must include the rule set version |
 | 3 | Attention level scale | Chart (3 levels) | computed deterministically from number of findings × severity (`F-M2-06`) | Yes | Low / Medium / High — no 0–100 score |
 | 4 | Point count by level | Text | count of `precheck_finding` by `severity` | Yes | — |
 | 5 | Submitted text | Text | `summary_text — input only, never stored (M2 FR-007 keeps precheck_run.synopsis_hash)` | Yes | shown verbatim, unedited |
@@ -83,7 +83,7 @@
 | SR-073 | **Adjustment suggestions** are only *points to consider* taken verbatim from VFDA-written rules. The system **never** rewrites film content itself. | Screen list file — note #7; TL3 |
 | SR-074 | **Banned wording:** *approved*, *accepted*, *legally compliant*, *safe* — even when there are no findings. | Legal liability principle |
 | SR-075 | Highlights always come with a number — information is never conveyed by colour alone. | Accessibility |
-| SR-076 | Each check run stores `ruleset_version` so it can be explained later after the rule set changes. | TL5 §M2 |
+| SR-076 | Each check run stores `precheck_run.rule_version` so it can be explained later after the rule set changes. | TL5 §M2 |
 
 ## 7. Linked requirements
 

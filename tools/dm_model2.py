@@ -347,6 +347,8 @@ C["LOCATION"] = [
  ("permit_complexity","ENUM(low, medium, high)","Req","","M3 §5.1 FR-002",None),
  ("restriction_note","TEXT","Opt","","M3 §5.1 FR-002",None),
  ("availability","ENUM(open, survey_in_progress, paused)","Req","","M3 §5.1 FR-002; M3 §5.2 BR-010",None),
+ ("night_shooting_allowed","ENUM(yes, no, ask)","Opt","","M3 §5.1 FR-002; M3 Clarifications Q3 (28/10/2026)",None),
+ ("rainy_months","ARRAY<INTEGER>","Opt","","M3 §5.1 FR-002; M3 Clarifications Q3 (28/10/2026)",None),
  ("intake_status","ENUM(awaiting_contact, published, unpublished)","system-set","","M3 §5.1 FR-002 (OUT); M3 §6; M3 §5.2 BR-008 (unpublished, never deleted)",None),
  ("published","BOOLEAN","system-set","","M3 §5.1 FR-005 (OUT); M3 §5.2 BR-004",None),
  ("blocked_reason","TEXT","system-set","","M3 §5.1 FR-005 (OUT)",None),

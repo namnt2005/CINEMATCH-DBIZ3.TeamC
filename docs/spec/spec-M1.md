@@ -13,6 +13,14 @@
 | Approved by (Client role) | *Not yet — VFDA project lead (and VFDA Legal Board for legal rules)* |
 | DBIZ2 source | Function List rows 21–23 (F-M1-01 .. F-M1-03); Use Case UC-01; Screens SC-01, SC-02 |
 
+## Clarifications
+
+### Session 2026-10-28 (Group C, provisional — the owner in §10 confirms before launch)
+
+- Q1: Co-production (question 3): segment A or B, or a separate segment? → A: Co-production is classified as segment A (full licence path).
+- Q2: Does segment C (only hiring Vietnamese cast or services, no shooting in Vietnam) really need no licence at all? → A: Segment C needs no shooting licence, but the result shows a checklist of the usual commercial documents (service contract, crew visas) with the caveat *not legal advice — confirm with VFDA*.
+- Q3: does VFDA allow its logo and association name on the landing page, and what is the official wording → A: The landing page does not mention VFDA at all (no logo, no association name) until VFDA gives written approval.
+
 ## 1. Purpose and scope
 
 This module finds out which of three situations a production is in — shooting in Vietnam for release abroad (A), shooting and releasing in Vietnam (B), or only hiring people or services from Vietnam (C). The answer decides which documents, steps and gauges the rest of the product shows.
@@ -195,9 +203,9 @@ Types and required flags of the attributes above that no field in 5.1 declares (
 
 | # | Question | Blocking? | Owner | Status |
 |---|---|---|---|---|
-| 1 | [NEEDS CLARIFICATION: Co-production (question 3): segment A or B, or a separate segment?] *(also raised in SC-02)* | Yes | Client (VFDA) | Open |
-| 2 | [NEEDS CLARIFICATION: Does segment C (only hiring Vietnamese cast or services, no shooting in Vietnam) really need no licence at all?] *(also raised in SC-02)* | Yes | Client (VFDA) | Open |
-| 3 | [NEEDS CLARIFICATION: does VFDA allow its logo and association name on the landing page, and what is the official wording] *(from SC-01)* | Yes | Client (VFDA) | Open |
+| 1 | [NEEDS CLARIFICATION: Co-production (question 3): segment A or B, or a separate segment?] *(also raised in SC-02)* | Yes | Client (VFDA) | Decided (provisional, VFDA to confirm) — see Clarifications |
+| 2 | [NEEDS CLARIFICATION: Does segment C (only hiring Vietnamese cast or services, no shooting in Vietnam) really need no licence at all?] *(also raised in SC-02)* | Yes | Client (VFDA) | Decided (provisional, VFDA to confirm) — see Clarifications |
+| 3 | [NEEDS CLARIFICATION: does VFDA allow its logo and association name on the landing page, and what is the official wording] *(from SC-01)* | Yes | Client (VFDA) | Decided (provisional, VFDA to confirm) — see Clarifications |
 | 4 | [NEEDS CLARIFICATION: default language on a guest's first visit — follow the browser, or always EN since the main users are international crews] *(from SC-01)* | No | Group C | Open |
 
 ## 11. Traceability to DBIZ2

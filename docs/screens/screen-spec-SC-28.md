@@ -35,7 +35,7 @@
 |---|---|---|---|---|---|
 | 1 | Navigation bar | Header | static | — | — |
 | 2 | Project sidebar | List | static; *Bilingual drafts* selected | — | — |
-| 3 | Document picker | Toggle (dropdown) | `bilingual_docs` — Synopsis / Full script for scenes shot in Vietnam / Application letter / Undertaking | Yes | project documents only |
+| 3 | Document picker | Toggle (dropdown) | `bilingual_document.doc_code` — Synopsis / Full script for scenes shot in Vietnam / Application letter / Undertaking | Yes | project documents only |
 | 4 | Proofreading progress | Text + bar | count of `bilingual_paragraph.reviewed_by IS NOT NULL` | Yes | — |
 | 5 | Source column | Text | `bilingual_paragraph.source_text` | Yes | read-only |
 | 6 | Vietnamese column | Input (textarea per paragraph) | `bilingual_paragraph.target_text` | Yes | must not be empty; editing a proofread paragraph resets it to *not proofread* |

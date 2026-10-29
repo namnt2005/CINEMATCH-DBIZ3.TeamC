@@ -13,6 +13,13 @@
 | Approved by (Client role) | *Not yet — VFDA project lead (and VFDA Legal Board for legal rules)* |
 | DBIZ2 source | Function List rows 1–11 (F-SYS-01 .. F-SYS-11); Use Case: none of its own (used by every UC); Screens SC-04, SC-05, SC-06, SC-07, SC-08, SC-09, SC-42, SC-43 |
 
+## Clarifications
+
+### Session 2026-10-28 (Group C, provisional — the owner in §10 confirms before launch)
+
+- Q1: Must a producer company be verified (e.g. business registration, IMDbPro) before seeing local authority contacts? → A: No company verification is needed. Any signed-in member sees local authority contacts.
+- Q9: How long are pre-check texts kept, and may they be used to improve the rule base? (same question as spec-M2.md question 6) → A: Pre-check text is never stored; only its hash (`synopsis_hash`) is kept, and it is not used to improve the rule base. Same decision as M2 question 6.
+
 ## 1. Purpose and scope
 
 This module lets people create an account, sign in, and see only what their role allows, in Vietnamese or English. It also delivers in-app and email notifications and provides the search indexes the other modules rely on.
@@ -254,7 +261,7 @@ Types and required flags of the attributes above that no field in 5.1 declares (
 
 | # | Question | Blocking? | Owner | Status |
 |---|---|---|---|---|
-| 1 | [NEEDS CLARIFICATION: Must a producer company be verified (e.g. business registration, IMDbPro) before seeing local authority contacts?] *(also raised in SC-04)* | Yes | Client (VFDA) | Open |
+| 1 | [NEEDS CLARIFICATION: Must a producer company be verified (e.g. business registration, IMDbPro) before seeing local authority contacts?] *(also raised in SC-04)* | Yes | Client (VFDA) | Decided (provisional, VFDA to confirm) — see Clarifications |
 | 2 | [NEEDS CLARIFICATION: Is Google / Apple sign-in required at launch?] *(also raised in SC-04)* | No | Client (VFDA) | Open |
 | 3 | [NEEDS CLARIFICATION: Which embedding model (and vector dimension) is used for F-SYS-11?] | No | Group C | Open |
 | 4 | [NEEDS CLARIFICATION: SEQ-01 has no error branch (email provider down, expired link). Confirm the behaviour written in the edge cases.] *(also raised in SC-07)* | No | Client (VFDA) | Open |
@@ -262,7 +269,7 @@ Types and required flags of the attributes above that no field in 5.1 declares (
 | 6 | [NEEDS CLARIFICATION: SYS BR-005 anonymises name, email and phone, but SYS §5.1 has no phone field for an account — which phone field is meant?] *(from SC-08)* | No | Client (VFDA) | Open |
 | 7 | [NEEDS CLARIFICATION: May a member turn off email notifications (per event type or all), or is every notification always emailed?] *(from SC-08)* | No | Client (VFDA) | Open |
 | 8 | [NEEDS CLARIFICATION: Which `event_type` values exist in the MVP and what readable label does each get? SYS §5.1 declares the field but not its values.] *(from SC-09)* | No | Group C | Open |
-| 9 | [NEEDS CLARIFICATION: How long are pre-check texts kept, and may they be used to improve the rule base? (same question as spec-M2.md question 6)] *(from SC-42)* | Yes | Client (VFDA) | Open |
+| 9 | [NEEDS CLARIFICATION: How long are pre-check texts kept, and may they be used to improve the rule base? (same question as spec-M2.md question 6)] *(from SC-42)* | Yes | Client (VFDA) | Decided (provisional, VFDA to confirm) — see Clarifications |
 | 10 | [NEEDS CLARIFICATION: Does one `consent_version` cover both the privacy policy and the terms of use, or does each document need its own version and acceptance record?] *(from SC-42)* | No | Client (VFDA Legal Board) | Open |
 | 11 | [NEEDS CLARIFICATION: When the terms get a new version, must existing members accept it again (e.g. at their next sign-in) before continuing?] *(from SC-43)* | No | Client (VFDA Legal Board) | Open |
 
