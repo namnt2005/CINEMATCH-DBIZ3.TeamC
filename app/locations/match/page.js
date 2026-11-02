@@ -10,6 +10,7 @@ import {
   extractionChips,
   extractorLabel
 } from './match-view.js';
+import { useT } from '../../../lib/i18n/client.js';
 
 const CHIP_COLORS = {
   scene: { backgroundColor: '#dbeafe', color: '#1e40af' },
@@ -19,9 +20,8 @@ const CHIP_COLORS = {
 };
 
 export default function SceneMatchPage() {
-  const [description, setDescription] = useState(
-    'A ferry landing at dawn between limestone karsts, 1970s, a waterside village, about 30 extras, night scenes too'
-  );
+  const t = useT();
+  const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(false);
   const [extractedData, setExtractedData] = useState(null);
   const [error, setError] = useState(null);
@@ -29,7 +29,7 @@ export default function SceneMatchPage() {
 
   const handleAnalyze = async () => {
     if (!description || description.trim().length < 10) {
-      setError('Scene description must be at least 10 characters.');
+      setError('match.error.too_short');
       return;
     }
 
@@ -45,7 +45,7 @@ export default function SceneMatchPage() {
 
       if (!res.ok) {
         const errJson = await res.json();
-        throw new Error(errJson.error || 'Failed to extract scene attributes.');
+        throw new Error(errJson.error === 'VALIDATION_ERROR' ? 'match.error.too_short' : 'match.error.failed');
       }
 
       const data = await res.json();
@@ -53,7 +53,7 @@ export default function SceneMatchPage() {
       // BR-003: a description without a month leaves the field empty, even after an earlier one had a month
       setShootMonth(monthFromExtraction(data));
     } catch (err) {
-      setError(err.message);
+      setError(err.message.startsWith('match.error.') ? err.message : 'match.error.failed');
     } finally {
       setLoading(false);
     }
@@ -66,20 +66,20 @@ export default function SceneMatchPage() {
   };
 
   return (
-    <div style={{ maxWidth: '960px', margin: '0 auto', padding: '2rem 1rem', fontFamily: 'system-ui, sans-serif' }}>
+    <div style={{ maxWidth: '960px', margin: '0 auto', padding: '2rem 1rem' }}>
       <header style={{ marginBottom: '2rem', borderBottom: '1px solid #e5e7eb', paddingBottom: '1rem' }}>
         <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: '#111827' }}>
-          SC-15: Describe a Scene (AI Matching)
+          {t('match.title')}
         </h1>
         <p style={{ color: '#4b5563', marginTop: '0.25rem' }}>
-          Describe your scene in English or Vietnamese. The system extracts structured criteria and matches locations deterministically.
+          {t('match.lead')}
         </p>
       </header>
 
       {/* Description Input */}
       <section style={{ marginBottom: '2rem' }}>
         <label htmlFor="scene-desc" style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem' }}>
-          Scene Description (10–1000 characters)
+          {t('match.label')}
         </label>
         <textarea
           id="scene-desc"
@@ -94,10 +94,10 @@ export default function SceneMatchPage() {
           }}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          placeholder="Describe geography, era, time of day, water features, crowd size..."
+          placeholder={t('match.placeholder')}
         />
         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.5rem', color: '#6b7280', fontSize: '0.875rem' }}>
-          <span>Length: {description.length} chars (minimum 10)</span>
+          <span>{t('match.length', { count: description.length })}</span>
           <button
             type="button"
             onClick={handleAnalyze}
@@ -112,14 +112,14 @@ export default function SceneMatchPage() {
               fontWeight: '600'
             }}
           >
-            {loading ? 'Analyzing...' : 'Analyse description'}
+            {loading ? t('match.analyzing') : t('match.analyze')}
           </button>
         </div>
       </section>
 
       {error && (
         <div style={{ padding: '0.75rem', backgroundColor: '#fee2e2', color: '#b91c1c', borderRadius: '0.375rem', marginBottom: '1.5rem' }}>
-          {error}
+          {t(error)}
         </div>
       )}
 
@@ -127,24 +127,24 @@ export default function SceneMatchPage() {
       {extractedData && (
         <section style={{ backgroundColor: '#f9fafb', padding: '1.5rem', borderRadius: '0.5rem', border: '1px solid #e5e7eb', marginBottom: '2rem' }}>
           <h2 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.25rem', color: '#1f2937' }}>
-            What the system understood
+            {t('match.understood')}
           </h2>
           {/* Which extractor answered, for testers (Gemini or rule-based) */}
           <div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '1rem' }}>
-            {extractorLabel(extractedData)}
+            {extractorLabel(extractedData, t)}
           </div>
 
           {/* Gemini unavailable: the rule-based extractor answered (SC-15 error state) */}
           {extractedData.fallback && (
             <div role="status" style={{ marginBottom: '1rem', padding: '0.75rem', backgroundColor: '#e0f2fe', borderRadius: '0.375rem', color: '#075985', fontSize: '0.875rem' }}>
-              <strong>Đang dùng chế độ dự phòng.</strong> Không gọi được mô hình ngôn ngữ nên hệ thống dùng bộ trích theo luật; hãy kiểm tra và sửa các tiêu chí bên dưới trước khi tìm.
+              <strong>{t('match.fallback.title')}</strong> {t('match.fallback.text')}
             </div>
           )}
 
           {/* Values outside the catalogue were dropped (F-M3-12, SR-093) */}
           {extractedData.rejected && extractedData.rejected.length > 0 && (
             <div style={{ marginBottom: '1rem', padding: '0.75rem', backgroundColor: '#fee2e2', borderRadius: '0.375rem', color: '#991b1b', fontSize: '0.875rem' }}>
-              <strong>Not in the catalogue, dropped:</strong>{' '}
+              <strong>{t('match.rejected')}</strong>{' '}
               {extractedData.rejected.map(v => `“${v}”`).join(', ')}
             </div>
           )}
@@ -152,10 +152,10 @@ export default function SceneMatchPage() {
           {/* Mapped synonyms warning */}
           {extractedData.mapped_synonyms && extractedData.mapped_synonyms.length > 0 && (
             <div style={{ marginBottom: '1rem', padding: '0.75rem', backgroundColor: '#fef3c7', borderRadius: '0.375rem', color: '#92400e', fontSize: '0.875rem' }}>
-              <strong>Synonym Mapping:</strong>{' '}
+              <strong>{t('match.synonyms')}</strong>{' '}
               {extractedData.mapped_synonyms.map((m, i) => (
                 <span key={i}>
-                  &ldquo;{m.original}&rdquo; was mapped to official catalog value &ldquo;{m.mapped}&rdquo;
+                  {t('match.synonym_item', { original: m.original, mapped: m.mapped })}
                   {i < extractedData.mapped_synonyms.length - 1 ? '; ' : ''}
                 </span>
               ))}
@@ -164,7 +164,7 @@ export default function SceneMatchPage() {
 
           {/* Extracted attribute chips */}
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1.5rem' }}>
-            {extractionChips(extractedData).map(chip => (
+            {extractionChips(extractedData, t).map(chip => (
               <span
                 key={chip.key}
                 style={{
@@ -183,7 +183,7 @@ export default function SceneMatchPage() {
           {/* Planned shoot month */}
           <div style={{ marginBottom: '1.5rem' }}>
             <label htmlFor="shoot-month" style={{ display: 'block', fontWeight: '500', marginBottom: '0.25rem', fontSize: '0.875rem' }}>
-              Planned Shooting Month
+              {t('match.month_label')}
             </label>
             <select
               id="shoot-month"
@@ -191,7 +191,7 @@ export default function SceneMatchPage() {
               onChange={(e) => setShootMonth(monthFromSelect(e.target.value))}
               style={{ padding: '0.5rem', borderRadius: '0.375rem', border: '1px solid #d1d5db' }}
             >
-              {monthOptions().map(option => (
+              {monthOptions(t).map(option => (
                 <option key={option.value || 'any'} value={option.value}>{option.label}</option>
               ))}
             </select>
@@ -211,7 +211,7 @@ export default function SceneMatchPage() {
               fontSize: '1rem'
             }}
           >
-            Find matching locations (SC-14)
+            {t('match.find')}
           </button>
         </section>
       )}

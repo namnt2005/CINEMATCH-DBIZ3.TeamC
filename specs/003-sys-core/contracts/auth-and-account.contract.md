@@ -53,11 +53,11 @@ Signed-in only → `{ email, email_verified, role, full_name, crew_role, locale,
 
 ## PATCH `/api/account` — SC-08, FR-005
 
-`{ full_name?, crew_role?, locale? }` → **200** updated account; other fields are refused with **422**. `locale` also sets the `locale` cookie.
+`{ full_name?, crew_role?, locale?, org_name?, country?, website? }` (SC-08 rows 3–7, research Open question 21) → **200** updated account; email, role, status or any other field → **422**. `locale` also sets the `locale` cookie. Organisation fields are written by the System client on the user's own organisation.
 
 ## POST `/api/account/deactivate` — BR-005, SC-08 SR-233/234
 
-`{ "confirm": "DELETE" }` exactly → **200**: account deactivated at once (`app_deactivate_my_account`), all sessions signed out; anything else → **422**.
+`{ "confirm": "DELETE" }` exactly → **200** `{ "status": "deleted" }`: deactivated at once (`app_deactivate_my_account`), all sessions signed out, then name and email anonymised in the database and in Supabase Auth, metadata cleared, identity banned (research Open question 20); anything else → **422**.
 
 ## Session (server side)
 

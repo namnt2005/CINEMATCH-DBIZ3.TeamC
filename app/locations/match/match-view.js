@@ -1,4 +1,5 @@
 import { serializeFilterState } from '../use-filter-state.js';
+import { dictionary, translate } from '../../../lib/i18n/index.js';
 
 /**
  * Pure view helpers for SC-15, kept out of page.js so they can be tested with node --test.
@@ -7,12 +8,15 @@ import { serializeFilterState } from '../use-filter-state.js';
 // BR-003: no month is assumed; the field stays empty until the extractor or the user sets one
 export const DEFAULT_SHOOT_MONTH = null;
 
-const CREW_LABELS = { u15: 'under 15', '15_50': '15–50', o50: 'over 50' };
+// Without a translator from the page, the month list reads Vietnamese and the chips English (the defaults
+// of the earlier screens and their tests); the page passes the user's translator (FR-006)
+const VI = (key, vars) => translate(dictionary('vi'), key, vars);
+const EN = (key, vars) => translate(dictionary('en'), key, vars);
 
-export function monthOptions() {
+export function monthOptions(t = VI) {
   return [
-    { value: '', label: 'Bất kỳ tháng nào' },
-    ...Array.from({ length: 12 }, (_, i) => ({ value: String(i + 1), label: `Tháng ${i + 1}` }))
+    { value: '', label: t('month.any') },
+    ...Array.from({ length: 12 }, (_, i) => ({ value: String(i + 1), label: t('month.n', { month: i + 1 }) }))
   ];
 }
 
@@ -42,18 +46,20 @@ export function searchQuery(extraction, shootMonth) {
  * Chips for "What the system understood", in display order: scene types, era, crew size, time of day.
  * A chip appears only for a value the extractor returned.
  */
-export function extractionChips(extraction) {
+export function extractionChips(extraction, t = EN) {
   const a = extraction?.attributes || {};
-  const chips = (a.scene_types || []).map(type => ({ kind: 'scene', key: `scene-${type}`, label: `Scene: ${type}` }));
-  if (a.era) chips.push({ kind: 'era', key: 'era', label: `Era: ${a.era}` });
-  if (a.crowd_scale) chips.push({ kind: 'crew', key: 'crew', label: `Crew: ${CREW_LABELS[a.crowd_scale] || a.crowd_scale}` });
+  const label = (prefix, value) => t(prefix, { value });
+  const known = (key, fallback) => { const text = t(key); return text === key ? fallback : text; };
+  const chips = (a.scene_types || []).map(type => ({ kind: 'scene', key: `scene-${type}`, label: label('match.chip.scene', known(`scene.${type}`, type)) }));
+  if (a.era) chips.push({ kind: 'era', key: 'era', label: label('match.chip.era', known(`era.${a.era}`, a.era)) });
+  if (a.crowd_scale) chips.push({ kind: 'crew', key: 'crew', label: label('match.chip.crew', known(`match.crew.${a.crowd_scale}`, a.crowd_scale)) });
   for (const time of a.time_of_day || []) {
-    chips.push({ kind: 'time', key: `time-${time}`, label: `Time: ${time}` });
+    chips.push({ kind: 'time', key: `time-${time}`, label: label('match.chip.time', known(`time.${time}`, time)) });
   }
   return chips;
 }
 
 // The fallback is the rule-based extractor, so it reads "luật" too
-export function extractorLabel(extraction) {
-  return extraction?.provider === 'gemini' ? 'Bộ trích: Gemini' : 'Bộ trích: luật';
+export function extractorLabel(extraction, t = VI) {
+  return extraction?.provider === 'gemini' ? t('match.extractor.gemini') : t('match.extractor.rules');
 }

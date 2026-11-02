@@ -3,8 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import { deserializeFilterState, serializeFilterState } from './use-filter-state.js';
 import { cardNameStyle } from './card-styles.js';
+import { useT } from '../../lib/i18n/client.js';
+import { availabilityText, reasonText } from './labels.js';
 
 export default function LocationsSearchPage() {
+  const t = useT();
   const [locations, setLocations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -31,12 +34,12 @@ export default function LocationsSearchPage() {
       const qs = serializeFilterState(activeFilters);
       const res = await fetch(`/api/locations/search${qs}`);
       if (!res.ok) {
-        throw new Error('Failed to fetch matching locations');
+        throw new Error('search.error');
       }
       const data = await res.json();
       setLocations(data.results || []);
-    } catch (err) {
-      setError(err.message);
+    } catch {
+      setError('search.error');
     } finally {
       setLoading(false);
     }
@@ -53,14 +56,14 @@ export default function LocationsSearchPage() {
   };
 
   return (
-    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem 1rem', fontFamily: 'system-ui, sans-serif' }}>
+    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem 1rem' }}>
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', borderBottom: '1px solid #e5e7eb', paddingBottom: '1rem' }}>
         <div>
           <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: '#111827' }}>
-            SC-14: Location Suggestions & Matching
+            {t('search.title')}
           </h1>
           <p style={{ color: '#4b5563', marginTop: '0.25rem' }}>
-            Ranked published locations scoring 40 or higher with explainable match reasons.
+            {t('search.lead')}
           </p>
         </div>
         <a
@@ -75,7 +78,7 @@ export default function LocationsSearchPage() {
             border: '1px solid #d1d5db'
           }}
         >
-          ✏️ Edit Description (SC-15)
+          ✏️ {t('search.edit_description')}
         </a>
       </header>
 
@@ -83,7 +86,8 @@ export default function LocationsSearchPage() {
       <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '2rem', padding: '1rem', backgroundColor: '#f9fafb', borderRadius: '0.5rem', border: '1px solid #e5e7eb' }}>
         <input
           type="text"
-          placeholder="Search by name or keyword (diacritic-insensitive)..."
+          placeholder={t('search.placeholder')}
+          aria-label={t('search.placeholder')}
           value={filters.q || ''}
           onChange={(e) => handleFilterChange('q', e.target.value)}
           style={{ flex: '1', minWidth: '240px', padding: '0.5rem 0.75rem', borderRadius: '0.375rem', border: '1px solid #d1d5db' }}
@@ -93,19 +97,19 @@ export default function LocationsSearchPage() {
           onChange={(e) => handleFilterChange('crew_size', e.target.value)}
           style={{ padding: '0.5rem', borderRadius: '0.375rem', border: '1px solid #d1d5db' }}
         >
-          <option value="">All crew sizes</option>
-          <option value="u15">Under 15 crew</option>
-          <option value="15_50">15–50 crew</option>
-          <option value="o50">Over 50 crew</option>
+          <option value="">{t('search.crew_any')}</option>
+          <option value="u15">{t('crew.u15')}</option>
+          <option value="15_50">{t('crew.15_50')}</option>
+          <option value="o50">{t('crew.o50')}</option>
         </select>
         <select
           value={filters.shoot_month || ''}
           onChange={(e) => handleFilterChange('shoot_month', e.target.value ? parseInt(e.target.value, 10) : null)}
           style={{ padding: '0.5rem', borderRadius: '0.375rem', border: '1px solid #d1d5db' }}
         >
-          <option value="">Any month</option>
+          <option value="">{t('month.any')}</option>
           {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(m => (
-            <option key={m} value={m}>Month {m}</option>
+            <option key={m} value={m}>{t('month.n', { month: m })}</option>
           ))}
         </select>
       </div>
@@ -113,19 +117,19 @@ export default function LocationsSearchPage() {
       {/* Results Section */}
       {loading ? (
         <div style={{ textAlign: 'center', padding: '3rem', color: '#6b7280' }}>
-          Loading matching locations...
+          {t('search.loading')}
         </div>
       ) : error ? (
         <div style={{ padding: '1rem', backgroundColor: '#fee2e2', color: '#b91c1c', borderRadius: '0.375rem' }}>
-          {error}
+          {t(error)}
         </div>
       ) : locations.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '3rem', backgroundColor: '#f9fafb', borderRadius: '0.5rem', border: '1px solid #e5e7eb' }}>
           <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#374151', marginBottom: '0.5rem' }}>
-            No locations reach the 40-point threshold
+            {t('search.empty.title')}
           </h3>
           <p style={{ color: '#6b7280', marginBottom: '1.5rem' }}>
-            Try broadening your scene attributes or request assistance from VFDA scouts.
+            {t('search.empty.text')}
           </p>
           <a
             href="mailto:scouting@vfda.vn"
@@ -138,13 +142,13 @@ export default function LocationsSearchPage() {
               fontWeight: '500'
             }}
           >
-            Ask VFDA for suggestions
+            {t('search.empty.ask')}
           </a>
         </div>
       ) : (
         <div>
           <div style={{ marginBottom: '1rem', fontWeight: '600', color: '#4b5563' }}>
-            Showing {locations.length} published locations scoring ≥ 40
+            {t('search.showing', { count: locations.length })}
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.5rem' }}>
             {locations.map((loc, idx) => (
@@ -183,7 +187,7 @@ export default function LocationsSearchPage() {
                         fontSize: '0.875rem'
                       }}
                     >
-                      {loc.score}% Match
+                      {t('search.score', { score: loc.score })}
                     </span>
                   </div>
 
@@ -200,18 +204,18 @@ export default function LocationsSearchPage() {
                         fontWeight: '600'
                       }}
                     >
-                      {loc.availability?.replace(/_/g, ' ')}
+                      {availabilityText(t, loc.availability)}
                     </span>
                   </div>
 
                   {/* Why it matches (SC-002, BR-002) */}
                   <div style={{ backgroundColor: '#f0fdf4', padding: '0.75rem', borderRadius: '0.375rem', marginBottom: '1rem' }}>
                     <div style={{ fontSize: '0.75rem', fontWeight: '700', color: '#166534', textTransform: 'uppercase', marginBottom: '0.25rem' }}>
-                      Why it matches:
+                      {t('search.why')}
                     </div>
                     <ul style={{ margin: 0, paddingLeft: '1.25rem', fontSize: '0.875rem', color: '#14532d' }}>
-                      {loc.match_reasons?.map((reason, rIdx) => (
-                        <li key={rIdx}>{reason}</li>
+                      {(loc.match_reason_codes || []).map((code, rIdx) => (
+                        <li key={rIdx}>{reasonText(t, code)}</li>
                       ))}
                     </ul>
                   </div>
@@ -230,7 +234,7 @@ export default function LocationsSearchPage() {
                       fontSize: '0.875rem'
                     }}
                   >
-                    View Details & Photos →
+                    {t('search.details')} →
                   </a>
                 </div>
               </div>
