@@ -27,3 +27,6 @@ CLAUDE.local.md
 .claude/settings.local.json
 tools/_ref.docx
 /CINEMATCH-DBIZ3.TeamC/
+
+# Supabase CLI link data (project ref, pooler host): local only
+supabase/.temp/

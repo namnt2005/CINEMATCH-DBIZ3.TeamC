@@ -33,7 +33,7 @@ export async function GET(req) {
     };
 
     // Execute search with deterministic scoring
-    const scoredResults = searchLocations(criteria);
+    const scoredResults = await searchLocations(criteria);
 
     // Format output cards matching API contract
     const results = scoredResults.map(item => {

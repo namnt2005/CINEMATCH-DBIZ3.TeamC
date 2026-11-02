@@ -251,17 +251,19 @@ def module_md(m, mermaid_ok):
                 oq.append([f"{q} *(from {s['sid']})*", "Yes" if b else "No", how[1], "Open"])
     for k, sids in also.items():
         oq[k][0] += f" *(also raised in {', '.join(sids)})*"
-    clar = []
-    for (dm, n), (word, answer) in sorted(DECISIONS.items(), key=lambda kv: kv[0][1]):
+    clar = {}  # decision date -> lines
+    for (dm, n), (word, answer, *when) in sorted(DECISIONS.items(), key=lambda kv: kv[0][1]):
         if dm != mid:
             continue
         assert n <= len(oq) and word.lower() in oq[n - 1][0].lower(), f"decision {dm} #{n}: question text has no '{word}' — renumbered?"
         oq[n - 1][3] = f"{DEC_STATUS} — see Clarifications"
         q = oq[n - 1][0].replace("[NEEDS CLARIFICATION: ", "").split("]")[0].strip()
-        clar.append(f"- Q{n}: {q} → A: {answer}")
+        clar.setdefault(when[0] if when else DEC_DATE, []).append(f"- Q{n}: {q} → A: {answer}")
     oq = [tuple(r) for r in oq]
     oq = [(i + 1,) + r for i, r in enumerate(oq)]
-    clar_md = ("## Clarifications\n\n" + f"### Session {DEC_DATE} (Group C, provisional — the owner in §10 confirms before launch)\n\n" + "\n".join(clar) + "\n\n") if clar else ""
+    clar_md = ("## Clarifications\n\n" + "".join(
+        f"### Session {day} (Group C, provisional — the owner in §10 confirms before launch)\n\n" + "\n".join(lines) + "\n\n"
+        for day, lines in sorted(clar.items()))) if clar else ""
     # checklist
     fr_ok = len(m["fr"]) == EXPECTED[mid] and [parse_fid(f)[1] for f, *_ in m["fr"]] == list(range(1, EXPECTED[mid] + 1))
     io_ok = not io_problems and set(m["io"]) == set(f for f, *_ in m["fr"])

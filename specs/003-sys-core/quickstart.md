@@ -1,0 +1,51 @@
+# Quickstart: validate the platform foundation on Supabase (SYS)
+
+Feature: `003-sys-core` · Contracts: [contracts/](contracts/) · Model: [data-model.md](data-model.md)
+
+## Prerequisites
+
+- Node.js 22+, `npm install` on branch `003-sys-core`; Python 3 for `tools/`.
+- Offline parts need nothing else. Online parts need the `cinematch-dev` project (already linked: `supabase/.temp/`), and in `.env` (git-ignored) the three variables of `.env.example`: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY`. **Rename** the old `NEXT_PUBLIC_SUPABASE_ANON_KEY` / `SUPABASE_SERVICE_ROLE_KEY` in your `.env`.
+- The database connection string is **never** saved in a file: `export SUPABASE_DB_URL='postgresql://…'` in the terminal you use for the steps below.
+
+## Slice 1 — shared data and RLS (US-2, data layer)
+
+| # | Step | Expected |
+|---|---|---|
+| 1 | `npm test` (no network, no Supabase variables) | all green, including the static migration tests: 46 tables, RLS on every table, no DELETE, a policy or RPC or deferred entry for every human (entity, operation) of the CRUD matrix |
+| 2 | `python3 tools/build_supabase.py --check` | no difference with the committed migrations |
+| 3 | `npx supabase db push --db-url "$SUPABASE_DB_URL"` | 5 migrations applied |
+| 4 | Dashboard → Authentication → *Add user* for some seed emails (e.g. `thuha.nguyen@vfda-demo.example.vn`) | each gets a `user_account` row with role `member` (trigger) |
+| 5 | `node scripts/seed-supabase.mjs --reset` | guard passes for `cinematch-dev`; rows loaded per table; the added accounts re-keyed and given their seed role (e.g. `vfda_staff`) |
+| 6 | same command with a URL of another project | refused unless `--force` |
+| 7 | `npm run check:supabase` | `authority_contact`: 0 rows with the publishable key, ≥ 1 with the secret key; PASS on every line |
+| 8 | `NEXT_PUBLIC_SUPABASE_URL` set, `npm run dev`, open `/locations`, `/locations/trang-an`, `/admin/locations` | same pages as offline, now read from Supabase; guests see no contact (SC-002) |
+
+## Slice 2 — accounts and roles (US-1, US-2)
+
+| # | Step | Expected |
+|---|---|---|
+| 1 | `npm test` | sign-up validation, duplicate email, `next` safety, deactivated = guest, mock ignored when Supabase is set |
+| 2 | `/signup`: fill name, work email, 10+ character password, company, country, crew role, tick terms | *Check your email*; `user_account` role `member`, `email_verified` false; `profile`, `producer_organisation`, `consent` with the current version (US-1 Scenario 1, BR-003) |
+| 3 | Same email again | *This email already has an account — Log in?*; still one account (US-1 Scenario 3) |
+| 4 | Open the verification link | session starts, role `member`, lands on `/locations` (interim for SC-02, US-1 Scenario 2) |
+| 5 | Sign in as that member, open `/locations/trang-an` | contact shown (US-2 Scenario 2); signed out → sign-up prompt and no phone in the page source (US-2 Scenario 1) |
+| 6 | `/forgot-password` with a known and an unknown email | the same message both times (SR-211); the link resets the password; a second use shows *Link expired* |
+| 7 | Sign in as the seeded `vfda_staff` account | `/admin/locations` opens without any `x-mock-role` |
+
+## Slice 3 — language, account, notifications, terms (US-3, US-4)
+
+| # | Step | Expected |
+|---|---|---|
+| 1 | `npm test` and `npm run build` | i18n check passes (same keys in both files, no hard-coded text in the moved screens); notifications, deactivation, consent tests green |
+| 2 | Any page in Vietnamese → choose EN, scroll first | all interface text in English, scroll position kept; reopen the browser → still English (US-3) |
+| 3 | `node -e` / test helper: `notify()` for the member | one notification and one `email_delivery` `queued` (FR-007, FR-008) |
+| 4 | `/notifications` as the member | newest first, unread count; *Mark all as read* sets the count to 0 (US-4 Scenario 2); another member sees none of them |
+| 5 | With `RESEND_API_KEY` and a verified domain: `npm run send-emails` | `sent` with `provider_message_id` within 1 minute (US-4 Scenario 1); without the key: rows stay `queued` |
+| 6 | `/account`: change name and language; type `DELETE` and confirm | changes saved; account deactivated, signed out, cannot sign in again (BR-005) |
+| 7 | `/privacy`, `/terms` | current version shown in both languages (SR-251, SR-254) |
+| 8 | `npm run embed`, then the RPC `app_match_locations` with an embedded query | nearest published locations returned (FR-011) |
+
+## Results
+
+*(filled in by the person who runs it: date, machine, result per step)*

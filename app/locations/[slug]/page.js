@@ -1,7 +1,7 @@
 import { headers } from 'next/headers';
 import { notFound } from 'next/navigation';
 import { getLocationDetail } from '../../../lib/db/location-detail.js';
-import { resolveSessionRole } from '../../../lib/auth/session.js';
+import { getSession } from '../../../lib/auth/session.js';
 import { canSeeAuthorityContact, getAuthorityContact } from '../../../lib/db/contacts.js';
 import { noDataLabel, nightShootingLabel, rainyMonthsLabel, monthsToAvoidLabel } from '../../../lib/locations/season-facts.js';
 import LocationMap from '../../components/map/location-map.js';
@@ -59,13 +59,13 @@ function FactBlock({ title, facts }) {
  * Logistics (#8), Seasons and permits (#9), the local authority contact (#10)
  * and the mini map with nearby locations (#12). The province index (#11) is not built yet.
  */
-export default function LocationDetailPage({ params }) {
-  const location = getLocationDetail(params.slug);
+export default async function LocationDetailPage({ params }) {
+  const location = await getLocationDetail(params.slug);
   if (!location) notFound();
 
   // Guests never reach authority_contact, so the page source holds no phone number (BR-005, SR-111, SC-004)
-  const session = resolveSessionRole(headers());
-  const contact = canSeeAuthorityContact(session) ? getAuthorityContact(location.location_id, session) : null;
+  const session = await getSession({ headers: headers() });
+  const contact = canSeeAuthorityContact(session) ? await getAuthorityContact(location.location_id, session) : null;
 
   const availability = AVAILABILITY[location.availability];
 

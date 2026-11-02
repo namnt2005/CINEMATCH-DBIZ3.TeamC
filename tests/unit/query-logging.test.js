@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { sanitizeAndLogQuery } from '../../lib/db/queries.js';
 
 describe('Query Persistence & PII Exclusion (BR-009)', () => {
-  test('persists confirmed search query attributes while strictly stripping personal data', () => {
+  test('persists confirmed search query attributes while strictly stripping personal data', async () => {
     const rawSearchData = {
       description: 'Ferry landing at dawn near karst',
       attributes: { scene_types: ['karst', 'river'] },
@@ -15,7 +15,7 @@ describe('Query Persistence & PII Exclusion (BR-009)', () => {
       ip_address: '192.168.1.1'
     };
 
-    const logged = sanitizeAndLogQuery(rawSearchData);
+    const logged = await sanitizeAndLogQuery(rawSearchData);
 
     assert.ok(logged.query_id);
     assert.equal(logged.description, rawSearchData.description);
