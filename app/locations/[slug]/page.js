@@ -2,6 +2,7 @@ import { headers } from 'next/headers';
 import { notFound } from 'next/navigation';
 import { getLocationDetail } from '../../../lib/db/location-detail.js';
 import { getSession } from '../../../lib/auth/session.js';
+import { getI18n } from '../../../lib/i18n/server.js';
 import { canSeeAuthorityContact, getAuthorityContact, isContactAccessDenied } from '../../../lib/db/contacts.js';
 import { noDataLabel, nightShootingLabel, rainyMonthsLabel, monthsToAvoidLabel } from '../../../lib/locations/season-facts.js';
 import LocationMap from '../../components/map/location-map.js';
@@ -64,7 +65,11 @@ export default async function LocationDetailPage({ params }) {
   if (!location) notFound();
 
   // Guests never reach authority_contact, so the page source holds no phone number (BR-005, SR-111, SC-004)
+  // Supabase session from the cookies (@supabase/ssr); x-mock-role only counts in `npm test` (T073)
   const session = await getSession({ headers: headers() });
+  const { t } = await getI18n();
+  // Back to this page after sign-in (SC-04 SR-025)
+  const loginHref = `/login?next=${encodeURIComponent(`/locations/${location.slug}`)}`;
   let contact = null;
   let contactDenied = false;
   if (canSeeAuthorityContact(session)) {
@@ -177,18 +182,19 @@ export default async function LocationDetailPage({ params }) {
         {/* Local authority contact (SC-16 #10) */}
         {contactDenied ? (
           <section style={{ border: '1px dashed #d1d5db', borderRadius: '0.5rem', padding: '1.25rem', backgroundColor: '#f9fafb' }}>
-            <h2 style={{ fontSize: '1.125rem', fontWeight: '600', color: '#111827', margin: '0 0 0.5rem' }}>Liên hệ chính quyền địa phương</h2>
-            <p style={{ color: '#6b7280', fontSize: '0.875rem', margin: 0 }}>Bạn không có quyền xem liên hệ này. Hãy đăng nhập lại.</p>
+            <h2 style={{ fontSize: '1.125rem', fontWeight: '600', color: '#111827', margin: '0 0 0.5rem' }}>{t('location.contact.title')}</h2>
+            <p style={{ color: '#6b7280', fontSize: '0.875rem', margin: '0 0 0.75rem' }}>{t('location.contact.denied')}</p>
+            <a href={loginHref} style={{ color: '#2563eb', textDecoration: 'none', fontWeight: '500' }}>{t('location.contact.login')}</a>
           </section>
         ) : canSeeAuthorityContact(session) && !contact ? (
           // Published, but staff changed the contact and it awaits verification again (decision D4)
           <section style={{ border: '1px dashed #f59e0b', borderRadius: '0.5rem', padding: '1.25rem', backgroundColor: '#fffbeb' }}>
-            <h2 style={{ fontSize: '1.125rem', fontWeight: '600', color: '#111827', margin: '0 0 0.5rem' }}>Liên hệ chính quyền địa phương</h2>
+            <h2 style={{ fontSize: '1.125rem', fontWeight: '600', color: '#111827', margin: '0 0 0.5rem' }}>{t('location.contact.title')}</h2>
             <p style={{ color: '#92400e', fontSize: '0.875rem', margin: 0 }}>Liên hệ đang chờ VFDA xác minh lại.</p>
           </section>
         ) : canSeeAuthorityContact(session) ? (
           <FactBlock
-            title="Liên hệ chính quyền địa phương"
+            title={t('location.contact.title')}
             facts={[
               ['Cơ quan', contact?.authority_name || NO_DATA],
               ['Người liên hệ', contact?.contact_name || NO_DATA],
@@ -198,12 +204,12 @@ export default async function LocationDetailPage({ params }) {
           />
         ) : (
           <section style={{ border: '1px dashed #d1d5db', borderRadius: '0.5rem', padding: '1.25rem', backgroundColor: '#f9fafb', textAlign: 'center' }}>
-            <h2 style={{ fontSize: '1.125rem', fontWeight: '600', color: '#111827', margin: '0 0 0.5rem' }}>Liên hệ chính quyền địa phương</h2>
+            <h2 style={{ fontSize: '1.125rem', fontWeight: '600', color: '#111827', margin: '0 0 0.5rem' }}>{t('location.contact.title')}</h2>
             <p style={{ color: '#6b7280', fontSize: '0.875rem', margin: '0 0 1rem' }}>
-              Thông tin liên hệ chỉ hiển thị cho thành viên đã đăng nhập.
+              {t('location.contact.members_only')}
             </p>
             <a
-              href="/auth/signup"
+              href={loginHref}
               style={{
                 display: 'inline-block',
                 backgroundColor: '#2563eb',
@@ -214,7 +220,10 @@ export default async function LocationDetailPage({ params }) {
                 fontWeight: '500'
               }}
             >
-              Đăng nhập để xem
+              {t('location.contact.login')}
+            </a>
+            <a href={`/signup?next=${encodeURIComponent(`/locations/${location.slug}`)}`} style={{ display: 'block', marginTop: '0.75rem', color: '#2563eb', textDecoration: 'none', fontSize: '0.875rem' }}>
+              {t('location.contact.signup')}
             </a>
           </section>
         )}

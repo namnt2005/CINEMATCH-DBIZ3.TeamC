@@ -45,6 +45,7 @@ Decisions D1–D9 were taken by Nam Tran on 01/11/2026 (see [plan.md](plan.md)).
   - Supabase source: `@supabase/ssr` server client from the request cookies, `auth.getUser()` (validated by Supabase, not just the cookie), then the `user_account` row → `{ role, isAuthenticated, userId, status }`. A deactivated account is signed out and treated as a guest (BR-005).
   - `node:sqlite` source: the current mock (`x-mock-role`, `MOCK_AUTH_DEFAULT_ROLE`, `MOCK_STAFF_USER_ID`) unchanged, so the offline tests keep working.
   - **`x-mock-role` is ignored whenever Supabase is configured.**
+  - **Changed 02/11/2026 (Nam Tran):** on the sqlite source too, `x-mock-role` counts only when `NODE_ENV=test` (`npm test`); `next dev`, `next start` and production ignore it. `MOCK_AUTH_DEFAULT_ROLE` (development only) is unchanged (tasks T072, T073).
 - `middleware.js` refreshes the Supabase session cookies (`@supabase/ssr` pattern). `next` after sign-in accepts internal paths only (FR-002 note).
 
 ## R7. Seed loader `scripts/seed-supabase.mjs`
@@ -120,3 +121,7 @@ Decisions D1–D9 were taken by Nam Tran on 01/11/2026 (see [plan.md](plan.md)).
 | 13 | [NEEDS CLARIFICATION: no table links a `partner` account to its `organisation` (`organisation` has no user column), so partner writes (F-M4-01, 08, 14, 17; F-M5-06; moderation items) cannot be scoped to the partner's own rows.] | No partner write policy (least privilege); M4 slice adds the link through the data model | Group C (M4 owner) |
 | 14 | `docs/function-list.md` gives F-M4-03 (member layer) the actor *Guest*, while `data/data-model-M4.md` names the policy `rls_org_member_layer_members` (members only). | Signed-in only, as the named policy says | M4 owner |
 | 15 | ~~`document` has no project column~~ — wrong: `document.project_id` exists (composite foreign key to `document_slot`), missed by the first inventory. Resolved 01/11/2026. | `rls_document_project_members` = project members | — |
+| 16 | [NEEDS CLARIFICATION: SC-04 does not say what sign-in shows for an account whose email is not verified yet.] | `403 EMAIL_NOT_VERIFIED` with *Resend* (Supabase reports it only after the right password, so it reveals nothing); decided by the agent 02/11/2026, to confirm | Group C |
+| 17 | [NEEDS CLARIFICATION: the current `consent_version` is not written anywhere; SC-43 row 3 shows it.] | `2026.2`, the newest version in `data/seed` (account `park` re-consented to it), in `lib/db/consent.js` | VFDA Legal Board |
+| 18 | [NEEDS CLARIFICATION: SC-04 rows 3 and 6 say full name 2–80 and organisation 2–120 characters; FR-001 and `data/schema` say `VARCHAR(120)` and `VARCHAR(200)`.] | The validator follows FR-001 and the schema (1–120, 1–200); fix SC-04 at its source `tools/s*_en.py` | Group C |
+| 19 | Reset and verification links use PKCE: they work in the browser that asked for them; another browser shows *link expired*. Supabase Auth must list `<site>/auth/callback` and `<site>/reset-password` under *Redirect URLs*. | Accept; set the Redirect URLs in the Supabase dashboard of each environment | Nam Tran |

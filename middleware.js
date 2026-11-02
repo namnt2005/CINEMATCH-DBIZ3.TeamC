@@ -6,9 +6,30 @@ import { isSupabase } from './lib/db/source.js';
 // this gate answers early so a member never gets the screen (FR-004).
 const STAFF_ROLES = ['vfda_staff', 'admin'];
 
+/**
+ * SC-07: the reset link from the email opens /reset-password?code=… (Supabase Auth, PKCE). The code is exchanged
+ * here, where cookies can still be written, then the page opens without it. A used or expired code shows the
+ * expired-link panel (SR-221).
+ */
+async function openResetLink(request, url) {
+  const clean = new URL('/reset-password', url.origin);
+  const response = NextResponse.redirect(clean);
+  const { getUserClient } = await import('./lib/supabase/server.js');
+  const db = await getUserClient({ request, response });
+  const { error } = await db.auth.exchangeCodeForSession(url.searchParams.get('code'));
+  if (!error) return response;
+  clean.searchParams.set('error', 'link_expired');
+  return NextResponse.redirect(clean);
+}
+
 export async function middleware(request) {
   const response = NextResponse.next();
-  const { pathname } = new URL(request.url);
+  const url = new URL(request.url);
+  const { pathname } = url;
+
+  if (pathname === '/reset-password' && url.searchParams.has('code') && isSupabase()) {
+    return openResetLink(request, url);
+  }
   const adminApi = pathname.startsWith('/api/admin/');
   const adminPage = pathname === '/admin' || pathname.startsWith('/admin/');
 
@@ -23,7 +44,8 @@ export async function middleware(request) {
     if (adminApi) {
       return NextResponse.json({ error: 'UNAUTHENTICATED', message: 'Sign in as VFDA staff to manage locations.' }, { status: 401 });
     }
-    return NextResponse.redirect(new URL(`/login?next=${encodeURIComponent(pathname)}`, request.url));
+    // Back to the same page after sign-in, query string included (SC-04 SR-025)
+    return NextResponse.redirect(new URL(`/login?next=${encodeURIComponent(`${pathname}${url.search}`)}`, request.url));
   }
   if (!STAFF_ROLES.includes(session.role)) {
     return adminApi

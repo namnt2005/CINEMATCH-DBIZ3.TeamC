@@ -7,19 +7,19 @@ const OTHER_STAFF_ID = '74749444-a35e-5c4b-892b-2f8cb8cf80b9';
 
 describe('Mock staff session (T002, FR-004 verified_by, M10 FR-008 admin_id, research R3–R4)', () => {
   test('FR-004 / M10 FR-008: x-mock-role vfda_staff carries the default seed staff id (interim, research Open question 1)', () => {
-    const session = resolveSessionRole({ 'x-mock-role': 'vfda_staff' }, {});
+    const session = resolveSessionRole({ 'x-mock-role': 'vfda_staff' }, { NODE_ENV: 'test' });
     assert.equal(session.role, 'vfda_staff');
     assert.equal(session.isAuthenticated, true);
     assert.equal(session.userId, STAFF_ID);
   });
 
   test('FR-004: MOCK_STAFF_USER_ID chooses another seed staff account', () => {
-    const session = resolveSessionRole({ 'x-mock-role': 'vfda_staff' }, { MOCK_STAFF_USER_ID: OTHER_STAFF_ID });
+    const session = resolveSessionRole({ 'x-mock-role': 'vfda_staff' }, { NODE_ENV: 'test', MOCK_STAFF_USER_ID: OTHER_STAFF_ID });
     assert.equal(session.userId, OTHER_STAFF_ID);
   });
 
   test('Other roles carry no staff id', () => {
-    assert.equal(resolveSessionRole({ 'x-mock-role': 'member' }, {}).userId, null);
+    assert.equal(resolveSessionRole({ 'x-mock-role': 'member' }, { NODE_ENV: 'test' }).userId, null);
     assert.equal(resolveSessionRole({}, {}).userId, null);
   });
 
@@ -29,8 +29,8 @@ describe('Mock staff session (T002, FR-004 verified_by, M10 FR-008 admin_id, res
     assert.equal(session.userId, STAFF_ID);
   });
 
-  test('Research R4: the header always wins over MOCK_AUTH_DEFAULT_ROLE', () => {
-    const session = resolveSessionRole({ 'x-mock-role': 'member' }, { MOCK_AUTH_DEFAULT_ROLE: 'vfda_staff' });
+  test('Research R4: under NODE_ENV=test the header wins over MOCK_AUTH_DEFAULT_ROLE', () => {
+    const session = resolveSessionRole({ 'x-mock-role': 'member' }, { NODE_ENV: 'test', MOCK_AUTH_DEFAULT_ROLE: 'vfda_staff' });
     assert.equal(session.role, 'member');
   });
 

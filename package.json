@@ -7,7 +7,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test": "node --test tests/foundational/*.test.js tests/unit/*.test.js tests/contracts/*.test.js",
+    "test": "node --import ./scripts/test-env.mjs --test tests/foundational/*.test.js tests/unit/*.test.js tests/contracts/*.test.js",
     "test:foundational": "node --test tests/foundational/*.test.js",
     "test:unit": "node --test tests/unit/*.test.js",
     "test:contracts": "node --test tests/contracts/*.test.js",
