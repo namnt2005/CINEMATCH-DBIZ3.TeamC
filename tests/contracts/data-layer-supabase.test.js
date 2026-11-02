@@ -7,21 +7,23 @@ const TRANG_AN = '607132bd-b05b-52c6-900f-5f2928c17a9e';
 const member = { role: 'member', isAuthenticated: true, userId: '11111111-1111-4111-8111-111111111111' };
 const staff = { role: 'vfda_staff', isAuthenticated: true, userId: '515529a9-46d9-559c-aab4-e5fb31eedeea' };
 const guest = { role: 'guest', isAuthenticated: false, userId: null };
+const DENIED = { code: '42501', message: 'permission denied for table authority_contact' };
 
 // Records every call; answers from(table) with rows and rpc(name) with { data, error }
-function fakeSupabase({ rows = {}, rpc = {} } = {}) {
+function fakeSupabase({ rows = {}, rpc = {}, errors = {}, user = null } = {}) {
   const calls = [];
   const client = {
     calls,
+    auth: { getUser: async () => ({ data: { user }, error: null }) },
     from(table) {
       const filters = [];
-      const result = () => ({ data: rows[table] ?? [], error: null });
+      const result = () => (errors[table] ? { data: null, error: errors[table] } : { data: rows[table] ?? [], error: null });
       const chain = {
         select(cols) { calls.push({ from: table, select: cols }); return chain; },
         eq(col, val) { filters.push([col, val]); calls.push({ from: table, eq: [col, val] }); return chain; },
         order() { return chain; },
         limit() { return chain; },
-        maybeSingle: async () => ({ data: (rows[table] ?? [])[0] ?? null, error: null }),
+        maybeSingle: async () => (errors[table] ? { data: null, error: errors[table] } : { data: (rows[table] ?? [])[0] ?? null, error: null }),
         single: async () => ({ data: (rows[table] ?? [])[0] ?? null, error: null }),
         then: (ok, ko) => Promise.resolve(result()).then(ok, ko)
       };
@@ -99,5 +101,34 @@ describe('lib/db on the Supabase source with a fake client (T019, D4, research R
     (await loadTesting()).setSupabaseClientsForTests({ user });
     const { unpublishLocation } = await import('../../lib/db/admin-locations.js');
     await assert.rejects(() => unpublishLocation(TRANG_AN, null, member), err => err.code === 'FORBIDDEN' && err.status === 403);
+  });
+
+  test('T013: permission denied on authority_contact is "no access", not a crash (typed error the callers handle)', async () => {
+    const user = fakeSupabase({ errors: { authority_contact: DENIED } });
+    (await loadTesting()).setSupabaseClientsForTests({ user });
+    const { getAuthorityContact, isContactAccessDenied } = await import('../../lib/db/contacts.js');
+    await assert.rejects(getAuthorityContact(TRANG_AN, member), (err) => isContactAccessDenied(err));
+  });
+
+  test('T013: the contact API answers 403 FORBIDDEN, not 500, when the database denies the read', async () => {
+    const user = fakeSupabase({
+      user: { id: member.userId },
+      rows: { user_account: [{ role: 'member', account_status: 'active' }], location: [{ location_id: TRANG_AN, slug: 'trang-an', province: { name: 'Ninh Bình' } }] },
+      errors: { authority_contact: DENIED }
+    });
+    (await loadTesting()).setSupabaseClientsForTests({ user });
+    const { GET } = await import('../../app/api/locations/[slug]/authority-contact/route.js');
+    const res = await GET(new Request('http://localhost/api/locations/trang-an/authority-contact'), { params: { slug: 'trang-an' } });
+    assert.equal(res.status, 403);
+    assert.equal((await res.json()).error, 'FORBIDDEN');
+  });
+
+  test('T013: SC-35 reads denied by the database map to FORBIDDEN 403, as writes do', async () => {
+    const user = fakeSupabase({ errors: { location: DENIED } });
+    (await loadTesting()).setSupabaseClientsForTests({ user });
+    const { listAdminLocations, getAdminLocation } = await import('../../lib/db/admin-locations.js');
+    for (const read of [() => listAdminLocations({}), () => getAdminLocation(TRANG_AN)]) {
+      await assert.rejects(read(), (err) => err.code === 'FORBIDDEN' && err.status === 403);
+    }
   });
 });

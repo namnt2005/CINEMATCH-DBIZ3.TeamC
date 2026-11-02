@@ -64,13 +64,13 @@ Nothing in the metadata can set a role, a status or an id.
 | `compliance_run` | — | — | — | no function (CRUD anomaly) |
 | `compliance_finding` | project member of the run's project | System | project member | F-M2-12..14 |
 | `province` | anon + signed-in | — | — | reference list |
-| `location` | anon + signed-in: published only; `vfda_staff` all | RPC (`vfda_staff`) | RPC (`vfda_staff`); embeddings System | F-M3-01..14, BR-004, BR-008 |
+| `location` | anon + signed-in: published only; `vfda_staff` all | RPC (`vfda_staff`) | RPC (`vfda_staff`) | F-M3-01..14, BR-004, BR-008 |
 | `location_image` | anon + signed-in: `approved` of published locations; `vfda_staff` all | `vfda_staff` | `vfda_staff` | F-M3-03/13, SR-313 |
 | `authority_contact` | signed-in: verified contacts of published locations; `vfda_staff` all | RPC (`vfda_staff`) | RPC (`vfda_staff`) | F-M3-04/05/15, BR-001, Clarifications Q1; policy `rls_authority_contact_members` |
 | `location_query` | — | System | — | F-M3-11 (BR-009) |
 | `project_shortlist` | project member | `member` + project member | — | F-M3-18 |
 | `organisation` | anon + signed-in | Deferred (OQ 13) | `vfda_staff`; partner deferred (OQ 13) | F-M4-01/02/10 |
-| `organisation_member_layer` | signed-in | Deferred (OQ 13) | `vfda_staff`; partner deferred (OQ 13); embeddings System | F-M4-01/03/06/07; policy `rls_org_member_layer_members` (Open question 14) |
+| `organisation_member_layer` | signed-in | Deferred (OQ 13) | `vfda_staff`; partner deferred (OQ 13) | F-M4-01/03/06/07; policy `rls_org_member_layer_members` (Open question 14) |
 | `organisation_private_layer` | `member` of a project whose request to the organisation is accepted with an NDA | Deferred (OQ 13) | Deferred (OQ 13) | F-M4-04; policy `rls_org_private_after_nda` |
 | `verification_request` | `vfda_staff` | Deferred (OQ 13) | `vfda_staff` | F-M4-08..10 |
 | `collab_request` | project member; partner deferred (OQ 13) | `member` + project member | partner deferred (OQ 13) | F-M4-12..14 |
@@ -111,7 +111,6 @@ Derived entities of the matrix (`READINESS_VIEW`, `DOSSIER_CHECK`, `LICENSING_TI
 | `app_deactivate_my_account()` | the signed-in user | `account_status = deactivated`; audit `account.deactivate` |
 | `app_anonymise_deactivated()` | System | name, email replaced for accounts deactivated since the last run (BR-005) |
 | `app_search_locations(q)` | anon, signed-in | published locations matching the unaccented text index (FR-010) |
-| `app_match_locations(embedding, k)` | anon, signed-in | published locations nearest to an embedding (FR-011) |
 
 The local rules of `lib/db/local-triggers.sql` get their PostgreSQL versions in the same migration: `trg_location_publish_needs_contact` (BR-004) and `trg_audit_log_append_only` (M10 BR-005).
 
@@ -122,6 +121,6 @@ The local rules of `lib/db/local-triggers.sql` get their PostgreSQL versions in 
 | extension `unaccent`, function `app.f_unaccent(text)` (IMMUTABLE) | accent-insensitive text search (FR-010) |
 | GIN index on `to_tsvector('simple', app.f_unaccent(name_vi ‖ name_en ‖ desc_vi ‖ desc_en))` of `location` | FR-010 |
 | GIN index on the same over `capability_desc_vi ‖ capability_desc_en` of `organisation_member_layer` | FR-010 |
-| extension `vector`; column `embedding VECTOR(768)` on `location` and `organisation_member_layer`; HNSW (cosine) indexes | FR-011 |
+| ~~extension `vector`; column `embedding VECTOR(768)` on `location` and `organisation_member_layer`; HNSW (cosine) indexes; RPC `app_match_locations`~~ | FR-011, **deferred** 02/11/2026 (plan.md Complexity Tracking) |
 
 These live in `supabase/migrations/…000500_search_indexes.sql`, outside the schema-generated migration, as `tools/dm_model2.py` assigns them to the physical design.

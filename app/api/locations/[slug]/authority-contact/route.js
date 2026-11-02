@@ -1,6 +1,6 @@
 import { getSession } from '../../../../../lib/auth/session.js';
 import { getPublishedLocationBySlug } from '../../../../../lib/db/locations.js';
-import { canSeeAuthorityContact, getAuthorityContact } from '../../../../../lib/db/contacts.js';
+import { canSeeAuthorityContact, getAuthorityContact, isContactAccessDenied } from '../../../../../lib/db/contacts.js';
 import { locationNotFound } from '../../../../../lib/api/errors.js';
 
 /**
@@ -44,6 +44,9 @@ export async function GET(req, { params }) {
       { status: 200 }
     );
   } catch (err) {
+    if (isContactAccessDenied(err)) {
+      return Response.json({ error: 'FORBIDDEN', message: err.message }, { status: 403 });
+    }
     console.error('Authority contact error:', err);
     return Response.json(
       { error: 'INTERNAL_ERROR', message: 'Failed to load authority contact.' },

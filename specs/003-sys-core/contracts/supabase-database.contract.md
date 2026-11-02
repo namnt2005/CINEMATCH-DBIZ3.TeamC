@@ -10,7 +10,7 @@ Feature: `003-sys-core` · Detail: [data-model.md](../data-model.md) · Decision
 | `20261101000200_auth_link.sql` | hand-written | schema `app`; `app.current_role()`, `app.has_role(...)`, `app.is_project_member(uuid)`; triggers on `auth.users` (data-model §2) |
 | `20261101000300_grants_rls.sql` | `python3 tools/build_supabase.py` (from `tools/rls_policies.py`) | `REVOKE ALL` + grants of data-model §4; `ENABLE ROW LEVEL SECURITY` on all 46 tables; one named policy per row of data-model §3 |
 | `20261101000400_rules.sql` | hand-written | `trg_location_publish_needs_contact`, `trg_audit_log_append_only`, the functions of data-model §5 |
-| `20261101000500_search_indexes.sql` | hand-written | `unaccent`, `app.f_unaccent`, GIN indexes, `vector`, `embedding VECTOR(768)` columns, HNSW indexes (data-model §6) |
+| `20261101000500_search_indexes.sql` | hand-written | `unaccent`, `app.f_unaccent`, GIN indexes, `app_search_locations` (data-model §6); FR-011 objects deferred |
 
 Applying: `npx supabase db push --db-url "$SUPABASE_DB_URL"` (the URL is exported in the terminal only).
 

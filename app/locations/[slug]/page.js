@@ -2,7 +2,7 @@ import { headers } from 'next/headers';
 import { notFound } from 'next/navigation';
 import { getLocationDetail } from '../../../lib/db/location-detail.js';
 import { getSession } from '../../../lib/auth/session.js';
-import { canSeeAuthorityContact, getAuthorityContact } from '../../../lib/db/contacts.js';
+import { canSeeAuthorityContact, getAuthorityContact, isContactAccessDenied } from '../../../lib/db/contacts.js';
 import { noDataLabel, nightShootingLabel, rainyMonthsLabel, monthsToAvoidLabel } from '../../../lib/locations/season-facts.js';
 import LocationMap from '../../components/map/location-map.js';
 import LocationPhoto from './location-photo.js';
@@ -65,7 +65,17 @@ export default async function LocationDetailPage({ params }) {
 
   // Guests never reach authority_contact, so the page source holds no phone number (BR-005, SR-111, SC-004)
   const session = await getSession({ headers: headers() });
-  const contact = canSeeAuthorityContact(session) ? await getAuthorityContact(location.location_id, session) : null;
+  let contact = null;
+  let contactDenied = false;
+  if (canSeeAuthorityContact(session)) {
+    try {
+      contact = await getAuthorityContact(location.location_id, session);
+    } catch (err) {
+      // The database refused the read (e.g. the session expired): show "no access", keep the page
+      if (!isContactAccessDenied(err)) throw err;
+      contactDenied = true;
+    }
+  }
 
   const availability = AVAILABILITY[location.availability];
 
@@ -165,7 +175,12 @@ export default async function LocationDetailPage({ params }) {
         />
 
         {/* Local authority contact (SC-16 #10) */}
-        {canSeeAuthorityContact(session) && !contact ? (
+        {contactDenied ? (
+          <section style={{ border: '1px dashed #d1d5db', borderRadius: '0.5rem', padding: '1.25rem', backgroundColor: '#f9fafb' }}>
+            <h2 style={{ fontSize: '1.125rem', fontWeight: '600', color: '#111827', margin: '0 0 0.5rem' }}>Liên hệ chính quyền địa phương</h2>
+            <p style={{ color: '#6b7280', fontSize: '0.875rem', margin: 0 }}>Bạn không có quyền xem liên hệ này. Hãy đăng nhập lại.</p>
+          </section>
+        ) : canSeeAuthorityContact(session) && !contact ? (
           // Published, but staff changed the contact and it awaits verification again (decision D4)
           <section style={{ border: '1px dashed #f59e0b', borderRadius: '0.5rem', padding: '1.25rem', backgroundColor: '#fffbeb' }}>
             <h2 style={{ fontSize: '1.125rem', fontWeight: '600', color: '#111827', margin: '0 0 0.5rem' }}>Liên hệ chính quyền địa phương</h2>

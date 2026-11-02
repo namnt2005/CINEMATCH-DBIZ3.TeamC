@@ -18,7 +18,7 @@ Feature: `003-sys-core` · Contracts: [contracts/](contracts/) · Model: [data-m
 | 4 | Dashboard → Authentication → *Add user* for some seed emails (e.g. `thuha.nguyen@vfda-demo.example.vn`) | each gets a `user_account` row with role `member` (trigger) |
 | 5 | `node scripts/seed-supabase.mjs --reset` | guard passes for `cinematch-dev`; rows loaded per table; the added accounts re-keyed and given their seed role (e.g. `vfda_staff`) |
 | 6 | same command with a URL of another project | refused unless `--force` |
-| 7 | `npm run check:supabase` | `authority_contact`: 0 rows with the publishable key, ≥ 1 with the secret key; PASS on every line |
+| 7 | `npm run check:supabase` | publishable key: `authority_contact`, `profile`, `consent`, `audit_log` *blocked by GRANT* (or 0 rows by RLS); `province` 34 rows (exact); public `location` 9 rows = the 9 published in the seed; secret key ≥ 1 `authority_contact`; PASS on every line |
 | 8 | `NEXT_PUBLIC_SUPABASE_URL` set, `npm run dev`, open `/locations`, `/locations/trang-an`, `/admin/locations` | same pages as offline, now read from Supabase; guests see no contact (SC-002) |
 
 ## Slice 2 — accounts and roles (US-1, US-2)
@@ -44,8 +44,23 @@ Feature: `003-sys-core` · Contracts: [contracts/](contracts/) · Model: [data-m
 | 5 | With `RESEND_API_KEY` and a verified domain: `npm run send-emails` | `sent` with `provider_message_id` within 1 minute (US-4 Scenario 1); without the key: rows stay `queued` |
 | 6 | `/account`: change name and language; type `DELETE` and confirm | changes saved; account deactivated, signed out, cannot sign in again (BR-005) |
 | 7 | `/privacy`, `/terms` | current version shown in both languages (SR-251, SR-254) |
-| 8 | `npm run embed`, then the RPC `app_match_locations` with an embedded query | nearest published locations returned (FR-011) |
+| 8 | `npm run embed`, then the RPC `app_match_locations` with an embedded query | nearest published locations returned (FR-011) — **deferred**, skip |
 
 ## Results
 
-*(filled in by the person who runs it: date, machine, result per step)*
+### Slice 1 — 02/11/2026, Nam Tran's machine (macOS, Darwin 25.5, Node v26.0.0), project `cinematch-dev`
+
+Steps 3–5 were run by Nam Tran in their own terminal (`SUPABASE_DB_URL` exported there only); the other steps by Claude Code in the session, reviewed by Nam Tran.
+
+| # | Result |
+|---|---|
+| 1 | `npm test`: 236 tests, 48 suites, 236 passed, 0 failed (no network, no Supabase variables needed) |
+| 2 | `python3 tools/build_supabase.py --check`: OK |
+| 3 | `db push`: first run failed on migration 500 (`operator does not exist: extensions.vector <=> extensions.vector`, quoted `search_path`); FR-011 deferred and removed from migration 500, then applied. All 46 tables of `data/schema` reachable with the secret key |
+| 4 | 3 accounts made in Auth; each has a `user_account` row |
+| 5 | First run failed (`cannot insert multiple commands into a prepared statement` from `npx supabase db query`); loader moved to `pg`, then loaded: `location` 11 rows, `user_account` 16 rows; two Auth accounts re-keyed to their seed roles (`vfda_staff`, `admin`), one stays `member` |
+| 6 | Offline test only (`tests/unit/seed-plan.test.js`: other project refused unless `--force`); not run against a second project |
+| 7 | `npm run check:supabase`: 7 × PASS — `authority_contact`, `profile`, `consent`, `audit_log` blocked by GRANT (42501); `province` 34 rows; public `location` 9 rows = 9 published in the seed; secret key 11 `authority_contact` rows. First run reported the GRANT refusal as FAIL; the check was corrected to accept it |
+| 8 | `npm run build` with Supabase set, then `next start`: `/locations` 200, `/locations/trang-an` 200 with no phone number for a guest, `/locations/mui-ne` (not published) 404, `/api/locations/trang-an/authority-contact` 401 for a guest, `/admin/locations` 307 → `/login?next=…`, `/api/admin/locations` 401; search counts equal to the sqlite source (`trang an` 1, `hoi an` 1, empty 9) |
+| — | `npm run test:rls`: 8 tests, 8 passed, 0 failed (fixtures created with the admin API and removed: 16 `user_account` rows after the run) |
+| — | Not checked online: *RLS on for every table* through `pg_class` (needs `SUPABASE_DB_URL`); it is checked statically in step 1 (`tests/unit/migrations-schema.test.js`) on the migrations that step 3 applied |

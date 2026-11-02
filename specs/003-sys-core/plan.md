@@ -12,7 +12,7 @@ Move CINEMATCH from the local mock (`node:sqlite` + `x-mock-role`) to Supabase w
 
 1. **Shared data + RLS (US-2, data layer)**: SQL migrations in `supabase/migrations/` generated from `data/schema/schema-*.sql` (all 46 tables, names, columns and CHECKs unchanged); Row Level Security on every table with explicit `GRANT`s to `anon` and `authenticated`, policies derived from `data/02-crud-matrix.md` and the six roles; `user_account` linked to `auth.users`; a guarded seed loader; `npm run check:supabase`; one `lib/db/` API with two sources (`node:sqlite` + seed for tests, Supabase when `NEXT_PUBLIC_SUPABASE_URL` is set).
 2. **Accounts (US-1, US-2)**: sign-up with company details and terms consent, email verification, sign-in with `next`, password reset (SC-04, SC-06, SC-07), sessions from Supabase Auth through `@supabase/ssr`, role and account status read from the database (FR-001..FR-004, BR-002, BR-004, BR-005).
-3. **Bilingual UI, account, notifications, terms (US-3, US-4)**: vi/en display dictionary with a build-time missing-key check (FR-005, FR-006) applied to the SYS screens and SC-14/15/16/35; SC-08 *My account* with deactivation (BR-005); in-app notifications and SC-09 (FR-007, FR-009); transactional email queued and sent through Resend when configured (FR-008); SC-42 / SC-43 with versioned consent (BR-003); Vietnamese text index (FR-010) and the Gemini vector index (FR-011).
+3. **Bilingual UI, account, notifications, terms (US-3, US-4)**: vi/en display dictionary with a build-time missing-key check (FR-005, FR-006) applied to the SYS screens and SC-14/15/16/35; SC-08 *My account* with deactivation (BR-005); in-app notifications and SC-09 (FR-007, FR-009); transactional email queued and sent through Resend when configured (FR-008); SC-42 / SC-43 with versioned consent (BR-003); Vietnamese text index (FR-010). The vector index (FR-011) is **deferred** (Complexity Tracking).
 
 ## Decisions taken for this plan (Nam Tran, 01/11/2026)
 
@@ -25,14 +25,14 @@ Move CINEMATCH from the local mock (`node:sqlite` + `x-mock-role`) to Supabase w
 | D5 | `admin` role | Inherits every permission of `vfda_staff` and `vfda_legal`, plus its own (audit log, role grants). Recorded in the spec as Clarifications Q5 (session 2026-11-02, `tools/decisions.py`). |
 | D6 | Transactional email (FR-008) | Every email is recorded in `email_delivery` as `queued`; a sender using the Resend REST API (`fetch`, no new library) runs only when `RESEND_API_KEY` and an authenticated sender domain are configured. Auth emails (verification, reset) are sent by Supabase Auth. |
 | D7 | Bilingual scope (FR-006) | Dictionary, cookie and missing-key check; the SYS screens and the four built screens SC-14, SC-15, SC-16, SC-35 are moved to the dictionary. Other screens use it when they are built. |
-| D8 | FR-011 in scope | Gemini embeddings through the existing `@google/genai`, 768 dimensions (`VECTOR(768)`, HNSW index). |
-| D9 | Where the indexes live | FR-010 (`unaccent` text index) and FR-011 (`embedding` columns) are **physical design** in their own migration, as `tools/dm_model2.py` records (01/10/2026); the logical data model and the schema-generated migration stay unchanged. |
+| D8 | FR-011 in scope | ~~Gemini embeddings through the existing `@google/genai`, 768 dimensions (`VECTOR(768)`, HNSW index).~~ **Superseded 02/11/2026: FR-011 deferred** (Complexity Tracking). |
+| D9 | Where the indexes live | FR-010 (`unaccent` text index) and, when it is built, FR-011 (`embedding` columns) are **physical design** in their own migration, as `tools/dm_model2.py` records (01/10/2026); the logical data model and the schema-generated migration stay unchanged. |
 
 ## Technical Context
 
 **Language/Version**: JavaScript (ES modules) on Node.js 22+; Python 3 for the migration generator in `tools/` (like the other generators); SQL for PostgreSQL 17 (`cinematch-dev` runs 17.11).
 
-**Primary Dependencies**: Next.js 14.2 (App Router), React 18, `@google/genai` (existing). Added: `@supabase/supabase-js`, `@supabase/ssr`. Supabase CLI 2.122 through `npx` (not a package dependency) to push migrations and run SQL (`supabase db push --db-url`, `supabase db query --db-url -f`).
+**Primary Dependencies**: Next.js 14.2 (App Router), React 18, `@google/genai` (existing). Added: `@supabase/supabase-js`, `@supabase/ssr`, and `pg` (node-postgres, 02/11/2026, seed loader only — see Complexity Tracking). Supabase CLI 2.122 through `npx` (not a package dependency) to push migrations (`supabase db push --db-url`).
 
 **Storage**: Tests and offline dev: `node:sqlite` in memory from `data/seed/` (unchanged). Shared: Supabase PostgreSQL with RLS, `unaccent`, `pgvector`; Supabase Auth for identities.
 
@@ -94,7 +94,7 @@ supabase/
 │   ├── 20261101000200_auth_link.sql       # app.current_role(), sign-up trigger, email-verified trigger
 │   ├── 20261101000300_grants_rls.sql      # generated: REVOKE/GRANT + ENABLE RLS + policies
 │   ├── 20261101000400_rules.sql           # BR-004 publish trigger, append-only audit, RPC functions
-│   └── 20261101000500_search_indexes.sql  # unaccent index (FR-010), pgvector + embedding (FR-011)
+│   └── 20261101000500_search_indexes.sql  # unaccent index (FR-010); FR-011 deferred
 ├── seed.sql                               # NOT committed; written to a temp file by the loader
 └── .temp/                                 # CLI link data (git-ignored)
 
@@ -106,7 +106,7 @@ scripts/
 ├── seed-supabase.mjs         # guarded seed loader (new)
 ├── check-supabase.mjs        # npm run check:supabase (new)
 ├── check-i18n.mjs            # missing-key check, run before build (new)
-└── embed-search.mjs          # FR-011 embeddings (new)
+└── embed-search.mjs          # FR-011 embeddings (deferred, not created)
 
 lib/
 ├── db/
@@ -144,4 +144,6 @@ tests/
 | Two implementations per `lib/db/` function | D4: tests stay offline and deterministic while the app runs on Supabase. | Supabase-only would make `npm test` need the network; mocking SQL text would test nothing. |
 | Postgres functions (RPC) for multi-write actions | M10 BR-005: an admin action and its audit row commit together; PostgREST runs one statement per request. | Two client calls cannot share a transaction. |
 | No FK from `user_account` to `auth.users` (D3) | The seed has 16 accounts, most without an Auth identity. | A FK would refuse the seed or require creating Auth users with passwords for every seed email. |
+| **Deferred: F-SYS-11 / FR-011 semantic (vector) index** (Nam Tran, 02/11/2026) | Not built in this feature. F-SYS-11 is a *Could*, its only consumer F-M4-07 belongs to M4, and the embedding model and vector dimension are SYS spec open question 3, still unanswered. The first `db push` also failed on `public.app_match_locations` (`operator does not exist: extensions.vector <=> extensions.vector`, because `SET search_path = 'public, extensions'` in quotes names one schema). Migration 500 keeps only `unaccent` and the FR-010 indexes; tasks T066–T068 are deferred. | Guessing a model and a dimension would bake an unanswered open question into a column type (`VECTOR(n)`) that must be migrated again when the answer differs. |
+| **`pg` (node-postgres) for the seed loader** (Nam Tran, 02/11/2026) | `node scripts/seed-supabase.mjs --reset` failed with `cannot insert multiple commands into a prepared statement`: `npx supabase db query` sends SQL as a prepared statement, which holds one command, and the seed is one `BEGIN … COMMIT` block of many. `pg` runs it as one parameterless `client.query(sql)` (simple query protocol, several statements), rolls back on error, and reads `SUPABASE_DB_URL` inside the process, so the connection string is no longer a command-line argument (closes research Open question 12). Used only by `scripts/`; the app keeps `@supabase/supabase-js`. | Splitting the seed into one CLI call per statement loses the single transaction and the trigger disable/enable around it; `@supabase/supabase-js` cannot run SQL or reach `auth.users`. |
 | Generated policy SQL | 46 tables × 6 roles × 4 operations is too much to keep in sync by hand with the CRUD matrix. | Hand-written SQL drifts silently from `data/02-crud-matrix.md`. |

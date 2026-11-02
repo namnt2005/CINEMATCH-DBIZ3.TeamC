@@ -6,7 +6,7 @@
 
 **Tests**: Required. Constitution Principle II and the request for this feature: the test of every business rule (BR-001..BR-005) and every acceptance scenario (US-1..US-4) is written and seen failing **before** the code that makes it pass. Each implementation task names the test task it turns green. `npm test` stays offline: Supabase code is tested with a fake client; real RLS behaviour is checked online by `npm run check:supabase` (D1).
 
-**Organization**: The three slices of plan.md: Phase 3 = slice 1 (shared data + RLS, US-2 data layer), Phase 4 = slice 2 (accounts and roles, US-1 + US-2), Phase 5 = slice 3 (language, notifications, account, terms: US-3, US-4, plus the BR-003 / BR-005 parts of US-1 / US-2). FR-011 and closing work are cross-cutting (Phase 6).
+**Organization**: The three slices of plan.md: Phase 3 = slice 1 (shared data + RLS, US-2 data layer), Phase 4 = slice 2 (accounts and roles, US-1 + US-2), Phase 5 = slice 3 (language, notifications, account, terms: US-3, US-4, plus the BR-003 / BR-005 parts of US-1 / US-2). Closing work is cross-cutting (Phase 6); FR-011 is **deferred** (plan.md Complexity Tracking).
 
 ## Format: `[ID] [P?] [Story] Description`
 
@@ -22,7 +22,7 @@
 
 - [X] T001 Add `supabase/.temp/` to .gitignore before anything under `supabase/` is staged (research R15; Constitution IV)
 - [X] T002 [P] Replace `NEXT_PUBLIC_SUPABASE_ANON_KEY` / `SUPABASE_SERVICE_ROLE_KEY` with `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` and `SUPABASE_SECRET_KEY` (server only, no `NEXT_PUBLIC_`), add empty `RESEND_API_KEY` and `EMAIL_FROM`, and document `SUPABASE_DB_URL` as *export in the terminal only, never in a file*, in .env.example — every value empty (research R15, D6)
-- [ ] T003 Install `@supabase/supabase-js` and `@supabase/ssr` and add the npm scripts `check:supabase` (`node --env-file=.env scripts/check-supabase.mjs`), `seed:supabase`, `check:i18n`, `prebuild` (runs `check:i18n`), `send-emails`, `anonymise`, `embed` in package.json (contracts/scripts.contract.md)
+- [ ] T003 *(partly done: the three libraries, `check:supabase`, `seed:supabase`, `test:rls`; `check:i18n`, `prebuild`, `send-emails`, `anonymise` wait for their slice-3 scripts T053, T059, T064)* Install `@supabase/supabase-js`, `@supabase/ssr` and `pg` (seed loader, plan.md Complexity Tracking) and add the npm scripts `check:supabase` (`node --env-file=.env scripts/check-supabase.mjs`), `seed:supabase`, `check:i18n`, `prebuild` (runs `check:i18n`), `send-emails`, `anonymise` in package.json (`embed` deferred with FR-011) (contracts/scripts.contract.md)
 
 ---
 
@@ -52,7 +52,7 @@
 
 ## Phase 3: Slice 1 — Shared data and RLS (US-2 data layer, Priority: P1) 🎯 MVP
 
-**Goal**: The 46 tables on Supabase with RLS on every table, explicit grants, the Auth link, the database rules, the text and vector indexes, the seed and the online check (FR-004, FR-010, BR-001, BR-002, BR-004, D1–D3, D9).
+**Goal**: The 46 tables on Supabase with RLS on every table, explicit grants, the Auth link, the database rules, the text index (FR-011 vector index deferred), the seed and the online check (FR-004, FR-010, BR-001, BR-002, BR-004, D1–D3, D9).
 
 **Independent Test**: [quickstart.md](quickstart.md) Slice 1 — `npm test` (static migration checks), `npx supabase db push`, `node scripts/seed-supabase.mjs --reset`, `npm run check:supabase` → `authority_contact` 0 rows for the publishable key, ≥ 1 for the secret key (US-2 Scenario 1).
 
@@ -62,9 +62,9 @@
 - [X] T013 [P] [US2] Create static RLS coverage test: `ENABLE ROW LEVEL SECURITY` on all 46 tables; no `DELETE` grant or policy; `anon` granted `SELECT` only on `province`, `location`, `location_image`, `legal_rule`, `organisation`; column grants only `notification.read_at` and `profile.full_name, crew_role, locale`; every (entity, operation) of data/02-crud-matrix.md whose actor in docs/function-list.md is a human role has a policy for that role (with `admin` inheriting, D5), an RPC of data-model §5, or a *Deferred* entry citing Open question 1, 13, 14 or 15 (BR-001, FR-004, data-model §3–§4) in tests/unit/rls-coverage.test.js
 - [X] T014 [P] [US2] Create static test of the Auth link migration: the `auth.users` insert trigger sets `role` to the literal `'member'` and reads no role, status or id from `raw_user_meta_data` (BR-002); it creates `producer_organisation`, `profile` and `consent` only when all FR-001 metadata is present (BR-003); an update trigger keeps `email_verified` and `email` in step; no migration has a password, hash or token column (BR-004) in tests/unit/auth-link-sql.test.js
 - [X] T015 [P] [US2] Create static test of the rules migration: PostgreSQL `trg_location_publish_needs_contact` and `trg_audit_log_append_only` with the same messages as lib/db/local-triggers.sql; every function of data-model §5 checks `app.has_role(...)` (or the caller's own id) and writes its audit row in the same function, including `app_grant_role` → `role.grant` (BR-002) and `app_deactivate_my_account` (BR-005); `app_anonymise_deactivated` replaces name and email (BR-005) in tests/unit/rules-sql.test.js
-- [X] T016 [P] [US2] Create static test of the search-index migration: `unaccent` with an `IMMUTABLE` `app.f_unaccent`; GIN indexes over `location` (`name_vi`, `name_en`, `desc_vi`, `desc_en`) and `organisation_member_layer` (`capability_desc_vi`, `capability_desc_en`); `vector` extension, `embedding VECTOR(768)` on both tables with HNSW cosine indexes; RPCs `app_search_locations` and `app_match_locations` return published locations only; the file is separate from the schema migration (FR-010, FR-011, D8, D9) in tests/unit/search-index-sql.test.js
+- [X] T016 [P] [US2] Create static test of the search-index migration: `unaccent` with an `IMMUTABLE` `app.f_unaccent`; GIN indexes over `location` (`name_vi`, `name_en`, `desc_vi`, `desc_en`) and `organisation_member_layer` (`capability_desc_vi`, `capability_desc_en`); RPC `app_search_locations` returns published locations only; no `vector` extension, `embedding` column, HNSW index or `app_match_locations` (FR-011 deferred, 02/11/2026); every multi-schema `SET search_path` in the migrations is unquoted; the file is separate from the schema migration (FR-010, D9) in tests/unit/search-index-sql.test.js
 - [X] T017 [P] [US2] Create unit test of the seed plan (pure functions): the guard accepts the `cinematch-dev` ref in pooler (`postgres.<ref>@…`) and direct (`db.<ref>.supabase.co`) URLs and refuses any other ref unless `--force`; the URL is masked in every message; seed users whose email is in the Auth list are re-keyed in all 20 columns that reference `user_account`, keeping their seed role; the SQL disables then re-enables `trg_location_publish_needs_contact`; a non-empty database without `--reset` is refused; `--reset` never touches `auth.*` (research R7, D3) in tests/unit/seed-plan.test.js
-- [X] T018 [P] [US2] Create unit test of the Supabase check with fake clients: PASS when the publishable key reads 0 rows of `authority_contact`, `profile`, `consent`, `audit_log` and ≥ 1 of `province` and published `location`, and the secret key reads ≥ 1 `authority_contact`; FAIL otherwise; refuses when the keys look swapped; never prints a key (BR-001, US-2 Scenario 1, research R8) in tests/unit/check-supabase.test.js
+- [X] T018 [P] [US2] Create unit test of the Supabase check with fake clients: PASS when the publishable key is refused by GRANT (42501) or reads 0 rows of `authority_contact`, `profile`, `consent`, `audit_log` (the line says which), exact counts of `province` (≥ 1) and of `location` (= published in the seed), and the secret key reads ≥ 1 `authority_contact`; FAIL otherwise; refuses when the keys look swapped; never prints a key (BR-001, US-2 Scenario 1, research R8) in tests/unit/check-supabase.test.js
 - [X] T019 [P] [US2] Create contract test of the Supabase data source with a fake client: `getAuthorityContact` returns nothing for a guest without a query and the verified contact for a member (US-2 Scenarios 1–2); public location reads ask for published rows; admin writes call `app_admin_*` RPCs with the right arguments; database messages map to `UNVERIFIED_CONTACT` and `FORBIDDEN` like the sqlite source (D4, research R4, R9, contracts/data-layer.contract.md) in tests/contracts/data-layer-supabase.test.js
 - [X] T071 [P] [US2] Create the online RLS suite run by `npm run test:rls` (`node --env-file=.env --test tests/rls/*.test.js`, never part of `npm test`, D1): publishable key reads 0 rows of `authority_contact` while the secret key reads some (BR-001, US-2 Scenario 1); 0 rows of `profile`, `consent`, `audit_log` for anon; a signed-in member reads verified contacts (US-2 Scenario 2) but no `organisation_private_layer` without an accepted request and NDA; a new account is `member` even when its metadata claims `admin`, and cannot change its own role (BR-002); sign-up stores the consent with its version and time (BR-003); fixtures made with the admin API and removed afterwards, in tests/rls/rls.test.js
 
@@ -74,11 +74,11 @@
 - [X] T021 [US2] Implement the generator writing supabase/migrations/20261101000100_schema.sql and supabase/migrations/20261101000300_grants_rls.sql with a `--check` mode in tools/build_supabase.py (research R1, R3; verifies T012, T013)
 - [X] T022 [P] [US2] Write schema `app`, `app.current_role()`, `app.has_role()`, `app.is_project_member()` and the `auth.users` triggers in supabase/migrations/20261101000200_auth_link.sql (research R2, R5; BR-002, BR-003, BR-004; verifies T014)
 - [X] T023 [P] [US2] Write the BR-004 publish trigger, the append-only audit trigger and the functions of data-model §5 in supabase/migrations/20261101000400_rules.sql (research R4, R12; BR-002, BR-005, M10 BR-005; verifies T015)
-- [X] T024 [P] [US2] Write the FR-010 and FR-011 physical additions and RPCs in supabase/migrations/20261101000500_search_indexes.sql (research R13, R14; verifies T016)
-- [X] T025 [US2] Implement the pure seed plan in scripts/lib/seed-plan.mjs and the loader (Auth list and load through `npx supabase db query --db-url`, temporary SQL file, `--reset`, `--force`) in scripts/seed-supabase.mjs (research R7; verifies T017)
+- [X] T024 [P] [US2] Write the FR-010 physical additions and RPC (FR-011 removed 02/11/2026, deferred) in supabase/migrations/20261101000500_search_indexes.sql (research R13, R14; verifies T016)
+- [X] T025 [US2] Implement the pure seed plan in scripts/lib/seed-plan.mjs and the loader (`pg` client from `SUPABASE_DB_URL`, one parameterless `client.query` for the whole block, `ROLLBACK` on error, `--reset`, `--force`; changed 02/11/2026 from `npx supabase db query`) in scripts/lib/seed-db.mjs and scripts/seed-supabase.mjs (research R7; verifies T017)
 - [X] T026 [US2] Implement the online check in scripts/check-supabase.mjs (research R8; verifies T018)
 - [X] T027 [US2] Implement the Supabase versions of every public `lib/db/` function in lib/db/supabase/ (user client for reads, RPC for atomic writes, admin client for System work) (D2, D4; verifies T019)
-- [ ] T028 [US2] Apply slice 1 to `cinematch-dev` — `npx supabase db push --db-url "$SUPABASE_DB_URL"`, *Add user* for some seed emails, `node scripts/seed-supabase.mjs --reset`, `npm run check:supabase`, the M3 pages with `NEXT_PUBLIC_SUPABASE_URL` set — and record the results in specs/003-sys-core/quickstart.md §Results (US-2 Scenarios 1–2, SC-002)
+- [X] T028 [US2] Apply slice 1 to `cinematch-dev` — `npx supabase db push --db-url "$SUPABASE_DB_URL"`, *Add user* for some seed emails, `node scripts/seed-supabase.mjs --reset`, `npm run check:supabase`, the M3 pages with `NEXT_PUBLIC_SUPABASE_URL` set — and record the results in specs/003-sys-core/quickstart.md §Results (US-2 Scenarios 1–2, SC-002) — done 02/11/2026, see §Results
 
 **Checkpoint**: The database refuses guests the sensitive tables (BR-001) and the whole app runs on Supabase or offline.
 
@@ -153,11 +153,13 @@
 
 ---
 
-## Phase 6: Cross-cutting — semantic index (FR-011) and closing
+## Phase 6: Cross-cutting — semantic index (FR-011, deferred) and closing
 
-- [ ] T066 [P] Create unit test of the embedding script with a fake Gemini client and a fake Supabase admin client: 768 numbers per vector, only rows whose text changed, location and partner texts as in research R14, secret key on the server only (FR-011, D8) in tests/unit/embed-search.test.js
-- [ ] T067 Implement scripts/embed-search.mjs (verifies T066)
-- [ ] T068 Choose the Gemini embedding model with `models.list` (768-dimension output), run `npm run embed` on `cinematch-dev`, query `app_match_locations`, and write the model name into specs/003-sys-core/research.md R14 and Open question 11 (FR-011)
+**F-SYS-11 / FR-011 is deferred** (Nam Tran, 02/11/2026): F-SYS-11 is a *Could*, its only consumer F-M4-07 belongs to M4, and the embedding model and vector dimension are SYS spec open question 3, still unanswered; the first `db push` also failed on `app_match_locations` (quoted `search_path`). T066–T068 stay open and are not done in this feature; they return when open question 3 is answered (plan.md Complexity Tracking).
+
+- [ ] T066 [P] **Deferred (FR-011).** Create unit test of the embedding script with a fake Gemini client and a fake Supabase admin client: 768 numbers per vector, only rows whose text changed, location and partner texts as in research R14, secret key on the server only (FR-011, D8) in tests/unit/embed-search.test.js
+- [ ] T067 **Deferred (FR-011).** Implement scripts/embed-search.mjs (verifies T066)
+- [ ] T068 **Deferred (FR-011).** Choose the Gemini embedding model with `models.list` (768-dimension output), run `npm run embed` on `cinematch-dev`, query `app_match_locations`, and write the model name into specs/003-sys-core/research.md R14 and Open question 11 (FR-011)
 - [ ] T069 Run `npm test`, `npm run build`, `python3 tools/build_supabase.py --check`, `npm run check:i18n`, `uv run tools/start_feature.py --check` and `npm run check:supabase`, and record them in specs/003-sys-core/quickstart.md §Results
 - [ ] T070 Add the build-log entry and the AI-use-log row, and record the spec issues of research Open questions 1–15 in docs/build/build-log.md §3 and docs/ai-use-log.md
 
@@ -181,7 +183,7 @@
 | US-4 Scenario 1 — one in-app notification and one email | T047, T049 | T057, T059 |
 | US-4 Scenario 2 — newest first with unread count | T048 | T058, T060 |
 | FR-010 — accent-insensitive index | T016 | T024, T027 |
-| FR-011 — semantic index | T016, T066 | T024, T067, T068 |
+| FR-011 — semantic index | **Deferred**: T016 checks it is absent; T066 deferred | T067, T068 deferred |
 
 ---
 
@@ -190,7 +192,7 @@
 ### Phase dependencies
 
 - **Phase 1** → **Phase 2** (blocks everything) → **Phase 3** (slice 1) → **Phase 4** (slice 2: needs the Auth link, roles and RLS of slice 1) → **Phase 5** (slice 3: needs sessions of slice 2) → **Phase 6**.
-- Online tasks T028, T043, T065, T068 need `cinematch-dev`, the three variables in `.env` and `SUPABASE_DB_URL` exported in the terminal.
+- Online tasks T028, T043, T065 (and T068 when FR-011 returns) need `cinematch-dev`, the three variables in `.env` and `SUPABASE_DB_URL` exported in the terminal.
 
 ### Within each phase
 
@@ -208,7 +210,7 @@
 - **Slice 1 tests**: T012–T019 and T071 (nine files; T071 runs online with `npm run test:rls`); **code**: T022, T023, T024 together.
 - **Slice 2 tests**: T029–T034 (six files).
 - **Slice 3 tests**: T044–T052 (nine files).
-- **Phase 6**: T066 alongside the end of Phase 5.
+- **Phase 6**: T066–T068 deferred with FR-011; T069–T070 close the feature.
 
 ### Example: start of slice 1
 

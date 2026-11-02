@@ -56,24 +56,29 @@ describe('Row Level Security on cinematch-dev (npm run test:rls)', () => {
     }
   });
 
-  test('BR-001 / US-2 Scenario 1: with the publishable key, authority_contact returns 0 rows', async () => {
-    const { data, error } = await anon.from('authority_contact').select('*');
-    assert.equal(error, null, error?.message);
-    assert.equal(data.length, 0);
+  // anon has no GRANT on these tables (T013): PostgREST answers 42501 permission denied, stricter than RLS.
+  // Either that or 0 rows passes; any readable row fails.
+  async function assertAnonReadsNothing(table) {
+    const { data, error } = await anon.from(table).select('*').limit(5);
+    if (error) {
+      assert.ok(error.code === '42501' || /permission denied/i.test(error.message), `${table}: unexpected ${error.code} ${error.message}`);
+      return;
+    }
+    assert.equal(data.length, 0, table);
+  }
+
+  test('BR-001 / US-2 Scenario 1: with the publishable key, authority_contact is blocked by GRANT or returns 0 rows', async () => {
+    await assertAnonReadsNothing('authority_contact');
   });
 
-  test('BR-001: the 0 rows come from RLS — the secret key does see the contacts', async () => {
+  test('BR-001: the table is not empty — the secret key does see the contacts', async () => {
     const { data, error } = await admin.from('authority_contact').select('location_id');
     assert.equal(error, null, error?.message);
     assert.ok(data.length > 0, 'seed loaded');
   });
 
-  test('BR-001: with the publishable key, profiles, consents and the audit log return 0 rows', async () => {
-    for (const table of ['profile', 'consent', 'audit_log']) {
-      const { data, error } = await anon.from(table).select('*').limit(5);
-      assert.equal(error, null, `${table}: ${error?.message}`);
-      assert.equal(data.length, 0, table);
-    }
+  test('BR-001: with the publishable key, profiles, consents and the audit log are blocked by GRANT or return 0 rows', async () => {
+    for (const table of ['profile', 'consent', 'audit_log']) await assertAnonReadsNothing(table);
   });
 
   test('US-2 Scenario 2: a signed-in member reads the verified contacts of published locations', async () => {

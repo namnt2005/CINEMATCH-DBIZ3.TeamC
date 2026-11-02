@@ -52,17 +52,16 @@ Decisions D1–D9 were taken by Nam Tran on 01/11/2026 (see [plan.md](plan.md)).
 - **Decision**:
   1. Reads `SUPABASE_DB_URL` from the environment only (exported in the terminal; the script never writes it anywhere and masks it in every message).
   2. **Guard**: the project ref in the URL (user `postgres.<ref>` of the pooler, or host `db.<ref>.supabase.co`) must equal `supabase/.temp/project-ref`, and `supabase/.temp/linked-project.json` must name `cinematch-dev`; otherwise it stops unless `--force` is given.
-  3. Reads `auth.users (id, email)` with `npx supabase db query --db-url … --output-format json`.
+  3. Connects with `pg` (node-postgres) from `process.env.SUPABASE_DB_URL` (TLS without chain verification, as Supabase signs with its own root CA) and reads `auth.users (id, email)` and whether the application tables hold data.
   4. Builds one SQL transaction from `data/seed/NN_<table>.csv` in filename order, replacing each seed `user_id` whose email exists in `auth.users` by the Auth id **in `user_account.user_id` and the 19 foreign-key columns that reference it** (20 columns over 8 schema files). The seed role of that email is applied, which is how the test accounts get `vfda_staff`, `partner`, … (the sign-up trigger had made them `member`). Rows already created by the trigger for those ids are replaced inside the transaction.
   5. Disables `trg_location_publish_needs_contact` during the load (the seed inserts published locations before their contacts) and re-enables it before `COMMIT`.
   6. Refuses to run on a non-empty database unless `--reset`, which first truncates the 46 application tables (never `auth.*`).
-  7. Writes the SQL to a temporary file, runs `npx supabase db query --db-url … -f <file>`, deletes the file.
-- **Alternatives considered**: the `pg` driver (not an allowed library); `supabase db push --include-seed` (only seeds with migrations, cannot re-key ids).
-- **Note**: the URL is passed to the CLI as an argument, so it is visible in the local process list while the command runs (Open question 12).
+  7. Runs the whole `BEGIN … COMMIT` block as **one parameterless `client.query(sql)`** (simple query protocol, several statements); on error sends `ROLLBACK` and prints the error with the URL and password masked. Changed 02/11/2026: the first version used `npx supabase db query -f`, which failed with *cannot insert multiple commands into a prepared statement*.
+- **Alternatives considered**: `npx supabase db query` (first choice; runs SQL as a prepared statement, one command only); one CLI call per statement (loses the single transaction); `supabase db push --include-seed` (only seeds with migrations, cannot re-key ids).
 
 ## R8. `npm run check:supabase`
 
-- **Decision**: `node --env-file=.env scripts/check-supabase.mjs` creates two clients with `@supabase/supabase-js`: publishable key → `select` on `authority_contact` must return **0 rows** (BR-001, US-2 Scenario 1); secret key → the same query must return **at least one row** (proves the table is loaded and the 0 is RLS, not emptiness). It also checks that `profile`, `consent` and `audit_log` return 0 rows to `anon`. Exit code 1 on any failure; keys are never printed.
+- **Decision**: `node --env-file=.env scripts/check-supabase.mjs` creates two clients with `@supabase/supabase-js`: publishable key → `authority_contact`, `profile`, `consent`, `audit_log` must give **nothing**: `anon` has no `GRANT` on them (T013), so the expected answer is *permission denied* (42501, printed "blocked by GRANT"); 0 rows ("0 rows by RLS") also passes; any readable row or any other error fails (BR-001, US-2 Scenario 1). Exact counts (`count: 'exact'`) of `province` and of `location` with no filter: the public locations must equal the published locations of `data/seed/21_location.csv` (9), so RLS alone does the filtering (BR-008). Secret key → `authority_contact` must have **at least one row** (the table is loaded, so the anon result is access control, not emptiness). Changed 02/11/2026 after the first online run reported the GRANT refusal as FAIL. Exit code 1 on any failure; keys are never printed.
 
 ## R9. Two-source `lib/db/` and `async` (D4)
 
@@ -87,9 +86,10 @@ Decisions D1–D9 were taken by Nam Tran on 01/11/2026 (see [plan.md](plan.md)).
 
 - **Decision**: migration `…000500_search_indexes.sql` creates `unaccent`, an `IMMUTABLE` wrapper `app.f_unaccent(text)`, and GIN indexes on `to_tsvector('simple', app.f_unaccent(...))` over `name_vi`, `name_en`, `desc_vi`, `desc_en` of `location` and `capability_desc_vi`, `capability_desc_en` of `organisation_member_layer` (no new column). The Supabase search source calls an RPC `app_search_locations(q)` using that index; the SQLite source keeps `removeDiacritics`.
 
-## R14. Semantic index (FR-011, D8, D9)
+## R14. Semantic index (FR-011, D8, D9) — deferred 02/11/2026
 
-- **Decision**: the same migration enables `vector`, adds `embedding VECTOR(768)` to `location` and `organisation_member_layer` as physical columns (outside the logical model, as `tools/dm_model2.py` records) with HNSW cosine indexes, and an RPC `app_match_locations(query_embedding, match_count)`. `scripts/embed-search.mjs` (server, secret key) embeds `desc_en` + `desc_vi` of locations and `capability_desc_en` + `capability_desc_vi` of partners with a Gemini embedding model at 768 dimensions; the exact model name is checked with `models.list` at implementation time and written back here. No screen uses it yet (its consumer F-M4-07 belongs to M4).
+- **Status**: **deferred** (plan.md Complexity Tracking). The text below is the design to resume from when SYS spec open question 3 (embedding model and dimension) is answered; nothing of it is in migration 500.
+- **Design kept for later**: the same migration enables `vector`, adds `embedding VECTOR(768)` to `location` and `organisation_member_layer` as physical columns (outside the logical model, as `tools/dm_model2.py` records) with HNSW cosine indexes, and an RPC `app_match_locations(query_embedding, match_count)`. `scripts/embed-search.mjs` (server, secret key) embeds `desc_en` + `desc_vi` of locations and `capability_desc_en` + `capability_desc_vi` of partners with a Gemini embedding model at 768 dimensions; the exact model name is checked with `models.list` at implementation time and written back here. No screen uses it yet (its consumer F-M4-07 belongs to M4).
 
 ## R15. Environment and repository hygiene
 
@@ -115,8 +115,8 @@ Decisions D1–D9 were taken by Nam Tran on 01/11/2026 (see [plan.md](plan.md)).
 | 8 | [NEEDS CLARIFICATION: role grants (BR-002) need an admin screen; none is listed in SYS.] | RPC `app_grant_role` + audit row; screen belongs to M10 | VFDA |
 | 9 | [NEEDS CLARIFICATION: FR-008 retries up to 3 times, but `email_delivery` has no attempt counter.] | Count attempts in `variables._attempts`; physical column later if needed | Group C |
 | 10 | Spec OQ 2 (Google / Apple sign-in), 4 (error branches of SEQ-01), 6 (reset link lifetime), 7 (which phone field BR-005 anonymises), 8 (email opt-out), 9 (event types), 11 (one consent version for both documents?), 12 (re-accept new terms?) stay open (numbers as of the spec of 02/11/2026, after question 5 was added). | Email + password only; edge cases as written; Supabase default link lifetime; no phone field anonymised; every notification emailed; event types `collab.response`, `province.reply`, `account.role_granted`; one `consent_version` for both documents; no re-acceptance | VFDA / Group C |
-| 11 | The Gemini embedding model name (D8) is chosen at implementation from `models.list`. | Record it here when chosen | Nam Tran |
-| 12 | `supabase db query --db-url` receives the connection string as a command-line argument, visible in the local process list while it runs. | Accept on a personal dev machine; never on shared machines | Group C |
+| 11 | The Gemini embedding model name (D8) is chosen at implementation from `models.list`. | Deferred with FR-011 (02/11/2026); same as spec open question 3 | Nam Tran |
+| 12 | `supabase db query --db-url` receives the connection string as a command-line argument, visible in the local process list while it runs. | Resolved 02/11/2026 for the seed loader: it uses `pg` inside the process. Still applies to `npx supabase db push --db-url` | Group C |
 | 13 | [NEEDS CLARIFICATION: no table links a `partner` account to its `organisation` (`organisation` has no user column), so partner writes (F-M4-01, 08, 14, 17; F-M5-06; moderation items) cannot be scoped to the partner's own rows.] | No partner write policy (least privilege); M4 slice adds the link through the data model | Group C (M4 owner) |
 | 14 | `docs/function-list.md` gives F-M4-03 (member layer) the actor *Guest*, while `data/data-model-M4.md` names the policy `rls_org_member_layer_members` (members only). | Signed-in only, as the named policy says | M4 owner |
 | 15 | ~~`document` has no project column~~ — wrong: `document.project_id` exists (composite foreign key to `document_slot`), missed by the first inventory. Resolved 01/11/2026. | `rls_document_project_members` = project members | — |

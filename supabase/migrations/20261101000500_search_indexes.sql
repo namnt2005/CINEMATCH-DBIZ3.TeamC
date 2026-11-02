@@ -1,5 +1,5 @@
 -- Search indexes: physical design, kept out of the logical data model as tools/dm_model2.py records
--- (specs/003-sys-core decision D9; research R13 for FR-010, R14 for FR-011 / D8).
+-- (specs/003-sys-core decision D9; research R13 for FR-010). FR-011 is deferred (see the end of this file).
 
 -- ---- FR-010: accent-insensitive Vietnamese text search ------------------------------------------------
 CREATE EXTENSION IF NOT EXISTS unaccent WITH SCHEMA extensions;
@@ -34,26 +34,6 @@ AS $$
 $$;
 GRANT EXECUTE ON FUNCTION public.app_search_locations(text) TO anon, authenticated;
 
--- ---- FR-011: semantic index (Gemini embeddings, 768 dimensions) -----------------------------------------
-CREATE EXTENSION IF NOT EXISTS vector WITH SCHEMA extensions;
-
-ALTER TABLE public.location ADD COLUMN IF NOT EXISTS embedding extensions.vector(768);
-ALTER TABLE public.organisation_member_layer ADD COLUMN IF NOT EXISTS embedding extensions.vector(768);
-
-CREATE INDEX IF NOT EXISTS idx_location_embedding
-  ON public.location USING hnsw (embedding extensions.vector_cosine_ops);
-CREATE INDEX IF NOT EXISTS idx_organisation_member_layer_embedding
-  ON public.organisation_member_layer USING hnsw (embedding extensions.vector_cosine_ops);
-
--- Published locations nearest to an embedded query (caller's RLS applies).
-CREATE OR REPLACE FUNCTION public.app_match_locations(query_embedding extensions.vector(768), match_count integer)
-RETURNS TABLE (location_id uuid, slug varchar, name_en varchar, similarity double precision)
-LANGUAGE sql STABLE SECURITY INVOKER SET search_path = 'public, extensions'
-AS $$
-  SELECT l.location_id, l.slug, l.name_en, 1 - (l.embedding <=> query_embedding) AS similarity
-    FROM public.location l
-   WHERE l.intake_status = 'published' AND l.published AND l.embedding IS NOT NULL
-   ORDER BY l.embedding <=> query_embedding
-   LIMIT GREATEST(match_count, 1)
-$$;
-GRANT EXECUTE ON FUNCTION public.app_match_locations(extensions.vector, integer) TO anon, authenticated;
+-- FR-011 (F-SYS-11, Could) is deferred: the embedding model and the vector dimension are open question 3
+-- of the SYS spec. No vector extension, embedding column, HNSW index or match RPC until it is answered
+-- (specs/003-sys-core/plan.md, Complexity Tracking).

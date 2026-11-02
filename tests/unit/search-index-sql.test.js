@@ -1,8 +1,8 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
-import { migration } from './migration-helpers.js';
+import { migration, allMigrations } from './migration-helpers.js';
 
-describe('Search indexes as physical design (T016, FR-010, FR-011, D8, D9, research R13–R14)', () => {
+describe('Search indexes as physical design (T016, FR-010, D9, research R13; FR-011 deferred)', () => {
   test('FR-010: unaccent with an IMMUTABLE wrapper usable in an index', () => {
     const sql = migration('search');
     assert.match(sql, /CREATE EXTENSION IF NOT EXISTS unaccent/);
@@ -15,21 +15,25 @@ describe('Search indexes as physical design (T016, FR-010, FR-011, D8, D9, resea
     assert.match(sql, /ON public\.organisation_member_layer USING gin[\s\S]*?capability_desc_vi[\s\S]*?capability_desc_en/);
   });
 
-  test('FR-011 / D8: pgvector, embedding VECTOR(768) on both tables, HNSW cosine indexes', () => {
-    const sql = migration('search');
-    assert.match(sql, /CREATE EXTENSION IF NOT EXISTS vector/);
-    for (const table of ['location', 'organisation_member_layer']) {
-      assert.match(sql, new RegExp(`ALTER TABLE public\\.${table} ADD COLUMN IF NOT EXISTS embedding (extensions\\.)?vector\\(768\\)`, 'i'));
-      assert.match(sql, new RegExp(`ON public\\.${table} USING hnsw \\(embedding (extensions\\.)?vector_cosine_ops\\)`));
-    }
+  test('FR-011 deferred (SYS open question 3): no vector extension, embedding column, HNSW index or match RPC', () => {
+    const sql = migration('search').replace(/^--.*$/gm, '');
+    assert.doesNotMatch(sql, /CREATE EXTENSION[^;]*\bvector\b/i);
+    assert.doesNotMatch(sql, /\bembedding\b/i);
+    assert.doesNotMatch(sql, /\bhnsw\b/i);
+    assert.doesNotMatch(sql, /app_match_locations/);
   });
 
-  test('FR-010 / FR-011: the search RPCs return published locations only', () => {
-    const sql = migration('search');
-    for (const name of ['app_search_locations', 'app_match_locations']) {
-      const m = sql.match(new RegExp(`CREATE OR REPLACE FUNCTION public\\.${name}[\\s\\S]*?\\$\\$([\\s\\S]*?)\\$\\$`));
-      assert.ok(m, `${name} exists`);
-      assert.match(m[1], /intake_status = 'published'/, `${name} filters published`);
+  test('FR-010: the search RPC returns published locations only', () => {
+    const m = migration('search').match(/CREATE OR REPLACE FUNCTION public\.app_search_locations[\s\S]*?\$\$([\s\S]*?)\$\$/);
+    assert.ok(m, 'app_search_locations exists');
+    assert.match(m[1], /intake_status = 'published'/);
+  });
+
+  test('every SET search_path naming several schemas is unquoted (a quoted list is one schema name)', () => {
+    const paths = [...allMigrations().matchAll(/SET search_path\s*(?:=|TO)\s*([^\n]+)/gi)].map(m => m[1].trim());
+    assert.ok(paths.length > 0);
+    for (const value of paths) {
+      assert.doesNotMatch(value, /^'[^']*,[^']*'/, `quoted schema list: ${value}`);
     }
   });
 

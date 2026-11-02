@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // npm run check:supabase  (= node --env-file=.env scripts/check-supabase.mjs) — research R8. Never prints a key.
 import { createClient } from '@supabase/supabase-js';
-import { validateKeys, runSupabaseChecks } from './lib/supabase-check.mjs';
+import { validateKeys, runSupabaseChecks, seedPublishedLocations } from './lib/supabase-check.mjs';
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const publishableKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
@@ -18,7 +18,8 @@ try {
 const options = { auth: { persistSession: false, autoRefreshToken: false } };
 const report = await runSupabaseChecks({
   anonClient: createClient(url, publishableKey, options),
-  secretClient: createClient(url, secretKey, options)
+  secretClient: createClient(url, secretKey, options),
+  expected: { publishedLocations: seedPublishedLocations() }
 });
 for (const line of report.lines) console.log(`${line.ok ? 'PASS' : 'FAIL'}  ${line.name} — ${line.detail}`);
 process.exit(report.ok ? 0 : 1);
