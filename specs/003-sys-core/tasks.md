@@ -92,24 +92,26 @@
 
 ### Tests for Slice 2 (write first, see them fail) ⚠️
 
-- [ ] T029 [P] [US1] Create unit test of the sign-up validator: `full_name` 1–120, email ≤ 254, password 10–72, `org_name` 1–200, `country` ISO alpha-2, `crew_role` enum, `website` ≤ 300 optional, terms ticked; all errors at once (FR-001, research R16) in tests/unit/signup-input.test.js
-- [ ] T030 [P] [US1] Create contract test of `POST /api/auth/sign-up` with a fake Supabase Auth: 201 `verification_sent`, `signUp` metadata holds the FR-001 fields and the current `consent_version` but never the password or a role (US-1 Scenario 1, BR-002, BR-003, BR-004); a repeated email (no identities) → 409 `EMAIL_TAKEN` and one account (US-1 Scenario 3); invalid body → 422 with `fields`; a `role` in the body is ignored (BR-002) in tests/contracts/auth-signup.test.js
-- [ ] T031 [P] [US1] Create contract test of `GET /auth/callback`: a valid link starts the session and redirects to `/locations` (interim for SC-02, Open question 2) (US-1 Scenario 2); an expired link → `/login?error=link_expired`; an external `next` is refused (FR-002) in tests/contracts/auth-callback.test.js
-- [ ] T032 [P] [US2] Create contract test of sign-in, sign-out and resend: 200 with a safe internal `next`; 401 `INVALID_CREDENTIALS` with one message for unknown email and wrong password; 403 `ACCOUNT_DEACTIVATED` (BR-005); resend always 200 (FR-002, SC-04 edge cases) in tests/contracts/auth-signin.test.js
-- [ ] T033 [P] [US2] Create contract test of forgot and reset password: the same answer for a known and an unknown email (SR-211); no email for a deactivated account (SR-213); new password 10–72; expired or used link → 410 `LINK_EXPIRED`; other sessions signed out after a reset (FR-003, BR-004, BR-005, SR-221..224) in tests/contracts/auth-reset.test.js
+- [X] T029 [P] [US1] Create unit test of the sign-up validator: `full_name` 1–120, email ≤ 254, password 10–72, `org_name` 1–200, `country` ISO alpha-2, `crew_role` enum, `website` ≤ 300 optional, terms ticked; all errors at once (FR-001, research R16) in tests/unit/signup-input.test.js
+- [X] T030 [P] [US1] Create contract test of `POST /api/auth/sign-up` with a fake Supabase Auth: 201 `verification_sent`, `signUp` metadata holds the FR-001 fields and the current `consent_version` but never the password or a role (US-1 Scenario 1, BR-002, BR-003, BR-004); a repeated email (no identities) → 409 `EMAIL_TAKEN` and one account (US-1 Scenario 3); invalid body → 422 with `fields`; a `role` in the body is ignored (BR-002); the verification link returns to a safe `next` (SC-04, SR-025) in tests/contracts/auth-signup.test.js (fake client: tests/contracts/auth-fakes.js)
+- [X] T031 [P] [US1] Create contract test of `GET /auth/callback`: a valid link starts the session and redirects to `/locations` (interim for SC-02, Open question 2) (US-1 Scenario 2); an expired link → `/login?error=link_expired`; an external `next` is refused (FR-002) in tests/contracts/auth-callback.test.js
+- [X] T032 [P] [US2] Create contract test of sign-in, sign-out and resend: 200 with a safe internal `next`; 401 `INVALID_CREDENTIALS` with one identical body for unknown email and wrong password, never repeating the email or Supabase wording; 403 `ACCOUNT_DEACTIVATED` (BR-005) only with the right password; resend always 200; `safeNext` in lib/auth/next.js; the `/admin` gate keeps the query string in `next` (FR-002, SR-025, SC-04 edge cases) in tests/contracts/auth-signin.test.js
+- [X] T033 [P] [US2] Create contract test of forgot and reset password: the same answer for a known and an unknown email (SR-211); no email for a deactivated account (SR-213); new password 10–72; expired or used link → 410 `LINK_EXPIRED`; other sessions signed out after a reset (FR-003, BR-004, BR-005, SR-221..224) in tests/contracts/auth-reset.test.js
+- [X] T072 [P] [US2] Create unit test: `x-mock-role` sets the role only when `NODE_ENV=test` (ignored in development, production and when unset; `MOCK_AUTH_DEFAULT_ROLE` unchanged for development); `npm test` runs with `NODE_ENV=test`; the admin API and `/admin` gate refuse a request that only carries the header outside tests (FR-004, BR-002, research R6; decided 02/11/2026) in tests/unit/mock-role-env.test.js
 - [X] T034 [P] [US2] Create contract test of database roles: with a Supabase session the admin API and SC-35 accept only `vfda_staff` from `user_account` (and `admin`, D5) and ignore `x-mock-role`; the SC-16 contact block shows the contact to a signed-in member and the sign-up prompt to a guest (FR-004, US-2 Scenarios 1–2, BR-001) in tests/contracts/auth-roles.test.js
 
 ### Implementation for Slice 2
 
-- [ ] T035 [US1] Implement the sign-up validator in lib/auth/signup-input.js (verifies T029)
-- [ ] T036 [US1] Implement `POST /api/auth/sign-up` in app/api/auth/sign-up/route.js (contracts/auth-and-account.contract.md; verifies T030)
-- [ ] T037 [US1] Implement the verification callback in app/auth/callback/route.js (verifies T031)
-- [ ] T038 [US2] Implement `POST` sign-in, sign-out and resend-verification in app/api/auth/sign-in/route.js, app/api/auth/sign-out/route.js and app/api/auth/resend-verification/route.js (verifies T032)
-- [ ] T039 [US2] Implement forgot and reset password in app/api/auth/forgot-password/route.js and app/api/auth/reset-password/route.js (verifies T033)
-- [ ] T040 [US2] Use `getSession()` in lib/api/admin.js, app/admin/locations/page.js and app/locations/[slug]/page.js, with redirects to `/login?next=<path>` (verifies T034)
-- [ ] T041 [US1] Build SC-04 (sign-up and log-in tabs, all FR-001 fields, terms box linking SC-43, *already has an account*, *Resend email* locked 60 s) in app/signup/page.js and app/login/page.js (docs/screens/screen-spec-SC-04.md)
-- [ ] T042 [P] [US2] Build SC-06 and SC-07 in app/forgot-password/page.js and app/reset-password/page.js (docs/screens/screen-spec-SC-06.md, SC-07.md)
-- [ ] T043 [US1] Run quickstart Slice 2 steps 2–7 on `cinematch-dev` and record the results in specs/003-sys-core/quickstart.md §Results (US-1 Scenarios 1–3, US-2 Scenarios 1–2)
+- [X] T035 [US1] Implement the sign-up validator in lib/auth/signup-input.js (verifies T029)
+- [X] T036 [US1] Implement `POST /api/auth/sign-up` in app/api/auth/sign-up/route.js (contracts/auth-and-account.contract.md; verifies T030)
+- [X] T037 [US1] Implement the verification callback in app/auth/callback/route.js (verifies T031)
+- [X] T038 [US2] Implement `POST` sign-in, sign-out and resend-verification in app/api/auth/sign-in/route.js, app/api/auth/sign-out/route.js and app/api/auth/resend-verification/route.js (verifies T032)
+- [X] T039 [US2] Implement forgot and reset password in app/api/auth/forgot-password/route.js and app/api/auth/reset-password/route.js (verifies T033)
+- [X] T073 [US2] Honour `x-mock-role` only when `NODE_ENV=test` in lib/auth/session.js and run `npm test` with `NODE_ENV=test` (cross-platform) in package.json (verifies T072)
+- [X] T040 [US2] Use `getSession()` in lib/api/admin.js, app/admin/locations/page.js and app/locations/[slug]/page.js, with redirects to `/login?next=<path>` (verifies T034)
+- [X] T041 [US1] Build SC-04 (sign-up and log-in tabs, all FR-001 fields, terms box linking SC-43, *already has an account*, *Resend email* locked 60 s) in app/signup/page.js and app/login/page.js (docs/screens/screen-spec-SC-04.md)
+- [X] T042 [P] [US2] Build SC-06 and SC-07 in app/forgot-password/page.js and app/reset-password/page.js (docs/screens/screen-spec-SC-06.md, SC-07.md)
+- [X] T043 [US1] Run quickstart Slice 2 steps 2–7 on `cinematch-dev` and record the results in specs/003-sys-core/quickstart.md §Results (US-1 Scenarios 1–3, US-2 Scenarios 1–2) — done 02/11/2026 with temporary accounts (links made by `admin.generateLink`, not emailed; role `vfda_staff` set by the System client); real email delivery belongs to FR-008 (T057, T059)
 
 **Checkpoint**: Real accounts replace the mock whenever Supabase is configured.
 

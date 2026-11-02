@@ -48,6 +48,21 @@ Feature: `003-sys-core` · Contracts: [contracts/](contracts/) · Model: [data-m
 
 ## Results
 
+### Slice 2 — 02/11/2026, Nam Tran's machine (macOS, Darwin 25.5, Node v26.0.0), project `cinematch-dev`
+
+Run by Claude Code in the session on `next start` (production build with `.env`), reviewed by Nam Tran. Supabase Auth's built-in mailer only delivers to team addresses, so the links of steps 2, 4 and 6 were made with `admin.generateLink` (no email sent) and opened through the app's `/auth/callback` with their `token_hash`. Temporary accounts only; all removed afterwards (`user_account` 16, `profile` 16, `consent` 18 rows, as the seed).
+
+| # | Result |
+|---|---|
+| 1 | `npm test`: 290 tests, 56 suites, 290 passed, 0 failed (TDD Red before the code: 290 tests, 237 passed, 53 failed) |
+| 2 | Sign-up metadata → `user_account` role `member`, `email_verified` false, status `active`; `profile` (name, `producer`, `en`), `producer_organisation` (`E2E Films`, `GB`), `consent` `2026.2` with its time (US-1 Scenario 1, BR-002, BR-003) |
+| 3 | Same email through `POST /api/auth/sign-up` → 409 `EMAIL_TAKEN`; still 1 account (US-1 Scenario 3). Run after verification; a repeat before verification was not tried (Supabase may resend the email instead) |
+| 4 | Verification link → 307 to `/locations`, `email_verified` true, role `member` (US-1 Scenario 2); the same link again → `/login?error=link_expired` |
+| 5 | Member: `/locations/trang-an` shows `+84 000 000 101` (US-2 Scenario 2); guest: no phone in the page, sign-in link with `next` (US-2 Scenario 1); wrong password and unknown email give the same 401 body |
+| 6 | `forgot-password` known and unknown email: identical `200 {"status":"sent"}` (SR-211); reset link → `/reset-password` form with the account email → new password saved (200), old password 401, new password 200; second use → `?error=link_expired` (SR-221); the member's other session was signed out (SR-224) |
+| 7 | Stand-in `vfda_staff` (no password for the seeded staff account): `/admin/locations` 200, `/api/admin/locations` 200 with 11 locations; a fresh member session → 403 on both; `x-mock-role: vfda_staff` alone → 307 to `/login?next=%2Fadmin%2Flocations` |
+| — | Not covered: email delivery (FR-008, slice 3), the Redirect URLs of the Supabase dashboard (research Open question 19), signing in with the seeded staff account (its password is held by the owner) |
+
 ### Slice 1 — 02/11/2026, Nam Tran's machine (macOS, Darwin 25.5, Node v26.0.0), project `cinematch-dev`
 
 Steps 3–5 were run by Nam Tran in their own terminal (`SUPABASE_DB_URL` exported there only); the other steps by Claude Code in the session, reviewed by Nam Tran.
