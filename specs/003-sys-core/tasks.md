@@ -125,31 +125,31 @@
 
 ### Tests for Slice 3 (write first, see them fail) ⚠️
 
-- [ ] T044 [P] [US3] Create unit test of the dictionary check: messages/vi.json and messages/en.json have the same keys and no empty value; a key used in code but missing fails `scripts/check-i18n.mjs` (FR-006, contracts/i18n.contract.md) in tests/unit/i18n-dictionary.test.js
-- [ ] T045 [P] [US3] Create unit test of the locale: cookie `locale` first, then `Accept-Language`, then `vi`; `setLocale` writes the cookie and, for a signed-in user, `profile.locale` (FR-005, US-3 Scenario 1, Open question 7) in tests/unit/i18n-locale.test.js
-- [ ] T046 [P] [US3] Create unit test that SC-04, SC-06, SC-07, SC-08, SC-09, SC-42, SC-43, the site header and SC-14, SC-15, SC-16, SC-35 have no user-visible text outside `t()` (FR-006, SC-003, D7) in tests/unit/i18n-no-hardcoded.test.js
-- [ ] T047 [P] [US4] Create unit test of `notify()` on both sources: one `notification` and one `email_delivery` (`queued`) per event, `event_type` and payload stored, no email for a deactivated recipient (FR-007, FR-008, SR-243) in tests/unit/notifications.test.js
-- [ ] T048 [P] [US4] Create contract test of `GET /api/notifications` and `POST /api/notifications/read`: own notifications only, newest first, unread count, *mark read* changes only `read_at` (FR-009, US-4 Scenario 2, SR-241, SR-242) in tests/contracts/notifications.test.js
-- [ ] T049 [P] [US4] Create unit test of the email sender with a fake `fetch`: `sent` + `provider_message_id`; provider rejection → `bounced`; network error → still `queued` with `_attempts` up to 3; no `RESEND_API_KEY` → nothing sent (FR-008, US-4 Scenario 1, D6, Open question 9) in tests/unit/email-sender.test.js
-- [ ] T050 [P] [US2] Create contract test of the account: `GET /api/account` shows email and role read-only; `PATCH` accepts only `full_name`, `crew_role`, `locale`; deactivation needs `confirm: "DELETE"`, deactivates at once, signs out, and the account then has no access and cannot sign in (BR-005, SR-231..SR-234) in tests/contracts/account.test.js
-- [ ] T051 [P] [US1] Create unit test of consent: one current `consent_version`; SC-42 and SC-43 show it in both languages; sign-up stores it with the time (BR-003, SR-251, SR-254, SR-261, Open question 10) in tests/unit/consent.test.js
-- [ ] T052 [P] [US2] Create unit test of the anonymise script: it calls `app_anonymise_deactivated` with the secret key on the server only and reports how many accounts were anonymised (BR-005, research R12, Open question 4) in tests/unit/anonymise-script.test.js
+- [X] T044 [P] [US3] Create unit test of the dictionary check: lib/i18n/vi.json and lib/i18n/en.json have the same keys and no empty value; a key used in code but missing fails `scripts/check-i18n.mjs` (FR-006, contracts/i18n.contract.md) in tests/unit/i18n-dictionary.test.js
+- [X] T045 [P] [US3] Create unit test of the locale: cookie `locale` first, then `Accept-Language`, then `vi`; `setLocale` writes the cookie and, for a signed-in user, `profile.locale` (FR-005, US-3 Scenario 1, Open question 7) in tests/unit/i18n-locale.test.js
+- [X] T046 [P] [US3] Create unit test that SC-04, SC-06, SC-07, SC-08, SC-09, SC-42, SC-43, the site header and SC-14, SC-15, SC-16, SC-35 have no user-visible text outside `t()` (FR-006, SC-003, D7) in tests/unit/i18n-no-hardcoded.test.js — every non-route file of app/ is scanned with Babel's parser; plus the codes the screens translate (match reasons, SC-35 field errors) in tests/unit/i18n-codes.test.js
+- [X] T047 [P] [US4] Create unit test of `notify()` on both sources: one `notification` and one `email_delivery` (`queued`) per event, `event_type` and payload stored, no email for a deactivated recipient (FR-007, FR-008, SR-243) in tests/unit/notifications.test.js
+- [X] T048 [P] [US4] Create contract test of `GET /api/notifications` and `POST /api/notifications/read`: own notifications only, newest first, unread count, *mark read* changes only `read_at` (FR-009, US-4 Scenario 2, SR-241, SR-242) in tests/contracts/notifications.test.js
+- [ ] T049 [P] [US4] *(not in the slice-3 request of 02/11/2026; open)* Create unit test of the email sender with a fake `fetch`: `sent` + `provider_message_id`; provider rejection → `bounced`; network error → still `queued` with `_attempts` up to 3; no `RESEND_API_KEY` → nothing sent (FR-008, US-4 Scenario 1, D6, Open question 9) in tests/unit/email-sender.test.js
+- [X] T050 [P] [US2] Create contract test of the account: `GET /api/account` shows email and role read-only; `PATCH` accepts only `full_name`, `crew_role`, `locale`; deactivation needs `confirm: "DELETE"`, deactivates at once, signs out, and the account then has no access and cannot sign in (BR-005, SR-231..SR-234) in tests/contracts/account.test.js
+- [X] T051 [P] [US1] Create unit test of consent: one current `consent_version`; SC-42 and SC-43 show it in both languages; sign-up stores it with the time (BR-003, SR-251, SR-254, SR-261, Open question 10) in tests/unit/consent.test.js
+- [ ] T052 [P] [US2] *(open: the owner's deletion now anonymises at once, see research R12; the batch script is still needed for accounts VFDA deactivates)* Create unit test of the anonymise script: it calls `app_anonymise_deactivated` with the secret key on the server only and reports how many accounts were anonymised (BR-005, research R12, Open question 4) in tests/unit/anonymise-script.test.js
 
 ### Implementation for Slice 3
 
-- [ ] T053 [US3] Create messages/vi.json and messages/en.json and implement `t()`, `getLocale()`, `setLocale()` in lib/i18n/server.js and lib/i18n/client.js (verifies T045)
-- [ ] T054 [US3] Implement the missing-key check in scripts/check-i18n.mjs, run by `prebuild` (verifies T044)
-- [ ] T055 [US3] Build the site header (language switch, sign-in state, notification badge) in app/components/site-header.js and use it in app/layout.js (US-3, US-4)
-- [ ] T056 [US3] Move every user-visible string of SC-04, SC-06, SC-07, SC-14, SC-15, SC-16 and SC-35 to the dictionary (app/signup, app/login, app/forgot-password, app/reset-password, app/locations, app/locations/match, app/locations/[slug], app/admin/locations) (D7; verifies T046 for those screens)
-- [ ] T057 [US4] Implement `notify`, `listNotifications`, `unreadCount`, `markRead` for both sources in lib/db/notifications.js, lib/db/sqlite/notifications.js and lib/db/supabase/notifications.js (verifies T047)
-- [ ] T058 [US4] Implement `GET /api/notifications` and `POST /api/notifications/read` in app/api/notifications/route.js and app/api/notifications/read/route.js (verifies T048)
-- [ ] T059 [US4] Implement the queue and the Resend sender in lib/email/queue.js, lib/email/resend.js and scripts/send-emails.mjs (verifies T049)
-- [ ] T060 [US4] Build SC-09 in app/notifications/page.js (docs/screens/screen-spec-SC-09.md)
-- [ ] T061 [US2] Implement `getAccount`, `updateProfile`, `deactivateMyAccount` in lib/db/accounts.js (both sources) and the routes in app/api/account/route.js and app/api/account/deactivate/route.js (verifies T050)
-- [ ] T062 [US2] Build SC-08 in app/account/page.js (docs/screens/screen-spec-SC-08.md; typed `DELETE` confirmation)
-- [ ] T063 [US1] Implement `currentConsentVersion`, `getConsents`, `acceptConsent` in lib/db/consent.js and build SC-42 and SC-43 in app/privacy/page.js and app/terms/page.js (verifies T051)
-- [ ] T064 [US2] Implement scripts/anonymise.mjs (verifies T052)
-- [ ] T065 [US3] Run quickstart Slice 3 steps 2–7 on `cinematch-dev` and record the results in specs/003-sys-core/quickstart.md §Results (US-3 Scenario 1, US-4 Scenarios 1–2)
+- [X] T053 [US3] Create lib/i18n/vi.json and lib/i18n/en.json and implement `t()`, `getLocale()`, `setLocale()` in lib/i18n/server.js, lib/i18n/client.js and lib/i18n/switch.js (verifies T045)
+- [X] T054 [US3] Implement the missing-key check in scripts/check-i18n.mjs, run by `prebuild` (verifies T044)
+- [X] T055 [US3] Build the site header (language switch, sign-in state, notification badge) in app/components/site-header.js and use it in app/layout.js (US-3, US-4)
+- [X] T056 [US3] Move every user-visible string of SC-04, SC-06, SC-07, SC-14, SC-15, SC-16 and SC-35 to the dictionary (app/signup, app/login, app/forgot-password, app/reset-password, app/locations, app/locations/match, app/locations/[slug], app/admin/locations) (D7; verifies T046 for those screens)
+- [X] T057 [US4] Implement `notify`, `listNotifications`, `unreadCount`, `markRead` for both sources in lib/db/notifications.js, lib/db/sqlite/notifications.js and lib/db/supabase/notifications.js (verifies T047)
+- [X] T058 [US4] Implement `GET /api/notifications` and `POST /api/notifications/read` in app/api/notifications/route.js and app/api/notifications/read/route.js (verifies T048)
+- [ ] T059 [US4] *(open with T049; `notify()` already queues the email row)* Implement the queue and the Resend sender in lib/email/queue.js, lib/email/resend.js and scripts/send-emails.mjs (verifies T049)
+- [X] T060 [US4] Build SC-09 in app/notifications/page.js (docs/screens/screen-spec-SC-09.md)
+- [X] T061 [US2] Implement `getAccount`, `updateProfile`, `deactivateMyAccount` in lib/db/accounts.js (both sources) and the routes in app/api/account/route.js and app/api/account/deactivate/route.js (verifies T050)
+- [X] T062 [US2] Build SC-08 in app/account/page.js (docs/screens/screen-spec-SC-08.md; typed `DELETE` confirmation)
+- [X] T063 [US1] Implement `currentConsentVersion`, `getConsents`, `acceptConsent` in lib/db/consent.js and build SC-42 and SC-43 in app/privacy/page.js and app/terms/page.js (verifies T051)
+- [ ] T064 [US2] *(open with T052)* Implement scripts/anonymise.mjs (verifies T052)
+- [ ] T065 [US3] *(partly done 02/11/2026: language switch on 13 screens and the notification centre checked on `cinematch-dev`; deletion and email sending not run online)* Run quickstart Slice 3 steps 2–7 on `cinematch-dev` and record the results in specs/003-sys-core/quickstart.md §Results (US-3 Scenario 1, US-4 Scenarios 1–2)
 
 **Checkpoint**: All four user stories work on Supabase; the offline suite is green.
 

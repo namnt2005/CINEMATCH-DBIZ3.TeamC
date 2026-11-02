@@ -2,6 +2,8 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { statusLabel, availabilityLabel, rowAction, publishState, verifiedLine } from './admin-locations-view.js';
+import { useT } from '../../../lib/i18n/client.js';
+import { sceneLabel } from '../../locations/labels.js';
 
 /*
  * SC-35 Admin — Locations, in the order of docs/screens/screen-spec-SC-35.md §3:
@@ -80,6 +82,17 @@ async function call(path, method = 'GET', body) {
 
 // ---- small building blocks ------------------------------------------------------------------------
 
+/** API error → text in the user's language: the field codes of a 422, else the error code (FR-006). */
+function fieldErrors(t, data) {
+  const out = {};
+  for (const [field, code] of Object.entries(data.field_codes || {})) {
+    out[field] = t(code.key, { ...(code.vars || {}), label: t(`admin.field.${field}`) });
+  }
+  for (const field of Object.keys(data.fields || {})) if (!out[field]) out[field] = t('admin.error.invalid');
+  return out;
+}
+const apiError = (t, data, fallback) => (data?.error ? t(`admin.api.${data.error}`) : t(fallback));
+
 function Field({ label, error, children, hint }) {
   return (
     <label style={{ display: 'block', fontSize: '0.8125rem', color: '#374151' }}>
@@ -104,13 +117,14 @@ const grid = (min = 220) => ({ display: 'grid', gridTemplateColumns: `repeat(aut
 
 // BR-003: "No data yet" (null) is not "none recorded" ([])
 function MonthPicker({ label, value, onChange, error, noneLabel }) {
+  const t = useT();
   const recorded = Array.isArray(value);
   return (
     <Field label={label} error={error}>
       <select style={{ ...input, marginBottom: '0.4rem' }} value={recorded ? 'recorded' : 'unknown'}
         onChange={e => onChange(e.target.value === 'recorded' ? [] : null)}>
-        <option value="unknown">No data yet</option>
-        <option value="recorded">Recorded by VFDA</option>
+        <option value="unknown">{t('admin.months.unknown')}</option>
+        <option value="recorded">{t('admin.months.recorded')}</option>
       </select>
       {recorded && (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
@@ -143,6 +157,7 @@ function Banner({ banner }) {
 }
 
 function ConfirmDialog({ dialog, onCancel, onConfirm, setReason }) {
+  const t = useT();
   if (!dialog) return null;
   return (
     <div role="dialog" aria-modal="true" aria-labelledby="confirm-title"
@@ -151,12 +166,12 @@ function ConfirmDialog({ dialog, onCancel, onConfirm, setReason }) {
         <h3 id="confirm-title" style={{ margin: '0 0 0.5rem' }}>{dialog.title}</h3>
         <p style={{ margin: '0 0 0.75rem', color: '#374151', fontSize: '0.875rem' }}>{dialog.text}</p>
         {dialog.kind === 'unpublish' && (
-          <Field label="Reason (optional)">
+          <Field label={t('admin.dialog.reason')}>
             <textarea rows={2} style={input} value={dialog.reason} onChange={e => setReason(e.target.value)} />
           </Field>
         )}
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', marginTop: '1rem' }}>
-          <button type="button" style={button('#f3f4f6', '#374151')} onClick={onCancel}>Cancel</button>
+          <button type="button" style={button('#f3f4f6', '#374151')} onClick={onCancel}>{t('admin.dialog.cancel')}</button>
           <button type="button" style={button(dialog.kind === 'unpublish' ? C.red : C.blue)} onClick={onConfirm}>{dialog.confirmLabel}</button>
         </div>
       </div>
@@ -167,6 +182,7 @@ function ConfirmDialog({ dialog, onCancel, onConfirm, setReason }) {
 // ---- the screen -------------------------------------------------------------------------------------
 
 export default function AdminLocationsClient({ provinces, staffName }) {
+  const t = useT();
   const [list, setList] = useState({ counts: null, locations: [] });
   const [loading, setLoading] = useState(true);
   const [listError, setListError] = useState(null);
@@ -189,14 +205,14 @@ export default function AdminLocationsClient({ provinces, staffName }) {
     const qs = new URLSearchParams(Object.entries(filters).filter(([, v]) => v !== '')).toString();
     const res = await call(`${API}${qs ? `?${qs}` : ''}`);
     setLoading(false);
-    if (res.ok) { setList(res.data); setListError(null); } else setListError(res.data.message || 'Could not load the locations.');
-  }, [filters]);
+    if (res.ok) { setList(res.data); setListError(null); } else setListError(apiError(t, res.data, 'admin.error.load_list'));
+  }, [filters, t]);
 
   useEffect(() => { loadList(); }, [loadList]);
 
   const loadDetail = useCallback(async (id) => {
     const res = await call(`${API}/${id}`);
-    if (!res.ok) { setBanner({ type: 'error', text: res.data.message || 'Could not load the location.' }); return null; }
+    if (!res.ok) { setBanner({ type: 'error', text: apiError(t, res.data, 'admin.error.load_one') }); return null; }
     setDetail(res.data);
     const f = formFromDetail(res.data);
     setForm(f); setSavedForm(f);
@@ -204,7 +220,7 @@ export default function AdminLocationsClient({ provinces, staffName }) {
     setContact(c); setSavedContact(c);
     setErrors({}); setContactErrors({});
     return res.data;
-  }, []);
+  }, [t]);
 
   const open = async (id) => { setBanner(null); setSelectedId(id); await loadDetail(id); };
   const openNew = () => {
@@ -226,9 +242,9 @@ export default function AdminLocationsClient({ provinces, staffName }) {
       const res = id === 'new' ? await call(API, 'POST', payloadFromForm(form)) : await call(`${API}/${id}`, 'PUT', payloadFromForm(form));
       if (!res.ok) {
         setBusy(false);
-        if (res.status === 422) { setErrors(res.data.fields || {}); setBanner({ type: 'error', text: "Couldn't save — check the highlighted fields. Your changes are kept." }); }
-        else if (res.data.error === 'SLUG_TAKEN') { setErrors({ name_en: res.data.message }); setBanner({ type: 'error', text: res.data.message }); }
-        else setBanner({ type: 'error', text: "Couldn't save — your changes are kept." });
+        if (res.status === 422) { setErrors(fieldErrors(t, res.data)); setBanner({ type: 'error', text: t('admin.banner.check_fields') }); }
+        else if (res.data.error === 'SLUG_TAKEN') { setErrors({ name_en: t('admin.api.SLUG_TAKEN') }); setBanner({ type: 'error', text: t('admin.api.SLUG_TAKEN') }); }
+        else setBanner({ type: 'error', text: t('admin.banner.save_failed') });
         return;
       }
       setErrors({});
@@ -239,14 +255,14 @@ export default function AdminLocationsClient({ provinces, staffName }) {
       if (!res.ok) {
         await loadDetail(id); setContact(contact); // keep what was typed
         setBusy(false);
-        setContactErrors(res.data.fields || {});
-        setBanner({ type: 'error', text: "Couldn't save the contact — check the highlighted fields. Your changes are kept." });
+        setContactErrors(fieldErrors(t, res.data));
+        setBanner({ type: 'error', text: t('admin.banner.contact_failed') });
         return;
       }
     }
     await loadDetail(id); await loadList();
     setBusy(false);
-    setBanner({ type: 'success', text: 'Saved.' });
+    setBanner({ type: 'success', text: t('admin.banner.saved') });
   }
 
   async function verify() {
@@ -254,8 +270,8 @@ export default function AdminLocationsClient({ provinces, staffName }) {
     const res = await call(`${API}/${selectedId}/authority-contact/verify`, 'POST');
     if (res.ok) {
       const d = await loadDetail(selectedId); await loadList();
-      setBanner({ type: 'success', text: `Contact ${verifiedLine(d.authority_contact)}.` });
-    } else setBanner({ type: 'error', text: res.data.message || "Couldn't verify the contact." });
+      setBanner({ type: 'success', text: t('admin.banner.verified', { line: verifiedLine(d.authority_contact, t) }) });
+    } else setBanner({ type: 'error', text: apiError(t, res.data, 'admin.error.verify') });
     setBusy(false);
   }
 
@@ -266,11 +282,13 @@ export default function AdminLocationsClient({ provinces, staffName }) {
     await loadList();
     setBusy(false);
     if (res.ok) {
-      const name = (list.locations.find(l => l.location_id === id) || detail || {}).name_en || 'The location';
-      setBanner({ type: 'success', text: `${name} is now visible in location search.` });
+      const name = (list.locations.find(l => l.location_id === id) || detail || {}).name_en || t('admin.the_location');
+      setBanner({ type: 'success', text: t('admin.banner.published', { name }) });
     } else {
       // SC-35 Error state: refused by the database (BR-004) — red strip with blocked_reason
-      setBanner({ type: 'error', text: res.data.blocked_reason ? `Publish refused: ${res.data.blocked_reason}` : res.data.message });
+      setBanner({ type: 'error', text: res.data.blocked_reason
+        ? t('admin.banner.publish_refused', { reason: publishState({ can_publish: false, blocked_reason: res.data.blocked_reason }, t).reason })
+        : apiError(t, res.data, 'admin.error.publish') });
     }
   }
 
@@ -282,18 +300,18 @@ export default function AdminLocationsClient({ provinces, staffName }) {
     await loadList();
     setBusy(false);
     setBanner(res.ok
-      ? { type: 'success', text: 'Removed from search — shortlists that include it now show No longer published.' }
-      : { type: 'error', text: res.data.message || "Couldn't unpublish." });
+      ? { type: 'success', text: t('admin.banner.unpublished') }
+      : { type: 'error', text: apiError(t, res.data, 'admin.error.unpublish') });
   }
 
   const askUnpublish = (row) => setDialog({
-    kind: 'unpublish', id: row.location_id, reason: '', confirmLabel: 'Unpublish',
-    title: `Unpublish ${row.name_en}?`,
-    text: 'It leaves location search but is never deleted; shortlists that include it will show No longer published (BR-008).'
+    kind: 'unpublish', id: row.location_id, reason: '', confirmLabel: t('admin.action.unpublish'),
+    title: t('admin.dialog.unpublish_title', { name: row.name_en }),
+    text: t('admin.dialog.unpublish_text')
   });
   const askVerify = () => setDialog({
-    kind: 'verify', confirmLabel: 'Mark as verified', title: 'Mark the contact as verified?',
-    text: `You confirm you called the office and checked the person and number. Your name (${staffName}) and the time are recorded.`
+    kind: 'verify', confirmLabel: t('admin.dialog.verify_confirm'), title: t('admin.dialog.verify_title'),
+    text: t('admin.dialog.verify_text', { name: staffName })
   });
 
   function onRowAction(row) {
@@ -305,53 +323,53 @@ export default function AdminLocationsClient({ provinces, staffName }) {
 
   const counts = list.counts;
   const editing = selectedId !== null;
-  const pub = detail ? publishState(detail) : { disabled: true, reason: 'Save the location first.' };
+  const pub = detail ? publishState(detail, t) : { disabled: true, reason: t('admin.publish.save_first') };
   const contactSaved = Boolean(detail?.authority_contact);
   const canVerify = contactSaved && !detail.authority_contact.contact_verified && !contactDirty;
 
   return (
-    <div style={{ fontFamily: 'system-ui, sans-serif', backgroundColor: '#f9fafb', minHeight: '100vh' }}>
+    <div style={{ backgroundColor: '#f9fafb', minHeight: '100vh' }}>
       {/* #1 Navigation bar */}
       <header style={{ backgroundColor: '#111827', color: '#fff', padding: '0.75rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <strong>CINEMATCH · VFDA admin</strong>
-        <span style={{ fontSize: '0.875rem', color: '#d1d5db' }}>Signed in as VFDA staff — {staffName}</span>
+        <strong>{t('admin.bar.title')}</strong>
+        <span style={{ fontSize: '0.875rem', color: '#d1d5db' }}>{t('admin.bar.signed_in', { name: staffName })}</span>
       </header>
 
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '1.5rem 1rem' }}>
         {/* #2 Admin menu */}
-        <nav aria-label="Admin menu" style={{ marginBottom: '1rem', fontSize: '0.875rem' }}>
-          <span aria-current="page" style={{ fontWeight: 700, color: C.blue, borderBottom: `2px solid ${C.blue}`, paddingBottom: '0.25rem' }}>Locations</span>
+        <nav aria-label={t('admin.menu')} style={{ marginBottom: '1rem', fontSize: '0.875rem' }}>
+          <span aria-current="page" style={{ fontWeight: 700, color: C.blue, borderBottom: `2px solid ${C.blue}`, paddingBottom: '0.25rem' }}>{t('admin.title')}</span>
         </nav>
 
         {/* #3 Title + counts by status, #4 New location */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem', flexWrap: 'wrap' }}>
           <div>
-            <h1 style={{ margin: 0, fontSize: '1.75rem', color: C.text }}>Locations</h1>
+            <h1 style={{ margin: 0, fontSize: '1.75rem', color: C.text }}>{t('admin.title')}</h1>
             {counts && (
               <p style={{ margin: '0.25rem 0 0', color: C.muted, fontSize: '0.875rem' }}>
-                {counts.all} in total · {counts.published} published · {counts.awaiting_contact} awaiting contact · {counts.unpublished} unpublished
+                {t('admin.counts', counts)}
               </p>
             )}
           </div>
-          <button type="button" style={button(C.blue)} onClick={openNew}>+ New location</button>
+          <button type="button" style={button(C.blue)} onClick={openNew}>+ {t('admin.new')}</button>
         </div>
 
         {/* #5 Status filter, #6 search and province */}
         <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', margin: '1rem 0', alignItems: 'center' }}>
-          <div role="group" aria-label="Status" style={{ display: 'flex', gap: '0.25rem' }}>
-            {[['', 'All', counts?.all], ['awaiting_contact', 'Awaiting contact', counts?.awaiting_contact], ['published', 'Published', counts?.published], ['unpublished', 'Unpublished', counts?.unpublished]].map(([value, label, n]) => (
-              <button key={label} type="button" aria-pressed={filters.status === value}
+          <div role="group" aria-label={t('admin.filter.status')} style={{ display: 'flex', gap: '0.25rem' }}>
+            {[['', t('admin.filter.all'), counts?.all], ['awaiting_contact', statusLabel('awaiting_contact', t), counts?.awaiting_contact], ['published', statusLabel('published', t), counts?.published], ['unpublished', statusLabel('unpublished', t), counts?.unpublished]].map(([value, label, n]) => (
+              <button key={value || 'all'} type="button" aria-pressed={filters.status === value}
                 onClick={() => setFilters(f => ({ ...f, status: value }))}
                 style={{ ...button(filters.status === value ? C.text : '#fff', filters.status === value ? '#fff' : '#374151'), border: `1px solid ${C.border}`, fontWeight: 500 }}>
                 {label}{n !== undefined ? ` ${n}` : ''}
               </button>
             ))}
           </div>
-          <input aria-label="Search by name" placeholder="Search by name (with or without diacritics)" maxLength={200}
+          <input aria-label={t('admin.filter.search')} placeholder={t('admin.filter.search_placeholder')} maxLength={200}
             style={{ ...input, width: '280px' }} value={filters.q} onChange={e => setFilters(f => ({ ...f, q: e.target.value }))} />
-          <select aria-label="Province" style={{ ...input, width: '200px' }} value={filters.province_id}
+          <select aria-label={t('admin.field.province_id')} style={{ ...input, width: '200px' }} value={filters.province_id}
             onChange={e => setFilters(f => ({ ...f, province_id: e.target.value }))}>
-            <option value="">All provinces</option>
+            <option value="">{t('admin.filter.all_provinces')}</option>
             {provinces.map(p => <option key={p.province_id} value={p.province_id}>{p.name}</option>)}
           </select>
         </div>
@@ -362,7 +380,8 @@ export default function AdminLocationsClient({ provinces, staffName }) {
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
               <thead>
                 <tr style={{ textAlign: 'left', color: C.muted, borderBottom: `1px solid ${C.border}` }}>
-                  {['Location', 'Province', 'Status', 'Availability', 'Authority contact', 'Photos', ''].map(h => <th key={h} style={{ padding: '0.6rem 0.75rem', fontWeight: 600 }}>{h}</th>)}
+                  {['location', 'province', 'status', 'availability', 'contact', 'photos'].map(h => <th key={h} style={{ padding: '0.6rem 0.75rem', fontWeight: 600 }}>{t(`admin.table.${h}`)}</th>)}
+                  <th style={{ padding: '0.6rem 0.75rem' }} />
                 </tr>
               </thead>
               <tbody>
@@ -371,11 +390,11 @@ export default function AdminLocationsClient({ provinces, staffName }) {
                 ))}
                 {!loading && list.locations.length === 0 && (
                   <tr><td colSpan={7} style={{ padding: '1.5rem', textAlign: 'center', color: C.muted }}>
-                    {counts && counts.all === 0 ? 'No locations yet — add the first one.' : filters.status ? 'No locations with this status.' : 'No locations match this search.'}
+                    {counts && counts.all === 0 ? t('admin.empty.none') : filters.status ? t('admin.empty.status') : t('admin.empty.search')}
                   </td></tr>
                 )}
                 {list.locations.map(row => {
-                  const action = rowAction(row.intake_status);
+                  const action = rowAction(row.intake_status, t);
                   return (
                     <tr key={row.location_id} style={{ borderBottom: `1px solid ${C.border}`, backgroundColor: row.location_id === selectedId ? '#eff6ff' : undefined }}>
                       <td style={{ padding: '0.6rem 0.75rem' }}>
@@ -386,12 +405,12 @@ export default function AdminLocationsClient({ provinces, staffName }) {
                       </td>
                       <td style={{ padding: '0.6rem 0.75rem' }}>{row.province}</td>
                       {/* #8 Location status */}
-                      <td style={{ padding: '0.6rem 0.75rem' }}>{statusLabel(row.intake_status)}</td>
-                      <td style={{ padding: '0.6rem 0.75rem' }}>{availabilityLabel(row.availability)}</td>
+                      <td style={{ padding: '0.6rem 0.75rem' }}>{statusLabel(row.intake_status, t)}</td>
+                      <td style={{ padding: '0.6rem 0.75rem' }}>{availabilityLabel(row.availability, t)}</td>
                       {/* #9 Authority contact verification */}
-                      <td style={{ padding: '0.6rem 0.75rem', color: row.contact_verified ? C.green : C.red }}>{row.contact_verified ? '✓ verified' : 'Not verified'}</td>
+                      <td style={{ padding: '0.6rem 0.75rem', color: row.contact_verified ? C.green : C.red }}>{row.contact_verified ? t('admin.contact.verified_short') : t('admin.contact.not_verified')}</td>
                       {/* #10 Photo count */}
-                      <td style={{ padding: '0.6rem 0.75rem' }}>{row.photo_count}{row.pending_photo_count ? ` · ${row.pending_photo_count} pending` : ''}</td>
+                      <td style={{ padding: '0.6rem 0.75rem' }}>{row.pending_photo_count ? t('admin.photos.count_pending', { count: row.photo_count, pending: row.pending_photo_count }) : row.photo_count}</td>
                       {/* #11 Row action */}
                       <td style={{ padding: '0.6rem 0.75rem', whiteSpace: 'nowrap' }}>
                         <button type="button" onClick={() => onRowAction(row)} disabled={busy}
@@ -400,7 +419,7 @@ export default function AdminLocationsClient({ provinces, staffName }) {
                         </button>
                         {action.action !== 'edit' && (
                           <button type="button" onClick={() => open(row.location_id)}
-                            style={{ background: 'none', border: 'none', color: C.blue, cursor: 'pointer' }}>Edit</button>
+                            style={{ background: 'none', border: 'none', color: C.blue, cursor: 'pointer' }}>{t('admin.action.edit')}</button>
                         )}
                       </td>
                     </tr>
@@ -417,38 +436,38 @@ export default function AdminLocationsClient({ provinces, staffName }) {
         {editing && (
           <div style={{ marginTop: '1rem' }}>
             <h2 style={{ fontSize: '1.25rem', margin: 0, color: C.text }}>
-              {selectedId === 'new' ? 'New location' : detail ? detail.name_en : 'Loading…'}
+              {selectedId === 'new' ? t('admin.new') : detail ? detail.name_en : t('admin.loading')}
             </h2>
-            {detail && <p style={{ margin: '0.25rem 0 0', color: C.muted, fontSize: '0.875rem' }}>Status: {statusLabel(detail.intake_status)} · /{detail.slug}</p>}
-            {selectedId === 'new' && <p style={{ margin: '0.25rem 0 0', color: C.muted, fontSize: '0.875rem' }}>A new location starts as Awaiting contact.</p>}
+            {detail && <p style={{ margin: '0.25rem 0 0', color: C.muted, fontSize: '0.875rem' }}>{t('admin.editor.status', { status: statusLabel(detail.intake_status, t), slug: detail.slug })}</p>}
+            {selectedId === 'new' && <p style={{ margin: '0.25rem 0 0', color: C.muted, fontSize: '0.875rem' }}>{t('admin.editor.new_note')}</p>}
 
             {/* #13 Names, province, district, coordinates */}
-            <Section title="Name and place">
+            <Section title={t('admin.section.place')}>
               <div style={grid()}>
-                <Field label="Vietnamese name *" error={errors.name_vi}><input style={input} maxLength={200} value={form.name_vi} onChange={set('name_vi')} /></Field>
-                <Field label="English name *" error={errors.name_en}><input style={input} maxLength={200} value={form.name_en} onChange={set('name_en')} /></Field>
-                <Field label="Province *" error={errors.province_id}>
+                <Field label={`${t('admin.field.name_vi')} *`} error={errors.name_vi}><input style={input} maxLength={200} value={form.name_vi} onChange={set('name_vi')} /></Field>
+                <Field label={`${t('admin.field.name_en')} *`} error={errors.name_en}><input style={input} maxLength={200} value={form.name_en} onChange={set('name_en')} /></Field>
+                <Field label={`${t('admin.field.province_id')} *`} error={errors.province_id}>
                   <select style={input} value={form.province_id} onChange={set('province_id')}>
-                    <option value="">Choose…</option>
+                    <option value="">{t('admin.choose')}</option>
                     {provinces.map(p => <option key={p.province_id} value={p.province_id}>{p.name}</option>)}
                   </select>
                 </Field>
-                <Field label="District" error={errors.district}><input style={input} maxLength={120} value={form.district} onChange={set('district')} /></Field>
-                <Field label="Latitude *" error={errors.lat} hint="8 to 24, inside Vietnam"><input style={input} inputMode="decimal" value={form.lat} onChange={set('lat')} /></Field>
-                <Field label="Longitude *" error={errors.lng} hint="102 to 110, inside Vietnam"><input style={input} inputMode="decimal" value={form.lng} onChange={set('lng')} /></Field>
+                <Field label={t('admin.field.district')} error={errors.district}><input style={input} maxLength={120} value={form.district} onChange={set('district')} /></Field>
+                <Field label={`${t('admin.field.lat')} *`} error={errors.lat} hint={t('admin.hint.lat')}><input style={input} inputMode="decimal" value={form.lat} onChange={set('lat')} /></Field>
+                <Field label={`${t('admin.field.lng')} *`} error={errors.lng} hint={t('admin.hint.lng')}><input style={input} inputMode="decimal" value={form.lng} onChange={set('lng')} /></Field>
               </div>
             </Section>
 
             {/* #14 Scene types */}
-            <Section title="Scene types *">
+            <Section title={`${t('admin.field.scene_types')} *`}>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
-                {SCENE_TYPES.map(t => {
-                  const on = form.scene_types.includes(t);
+                {SCENE_TYPES.map(type => {
+                  const on = form.scene_types.includes(type);
                   return (
-                    <button key={t} type="button" aria-pressed={on}
-                      onClick={() => setForm(f => ({ ...f, scene_types: on ? f.scene_types.filter(x => x !== t) : [...f.scene_types, t] }))}
+                    <button key={type} type="button" aria-pressed={on}
+                      onClick={() => setForm(f => ({ ...f, scene_types: on ? f.scene_types.filter(x => x !== type) : [...f.scene_types, type] }))}
                       style={{ ...button(on ? C.blue : '#f3f4f6', on ? '#fff' : '#374151'), fontWeight: 500, padding: '0.3rem 0.7rem' }}>
-                      {t.replace(/_/g, ' ')}
+                      {sceneLabel(t, type)}
                     </button>
                   );
                 })}
@@ -457,83 +476,83 @@ export default function AdminLocationsClient({ provinces, staffName }) {
             </Section>
 
             {/* #15 Logistics, season, permit complexity and availability */}
-            <Section title="Logistics, season, permit and availability">
+            <Section title={t('admin.section.logistics')}>
               <div style={grid()}>
-                <Field label="Crew capacity *" error={errors.crew_capacity}>
+                <Field label={`${t('admin.field.crew_capacity')} *`} error={errors.crew_capacity}>
                   <select style={input} value={form.crew_capacity} onChange={set('crew_capacity')}>
-                    <option value="">Choose…</option><option value="u15">Under 15</option><option value="15_50">15–50</option><option value="o50">Over 50</option>
+                    <option value="">{t('admin.choose')}</option><option value="u15">{t('crew.u15')}</option><option value="15_50">{t('crew.15_50')}</option><option value="o50">{t('crew.o50')}</option>
                   </select>
                 </Field>
-                {[['lodging_20km', 'Lodging within 20 km *'], ['grid_power', 'Grid power *'], ['truck_access', 'Truck access *']].map(([field, label]) => (
-                  <Field key={field} label={label} error={errors[field]}>
+                {['lodging_20km', 'grid_power', 'truck_access'].map(field => (
+                  <Field key={field} label={`${t(`admin.field.${field}`)} *`} error={errors[field]}>
                     <select style={input} value={form[field]} onChange={set(field)}>
-                      <option value="">Choose…</option><option value="yes">Yes</option><option value="no">No</option>
+                      <option value="">{t('admin.choose')}</option><option value="yes">{t('detail.yes')}</option><option value="no">{t('detail.no')}</option>
                     </select>
                   </Field>
                 ))}
-                <Field label="Distance to the airport (km)" error={errors.airport_km}><input style={input} inputMode="numeric" value={form.airport_km} onChange={set('airport_km')} /></Field>
-                <Field label="Permit complexity *" error={errors.permit_complexity}>
+                <Field label={t('admin.field.airport_km_unit')} error={errors.airport_km}><input style={input} inputMode="numeric" value={form.airport_km} onChange={set('airport_km')} /></Field>
+                <Field label={`${t('admin.field.permit_complexity')} *`} error={errors.permit_complexity}>
                   <select style={input} value={form.permit_complexity} onChange={set('permit_complexity')}>
-                    <option value="">Choose…</option><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option>
+                    <option value="">{t('admin.choose')}</option><option value="low">{t('detail.permit.low')}</option><option value="medium">{t('detail.permit.medium')}</option><option value="high">{t('detail.permit.high')}</option>
                   </select>
                 </Field>
-                <Field label="Availability *" error={errors.availability} hint="A paused location stays published with its label.">
+                <Field label={`${t('admin.field.availability')} *`} error={errors.availability} hint={t('admin.hint.availability')}>
                   <select style={input} value={form.availability} onChange={set('availability')}>
-                    <option value="open">Open</option><option value="survey_in_progress">Scouting crew on site</option><option value="paused">Temporarily closed</option>
+                    <option value="open">{t('availability.open')}</option><option value="survey_in_progress">{t('availability.survey_in_progress')}</option><option value="paused">{t('availability.paused')}</option>
                   </select>
                 </Field>
-                <Field label="Night shooting" error={errors.night_shooting_allowed}>
+                <Field label={t('admin.field.night_shooting_allowed')} error={errors.night_shooting_allowed}>
                   <select style={input} value={form.night_shooting_allowed} onChange={set('night_shooting_allowed')}>
-                    <option value="">No data yet</option><option value="yes">Allowed</option><option value="no">Not allowed</option><option value="ask">Ask the local authority</option>
+                    <option value="">{t('admin.months.unknown')}</option><option value="yes">{t('admin.night.yes')}</option><option value="no">{t('admin.night.no')}</option><option value="ask">{t('admin.night.ask')}</option>
                   </select>
                 </Field>
               </div>
               <div style={{ ...grid(320), marginTop: '0.75rem' }}>
-                <MonthPicker label="Months to avoid" value={form.months_to_avoid} error={errors.months_to_avoid} noneLabel="No month to avoid"
+                <MonthPicker label={t('admin.field.months_to_avoid')} value={form.months_to_avoid} error={errors.months_to_avoid} noneLabel={t('admin.months.none_avoid')}
                   onChange={v => setForm(f => ({ ...f, months_to_avoid: v }))} />
-                <MonthPicker label="Rainy months" value={form.rainy_months} error={errors.rainy_months} noneLabel="No rainy month"
+                <MonthPicker label={t('admin.field.rainy_months')} value={form.rainy_months} error={errors.rainy_months} noneLabel={t('admin.months.none_rainy')}
                   onChange={v => setForm(f => ({ ...f, rainy_months: v }))} />
               </div>
             </Section>
 
             {/* #16 Descriptions and restriction note */}
-            <Section title="Descriptions">
+            <Section title={t('admin.section.descriptions')}>
               <div style={grid(320)}>
-                <Field label="Vietnamese description *" error={errors.desc_vi}><textarea rows={4} style={input} value={form.desc_vi} onChange={set('desc_vi')} /></Field>
-                <Field label="English description *" error={errors.desc_en}><textarea rows={4} style={input} value={form.desc_en} onChange={set('desc_en')} /></Field>
-                <Field label="Restriction note" error={errors.restriction_note}><textarea rows={2} style={input} value={form.restriction_note} onChange={set('restriction_note')} /></Field>
+                <Field label={`${t('admin.field.desc_vi')} *`} error={errors.desc_vi}><textarea rows={4} style={input} value={form.desc_vi} onChange={set('desc_vi')} /></Field>
+                <Field label={`${t('admin.field.desc_en')} *`} error={errors.desc_en}><textarea rows={4} style={input} value={form.desc_en} onChange={set('desc_en')} /></Field>
+                <Field label={t('admin.field.restriction_note')} error={errors.restriction_note}><textarea rows={2} style={input} value={form.restriction_note} onChange={set('restriction_note')} /></Field>
               </div>
             </Section>
 
             {/* #17 Photos (#20 status, #21 source and usage right, #22 upload — deferred, decision D3) */}
-            <Section title="Photos">
+            <Section title={t('admin.section.photos')}>
               {detail?.photos?.length ? (
                 <ul style={{ margin: 0, paddingLeft: '1.1rem', fontSize: '0.8125rem' }}>
                   {detail.photos.map(p => (
                     <li key={p.image_url} style={{ marginBottom: '0.25rem' }}>
-                      <strong>{p.status}</strong> · {p.image_source} · {p.usage_right}
+                      <strong>{t(`admin.photo_status.${p.status}`)}</strong> · {p.image_source} · {p.usage_right}
                     </li>
                   ))}
                 </ul>
-              ) : <p style={{ margin: 0, color: C.muted, fontSize: '0.8125rem' }}>No photos yet.</p>}
-              <button type="button" disabled style={{ ...button(C.blue, '#fff', true), marginTop: '0.5rem' }}>+ Add photo</button>
-              <span style={{ marginLeft: '0.5rem', color: C.muted, fontSize: '0.75rem' }}>Photo upload comes in a later release; only approved photos are shown publicly.</span>
+              ) : <p style={{ margin: 0, color: C.muted, fontSize: '0.8125rem' }}>{t('admin.photos.none')}</p>}
+              <button type="button" disabled style={{ ...button(C.blue, '#fff', true), marginTop: '0.5rem' }}>+ {t('admin.photos.add')}</button>
+              <span style={{ marginLeft: '0.5rem', color: C.muted, fontSize: '0.75rem' }}>{t('admin.photos.later')}</span>
             </Section>
 
             {/* #18 Local authority contact, #19 verification */}
-            <Section title="Local authority contact">
+            <Section title={t('location.contact.title')}>
               <div style={grid()}>
-                <Field label="Authority office *" error={contactErrors.authority_name}><input style={input} maxLength={200} value={contact.authority_name} onChange={setC('authority_name')} /></Field>
-                <Field label="Contact person *" error={contactErrors.contact_name}><input style={input} maxLength={120} value={contact.contact_name} onChange={setC('contact_name')} /></Field>
-                <Field label="Phone *" error={contactErrors.contact_phone}><input style={input} maxLength={20} value={contact.contact_phone} onChange={setC('contact_phone')} /></Field>
-                <Field label="E-mail" error={contactErrors.contact_email}><input style={input} type="email" maxLength={254} value={contact.contact_email} onChange={setC('contact_email')} /></Field>
+                <Field label={`${t('admin.field.authority_name')} *`} error={contactErrors.authority_name}><input style={input} maxLength={200} value={contact.authority_name} onChange={setC('authority_name')} /></Field>
+                <Field label={`${t('admin.field.contact_name')} *`} error={contactErrors.contact_name}><input style={input} maxLength={120} value={contact.contact_name} onChange={setC('contact_name')} /></Field>
+                <Field label={`${t('admin.field.contact_phone')} *`} error={contactErrors.contact_phone}><input style={input} maxLength={20} value={contact.contact_phone} onChange={setC('contact_phone')} /></Field>
+                <Field label={t('admin.field.contact_email')} error={contactErrors.contact_email}><input style={input} type="email" maxLength={254} value={contact.contact_email} onChange={setC('contact_email')} /></Field>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginTop: '0.75rem', flexWrap: 'wrap' }}>
                 <span style={{ fontSize: '0.875rem', color: detail?.authority_contact?.contact_verified ? C.green : C.red }}>
-                  {contactDirty ? 'Changed — save to record it; any change clears the verification.' : verifiedLine(detail?.authority_contact || null)}
+                  {contactDirty ? t('admin.contact.changed') : verifiedLine(detail?.authority_contact || null, t)}
                 </span>
                 <button type="button" style={button(C.green, '#fff', !canVerify || busy)} disabled={!canVerify || busy} onClick={askVerify}>
-                  Mark contact as verified
+                  {t('admin.contact.verify')}
                 </button>
               </div>
             </Section>
@@ -541,25 +560,25 @@ export default function AdminLocationsClient({ provinces, staffName }) {
             {/* #23 Publish blocked reason, #24 Save, #25 Publish / Unpublish */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginTop: '1rem', flexWrap: 'wrap' }}>
               <button type="button" style={button(C.text, '#fff', busy || (!formDirty && !contactDirty && selectedId !== 'new'))}
-                disabled={busy || (!formDirty && !contactDirty && selectedId !== 'new')} onClick={save}>Save</button>
+                disabled={busy || (!formDirty && !contactDirty && selectedId !== 'new')} onClick={save}>{t('admin.save')}</button>
               {detail?.intake_status === 'published' ? (
-                <button type="button" style={button(C.red, '#fff', busy)} disabled={busy} onClick={() => askUnpublish(detail)}>Unpublish</button>
+                <button type="button" style={button(C.red, '#fff', busy)} disabled={busy} onClick={() => askUnpublish(detail)}>{t('admin.action.unpublish')}</button>
               ) : (
                 <button type="button" style={button(C.blue, '#fff', pub.disabled || busy || formDirty || contactDirty)}
                   disabled={pub.disabled || busy || formDirty || contactDirty} aria-describedby="publish-reason" onClick={() => publish()}>
-                  {detail?.intake_status === 'unpublished' ? 'Publish again' : 'Publish'}
+                  {detail?.intake_status === 'unpublished' ? t('admin.action.publish_again') : t('admin.action.publish')}
                 </button>
               )}
               {detail?.intake_status !== 'published' && (
                 <span id="publish-reason" style={{ color: C.red, fontSize: '0.8125rem' }}>
-                  {formDirty || contactDirty ? 'Save your changes before publishing.' : pub.disabled ? pub.reason : ''}
+                  {formDirty || contactDirty ? t('admin.publish.save_changes') : pub.disabled ? pub.reason : ''}
                 </span>
               )}
             </div>
 
             {/* #26 Audit note */}
             <p style={{ color: C.muted, fontSize: '0.75rem', marginTop: '1rem' }}>
-              Every save, contact verification, publish and unpublish is recorded in the audit log with your name and the time. Locations are never deleted.
+              {t('admin.audit_note')}
             </p>
           </div>
         )}

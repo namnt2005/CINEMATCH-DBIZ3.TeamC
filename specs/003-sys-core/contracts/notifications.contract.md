@@ -6,7 +6,7 @@ Feature: `003-sys-core` · Decisions: D6, [research.md](../research.md) R11, Ope
 
 - Inserts exactly one `notification` (`created_at = now()`, `read_at = null`) and one `email_delivery` (`queued`, `template_id = eventType`, `recipient_email` from `user_account`, `variables = payload`) per call (SR-243).
 - Skips the email for a deactivated recipient. Returns `{ notification_id }`.
-- Interim event types (Open question 10): `collab.response`, `province.reply`, `account.role_granted`.
+- Interim event types (Open question 10): `collab.response`, `province.reply`, `account.role_granted`; the seed also uses `collab_request.new|accepted|declined|withdrawn`, `province_notice.received|info_needed|bounced`, `verification.expiring`, `consultation.reminder` (research Open question 22). SC-09 has a label for each.
 
 ## Email sender — FR-008
 
@@ -14,7 +14,7 @@ Feature: `003-sys-core` · Decisions: D6, [research.md](../research.md) R11, Ope
 
 ## GET `/api/notifications?unread_only=true|false` — FR-009, US-4 Scenario 2
 
-Signed-in only → `{ "unread_count": 2, "notifications": [{ notification_id, event_type, payload, created_at, read_at }] }`, newest first, the user's own only (RLS, SR-241).
+Signed-in only → `{ "unread_count": 2, "has_more": false, "notifications": [{ notification_id, recipient_id, event_type, payload, created_at, read_at }] }`, newest first, 20 per page (`before=<created_at>` for older rows), the user's own only (RLS, SR-241).
 
 ## POST `/api/notifications/read` — FR-009
 

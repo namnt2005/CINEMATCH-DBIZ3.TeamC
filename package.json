@@ -13,7 +13,9 @@
     "test:contracts": "node --test tests/contracts/*.test.js",
     "test:rls": "node --env-file=.env --test tests/rls/*.test.js",
     "check:supabase": "node --env-file=.env scripts/check-supabase.mjs",
-    "seed:supabase": "node scripts/seed-supabase.mjs"
+    "seed:supabase": "node scripts/seed-supabase.mjs",
+    "check:i18n": "node scripts/check-i18n.mjs",
+    "prebuild": "node scripts/check-i18n.mjs"
   },
   "dependencies": {
     "@google/genai": "^2.32.0",

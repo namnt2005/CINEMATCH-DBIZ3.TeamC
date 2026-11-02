@@ -47,6 +47,7 @@ export async function GET(req) {
         province_id: loc.province_id,
         score: item.score,
         match_reasons: item.match_reasons,
+        match_reason_codes: item.match_reason_codes,
         crew_capacity: loc.crew_capacity,
         availability: loc.availability,
         permit_complexity: loc.permit_complexity

@@ -11,7 +11,8 @@ import 'leaflet/dist/leaflet.css';
  * @param {{ center: { lat: number, lng: number }, name: string,
  *           nearby?: { slug: string, name_en: string, coordinates: { lat: number, lng: number }, distance_km: number }[] }} props
  */
-export default function LocationMap({ center, name, nearby = [] }) {
+/** label: the accessible name of the map region, in the page's language (FR-006). */
+export default function LocationMap({ center, name, label, nearby = [] }) {
   const containerRef = useRef(null);
 
   useEffect(() => {
@@ -53,7 +54,7 @@ export default function LocationMap({ center, name, nearby = [] }) {
     <div
       ref={containerRef}
       role="region"
-      aria-label={`Map of ${name}`}
+      aria-label={label}
       style={{ height: '320px', width: '100%', borderRadius: '0.5rem', border: '1px solid #e5e7eb', backgroundColor: '#f3f4f6' }}
     />
   );
