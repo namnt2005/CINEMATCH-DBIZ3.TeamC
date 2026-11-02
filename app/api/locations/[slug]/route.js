@@ -6,7 +6,7 @@ import { locationNotFound } from '../../../../lib/api/errors.js';
  */
 export async function GET(req, { params }) {
   try {
-    const detail = getLocationDetail(params.slug);
+    const detail = await getLocationDetail(params.slug);
     if (!detail) {
       return locationNotFound();
     }

@@ -10,12 +10,18 @@
     "test": "node --test tests/foundational/*.test.js tests/unit/*.test.js tests/contracts/*.test.js",
     "test:foundational": "node --test tests/foundational/*.test.js",
     "test:unit": "node --test tests/unit/*.test.js",
-    "test:contracts": "node --test tests/contracts/*.test.js"
+    "test:contracts": "node --test tests/contracts/*.test.js",
+    "test:rls": "node --env-file=.env --test tests/rls/*.test.js",
+    "check:supabase": "node --env-file=.env scripts/check-supabase.mjs",
+    "seed:supabase": "node scripts/seed-supabase.mjs"
   },
   "dependencies": {
     "@google/genai": "^2.32.0",
+    "@supabase/ssr": "^0.12.7",
+    "@supabase/supabase-js": "^2.118.0",
     "leaflet": "^1.9.4",
     "next": "^14.2.24",
+    "pg": "^8.23.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },

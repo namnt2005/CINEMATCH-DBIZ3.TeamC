@@ -1,6 +1,6 @@
-import { resolveSessionRole } from '../../../../../lib/auth/session.js';
+import { getSession } from '../../../../../lib/auth/session.js';
 import { getPublishedLocationBySlug } from '../../../../../lib/db/locations.js';
-import { canSeeAuthorityContact, getAuthorityContact } from '../../../../../lib/db/contacts.js';
+import { canSeeAuthorityContact, getAuthorityContact, isContactAccessDenied } from '../../../../../lib/db/contacts.js';
 import { locationNotFound } from '../../../../../lib/api/errors.js';
 
 /**
@@ -9,7 +9,7 @@ import { locationNotFound } from '../../../../../lib/api/errors.js';
  */
 export async function GET(req, { params }) {
   try {
-    const session = resolveSessionRole(req.headers);
+    const session = await getSession({ headers: req.headers });
     if (!canSeeAuthorityContact(session)) {
       return Response.json(
         {
@@ -21,12 +21,12 @@ export async function GET(req, { params }) {
       );
     }
 
-    const location = getPublishedLocationBySlug(params.slug);
+    const location = await getPublishedLocationBySlug(params.slug);
     if (!location) {
       return locationNotFound();
     }
 
-    const contact = getAuthorityContact(location.location_id, session);
+    const contact = await getAuthorityContact(location.location_id, session);
     if (!contact) {
       return locationNotFound();
     }
@@ -44,6 +44,9 @@ export async function GET(req, { params }) {
       { status: 200 }
     );
   } catch (err) {
+    if (isContactAccessDenied(err)) {
+      return Response.json({ error: 'FORBIDDEN', message: err.message }, { status: 403 });
+    }
     console.error('Authority contact error:', err);
     return Response.json(
       { error: 'INTERNAL_ERROR', message: 'Failed to load authority contact.' },

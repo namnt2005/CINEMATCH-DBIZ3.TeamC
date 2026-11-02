@@ -21,7 +21,7 @@ describe('Authority contact role gate (T031, BR-005, SR-111)', () => {
     const { getAuthorityContact } = await loadContacts();
     const { calls, db } = spyDb();
 
-    const result = getAuthorityContact(TRANG_AN, resolveSessionRole({}), db);
+    const result = await getAuthorityContact(TRANG_AN, resolveSessionRole({}), db);
 
     assert.equal(result, null);
     assert.equal(calls.length, 0, 'No query may run for a guest');
@@ -31,7 +31,7 @@ describe('Authority contact role gate (T031, BR-005, SR-111)', () => {
     const { getAuthorityContact } = await loadContacts();
     const { calls, db } = spyDb();
 
-    const result = getAuthorityContact(TRANG_AN, resolveSessionRole({ 'x-mock-role': 'superuser' }), db);
+    const result = await getAuthorityContact(TRANG_AN, resolveSessionRole({ 'x-mock-role': 'superuser' }), db);
 
     assert.equal(result, null);
     assert.equal(calls.length, 0);
@@ -41,7 +41,7 @@ describe('Authority contact role gate (T031, BR-005, SR-111)', () => {
     const { getAuthorityContact } = await loadContacts();
     const { calls, db } = spyDb();
 
-    getAuthorityContact(TRANG_AN, resolveSessionRole({ 'x-mock-role': 'member' }), db);
+    await getAuthorityContact(TRANG_AN, resolveSessionRole({ 'x-mock-role': 'member' }), db);
 
     assert.ok(calls.some(sql => /authority_contact/i.test(sql)), 'Members reach the contact table');
   });
@@ -49,7 +49,7 @@ describe('Authority contact role gate (T031, BR-005, SR-111)', () => {
   test('BR-005 / SYS Clarifications Q1: every signed-in role gets the verified contact', async () => {
     const { getAuthorityContact } = await loadContacts();
     for (const role of ['member', 'partner', 'vfda_staff', 'vfda_legal', 'admin']) {
-      const contact = getAuthorityContact(TRANG_AN, resolveSessionRole({ 'x-mock-role': role }));
+      const contact = await getAuthorityContact(TRANG_AN, resolveSessionRole({ 'x-mock-role': role }));
       assert.equal(contact?.contact_name, 'Bùi Văn Thành', `${role} sees the contact`);
     }
   });

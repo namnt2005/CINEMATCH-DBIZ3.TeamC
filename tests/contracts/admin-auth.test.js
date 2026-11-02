@@ -38,11 +38,18 @@ describe('Admin API role gate (T009, FR-001..FR-005, contract §0, BR-008)', () 
     assert.equal(locationRow(TRANG_AN).intake_status, 'published', 'Nothing was unpublished');
   });
 
-  test('FR-001..FR-005: other signed-in roles (vfda_legal, partner, admin) also get 403 — vfda_staff only (research Open question 5)', async () => {
-    for (const role of ['vfda_legal', 'partner', 'admin']) {
+  test('FR-001..FR-005: other signed-in roles (vfda_legal, partner) get 403', async () => {
+    for (const role of ['vfda_legal', 'partner']) {
       const res = await callAdmin('list', 'GET', { role });
       assert.equal(res.status, 403, role);
     }
+  });
+
+  // 002 research Open question 5 asked whether `admin` may manage locations (interim: no).
+  // Answered on 01/11/2026 by specs/003-sys-core decision D5: admin inherits vfda_staff and vfda_legal.
+  test('FR-001 / 003 D5: admin inherits vfda_staff and may manage locations', async () => {
+    const res = await callAdmin('list', 'GET', { role: 'admin' });
+    assert.equal(res.status, 200);
   });
 
   test('FR-001: vfda_staff is let through', async () => {

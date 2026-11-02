@@ -18,7 +18,11 @@
 ### Session 2026-10-28 (Group C, provisional — the owner in §10 confirms before launch)
 
 - Q1: Must a producer company be verified (e.g. business registration, IMDbPro) before seeing local authority contacts? → A: No company verification is needed. Any signed-in member sees local authority contacts.
-- Q9: How long are pre-check texts kept, and may they be used to improve the rule base? (same question as spec-M2.md question 6) → A: Pre-check text is never stored; only its hash (`synopsis_hash`) is kept, and it is not used to improve the rule base. Same decision as M2 question 6.
+- Q10: How long are pre-check texts kept, and may they be used to improve the rule base? (same question as spec-M2.md question 6) → A: Pre-check text is never stored; only its hash (`synopsis_hash`) is kept, and it is not used to improve the rule base. Same decision as M2 question 6.
+
+### Session 2026-11-02 (Group C, provisional — the owner in §10 confirms before launch)
+
+- Q5: Does the admin role also hold every permission of vfda_staff and vfda_legal, in addition to its own (reading the audit log, granting roles)? BR-002 says only what admin grants. → A: Yes. The admin role holds every permission of vfda_staff and vfda_legal, in addition to its own (reading the audit log, granting roles). Roles are still granted only by an admin, and every grant is written to the audit log (BR-002).
 
 ## 1. Purpose and scope
 
@@ -265,13 +269,14 @@ Types and required flags of the attributes above that no field in 5.1 declares (
 | 2 | [NEEDS CLARIFICATION: Is Google / Apple sign-in required at launch?] *(also raised in SC-04)* | No | Client (VFDA) | Open |
 | 3 | [NEEDS CLARIFICATION: Which embedding model (and vector dimension) is used for F-SYS-11?] | No | Group C | Open |
 | 4 | [NEEDS CLARIFICATION: SEQ-01 has no error branch (email provider down, expired link). Confirm the behaviour written in the edge cases.] *(also raised in SC-07)* | No | Client (VFDA) | Open |
-| 5 | [NEEDS CLARIFICATION: How long is a password reset link valid before it expires (e.g. 1 hour)?] *(from SC-06)* | No | Group C | Open |
-| 6 | [NEEDS CLARIFICATION: SYS BR-005 anonymises name, email and phone, but SYS §5.1 has no phone field for an account — which phone field is meant?] *(from SC-08)* | No | Client (VFDA) | Open |
-| 7 | [NEEDS CLARIFICATION: May a member turn off email notifications (per event type or all), or is every notification always emailed?] *(from SC-08)* | No | Client (VFDA) | Open |
-| 8 | [NEEDS CLARIFICATION: Which `event_type` values exist in the MVP and what readable label does each get? SYS §5.1 declares the field but not its values.] *(from SC-09)* | No | Group C | Open |
-| 9 | [NEEDS CLARIFICATION: How long are pre-check texts kept, and may they be used to improve the rule base? (same question as spec-M2.md question 6)] *(from SC-42)* | Yes | Client (VFDA) | Decided (provisional, VFDA to confirm) — see Clarifications |
-| 10 | [NEEDS CLARIFICATION: Does one `consent_version` cover both the privacy policy and the terms of use, or does each document need its own version and acceptance record?] *(from SC-42)* | No | Client (VFDA Legal Board) | Open |
-| 11 | [NEEDS CLARIFICATION: When the terms get a new version, must existing members accept it again (e.g. at their next sign-in) before continuing?] *(from SC-43)* | No | Client (VFDA Legal Board) | Open |
+| 5 | [NEEDS CLARIFICATION: Does the admin role also hold every permission of vfda_staff and vfda_legal, in addition to its own (reading the audit log, granting roles)? BR-002 says only what admin grants.] | Yes | Client (VFDA) | Decided (provisional, VFDA to confirm) — see Clarifications |
+| 6 | [NEEDS CLARIFICATION: How long is a password reset link valid before it expires (e.g. 1 hour)?] *(from SC-06)* | No | Group C | Open |
+| 7 | [NEEDS CLARIFICATION: SYS BR-005 anonymises name, email and phone, but SYS §5.1 has no phone field for an account — which phone field is meant?] *(from SC-08)* | No | Client (VFDA) | Open |
+| 8 | [NEEDS CLARIFICATION: May a member turn off email notifications (per event type or all), or is every notification always emailed?] *(from SC-08)* | No | Client (VFDA) | Open |
+| 9 | [NEEDS CLARIFICATION: Which `event_type` values exist in the MVP and what readable label does each get? SYS §5.1 declares the field but not its values.] *(from SC-09)* | No | Group C | Open |
+| 10 | [NEEDS CLARIFICATION: How long are pre-check texts kept, and may they be used to improve the rule base? (same question as spec-M2.md question 6)] *(from SC-42)* | Yes | Client (VFDA) | Decided (provisional, VFDA to confirm) — see Clarifications |
+| 11 | [NEEDS CLARIFICATION: Does one `consent_version` cover both the privacy policy and the terms of use, or does each document need its own version and acceptance record?] *(from SC-42)* | No | Client (VFDA Legal Board) | Open |
+| 12 | [NEEDS CLARIFICATION: When the terms get a new version, must existing members accept it again (e.g. at their next sign-in) before continuing?] *(from SC-43)* | No | Client (VFDA Legal Board) | Open |
 
 ## 11. Traceability to DBIZ2
 

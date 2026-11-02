@@ -6,7 +6,7 @@ import { listAdminLocations, countLocationsByStatus, createLocation, STATUSES } 
  * GET: every location in every status, with counts for the whole catalogue (FR-001, SC-35 #3–#11).
  * Query: status, q (name, with or without diacritics, ≤ 200), province_id.
  */
-export const GET = adminRoute((req) => {
+export const GET = adminRoute(async (req) => {
   const params = new URL(req.url).searchParams;
   const status = params.get('status') || undefined;
   const q = params.get('q') || undefined;
@@ -20,13 +20,13 @@ export const GET = adminRoute((req) => {
   if (Object.keys(errors).length > 0) throw new ValidationError(errors);
 
   return Response.json({
-    counts: countLocationsByStatus(),
-    locations: listAdminLocations({ status, q, provinceId })
+    counts: await countLocationsByStatus(),
+    locations: await listAdminLocations({ status, q, provinceId })
   });
 });
 
 /** POST: create a location with the 20 fields; it starts as awaiting_contact (FR-002). */
 export const POST = adminRoute(async (req, _params, session) => {
-  const created = createLocation(await readBody(req), session);
+  const created = await createLocation(await readBody(req), session);
   return Response.json(created, { status: 201 });
 });
