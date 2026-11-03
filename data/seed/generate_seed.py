@@ -124,6 +124,8 @@ add("CONSENT", user_id=UID["long"], consent_version="2026.2-rev-a-final-1", acce
 SR = [("r1",True,"abroad","foreign","A","2026.1"),("r2",True,"vietnam","foreign","B","2026.1"),
       ("r3",True,"both","foreign","B","2026.1"),("r4",True,"vietnam","vietnamese","B","2026.1"),
       ("r5",False,"","","C","2026.1"),("r6",True,"abroad","coproduction","A","2026.1"),
+      # Clarifications Q1 (28/10/2026): co-production is segment A whatever the release market
+      ("r7",True,"vietnam","coproduction","A","2026.1"),("r8",True,"both","coproduction","A","2026.1"),
       ("r0",True,"abroad","foreign","A","2025.12")]   # superseded version, never used by a decision
 SRID = {k: U("segrule:" + k) for k, *_ in SR}
 for k, q1, q2, q3, seg, ver in SR:
@@ -136,7 +138,9 @@ REQ = [("A","ART13_LICENCE","Giấy phép quay phim sử dụng bối cảnh t�
        ("B","VN_SERVICE_AGREEMENT","Thỏa thuận với tổ chức cung cấp dịch vụ Việt Nam","Agreement with a Vietnamese service provider",True),
        ("B","FILM_CLASSIFICATION","Phân loại phim để phổ biến tại Việt Nam","Classification for release in Vietnam",True),
        ("C","ART13_LICENCE","Giấy phép quay phim sử dụng bối cảnh tại Việt Nam","Filming licence (Article 13)",False),
-       ("C","SERVICE_CONTRACT","Hợp đồng dịch vụ với đối tác Việt Nam","Service contract with a Vietnamese partner",True)]
+       ("C","SERVICE_CONTRACT","Hợp đồng dịch vụ với đối tác Việt Nam","Service contract with a Vietnamese partner",True),
+       # Clarifications Q2 (28/10/2026): segment C shows the usual commercial documents, crew visas included
+       ("C","CREW_VISA","Thị thực cho đoàn phim","Visas for the crew",True)]
 for seg, code, lvi, len_, need in REQ:
     add("SEGMENT_REQUIREMENT", segment=seg, requirement_code=code, label_vi=lvi, label_en=len_, needed=str(need).lower())
 

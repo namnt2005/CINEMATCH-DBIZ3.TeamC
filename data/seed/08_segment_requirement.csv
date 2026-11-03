@@ -6,4 +6,5 @@ B,ART13_LICENCE,Giấy phép quay phim sử dụng bối cảnh tại Việt Nam
 B,FILM_CLASSIFICATION,Phân loại phim để phổ biến tại Việt Nam,Classification for release in Vietnam,true
 B,VN_SERVICE_AGREEMENT,Thỏa thuận với tổ chức cung cấp dịch vụ Việt Nam,Agreement with a Vietnamese service provider,true
 C,ART13_LICENCE,Giấy phép quay phim sử dụng bối cảnh tại Việt Nam,Filming licence (Article 13),false
+C,CREW_VISA,Thị thực cho đoàn phim,Visas for the crew,true
 C,SERVICE_CONTRACT,Hợp đồng dịch vụ với đối tác Việt Nam,Service contract with a Vietnamese partner,true

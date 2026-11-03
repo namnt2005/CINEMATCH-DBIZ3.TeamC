@@ -194,11 +194,11 @@ Renders with mermaid-cli: **yes**.
 
 | Rule | Statement | Enforced in | Named object | Seed rows that show it |
 |---|---|---|---|---|
-| BR-001 | Notices are sent in VFDA's name, never directly by the producer. | SCHEMA + APP | `reviewed_by` on PROVINCE_NOTICE; sending only from the VFDA domain | `42_province_notice.csv` — sent · received; sent · cannot_support (+2) — sent after a VFDA review |
+| BR-001 | The system never sends a notice. It drafts the notice; a VFDA staff member reviews it (SC-32); only the approved version can be downloaded, and the producer sends it to the recipient they choose (Clarifications Q1–Q3, 28/10/2026). | SCHEMA + APP | `reviewed_by` on PROVINCE_NOTICE; sending only from the VFDA domain | `42_province_notice.csv` — sent · received; sent · cannot_support (+2) — sent after a VFDA review |
 | BR-002 | Every notice states that it does not replace the filming licence from the Ministry of Culture, Sports and Tourism. | NOT DATA | fixed sentence in the notice template | `42_province_notice.csv` — sent · received; sent · cannot_support (+2) — every sent notice uses the template |
 | BR-003 | The province's reply is one of three final values; the free-text note is kept as entered. | SCHEMA | `ck_province_notice_response` (received, info_needed, cannot_support) | `42_province_notice.csv` — sent · cannot_support — a *cannot support* reply |
 | BR-004 | Reply times feed the provincial readiness index (M3). | VIEW (Plan step) | `v_province_readiness` reads responded_at − sent_at | `42_province_notice.csv` — sent · received — a reply with its time |
-| BR-005 | Consultation booking (SC-33) is offered only after VFDA has declared its staffed hours and reply time; until then SC-33 shows VFDA's contact email instead of the booking form. | APP (Plan step) | configuration flag *booking open* set by VFDA; no stored entity | `43_consultation_booking.csv` — general · confirmed · Europe/London; locations · rescheduled · Europe/Paris (+4) — bookings exist only once VFDA has declared its hours |
+| BR-005 | In the MVP, SC-33 is a consultation request, not a slot calendar: the member sends topic and preferred times, and VFDA staff reply with a proposed time by email (Clarifications Q5, 28/10/2026). A slot calendar is offered only after VFDA declares its staffed hours. | APP (Plan step) | configuration flag *booking open* set by VFDA; no stored entity | `43_consultation_booking.csv` — general · confirmed · Europe/London; locations · rescheduled · Europe/Paris (+4) — bookings exist only once VFDA has declared its hours |
 
 ## 8. Schema (mandatory)
 
@@ -214,7 +214,7 @@ Load test: `python3 data/schema/load_check.py` runs every schema file, then ever
 | Regenerate | `python3 data/seed/generate_seed.py && python3 data/seed/check_seed.py` (must print PASS; `git status` stays clean) |
 | Random seed | none — no randomness and no clock: keys are UUIDv5 of readable names (namespace `6f1c2a8e-3b4d-5e6f-8a9b-0c1d2e3f4a5b`), so every run is byte-identical |
 | Business-rule values | computed by the generator, never typed: attention level (M2 BR-004), quote span (M2 §6.1), latest readiness (M0 §9), is_active, published |
-| Files | 3 files of this module, 22 rows (product: 46 files, 427 rows) |
+| Files | 3 files of this module, 22 rows (product: 46 files, 430 rows) |
 
 **Rows per file and row kinds** (1 = ordinary rows in every file)
 
