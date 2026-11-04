@@ -16,6 +16,7 @@ did and what the humans decided.
 | `specs/002-m3-publish` | M3 (Location Discovery) | US-3 (P1): VFDA publishes a verified location, screen SC-35 | Nam Tran | `002-m3-publish` | US-3 built (T001–T028); T029, T031 done; T030 open (Windows run) |
 | `specs/003-sys-core` | SYS (Platform foundation) | Slice 1: shared data + RLS (US-2 data layer); slice 2: accounts and roles (US-1, US-2); slice 3: language, notifications, account, terms (US-3, US-4) | Nam Tran | `003-sys-core` (slice 1), `003-sys-auth` (slice 2) | Slice 1 merged (PR #9); slice 2 done on `cinematch-dev` (T029–T043, T072, T073); slice 3 (T044–T065) not started; T003 partly; FR-011 deferred (T066–T068) |
 | `specs/004-m1-router` | M1 (Segment router) | US-1 (P1) find my segment, US-2 (P2) override; US-3 waits for M0 | Nam Tran | `004-m1-router` | US-1 and US-2 built (T001–T017, T019–T022, T024–T025); T018, T023 partly (the reseed of `cinematch-dev`) |
+| `specs/005-m0-workspace` | M0 (Project workspace and readiness dashboard) | US-1 (P1) create a project, US-2 (P1) next step per gauge, US-3 (P2) invite, edit, archive | Nam Tran | `005-m0-workspace` | Plan, tasks and analysis done; tests first written and Red (T001, T002, T004–T006, T014, T016, T018, T038); no code yet — slice not closed |
 
 > **Note on Scope & Priority (I1)**: User Story US-2 is classified as P1 in the source specification (`docs/spec/spec-M3.md`). For this M3 thin vertical slice, US-2 is treated as P2 optional scope (time permitting) in `plan.md` and `tasks.md` to ensure US-1 delivers an independent, demonstrable MVP without blocker dependencies. The source specification's original priority (P1) is preserved and remains unchanged unless formal team approval is granted.
 
@@ -164,6 +165,19 @@ did and what the humans decided.
 | Spec issues found | Rows 21–26 of section 3 |
 | Commit | Not committed yet (branch `004-m1-router`) |
 
+### Entry 12: 03/11/2026 Nam Tran
+
+| Field | Value |
+|---|---|
+| Path and agent | Claude Code (VS Code extension), run by Nam Tran |
+| Command and argument | `/speckit-plan` (questions answered by Nam Tran: D1 gauge rows `GAUGE_*` in `segment_requirement`, D2 `owner` in `project_member.permission`, D3 *Accept* on SC-10, D4 FR-002 and FR-008 in scope), `/speckit-tasks` (47 tasks), `/speckit-analyze` (0 CRITICAL, 3 HIGH, 6 MEDIUM, 5 LOW), `/speckit-implement` for the tests only (C without a Dossier gauge, A total = average of 4 gauges, Logistics not counted, one next step per gauge, non-members read nothing, archived read-only); closing checks `npm test`, `npm run build`, `uv run tools/start_feature.py --check`, plus `python3 data/seed/check_seed.py` and `python3 data/schema/load_check.py` |
+| Feature and tasks | `specs/005-m0-workspace`, FR-001..FR-008, BR-001..BR-005, Clarifications Q1; tasks done `T001`, `T002`, `T004`, `T005`, `T006`, `T014`, `T016`, `T018` (written, not run); the other 38 open |
+| What the agent produced | Docs: `specs/005-m0-workspace/plan.md`, `research.md`, `data-model.md`, `contracts/readiness-view.contract.md`, `contracts/projects-api.contract.md`, `contracts/screens.contract.md`, `quickstart.md` (§Results), `tasks.md`. Tests: `tests/unit/m0-seed.test.js`, `readiness-render.test.js`, `readiness-view.test.js`, `m0-migrations.test.js`, `next-steps.test.js`, `projects-data.test.js`, `project-update-data.test.js`; 5 M0 tests and the project clean-up in `tests/rls/rls.test.js`. No code, no data change |
+| Human review | Nam Tran decided D1–D4 (`plan.md`) and was shown the Red run. Not yet reviewed: the interfaces the tests fix (flat view columns, error codes, `dashboard.next.*` keys, `p_*` RPC arguments); analysis H1–H3 (rows 27–29 below); the data-owner review of D1/D2 (Nguyễn Huy Trung) before T007–T008 |
+| Tests | TDD Red: `npm test` `470 tests, 86 suites, 400 passed, 70 failed` — the 399 tests of `main` all pass; the 70 failures are the new M0 tests (no view `v_project_readiness`, no `lib/db/projects.js`, `lib/readiness/`, M0 migrations or `GAUGE_*`/`owner` seed rows). `next build` OK; `start_feature.py --check` OK; `check_seed.py` PASS and `load_check.py` SQLite PASS (430 rows). `npm run test:rls` not run (M0 migrations missing) |
+| Spec issues found | Rows 27–29 of section 3 |
+| Commit | Not committed yet (branch `005-m0-workspace`) |
+
 ## 3. Spec issues found while building
 
 Every gap the build uncovers goes back to `docs/spec/` as an open question or a spec change. It
@@ -197,6 +211,9 @@ is never fixed silently in code.
 | 24 | Step 4, Entry 11 | No rule for a Vietnamese company releasing abroad or in both markets; the router answers *We couldn't classify this*. | Not in the spec; for VFDA to decide. | Open. |
 | 25 | Step 4, Entry 11 | SC-01 #8 wants 4 items each leading to a live module, SR-012 forbids promoting modules not built, SR-013 needs approved Article 13 wording, SR-015 asks for static rendering and `hreflang`. | D2: *coming soon* items, strip hidden; research Open questions 2, 6, 7. | Open. |
 | 26 | Step 4, Entry 11 | SC-02 #7 recalculates the result at once; the build asked for a *See the result* button locked until the answers are complete. | Built with the button; a changed answer asks to press it again. | Decided by Nam Tran 03/11/2026; SC-02 to update at its source. |
+| 27 | Step 4, Entry 12 | spec-M0 §3 edge case: a module that fails to report shows `—` *not calculated yet* and the total uses only the gauges that reported; the view of the plan always returns a number (0 without data) and has no *not reported* state (analysis H1). | Not in `plan.md` or `tasks.md` yet. | Open — define *not reported* or mark it out of scope. |
+| 28 | Step 4, Entry 12 | SC-13 #9 shows `Stage` as read-only text, while the plan moves `draft` → `preparing` through an editor; no screen does it, so the *Preparing* tab stays empty for new projects (analysis H2). | `specs/005-m0-workspace/data-model.md` §4. | Open — choose a stage control, an automatic rule, or no draft/preparing split. |
+| 29 | Step 4, Entry 12 | spec-M0 §4.2 and §5.1 name the view outputs `gauge_scores` (JSONB) and `next_actions` (array); the plan and the tests use flat columns (analysis H3). | `contracts/readiness-view.contract.md`, `data-model.md` §3. | Open — keep flat columns and map them in the API, or follow the spec names. |
 
 ## 4. Agent mistakes worth remembering
 
@@ -217,3 +234,5 @@ is never fixed silently in code.
 | Entry 11 | The landing page's `<meta name="description">` came from the site layout and said *operated for VFDA*, against Clarifications Q3; the landing test only read the page body. | The closing run on `cinematch-dev` looked for "VFDA" in the whole HTML head. | A Q3 test now checks the page's own title and description; check `<head>` as well as the body for wording rules. |
 | Entry 11 | Code comments that quoted the forbidden words ("Article 13", "VFDA") made the source-scanning landing test fail twice. | The test itself. | Write comments that describe the rule without quoting the forbidden text. |
 | Entry 11 | The first timing of the router read 5.2 s: the wait condition never matched, so the timeout was measured. | The number did not fit 5 clicks; the condition was checked. | Check that a measurement's stop condition can be met before trusting the number. |
+| Entry 12 | `tasks.md` T005 said *The Last Ferry* has a 50 % dossier with two missing components; the seed has 1 of 4 present (25 %) and three missing. | The seed oracle `seed_rules.readiness()` run for every project while writing the test. | T005 corrected; US-2 Scenario 1 is tested on *Rice and Salt* in a rolled-back transaction. Compute expected values from the seed oracle, never from the scenario text. |
+| Entry 12 | Two new tests passed before any code existed: *unknown dialect is refused* (the missing module made the import reject) and *a pending invitation gives no access* (it only read the seed). | The Red run: a test that passes in the Red phase was checked. | Both rewritten to call the code under test; every green test in a Red run is read again. |

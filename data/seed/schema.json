@@ -444,6 +444,7 @@
   ],
   "enums": {
    "permission": [
+    "owner",
     "view",
     "edit"
    ],

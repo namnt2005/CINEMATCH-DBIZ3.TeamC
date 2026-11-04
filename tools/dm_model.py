@@ -57,7 +57,7 @@ ENTITIES = [
  # M0
  ("PROJECT","A film or content production a producer is preparing to shoot in Vietnam.","THING","M0",
   "Project; project_summary","M0 §6; M0 §5.1 FR-001, FR-002; M0 §5.2 BR-005"),
- ("PROJECT_MEMBER","A person's access to one project, with view or edit permission.","THING","M0",
+ ("PROJECT_MEMBER","A person's access to one project: owner, edit or view permission.","THING","M0",
   "ProjectMember; invitee","M0 §6; M0 §5.1 FR-004"),
  ("PROJECT_PROVINCE","A province a project plans to shoot in.","THING","M0",
   "ProjectProvince; provinces (project)","M0 §6; M0 §5.1 FR-001"),

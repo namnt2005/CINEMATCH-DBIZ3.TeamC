@@ -53,7 +53,7 @@ CITATION SCHEME = <MODULE> §<section> <ID>
 | `SEGMENT_REQUIREMENT` | One item a segment needs or does not need, used to configure the journey and the gauges. | THING | M1 | SegmentRequirement; segment_requirements | M1 §6; M0 §5.2 BR-004; M5 §5.2 BR-004 |
 | `SEGMENT_DECISION` | The segment given to a visitor or project from their answers, including any manual override. | EVENT | M1 | SegmentDecision; answers; journey_config | M1 §6; M1 §5.1 FR-002 |
 | `PROJECT` | A film or content production a producer is preparing to shoot in Vietnam. | THING | M0 | Project; project_summary | M0 §6; M0 §5.1 FR-001, FR-002; M0 §5.2 BR-005 |
-| `PROJECT_MEMBER` | A person's access to one project, with view or edit permission. | THING | M0 | ProjectMember; invitee | M0 §6; M0 §5.1 FR-004 |
+| `PROJECT_MEMBER` | A person's access to one project: owner, edit or view permission. | THING | M0 | ProjectMember; invitee | M0 §6; M0 §5.1 FR-004 |
 | `PROJECT_PROVINCE` | A province a project plans to shoot in. | THING | M0 | ProjectProvince; provinces (project) | M0 §6; M0 §5.1 FR-001 |
 | `READINESS_VIEW` | The five gauge scores, overall readiness and next steps of a project, computed on read. | DERIVED (computed on read) | M0 | ReadinessView; v_project_readiness; gauge_scores; dashboard_view | M0 §6; M0 §5.2 BR-001 |
 | `READINESS_SNAPSHOT` | The overall readiness of a project as recorded on one night. | EVENT | M0 | ReadinessSnapshot; series | M0 §6; M0 §5.1 FR-008 |

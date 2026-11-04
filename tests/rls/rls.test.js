@@ -17,6 +17,7 @@ const options = { auth: { persistSession: false, autoRefreshToken: false } };
 let anon;
 let admin;
 const created = [];
+const createdProjects = [];
 
 async function createTestAccount(metadata) {
   const email = `rls-${randomUUID()}@example.test`;
@@ -48,6 +49,13 @@ describe('Row Level Security on cinematch-dev (npm run test:rls)', () => {
   });
 
   after(async () => {
+    // Test fixtures only: the app never deletes a project (M0 BR-005); the secret key removes what this run made
+    for (const id of createdProjects) {
+      for (const table of ['readiness_snapshot', 'project_province', 'project_member']) {
+        await admin.from(table).delete().eq('project_id', id);
+      }
+      await admin.from('project').delete().eq('project_id', id);
+    }
     for (const id of created) {
       for (const table of ['consent', 'profile', 'user_account']) {
         await admin.from(table).delete().eq('user_id', id);
@@ -128,5 +136,73 @@ describe('Row Level Security on cinematch-dev (npm run test:rls)', () => {
 
     const { data: profile } = await admin.from('profile').select('full_name, crew_role').eq('user_id', account.id).single();
     assert.equal(profile?.full_name, 'RLS Test Producer');
+  });
+
+  // M0 (specs/005-m0-workspace T018): a project is created through app_create_project (research R6;
+  // optional arguments have defaults), then read by its owner, by another member and by a guest.
+  async function createTestProject() {
+    const owner = await createTestAccount(SIGNUP_METADATA);
+    const ownerClient = await signedInClient(owner);
+    const { data: projectId, error } = await ownerClient.rpc('app_create_project', {
+      p_project_name: `RLS project ${randomUUID().slice(0, 8)}`, p_format: 'feature', p_segment: 'A'
+    });
+    assert.equal(error, null, error?.message);
+    assert.ok(projectId, 'app_create_project returns the project id');
+    createdProjects.push(projectId);
+    return { owner, ownerClient, projectId };
+  }
+
+  test('M0 RLS / FR-001: the owner reads their project, its owner row and its readiness row', async () => {
+    const { owner, ownerClient, projectId } = await createTestProject();
+    const { data: project } = await ownerClient.from('project').select('project_id, stage').eq('project_id', projectId);
+    assert.deepEqual(project, [{ project_id: projectId, stage: 'draft' }]);
+    const { data: members } = await ownerClient.from('project_member').select('user_id, permission, invite_status').eq('project_id', projectId);
+    assert.deepEqual(members, [{ user_id: owner.id, permission: 'owner', invite_status: 'accepted' }]);
+    const { data: readiness, error } = await ownerClient.from('v_project_readiness').select('project_id, readiness_total, next_action_primary').eq('project_id', projectId);
+    assert.equal(error, null, error?.message);
+    assert.equal(readiness.length, 1);
+    assert.equal(Number(readiness[0].readiness_total), 0);
+    assert.equal(readiness[0].next_action_primary, 'content.start_precheck');
+  });
+
+  test('M0 RLS / SR-044: a member who is not on the project reads no project, member or readiness row of it', async () => {
+    const { projectId } = await createTestProject();
+    const outsider = await signedInClient(await createTestAccount(SIGNUP_METADATA));
+    for (const table of ['project', 'project_member', 'project_province', 'readiness_snapshot', 'v_project_readiness']) {
+      const { data, error } = await outsider.from(table).select('project_id').eq('project_id', projectId);
+      assert.equal(error, null, `${table}: ${error?.message}`);
+      assert.equal(data.length, 0, table);
+    }
+  });
+
+  test('M0 RLS: a member who is not on the project cannot change or archive it, nor invite to it', async () => {
+    const { projectId } = await createTestProject();
+    const outsider = await signedInClient(await createTestAccount(SIGNUP_METADATA));
+    for (const [fn, args] of [
+      ['app_update_project', { p_project_id: projectId, p_fields: { logline: 'outsider' } }],
+      ['app_archive_project', { p_project_id: projectId }],
+      ['app_invite_member', { p_project_id: projectId, p_email: 'outsider@example.test', p_permission: 'edit' }]
+    ]) {
+      const { error } = await outsider.rpc(fn, args);
+      assert.ok(error, `${fn} must refuse a non-member`);
+    }
+    const { data } = await admin.from('project').select('stage, logline').eq('project_id', projectId).single();
+    assert.deepEqual(data, { stage: 'draft', logline: null });
+  });
+
+  test('M0 RLS: with the publishable key, projects and the readiness view are blocked by GRANT or return 0 rows', async () => {
+    await createTestProject();
+    for (const table of ['project', 'project_member', 'v_project_readiness']) await assertAnonReadsNothing(table);
+  });
+
+  test('M0 BR-005: an archived project refuses updates, even from its owner', async () => {
+    const { ownerClient, projectId } = await createTestProject();
+    const { error: archiveError } = await ownerClient.rpc('app_archive_project', { p_project_id: projectId });
+    assert.equal(archiveError, null, archiveError?.message);
+    const { error } = await ownerClient.rpc('app_update_project', { p_project_id: projectId, p_fields: { logline: 'after archive' } });
+    assert.match(error?.message ?? '', /ARCHIVED/);
+    const { error: direct } = await ownerClient.from('project').update({ logline: 'direct' }).eq('project_id', projectId);
+    const { data } = await admin.from('project').select('stage, logline').eq('project_id', projectId).single();
+    assert.deepEqual(data, { stage: 'archived', logline: null }, direct?.message);
   });
 });

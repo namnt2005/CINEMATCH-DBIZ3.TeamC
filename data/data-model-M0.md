@@ -48,7 +48,7 @@ CITATION SCHEME = <MODULE> §<section> <ID>
 | Entity | Definition (one sentence) | Kind | Owner | Source | Table | Seed file (rows) |
 |---|---|---|---|---|---|---|
 | `PROJECT` | A film or content production a producer is preparing to shoot in Vietnam. | THING | M0 | spec §6 — M0 §6; M0 §5.1 FR-001, FR-002; M0 §5.2 BR-005 | `project` | `09_project.csv` (8) |
-| `PROJECT_MEMBER` | A person's access to one project, with view or edit permission. | THING | M0 | spec §6 — M0 §6; M0 §5.1 FR-004 | `project_member` | `11_project_member.csv` (12) |
+| `PROJECT_MEMBER` | A person's access to one project: owner, edit or view permission. | THING | M0 | spec §6 — M0 §6; M0 §5.1 FR-004 | `project_member` | `11_project_member.csv` (12) |
 | `PROJECT_PROVINCE` | A province a project plans to shoot in. | THING | M0 | spec §6 — M0 §6; M0 §5.1 FR-001 | `project_province` | `13_project_province.csv` (9) |
 | `READINESS_VIEW` | The five gauge scores, overall readiness and next steps of a project, computed on read. | DERIVED (computed on read, not stored) | M0 | spec §6 — M0 §6; M0 §5.2 BR-001 | — | — |
 | `READINESS_SNAPSHOT` | The overall readiness of a project as recorded on one night. | EVENT | M0 | spec §6 — M0 §6; M0 §5.1 FR-008 | `readiness_snapshot` | `14_readiness_snapshot.csv` (14) |
@@ -86,7 +86,7 @@ Every attribute traces to a §5.1 field, a §6.1 declared type, a key, or a deli
 | `project_id` | `UUID` | Req | FK → `PROJECT` | §5.1 field | M0 §5.1 FR-004 |
 | `user_id` | `UUID` | Opt | FK → `USER_ACCOUNT` | §6.1 declared type | M0 §6 (user_id); M0 §6.1 |
 | `invitee_email` | `VARCHAR(254)` | Req |  | §5.1 field | M0 §5.1 FR-004 |
-| `permission` | `ENUM(view, edit)` | Req |  | §5.1 field | M0 §5.1 FR-004 (owner not in the set — see Structural findings) |
+| `permission` | `ENUM(owner, view, edit)` | Req |  | §5.1 field | M0 §5.1 FR-001 (creator is the owner), FR-004 (invitations offer view or edit); specs/005-m0-workspace plan D2 |
 | `invite_status` | `ENUM(pending, accepted)` | system-set |  | §5.1 field | M0 §5.1 FR-004 (OUT) |
 
 **Natural key:** project_id + invitee_email (the invited address); project_id + user_id once accepted.
@@ -245,7 +245,7 @@ Load test: `python3 data/schema/load_check.py` runs every schema file, then ever
 | Regenerate | `python3 data/seed/generate_seed.py && python3 data/seed/check_seed.py` (must print PASS; `git status` stays clean) |
 | Random seed | none — no randomness and no clock: keys are UUIDv5 of readable names (namespace `6f1c2a8e-3b4d-5e6f-8a9b-0c1d2e3f4a5b`), so every run is byte-identical |
 | Business-rule values | computed by the generator, never typed: attention level (M2 BR-004), quote span (M2 §6.1), latest readiness (M0 §9), is_active, published |
-| Files | 4 files of this module, 43 rows (product: 46 files, 430 rows) |
+| Files | 4 files of this module, 43 rows (product: 46 files, 444 rows) |
 
 **Rows per file and row kinds** (1 = ordinary rows in every file)
 
@@ -278,10 +278,11 @@ Computed from the seed files. (a) every enumerated value has a row; (b) empty st
 | `PROJECT.stage` | `draft` | 2 row(s), e.g. The Very Long Road from the No · B · draft |
 | `PROJECT.stage` | `preparing` | 5 row(s), e.g. Above the Terraces · A · preparing |
 | `PROJECT.stage` | `archived` | 1 row(s), e.g. Harbour Lights (cancelled) · A · archived |
+| `PROJECT_MEMBER.permission` | `owner` | 8 row(s), e.g. sophie.laurent@lumierenord.exa · owner · accepted |
 | `PROJECT_MEMBER.permission` | `view` | 3 row(s), e.g. daniel.okafor@kestrelpictures. · view · accepted |
-| `PROJECT_MEMBER.permission` | `edit` | 9 row(s), e.g. sophie.laurent@lumierenord.exa · edit · accepted |
+| `PROJECT_MEMBER.permission` | `edit` | 1 row(s), e.g. jiwoo.han@harbourline.example. · edit · accepted |
 | `PROJECT_MEMBER.invite_status` | `pending` | 1 row(s), e.g. seo.yeon.kim@harbourline.examp · view · pending |
-| `PROJECT_MEMBER.invite_status` | `accepted` | 11 row(s), e.g. sophie.laurent@lumierenord.exa · edit · accepted |
+| `PROJECT_MEMBER.invite_status` | `accepted` | 11 row(s), e.g. sophie.laurent@lumierenord.exa · owner · accepted |
 
 **(b) Empty states**
 
@@ -333,7 +334,7 @@ Data questions raised in `data/01`–`04` whose owner includes M0. All other ope
 | [NEEDS CLARIFICATION: Are READINESS_VIEW, DOSSIER_CHECK, LICENSING_TIMELINE and PROVINCE_READINESS computed on read, never stored?] | No | Group C (M0/M2/M3 owners) | Open |
 | [NEEDS CLARIFICATION: How is an invitation to an email without an account stored until accepted?] | Yes | M0 owner | Open |
 | [NEEDS CLARIFICATION: Can a project be deleted or only archived? What happens to its documents, requests and notices?] | Yes | M0 owner | Resolved 30/09/2026 — M0 §5.2 BR-005: archived, never deleted (`stage = archived`, M0 §5.1 FR-002); read-only; documents, requests and notices kept. |
-| [NEEDS CLARIFICATION: Add `owner` to PROJECT_MEMBER.permission, and which function accepts an invitation?] | Yes | M0 owner | Open |
+| [NEEDS CLARIFICATION: Add `owner` to PROJECT_MEMBER.permission, and which function accepts an invitation?] | Yes | M0 owner | Resolved 03/11/2026 — specs/005-m0-workspace plan D2: `owner` added to PROJECT_MEMBER.permission (one per project, the creator); D3: the invitee accepts on SC-10 after signing in with the invited email. |
 | [NEEDS CLARIFICATION: Add a creation time to PROJECT and LOCATION_QUERY so the demand index can be filtered by period (M10 FR-003, FR-005)?] | No | M0, M3, M10 owners | Open |
 
 ## 13. Human gates and sign-off

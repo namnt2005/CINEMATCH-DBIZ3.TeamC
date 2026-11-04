@@ -50,10 +50,12 @@ describe('SC-02 view helpers (T011, FR-001, D4, SC-02 §3–§5, spec §3 edge c
     assert.deepEqual(otherCards(null), ['A', 'B', 'C']);
   });
 
-  test('D4: confirming sends a guest to sign-up and back to the router; a member gets a note instead', async () => {
+  test('D4, research R11 of M0: confirming sends a guest to sign-up and back to the router; a member to project creation', async () => {
     const { confirmAction } = await load();
-    assert.deepEqual(confirmAction({ signedIn: false }), { href: '/signup?next=%2Fstart' });
-    assert.deepEqual(confirmAction({ signedIn: true }), { note: 'router.member_note' });
+    assert.deepEqual(confirmAction({ signedIn: false, segment: 'A' }), { href: '/signup?next=%2Fstart' });
+    // specs/005-m0-workspace research R11: a member now creates the project, with the segment pre-filled
+    assert.deepEqual(confirmAction({ signedIn: true, segment: 'A' }), { href: '/projects?new=1&segment=A' });
+    assert.deepEqual(confirmAction({ signedIn: true, segment: 'C' }), { href: '/projects?new=1&segment=C' });
   });
 
   test('Spec §3: answers in progress stay in the browser session only, and the page works when storage is blocked', async () => {

@@ -29,7 +29,7 @@ CREATE TABLE project (
     CONSTRAINT ck_project_days_not_negative CHECK (buffer_days >= 0 AND (shoot_days_vn IS NULL OR shoot_days_vn >= 0))
 );
 
--- PROJECT_MEMBER: A person's access to one project, with view or edit permission. (owner M0; seed file 11_project_member.csv)
+-- PROJECT_MEMBER: A person's access to one project: owner, edit or view permission. (owner M0; seed file 11_project_member.csv)
 CREATE TABLE project_member (
     member_id UUID NOT NULL,
     project_id UUID NOT NULL,
@@ -38,7 +38,7 @@ CREATE TABLE project_member (
     permission VARCHAR(20) NOT NULL,
     invite_status VARCHAR(20),
     CONSTRAINT pk_project_member PRIMARY KEY (member_id),
-    CONSTRAINT ck_project_member_permission CHECK (permission IN ('view', 'edit')),
+    CONSTRAINT ck_project_member_permission CHECK (permission IN ('owner', 'view', 'edit')),
     CONSTRAINT ck_project_member_invite_status CHECK (invite_status IN ('pending', 'accepted')),
     CONSTRAINT fk_project_member_project_id FOREIGN KEY (project_id) REFERENCES project (project_id),
     CONSTRAINT fk_project_member_user_id FOREIGN KEY (user_id) REFERENCES user_account (user_id)

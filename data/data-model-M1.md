@@ -48,7 +48,7 @@ CITATION SCHEME = <MODULE> §<section> <ID>
 | Entity | Definition (one sentence) | Kind | Owner | Source | Table | Seed file (rows) |
 |---|---|---|---|---|---|---|
 | `SEGMENT_RULE` | One row of the VFDA-approved decision table that maps router answers to segment A, B or C. | THING | M1 | spec §6 — M1 §6; M1 §5.2 BR-001 | `segment_rule` | `07_segment_rule.csv` (9) |
-| `SEGMENT_REQUIREMENT` | One item a segment needs or does not need, used to configure the journey and the gauges. | THING | M1 | spec §6 — M1 §6; M0 §5.2 BR-004; M5 §5.2 BR-004 | `segment_requirement` | `08_segment_requirement.csv` (9) |
+| `SEGMENT_REQUIREMENT` | One item a segment needs or does not need, used to configure the journey and the gauges. | THING | M1 | spec §6 — M1 §6; M0 §5.2 BR-004; M5 §5.2 BR-004 | `segment_requirement` | `08_segment_requirement.csv` (23) |
 | `SEGMENT_DECISION` | The segment given to a visitor or project from their answers, including any manual override. | EVENT | M1 | spec §6 — M1 §6; M1 §5.1 FR-002 | `segment_decision` | `10_segment_decision.csv` (13) |
 
 **Entities of other modules referenced here** (drawn without attributes in §5): `PROJECT` (M0).
@@ -204,14 +204,14 @@ Load test: `python3 data/schema/load_check.py` runs every schema file, then ever
 | Regenerate | `python3 data/seed/generate_seed.py && python3 data/seed/check_seed.py` (must print PASS; `git status` stays clean) |
 | Random seed | none — no randomness and no clock: keys are UUIDv5 of readable names (namespace `6f1c2a8e-3b4d-5e6f-8a9b-0c1d2e3f4a5b`), so every run is byte-identical |
 | Business-rule values | computed by the generator, never typed: attention level (M2 BR-004), quote span (M2 §6.1), latest readiness (M0 §9), is_active, published |
-| Files | 3 files of this module, 31 rows (product: 46 files, 430 rows) |
+| Files | 3 files of this module, 45 rows (product: 46 files, 444 rows) |
 
 **Rows per file and row kinds** (1 = ordinary rows in every file)
 
 | File | Rows | (2) Boundary | (3) Empty case | (4) Exceptional state |
 |---|---|---|---|---|
 | `07_segment_rule.csv` | 9 | — | `r0`: never used by a decision | `r0`: superseded version 2025.12 |
-| `08_segment_requirement.csv` | 9 | — | C / ART13_LICENCE: *not needed* | — (no status column) |
+| `08_segment_requirement.csv` | 23 | — | C / ART13_LICENCE: *not needed* | — (no status column) |
 | `10_segment_decision.csv` | 13 | empty `q4_needs` | guest session, no project | answers match no rule (no segment); overrides A → B, B → A, A → C |
 
 ## 10. Edge case register (mandatory)
@@ -231,9 +231,9 @@ Computed from the seed files. (a) every enumerated value has a row; (b) empty st
 | `SEGMENT_RULE.result_segment` | `A` | 5 row(s), e.g. abroad · coproduction · A · 2026.1 |
 | `SEGMENT_RULE.result_segment` | `B` | 3 row(s), e.g. vietnam · vietnamese · B · 2026.1 |
 | `SEGMENT_RULE.result_segment` | `C` | 1 row(s), e.g. C · 2026.1 |
-| `SEGMENT_REQUIREMENT.segment` | `A` | 3 row(s), e.g. A · ART13_LICENCE · true |
-| `SEGMENT_REQUIREMENT.segment` | `B` | 3 row(s), e.g. B · ART13_LICENCE · true |
-| `SEGMENT_REQUIREMENT.segment` | `C` | 3 row(s), e.g. C · ART13_LICENCE · false |
+| `SEGMENT_REQUIREMENT.segment` | `A` | 8 row(s), e.g. A · ART13_LICENCE · true |
+| `SEGMENT_REQUIREMENT.segment` | `B` | 8 row(s), e.g. B · ART13_LICENCE · true |
+| `SEGMENT_REQUIREMENT.segment` | `C` | 7 row(s), e.g. C · ART13_LICENCE · false |
 | `SEGMENT_DECISION.q2_release` | `abroad` | 7 row(s), e.g. A |
 | `SEGMENT_DECISION.q2_release` | `vietnam` | 3 row(s), e.g. B |
 | `SEGMENT_DECISION.q2_release` | `both` | 1 row(s), e.g. session:5e0f7b22 · B |
