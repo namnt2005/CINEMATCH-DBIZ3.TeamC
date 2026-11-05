@@ -70,6 +70,7 @@
 %% USER_ACCOUNT AUDIT_LOG | Each user account writes zero or more audit log records | Each audit log record is written for exactly one user account | AUDIT_LOG side | M10 §6 ("belongs to UserAccount"); M10 §5.1 FR-008 admin_id Req
 %% USER_ACCOUNT QUARTERLY_REPORT | Each user account rereads zero or more quarterly reports | Each quarterly report is reread by zero or one user account (none until the reread is recorded) | both sides | M10 §6 ("prepared by UserAccount"); M10 §5.1 FR-007 reread_by; M10 §3 US-3 (draft not yet reread)
 %% SEGMENT_REQUIREMENT (no relationship drawn) | belongs to a segment (M1 §6) — segment is an enum, not an entity; link to DOCUMENT_TYPE (M5 BR-004) not declared | see 02 open questions and OQ-03-5
+%% READINESS_SOURCE (no relationship drawn) | one row per counted gauge (M0 §3 edge case, decision H1) — a gauge is a fixed name, not an entity; read only by the readiness view | see 02 open questions and OQ-03-5
 %% PUBLIC_HOLIDAY (no relationship drawn) | "used by the timeline" (M5 §6) — the timeline is derived; no stored entity references it | see 02 open questions and OQ-03-5
 %% OQ-03-1 [NEEDS CLARIFICATION: Is LEGAL_RULE ↔ RULE_SET_VERSION one-to-many (as M2 §6 says) or many-to-many (every version re-includes all active rules)?] | blocking: Yes | owner: M2 owner | default: One-to-many as declared; a rule points to the version that activated it
 %% OQ-03-2 [NEEDS CLARIFICATION: Do VFDA staff, partner and admin accounts also need a PRODUCER_ORGANISATION? The diagram says every profile works for exactly one.] | blocking: Yes | owner: SYS owner | default: Exactly one, as sign-up requires org_name (SYS FR-001) | resolved: Resolved 01/10/2026 — zero or one: SYS §6.1 declares producer_org_id optional for accounts not created through sign-up (SYS BR-002); 03 and 04 corrected together.
@@ -144,4 +145,5 @@ erDiagram
     USER_ACCOUNT ||..o{ AUDIT_LOG : "writes"
     USER_ACCOUNT |o..o{ QUARTERLY_REPORT : "rereads"
     SEGMENT_REQUIREMENT
+    READINESS_SOURCE
     PUBLIC_HOLIDAY

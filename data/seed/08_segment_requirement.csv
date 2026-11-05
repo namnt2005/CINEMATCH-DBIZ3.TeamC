@@ -1,10 +1,24 @@
 segment,requirement_code,label_vi,label_en,needed
 A,ART13_LICENCE,Giấy phép quay phim sử dụng bối cảnh tại Việt Nam,Filming licence (Article 13),true
 A,FILM_CLASSIFICATION,Phân loại phim để phổ biến tại Việt Nam,Classification for release in Vietnam,false
+A,GAUGE_CONTENT,Nội dung và tuân thủ,Content & compliance,true
+A,GAUGE_DOSSIER,Hồ sơ và giấy phép,Dossier & permits,true
+A,GAUGE_LOCATIONS,Bối cảnh,Locations,true
+A,GAUGE_LOGISTICS,Hậu cần,Logistics,false
+A,GAUGE_PARTNERS,Đối tác,Partners,true
 A,VN_SERVICE_AGREEMENT,Thỏa thuận với tổ chức cung cấp dịch vụ Việt Nam,Agreement with a Vietnamese service provider,true
 B,ART13_LICENCE,Giấy phép quay phim sử dụng bối cảnh tại Việt Nam,Filming licence (Article 13),true
 B,FILM_CLASSIFICATION,Phân loại phim để phổ biến tại Việt Nam,Classification for release in Vietnam,true
+B,GAUGE_CONTENT,Nội dung và tuân thủ,Content & compliance,true
+B,GAUGE_DOSSIER,Hồ sơ và giấy phép,Dossier & permits,true
+B,GAUGE_LOCATIONS,Bối cảnh,Locations,true
+B,GAUGE_LOGISTICS,Hậu cần,Logistics,false
+B,GAUGE_PARTNERS,Đối tác,Partners,true
 B,VN_SERVICE_AGREEMENT,Thỏa thuận với tổ chức cung cấp dịch vụ Việt Nam,Agreement with a Vietnamese service provider,true
 C,ART13_LICENCE,Giấy phép quay phim sử dụng bối cảnh tại Việt Nam,Filming licence (Article 13),false
 C,CREW_VISA,Thị thực cho đoàn phim,Visas for the crew,true
+C,GAUGE_CONTENT,Nội dung và tuân thủ,Content & compliance,true
+C,GAUGE_LOCATIONS,Bối cảnh,Locations,true
+C,GAUGE_LOGISTICS,Hậu cần,Logistics,false
+C,GAUGE_PARTNERS,Đối tác,Partners,true
 C,SERVICE_CONTRACT,Hợp đồng dịch vụ với đối tác Việt Nam,Service contract with a Vietnamese partner,true

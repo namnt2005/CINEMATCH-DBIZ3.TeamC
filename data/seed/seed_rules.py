@@ -46,7 +46,10 @@ def readiness(T, project_id):
     if seg != "C":
         a13 = [r for r in T["DOCUMENT_SLOT"] if r["project_id"] == project_id and r["doc_code"].startswith("A13_")]
         g["dossier"] = 100 * sum(1 for r in a13 if r["state"] == "present") / 4
-    return g, round(sum(g.values()) / len(g), 2)
+    # M0 §3 edge case (decision H1): a gauge whose module has not reported is left out of the overall score
+    off = {r["gauge"] for r in T.get("READINESS_SOURCE", []) if r["reporting"] != "true"}
+    counted = [v for k, v in g.items() if k not in off]
+    return g, (round(sum(counted) / len(counted), 2) if counted else 0.0)
 
 
 def _months_later(d, months):
@@ -146,6 +149,19 @@ def validate(S, T):
     for r in T["DOCUMENT_SLOT"]:
         if seg[r["project_id"]] == "C" and r["doc_code"].startswith("A13_"):
             err.append(f"DOCUMENT_SLOT {r['doc_code']}: Article 13 slot on a segment C project (M0 BR-002)")
+    # M0 FR-001 (plan D2 of specs/005-m0-workspace): exactly one owner per project, accepted, with an account
+    for pid in seg:
+        owners = [m for m in T["PROJECT_MEMBER"] if m["project_id"] == pid and m["permission"] == "owner"]
+        if len(owners) != 1 or owners[0]["invite_status"] != "accepted" or not owners[0]["user_id"]:
+            err.append(f"PROJECT {pid}: needs exactly one accepted owner with an account (M0 FR-001)")
+    # M0 BR-002/BR-004 (plan D1): A and B show five gauges, C four (no dossier); Logistics is never counted
+    gauges = {}
+    for r in T["SEGMENT_REQUIREMENT"]:
+        if r["requirement_code"].startswith("GAUGE_"): gauges.setdefault(r["segment"], {})[r["requirement_code"]] = r["needed"]
+    for s_, want in (("A", 5), ("B", 5), ("C", 4)):
+        g = gauges.get(s_, {})
+        if len(g) != want or g.get("GAUGE_LOGISTICS") != "false" or ("GAUGE_DOSSIER" in g) != (s_ != "C"):
+            err.append(f"SEGMENT_REQUIREMENT {s_}: gauge rows do not match M0 BR-002")
     # M0 BR-001/BR-004 with the M0 §9 test values: the latest snapshot of a project equals the readiness formula
     latest = {}
     for r in T["READINESS_SNAPSHOT"]:

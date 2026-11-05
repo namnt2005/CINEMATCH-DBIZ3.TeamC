@@ -141,6 +141,15 @@ REQ = [("A","ART13_LICENCE","Giấy phép quay phim sử dụng bối cảnh t�
        ("C","SERVICE_CONTRACT","Hợp đồng dịch vụ với đối tác Việt Nam","Service contract with a Vietnamese partner",True),
        # Clarifications Q2 (28/10/2026): segment C shows the usual commercial documents, crew visas included
        ("C","CREW_VISA","Thị thực cho đoàn phim","Visas for the crew",True)]
+# M0 gauges (specs/005-m0-workspace plan D1, M0 BR-002, BR-004, Clarifications Q1): a GAUGE_* row shows the
+# gauge for the segment; needed = counted in the overall readiness with an equal share. Logistics is shown, never counted.
+GAUGES = [("CONTENT","Nội dung và tuân thủ","Content & compliance"),("LOCATIONS","Bối cảnh","Locations"),
+          ("PARTNERS","Đối tác","Partners"),("DOSSIER","Hồ sơ và giấy phép","Dossier & permits"),
+          ("LOGISTICS","Hậu cần","Logistics")]
+for seg in ("A", "B", "C"):
+    for g, lvi, len_ in GAUGES:
+        if seg == "C" and g == "DOSSIER": continue   # BR-002: no dossier gauge for segment C
+        REQ.append((seg, "GAUGE_" + g, lvi, len_, g != "LOGISTICS"))
 for seg, code, lvi, len_, need in REQ:
     add("SEGMENT_REQUIREMENT", segment=seg, requirement_code=code, label_vi=lvi, label_en=len_, needed=str(need).lower())
 
@@ -180,13 +189,20 @@ MEM = [("ferry","park","park@","edit","accepted"),("ferry","han","han@","edit","
        ("rice","okafor","okafor@","view","accepted"),
        ("sapa","former","former@","view","accepted")]   # kept after the account was deactivated (SYS BR-005)
 EMAIL = {k: e for k, e, *_ in USERS}
+_owned = set()
 for proj, user, mail, perm, st in MEM:
     email = EMAIL[user] if user else mail
+    if proj not in _owned and user and st == "accepted":   # plan D2: the first accepted member is the creator, the owner
+        perm = "owner"; _owned.add(proj)
     add("PROJECT_MEMBER", member_id=U(f"member:{proj}:{email}"), project_id=PID[proj], user_id=UID[user] if user else "",
         invitee_email=email, permission=perm, invite_status=st)
 for proj, prov in [("ferry","ninh-binh"),("ferry","quang-ninh"),("rice","can-tho"),("rice","an-giang"),("sapa","lao-cai"),
                    ("lantern","da-nang"),("blues","quang-ninh"),("long","tuyen-quang"),("long","ca-mau")]:
     add("PROJECT_PROVINCE", project_id=PID[proj], province_id=P[prov])
+# M0 §3 edge case, decision H1 (05/11/2026): every module reports in the seed; a row set to false makes its
+# gauge show — (not calculated yet) and leaves the overall score
+for g in ("content", "locations", "partners", "dossier"):
+    add("READINESS_SOURCE", gauge=g, reporting="true")
 for d, v in [("2026-09-20","41.00"),("2026-09-21","44.50"),("2026-09-22","52.00"),("2026-09-23","55.00"),
              ("2026-09-24","58.00"),("2026-09-25","58.00"),("2026-09-26","58.00"),("2026-09-27","58.00")]:
     add("READINESS_SNAPSHOT", snapshot_id=U("snap:ferry:" + d), project_id=PID["ferry"], snapshot_date=d, readiness_total=v)

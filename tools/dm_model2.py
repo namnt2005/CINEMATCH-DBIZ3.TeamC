@@ -140,6 +140,7 @@ R = [
 ]
 UNLINKED = {  # stored entities with no citable relationship (open questions, per S3 instruction)
  "SEGMENT_REQUIREMENT":"belongs to a segment (M1 §6) — segment is an enum, not an entity; link to DOCUMENT_TYPE (M5 BR-004) not declared",
+ "READINESS_SOURCE":"one row per counted gauge (M0 §3 edge case, decision H1) — a gauge is a fixed name, not an entity; read only by the readiness view",
  "PUBLIC_HOLIDAY":"\"used by the timeline\" (M5 §6) — the timeline is derived; no stored entity references it",
 }
 
@@ -248,7 +249,7 @@ C["PROJECT_MEMBER"] = [
  ("project_id","UUID","Req","FK","M0 §5.1 FR-004","PROJECT"),
  ("user_id",ND,"not declared","FK","M0 §6 (user_id)","USER_ACCOUNT"),
  ("invitee_email","VARCHAR(254)","Req","","M0 §5.1 FR-004",None),
- ("permission","ENUM(view, edit)","Req","","M0 §5.1 FR-004 (owner not in the set — see Structural findings)",None),
+ ("permission","ENUM(owner, view, edit)","Req","","M0 §5.1 FR-001 (creator is the owner), FR-004 (invitations offer view or edit); specs/005-m0-workspace plan D2",None),
  ("invite_status","ENUM(pending, accepted)","system-set","","M0 §5.1 FR-004 (OUT)",None),
 ]
 C["PROJECT_PROVINCE"] = [
@@ -260,6 +261,10 @@ C["READINESS_SNAPSHOT"] = [
  ("project_id","UUID","Req","FK","M0 §5.1 FR-008","PROJECT"),
  ("snapshot_date","DATE","Req","","M0 §5.1 FR-008",None),
  ("readiness_total","NUMERIC(5,2)","system-set","","M0 §6; M0 §5.1 FR-009 (OUT)",None),
+]
+C["READINESS_SOURCE"] = [
+ ("gauge","ENUM(content, locations, partners, dossier)","Req","PK","M0 §3 Edge cases (\"A module fails to report\"); specs/005-m0-workspace decision H1 (05/11/2026)",None),
+ ("reporting","BOOLEAN","Req","","M0 §3 Edge cases (a gauge that has not reported shows — and leaves the overall score)",None),
 ]
 C["RULE_SET_VERSION"] = [
  ("rule_version","VARCHAR(20)","system-set","PK","M2 §5.1 FR-004 (OUT) — see Type conflicts",None),
@@ -597,6 +602,7 @@ NATURAL_KEY = {
  "PROJECT_MEMBER":"project_id + invitee_email (the invited address); project_id + user_id once accepted.",
  "PROJECT_PROVINCE":"project_id + province_id.",
  "READINESS_SNAPSHOT":"project_id + snapshot_date (one per night, M0 FR-008).",
+ "READINESS_SOURCE":"gauge (one row per counted gauge).",
  "RULE_SET_VERSION":"rule_version.",
  "LEGAL_RULE":"rule_code today; rule_code + rule_version once one text per version is kept, as M2 BR-008 now requires (OQ-04-24).",
  "PRECHECK_RUN":"None — the same summary may be checked many times (synopsis_hash + created_at in practice).",
@@ -688,8 +694,8 @@ STRUCTURAL = [
  ("(ii) delete","ORGANISATION (requests, proofread paragraphs, moderation items)","Settled by M4 BR-008: deactivated, never deleted (`org_status = deactivated`); open requests are closed as `withdrawn` and the producer is notified; the access log is kept.","OQ-04-9 (resolved)"),
  ("(ii) delete","LEGAL_RULE (findings cite it)","Settled by M2 BR-008: retired, never deleted (`status = retired`).","OQ-04-3 (resolved)"),
  ("(ii) delete","DOCUMENT, DOCUMENT_ACCESS_LOG, SEGMENT_DECISION, AUDIT_LOG data","Settled: previous versions kept (M5 FR-002); access log append-only (M4 BR-007); segment change never deletes (M1 BR-004); audit log append-only for every role (M10 BR-005).","—"),
- ("(iii) enum","PROJECT_MEMBER.permission","F-M0-01 makes the creator the *owner*, but `owner` is not in ENUM(view, edit); F-M0-04 is \"owner only\".","OQ-04-10"),
- ("(iii) enum","PROJECT_MEMBER.invite_status","No function moves an invitation from `pending` to `accepted` (M0 US-3 says \"after accepting\").","OQ-04-10"),
+ ("(iii) enum","PROJECT_MEMBER.permission","Settled by specs/005-m0-workspace plan D2 (03/11/2026): `owner` added, ENUM(owner, view, edit); exactly one owner per project, set when the project is created (F-M0-01); invitations offer only view or edit (F-M0-04).","OQ-04-10 (resolved)"),
+ ("(iii) enum","PROJECT_MEMBER.invite_status","Settled by specs/005-m0-workspace plan D3 (03/11/2026): the invitee signs in with the invited email and accepts on SC-10, which sets `user_id` and `invite_status = accepted`.","OQ-04-10 (resolved)"),
  ("(iii) enum","LEGAL_RULE.status","F-M2-03 moves draft → approved; `retired` is declared (M2 FR-001, BR-008) but no function's input sets it.","OQ-04-23"),
  ("(iii) enum","DOCUMENT_SLOT.state","No function writes `needs_fix` or `pending`; they are described as rule outcomes (M2 US-2, M4 US-2). Stored or derived?","OQ-04-11"),
  ("(iii) enum","BILINGUAL_PARAGRAPH.status","reviewed → machine happens \"when anyone edits it\" (M5 US-2), but no function edits a paragraph.","OQ-04-12"),
@@ -728,7 +734,8 @@ OQ_04 = [
   "Resolved 30/09/2026 — M3 §5.2 BR-008: `intake_status = unpublished` (M3 §5.1 FR-002); shortlists and notices keep the location and show *No longer published*."),
  ("OQ-04-9","[NEEDS CLARIFICATION: Can an organisation be removed from the directory, and what happens to its open requests?]","No","M4 owner","No removal; badge expiry only","A closed company keeps receiving requests.",
   "Resolved 30/09/2026 — M4 §5.2 BR-008: deactivated, never deleted (`org_status = deactivated`, M4 §5.1 FR-001); open requests closed as `withdrawn`, producer notified, access log kept."),
- ("OQ-04-10","[NEEDS CLARIFICATION: Add `owner` to PROJECT_MEMBER.permission, and which function accepts an invitation?]","Yes","M0 owner","Owner stored as `edit` + flag not modelled; acceptance by sign-in with the invited email","\"Owner only\" rules (M0 FR-004) cannot be enforced in the database."),
+ ("OQ-04-10","[NEEDS CLARIFICATION: Add `owner` to PROJECT_MEMBER.permission, and which function accepts an invitation?]","Yes","M0 owner","Owner stored as `edit` + flag not modelled; acceptance by sign-in with the invited email","\"Owner only\" rules (M0 FR-004) cannot be enforced in the database.",
+  "Resolved 03/11/2026 — specs/005-m0-workspace plan D2: `owner` added to PROJECT_MEMBER.permission (one per project, the creator); D3: the invitee accepts on SC-10 after signing in with the invited email."),
  ("OQ-04-11","[NEEDS CLARIFICATION: Is DOCUMENT_SLOT.state stored, or derived from documents, proofreading and partner status each time?]","Yes","M5 + M2 owners","Stored, recomputed on each upload and status change","Stored state can disagree with the rules it summarises."),
  ("OQ-04-12","[NEEDS CLARIFICATION: Which function edits a paragraph (and so clears its proofread status)?]","No","M5 owner","Editing inside SC-28, not specified as a function","The reset in M5 US-2 has no function to hang on."),
  ("OQ-04-13","[NEEDS CLARIFICATION: Initial and cancelled values of CONSULTATION_BOOKING.booking_status?]","No","M7 owner","Status left empty until VFDA confirms; no cancellation (seed follows this)","Unconfirmed bookings are indistinguishable from confirmed ones; a member cannot cancel."),

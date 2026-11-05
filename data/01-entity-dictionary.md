@@ -37,7 +37,7 @@ CITATION SCHEME = <MODULE> §<section> <ID>
   e.g. "M3 §5.1 FR-008" (field row of F-M3-08) | "M3 §5.2 BR-004" | "M3 §3 US-2" | "M3 §6"
 ```
 
-**Count:** 51 declared in the specs' section 6 — 46 stored (25 THING, 21 EVENT) and 5 that the specs themselves define as *derived* (computed, not stored). Derived entities stay in this dictionary so that nothing declared disappears, but they are not drawn in the ERD (open question 2).
+**Count:** 52 declared in the specs' section 6 — 47 stored (26 THING, 21 EVENT) and 5 that the specs themselves define as *derived* (computed, not stored). Derived entities stay in this dictionary so that nothing declared disappears, but they are not drawn in the ERD (open question 2).
 
 ## Entities
 
@@ -53,10 +53,11 @@ CITATION SCHEME = <MODULE> §<section> <ID>
 | `SEGMENT_REQUIREMENT` | One item a segment needs or does not need, used to configure the journey and the gauges. | THING | M1 | SegmentRequirement; segment_requirements | M1 §6; M0 §5.2 BR-004; M5 §5.2 BR-004 |
 | `SEGMENT_DECISION` | The segment given to a visitor or project from their answers, including any manual override. | EVENT | M1 | SegmentDecision; answers; journey_config | M1 §6; M1 §5.1 FR-002 |
 | `PROJECT` | A film or content production a producer is preparing to shoot in Vietnam. | THING | M0 | Project; project_summary | M0 §6; M0 §5.1 FR-001, FR-002; M0 §5.2 BR-005 |
-| `PROJECT_MEMBER` | A person's access to one project, with view or edit permission. | THING | M0 | ProjectMember; invitee | M0 §6; M0 §5.1 FR-004 |
+| `PROJECT_MEMBER` | A person's access to one project: owner, edit or view permission. | THING | M0 | ProjectMember; invitee | M0 §6; M0 §5.1 FR-004 |
 | `PROJECT_PROVINCE` | A province a project plans to shoot in. | THING | M0 | ProjectProvince; provinces (project) | M0 §6; M0 §5.1 FR-001 |
 | `READINESS_VIEW` | The five gauge scores, overall readiness and next steps of a project, computed on read. | DERIVED (computed on read) | M0 | ReadinessView; v_project_readiness; gauge_scores; dashboard_view | M0 §6; M0 §5.2 BR-001 |
 | `READINESS_SNAPSHOT` | The overall readiness of a project as recorded on one night. | EVENT | M0 | ReadinessSnapshot; series | M0 §6; M0 §5.1 FR-008 |
+| `READINESS_SOURCE` | Whether the module behind one counted gauge currently reports to the readiness dashboard. | THING | M0 | ReadinessSource; module reporting flag | M0 §3 Edge cases ("A module fails to report"); specs/005-m0-workspace decision H1 (05/11/2026) |
 | `LEGAL_RULE` | A content or dossier rule written and signed by the VFDA Legal Board, with its legal citation. | THING | M2 | LegalRule; legal_rule; legal_rule_public; rule | M2 §6; M2 §5.1 FR-001, FR-002; M2 §5.2 BR-008 |
 | `RULE_SET_VERSION` | A numbered edition of the active rule set, created each time a rule is activated. | EVENT | M2 | RuleSetVersion; rule_version; version | M2 §6; M2 §5.1 FR-004 |
 | `PRECHECK_RUN` | One 200-word content pre-check, kept as a demand data point. | EVENT | M2 | PrecheckRun (brief); brief; brief_id | M2 §6; M2 §5.1 FR-007 |

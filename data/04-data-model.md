@@ -8,7 +8,7 @@ sources: FUNCTIONS, FIELDS, ENTITIES, RULES, SCENARIOS, FLOWS, SCREENS, BOUNDARY
 
 # Logical Data Model — CINEMATCH
 
-46 tables, 315 columns. Every column is **copied** from a FIELDS row (section 5.1) or an ENTITIES attribute (section 6), with its declared type and Req / Opt flag. *system-set* = an output field (the system fills it); *not declared* = no flag in the input.
+47 tables, 317 columns. Every column is **copied** from a FIELDS row (section 5.1) or an ENTITIES attribute (section 6), with its declared type and Req / Opt flag. *system-set* = an output field (the system fills it); *not declared* = no flag in the input.
 
 **Every column has a declared type** — the types of the section 6 attributes that no 5.1 field declares come from section 6.1 of the owning Spec Document (cited as `<MODULE> §6.1`). Technical columns (`created_at`, `updated_at`) appear only where the spec declares them. The physical schema built from this model is in `data/schema/schema-<MODULE>.sql`; one readable view per module is in `data/data-model-<MODULE>.md`.
 
@@ -172,7 +172,7 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 
 ## PROJECT_MEMBER
 
-*A person's access to one project, with view or edit permission.* Owner: M0. THING.
+*A person's access to one project: owner, edit or view permission.* Owner: M0. THING.
 
 | Column | Type (as declared) | Required | Key | Citation |
 |---|---|---|---|---|
@@ -180,7 +180,7 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 | `project_id` | `UUID` | Req | FK → `PROJECT` | M0 §5.1 FR-004 |
 | `user_id` | `UUID` | Opt | FK → `USER_ACCOUNT` | M0 §6 (user_id); M0 §6.1 |
 | `invitee_email` | `VARCHAR(254)` | Req |  | M0 §5.1 FR-004 |
-| `permission` | `ENUM(view, edit)` | Req |  | M0 §5.1 FR-004 (owner not in the set — see Structural findings) |
+| `permission` | `ENUM(owner, view, edit)` | Req |  | M0 §5.1 FR-001 (creator is the owner), FR-004 (invitations offer view or edit); specs/005-m0-workspace plan D2 |
 | `invite_status` | `ENUM(pending, accepted)` | system-set |  | M0 §5.1 FR-004 (OUT) |
 
 **Natural key:** project_id + invitee_email (the invited address); project_id + user_id once accepted.
@@ -208,6 +208,17 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 | `readiness_total` | `NUMERIC(5,2)` | system-set |  | M0 §6; M0 §5.1 FR-009 (OUT) |
 
 **Natural key:** project_id + snapshot_date (one per night, M0 FR-008).
+
+## READINESS_SOURCE
+
+*Whether the module behind one counted gauge currently reports to the readiness dashboard.* Owner: M0. THING.
+
+| Column | Type (as declared) | Required | Key | Citation |
+|---|---|---|---|---|
+| `gauge` | `ENUM(content, locations, partners, dossier)` | Req | PK | M0 §3 Edge cases ("A module fails to report"); specs/005-m0-workspace decision H1 (05/11/2026) |
+| `reporting` | `BOOLEAN` | Req |  | M0 §3 Edge cases (a gauge that has not reported shows — and leaves the overall score) |
+
+**Natural key:** gauge (one row per counted gauge).
 
 ## LEGAL_RULE
 
@@ -784,8 +795,8 @@ Reported only — nothing was fixed in the model.
 | (ii) delete | ORGANISATION (requests, proofread paragraphs, moderation items) | Settled by M4 BR-008: deactivated, never deleted (`org_status = deactivated`); open requests are closed as `withdrawn` and the producer is notified; the access log is kept. | OQ-04-9 (resolved) |
 | (ii) delete | LEGAL_RULE (findings cite it) | Settled by M2 BR-008: retired, never deleted (`status = retired`). | OQ-04-3 (resolved) |
 | (ii) delete | DOCUMENT, DOCUMENT_ACCESS_LOG, SEGMENT_DECISION, AUDIT_LOG data | Settled: previous versions kept (M5 FR-002); access log append-only (M4 BR-007); segment change never deletes (M1 BR-004); audit log append-only for every role (M10 BR-005). | — |
-| (iii) enum | PROJECT_MEMBER.permission | F-M0-01 makes the creator the *owner*, but `owner` is not in ENUM(view, edit); F-M0-04 is "owner only". | OQ-04-10 |
-| (iii) enum | PROJECT_MEMBER.invite_status | No function moves an invitation from `pending` to `accepted` (M0 US-3 says "after accepting"). | OQ-04-10 |
+| (iii) enum | PROJECT_MEMBER.permission | Settled by specs/005-m0-workspace plan D2 (03/11/2026): `owner` added, ENUM(owner, view, edit); exactly one owner per project, set when the project is created (F-M0-01); invitations offer only view or edit (F-M0-04). | OQ-04-10 (resolved) |
+| (iii) enum | PROJECT_MEMBER.invite_status | Settled by specs/005-m0-workspace plan D3 (03/11/2026): the invitee signs in with the invited email and accepts on SC-10, which sets `user_id` and `invite_status = accepted`. | OQ-04-10 (resolved) |
 | (iii) enum | LEGAL_RULE.status | F-M2-03 moves draft → approved; `retired` is declared (M2 FR-001, BR-008) but no function's input sets it. | OQ-04-23 |
 | (iii) enum | DOCUMENT_SLOT.state | No function writes `needs_fix` or `pending`; they are described as rule outcomes (M2 US-2, M4 US-2). Stored or derived? | OQ-04-11 |
 | (iii) enum | BILINGUAL_PARAGRAPH.status | reviewed → machine happens "when anyone edits it" (M5 US-2), but no function edits a paragraph. | OQ-04-12 |
@@ -877,6 +888,7 @@ erDiagram
     USER_ACCOUNT ||..o{ AUDIT_LOG : "writes"
     USER_ACCOUNT |o..o{ QUARTERLY_REPORT : "rereads"
     SEGMENT_REQUIREMENT
+    READINESS_SOURCE
     PUBLIC_HOLIDAY
     USER_ACCOUNT {
         uuid user_id PK "SYS s5.1 FR-001 (OUT)"
@@ -969,7 +981,7 @@ erDiagram
         uuid project_id FK "M0 s5.1 FR-004"
         uuid user_id FK "M0 s6 (user_id); M0 s6.1"
         string invitee_email "M0 s5.1 FR-004"
-        enum permission "M0 s5.1 FR-004 (owner not in the set - see Structural findings)"
+        enum permission "M0 s5.1 FR-001 (creator is the owner), FR-004 (invitations offer view or edit); specs/005-m0-workspace plan D2"
         enum invite_status "M0 s5.1 FR-004 (OUT)"
     }
     PROJECT_PROVINCE {
@@ -981,6 +993,10 @@ erDiagram
         uuid project_id FK "M0 s5.1 FR-008"
         date snapshot_date "M0 s5.1 FR-008"
         decimal readiness_total "M0 s6; M0 s5.1 FR-009 (OUT)"
+    }
+    READINESS_SOURCE {
+        enum gauge PK "M0 s3 Edge cases ('A module fails to report'); specs/005-m0-workspace decision H1 (05/11/2026)"
+        boolean reporting "M0 s3 Edge cases (a gauge that has not reported shows - and leaves the overall score)"
     }
     LEGAL_RULE {
         uuid rule_id PK "M2 s5.1 FR-002 (OUT)"
@@ -1300,7 +1316,7 @@ erDiagram
 | OQ-04-7 | [NEEDS CLARIFICATION: Can a project be deleted or only archived? What happens to its documents, requests and notices?] | Yes | M0 owner | Archive only; no delete | Deleting would break access logs (append-only) and sent notices. | Resolved 30/09/2026 — M0 §5.2 BR-005: archived, never deleted (`stage = archived`, M0 §5.1 FR-002); read-only; documents, requests and notices kept. |
 | OQ-04-8 | [NEEDS CLARIFICATION: Does unpublishing a location remove it from shortlists and open notices?] | No | M3 owner | No; it is shown as *no longer published* | Producers lose a shortlisted place without notice. | Resolved 30/09/2026 — M3 §5.2 BR-008: `intake_status = unpublished` (M3 §5.1 FR-002); shortlists and notices keep the location and show *No longer published*. |
 | OQ-04-9 | [NEEDS CLARIFICATION: Can an organisation be removed from the directory, and what happens to its open requests?] | No | M4 owner | No removal; badge expiry only | A closed company keeps receiving requests. | Resolved 30/09/2026 — M4 §5.2 BR-008: deactivated, never deleted (`org_status = deactivated`, M4 §5.1 FR-001); open requests closed as `withdrawn`, producer notified, access log kept. |
-| OQ-04-10 | [NEEDS CLARIFICATION: Add `owner` to PROJECT_MEMBER.permission, and which function accepts an invitation?] | Yes | M0 owner | Owner stored as `edit` + flag not modelled; acceptance by sign-in with the invited email | "Owner only" rules (M0 FR-004) cannot be enforced in the database. | Open |
+| OQ-04-10 | [NEEDS CLARIFICATION: Add `owner` to PROJECT_MEMBER.permission, and which function accepts an invitation?] | Yes | M0 owner | Owner stored as `edit` + flag not modelled; acceptance by sign-in with the invited email | "Owner only" rules (M0 FR-004) cannot be enforced in the database. | Resolved 03/11/2026 — specs/005-m0-workspace plan D2: `owner` added to PROJECT_MEMBER.permission (one per project, the creator); D3: the invitee accepts on SC-10 after signing in with the invited email. |
 | OQ-04-11 | [NEEDS CLARIFICATION: Is DOCUMENT_SLOT.state stored, or derived from documents, proofreading and partner status each time?] | Yes | M5 + M2 owners | Stored, recomputed on each upload and status change | Stored state can disagree with the rules it summarises. | Open |
 | OQ-04-12 | [NEEDS CLARIFICATION: Which function edits a paragraph (and so clears its proofread status)?] | No | M5 owner | Editing inside SC-28, not specified as a function | The reset in M5 US-2 has no function to hang on. | Open |
 | OQ-04-13 | [NEEDS CLARIFICATION: Initial and cancelled values of CONSULTATION_BOOKING.booking_status?] | No | M7 owner | Status left empty until VFDA confirms; no cancellation (seed follows this) | Unconfirmed bookings are indistinguishable from confirmed ones; a member cannot cancel. | Open |

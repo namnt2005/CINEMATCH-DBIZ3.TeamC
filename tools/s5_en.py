@@ -116,7 +116,7 @@ add(dict(
   (6, "Format", "Text (read-only)", "`format` — Feature film / Documentary / Commercial / TV programme / Music video", "—", "not editable here: F-M0-02 does not list `format` as an input"),
   (7, "First shooting day in Vietnam", "Input (date)", "`shoot_date`; days remaining computed on screen for display only", "No", "must be after today"),
   (8, "Logline", "Input (multi-line)", "`logline`", "No", "max 500 characters; live counter"),
-  (9, "Stage", "Text", "`stage` — draft / preparing / archived", "—", "changed to *archived* only through row 24"),
+  (9, "Stage", "Toggle (dropdown)", "`stage` — draft / preparing / archived; owner and *edit* choose *Draft* or *Preparing* (decision of 04/11/2026, specs/005-m0-workspace analysis H2)", "—", "only draft / preparing here; read-only text for *view* members and archived projects; *archived* only through row 24"),
   (10, "*Save changes* button + last saved time", "Button + Text", "`updated_at`", "—", "disabled until a field changes; enabled only for *edit* permission"),
   (11, "*Segment* card", "Container", "static", "—", "—"),
   (12, "Segment choice A / B / C", "Toggle (single choice)", "current `segment`; selection becomes `new_segment`", "Yes", "enum A / B / C; the current value is pre-selected"),

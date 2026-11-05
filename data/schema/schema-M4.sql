@@ -5,7 +5,7 @@
 -- (python3 data/schema/load_check.py does both and reports any error).
 -- Rules that span tables are not here: see data/data-model-M4.md, section 7.
 
--- ORGANISATION: A Vietnamese service company listed in the partner directory. (owner M4; seed file 26_organisation.csv)
+-- ORGANISATION: A Vietnamese service company listed in the partner directory. (owner M4; seed file 27_organisation.csv)
 CREATE TABLE organisation (
     org_id UUID NOT NULL,
     slug VARCHAR(160),
@@ -27,7 +27,7 @@ CREATE TABLE organisation (
     CONSTRAINT ck_organisation_badge_dates CHECK (verified_until IS NULL OR verified_until > verified_at)
 );
 
--- ORGANISATION_MEMBER_LAYER: The part of a partner profile visible to signed-in members. (owner M4; seed file 27_organisation_member_layer.csv)
+-- ORGANISATION_MEMBER_LAYER: The part of a partner profile visible to signed-in members. (owner M4; seed file 28_organisation_member_layer.csv)
 CREATE TABLE organisation_member_layer (
     org_id UUID NOT NULL,
     capability_desc_vi TEXT,
@@ -39,7 +39,7 @@ CREATE TABLE organisation_member_layer (
     CONSTRAINT fk_organisation_member_layer_org_id FOREIGN KEY (org_id) REFERENCES organisation (org_id)
 );
 
--- ORGANISATION_PRIVATE_LAYER: The part of a partner profile visible only after an accepted request and NDA. (owner M4; seed file 28_organisation_private_layer.csv)
+-- ORGANISATION_PRIVATE_LAYER: The part of a partner profile visible only after an accepted request and NDA. (owner M4; seed file 29_organisation_private_layer.csv)
 CREATE TABLE organisation_private_layer (
     org_id UUID NOT NULL,
     rate_card JSONB,
@@ -49,7 +49,7 @@ CREATE TABLE organisation_private_layer (
     CONSTRAINT fk_organisation_private_layer_org_id FOREIGN KEY (org_id) REFERENCES organisation (org_id)
 );
 
--- VERIFICATION_REQUEST: A partner's application for the VFDA Verified badge and VFDA's decision on it. (owner M4; seed file 29_verification_request.csv)
+-- VERIFICATION_REQUEST: A partner's application for the VFDA Verified badge and VFDA's decision on it. (owner M4; seed file 30_verification_request.csv)
 CREATE TABLE verification_request (
     request_id UUID NOT NULL,
     org_id UUID NOT NULL,
@@ -64,7 +64,7 @@ CREATE TABLE verification_request (
     CONSTRAINT fk_verification_request_decided_by FOREIGN KEY (decided_by) REFERENCES user_account (user_id)
 );
 
--- COLLAB_REQUEST: A producer's request to a partner to work on one project, followed to confirmation. (owner M4; seed file 30_collab_request.csv)
+-- COLLAB_REQUEST: A producer's request to a partner to work on one project, followed to confirmation. (owner M4; seed file 31_collab_request.csv)
 CREATE TABLE collab_request (
     request_id UUID NOT NULL,
     project_id UUID NOT NULL,
@@ -84,7 +84,7 @@ CREATE TABLE collab_request (
     CONSTRAINT ck_collab_request_confirmed_at CHECK ((status = 'confirmed') = (confirmed_at IS NOT NULL))
 );
 
--- COLLAB_MESSAGE: A message written inside a collaboration request, including every response note; never edited once sent. (owner M4; seed file 31_collab_message.csv)
+-- COLLAB_MESSAGE: A message written inside a collaboration request, including every response note; never edited once sent. (owner M4; seed file 32_collab_message.csv)
 CREATE TABLE collab_message (
     message_id UUID NOT NULL,
     request_id UUID NOT NULL,
@@ -96,7 +96,7 @@ CREATE TABLE collab_message (
     CONSTRAINT fk_collab_message_author_id FOREIGN KEY (author_id) REFERENCES user_account (user_id)
 );
 
--- NDA_ACCEPTANCE: One party's acceptance of a given NDA version for one collaboration request. (owner M4; seed file 32_nda_acceptance.csv)
+-- NDA_ACCEPTANCE: One party's acceptance of a given NDA version for one collaboration request. (owner M4; seed file 33_nda_acceptance.csv)
 CREATE TABLE nda_acceptance (
     nda_acceptance_id UUID NOT NULL,
     request_id UUID NOT NULL,
@@ -109,7 +109,7 @@ CREATE TABLE nda_acceptance (
     CONSTRAINT fk_nda_acceptance_request_id FOREIGN KEY (request_id) REFERENCES collab_request (request_id)
 );
 
--- DOCUMENT_ACCESS_LOG: A record that one person viewed one shared document at one time. (owner M4; seed file 36_document_access_log.csv)
+-- DOCUMENT_ACCESS_LOG: A record that one person viewed one shared document at one time. (owner M4; seed file 37_document_access_log.csv)
 CREATE TABLE document_access_log (
     access_log_id UUID NOT NULL,
     document_id UUID NOT NULL,

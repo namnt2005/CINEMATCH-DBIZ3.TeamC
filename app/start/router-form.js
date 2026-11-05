@@ -104,7 +104,7 @@ function Result({ result, view, requirements, onPick }) {
   const signedIn = useSignedIn();
   const [showOthers, setShowOthers] = useState(false);
   const segment = shownSegment(view);
-  const action = confirmAction({ signedIn });
+  const action = confirmAction({ signedIn, segment });
   const list = splitRequirements(segment, requirements, locale);
 
   if (!segment) {
@@ -161,13 +161,9 @@ function Result({ result, view, requirements, onPick }) {
       ) : null}
 
       <div style={{ marginTop: '1.25rem' }}>
-        {action.href ? (
-          <a href={action.href} style={{ display: 'block', textAlign: 'center', background: C.navy, color: '#fff', padding: '0.875rem', borderRadius: '0.5rem', textDecoration: 'none', fontWeight: 600 }}>
-            {t('router.create')} <span style={{ fontWeight: 400, opacity: 0.8 }}>· {t('router.create_login')}</span>
-          </a>
-        ) : (
-          <p role="note" style={{ margin: 0, color: C.muted }}>{t(action.note)}</p>
-        )}
+        <a href={action.href} style={{ display: 'block', textAlign: 'center', background: C.navy, color: '#fff', padding: '0.875rem', borderRadius: '0.5rem', textDecoration: 'none', fontWeight: 600 }}>
+          {t('router.create')}{signedIn ? null : <span style={{ fontWeight: 400, opacity: 0.8 }}> · {t('router.create_login')}</span>}
+        </a>
       </div>
 
       <div style={{ marginTop: '1rem' }}>

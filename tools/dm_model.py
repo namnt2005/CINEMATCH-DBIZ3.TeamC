@@ -57,7 +57,7 @@ ENTITIES = [
  # M0
  ("PROJECT","A film or content production a producer is preparing to shoot in Vietnam.","THING","M0",
   "Project; project_summary","M0 §6; M0 §5.1 FR-001, FR-002; M0 §5.2 BR-005"),
- ("PROJECT_MEMBER","A person's access to one project, with view or edit permission.","THING","M0",
+ ("PROJECT_MEMBER","A person's access to one project: owner, edit or view permission.","THING","M0",
   "ProjectMember; invitee","M0 §6; M0 §5.1 FR-004"),
  ("PROJECT_PROVINCE","A province a project plans to shoot in.","THING","M0",
   "ProjectProvince; provinces (project)","M0 §6; M0 §5.1 FR-001"),
@@ -65,6 +65,8 @@ ENTITIES = [
   "ReadinessView; v_project_readiness; gauge_scores; dashboard_view","M0 §6; M0 §5.2 BR-001"),
  ("READINESS_SNAPSHOT","The overall readiness of a project as recorded on one night.","EVENT","M0",
   "ReadinessSnapshot; series","M0 §6; M0 §5.1 FR-008"),
+ ("READINESS_SOURCE","Whether the module behind one counted gauge currently reports to the readiness dashboard.","THING","M0",
+  "ReadinessSource; module reporting flag","M0 §3 Edge cases (\"A module fails to report\"); specs/005-m0-workspace decision H1 (05/11/2026)"),
  # M2
  ("LEGAL_RULE","A content or dossier rule written and signed by the VFDA Legal Board, with its legal citation.","THING","M2",
   "LegalRule; legal_rule; legal_rule_public; rule","M2 §6; M2 §5.1 FR-001, FR-002; M2 §5.2 BR-008"),
@@ -286,6 +288,7 @@ CRUD = [
  ("F-M0-03","READINESS_VIEW","R","M0 §5.1 FR-003 (readiness, next step)"),
  ("F-M0-04","PROJECT_MEMBER","C","M0 §5.1 FR-004"),
  ("F-M0-05","READINESS_VIEW","R","M0 §5.1 FR-005; M0 §5.2 BR-001"),("F-M0-05","SEGMENT_REQUIREMENT","R","M0 §5.1 FR-005 (weights from segment_requirements)"),
+ ("F-M0-05","READINESS_SOURCE","R","M0 §3 Edge cases (\"A module fails to report\"); specs/005-m0-workspace decision H1 (05/11/2026)"),
  ("F-M0-06","READINESS_VIEW","R","M0 §5.1 FR-006"),("F-M0-06","PROJECT","R","M0 §5.1 FR-006 (project's segment)"),
  ("F-M0-07","READINESS_VIEW","R","M0 §5.1 FR-007"),
  ("F-M0-08","READINESS_SNAPSHOT","C","M0 §5.1 FR-008"),("F-M0-08","READINESS_VIEW","R","M0 §5.1 FR-008"),

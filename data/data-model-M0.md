@@ -7,7 +7,7 @@
 | Module | M0 — Project workspace and readiness dashboard |
 | Spec Document | `docs/spec/spec-M0.md` |
 | Schema | `data/schema/schema-M0.sql` |
-| Seed files | `09_project.csv`, `11_project_member.csv`, `13_project_province.csv`, `14_readiness_snapshot.csv` |
+| Seed files | `09_project.csv`, `11_project_member.csv`, `13_project_province.csv`, `14_readiness_snapshot.csv`, `15_readiness_source.csv` |
 | Version / date | v1.0 — 01/10/2026 |
 | Prepared by | Group C (draft by an AI agent, see `docs/ai-use-log.md`) |
 | Status | Ready for the human gates in section 13 |
@@ -43,15 +43,16 @@ CITATION SCHEME = <MODULE> §<section> <ID>
 
 ## 2. Entity catalogue (mandatory)
 
-5 entities owned by M0: 4 stored, 1 derived. Every entity is declared in §6 of the Spec Document (*discovered here* would mark one that is not). Each entity has exactly one owner module.
+6 entities owned by M0: 5 stored, 1 derived. Every entity is declared in §6 of the Spec Document (*discovered here* would mark one that is not). Each entity has exactly one owner module.
 
 | Entity | Definition (one sentence) | Kind | Owner | Source | Table | Seed file (rows) |
 |---|---|---|---|---|---|---|
 | `PROJECT` | A film or content production a producer is preparing to shoot in Vietnam. | THING | M0 | spec §6 — M0 §6; M0 §5.1 FR-001, FR-002; M0 §5.2 BR-005 | `project` | `09_project.csv` (8) |
-| `PROJECT_MEMBER` | A person's access to one project, with view or edit permission. | THING | M0 | spec §6 — M0 §6; M0 §5.1 FR-004 | `project_member` | `11_project_member.csv` (12) |
+| `PROJECT_MEMBER` | A person's access to one project: owner, edit or view permission. | THING | M0 | spec §6 — M0 §6; M0 §5.1 FR-004 | `project_member` | `11_project_member.csv` (12) |
 | `PROJECT_PROVINCE` | A province a project plans to shoot in. | THING | M0 | spec §6 — M0 §6; M0 §5.1 FR-001 | `project_province` | `13_project_province.csv` (9) |
 | `READINESS_VIEW` | The five gauge scores, overall readiness and next steps of a project, computed on read. | DERIVED (computed on read, not stored) | M0 | spec §6 — M0 §6; M0 §5.2 BR-001 | — | — |
 | `READINESS_SNAPSHOT` | The overall readiness of a project as recorded on one night. | EVENT | M0 | spec §6 — M0 §6; M0 §5.1 FR-008 | `readiness_snapshot` | `14_readiness_snapshot.csv` (14) |
+| `READINESS_SOURCE` | Whether the module behind one counted gauge currently reports to the readiness dashboard. | THING | M0 | discovered here — M0 §3 Edge cases ("A module fails to report"); specs/005-m0-workspace decision H1 (05/11/2026) | `readiness_source` | `15_readiness_source.csv` (4) |
 
 **Entities of other modules referenced here** (drawn without attributes in §5): `BILINGUAL_DOCUMENT` (M5), `COLLAB_REQUEST` (M4), `COMPLIANCE_RUN` (M2), `DOCUMENT_SLOT` (M5), `LOCATION_INTEREST` (M7), `LOCATION_QUERY` (M3), `PRECHECK_RUN` (M2), `PRODUCER_ORGANISATION` (SYS), `PROJECT_GLOSSARY` (M5), `PROJECT_SHORTLIST` (M3), `PROVINCE` (M3), `SEGMENT_DECISION` (M1), `USER_ACCOUNT` (SYS).
 
@@ -86,7 +87,7 @@ Every attribute traces to a §5.1 field, a §6.1 declared type, a key, or a deli
 | `project_id` | `UUID` | Req | FK → `PROJECT` | §5.1 field | M0 §5.1 FR-004 |
 | `user_id` | `UUID` | Opt | FK → `USER_ACCOUNT` | §6.1 declared type | M0 §6 (user_id); M0 §6.1 |
 | `invitee_email` | `VARCHAR(254)` | Req |  | §5.1 field | M0 §5.1 FR-004 |
-| `permission` | `ENUM(view, edit)` | Req |  | §5.1 field | M0 §5.1 FR-004 (owner not in the set — see Structural findings) |
+| `permission` | `ENUM(owner, view, edit)` | Req |  | §5.1 field | M0 §5.1 FR-001 (creator is the owner), FR-004 (invitations offer view or edit); specs/005-m0-workspace plan D2 |
 | `invite_status` | `ENUM(pending, accepted)` | system-set |  | §5.1 field | M0 §5.1 FR-004 (OUT) |
 
 **Natural key:** project_id + invitee_email (the invited address); project_id + user_id once accepted.
@@ -110,6 +111,15 @@ Every attribute traces to a §5.1 field, a §6.1 declared type, a key, or a deli
 | `readiness_total` | `NUMERIC(5,2)` | system-set |  | §5.1 field | M0 §6; M0 §5.1 FR-009 (OUT) |
 
 **Natural key:** project_id + snapshot_date (one per night, M0 FR-008).
+
+### READINESS_SOURCE
+
+| Column | Type | Required | Key | Source kind | Citation |
+|---|---|---|---|---|---|
+| `gauge` | `ENUM(content, locations, partners, dossier)` | Req | PK | key | M0 §3 Edge cases ("A module fails to report"); specs/005-m0-workspace decision H1 (05/11/2026) |
+| `reporting` | `BOOLEAN` | Req |  | audit column | M0 §3 Edge cases (a gauge that has not reported shows — and leaves the overall score) |
+
+**Natural key:** gauge (one row per counted gauge).
 
 ## 4. Relationships (mandatory)
 
@@ -188,6 +198,10 @@ erDiagram
         date snapshot_date
         decimal readiness_total
     }
+    READINESS_SOURCE {
+        enum gauge PK
+        boolean reporting
+    }
 ```
 
 Renders with mermaid-cli: **yes**.
@@ -196,12 +210,12 @@ Renders with mermaid-cli: **yes**.
 
 | Count | Value | Compared with | Value | Agree |
 |---|---|---|---|---|
-| Entities owned and stored (catalogue §2) | 4 | entity blocks in the ERD (§5) | 4 | ✓ |
-| Entities owned and stored (catalogue §2) | 4 | tables in `schema-M0.sql` | 4 | ✓ |
-| Attributes (§3) | 24 | columns in `schema-M0.sql` | 24 | ✓ |
+| Entities owned and stored (catalogue §2) | 5 | entity blocks in the ERD (§5) | 5 | ✓ |
+| Entities owned and stored (catalogue §2) | 5 | tables in `schema-M0.sql` | 5 | ✓ |
+| Attributes (§3) | 26 | columns in `schema-M0.sql` | 26 | ✓ |
 | Relationships with the child in this module (§4) | 6 | FOREIGN KEY constraints in `schema-M0.sql` | 6 | ✓ |
 | Relationships touching this module (§4) | 16 | relationship lines in the ERD (§5) | 16 | ✓ |
-| Seed files of this module (§9) | 4 | tables in `schema-M0.sql` | 4 | ✓ |
+| Seed files of this module (§9) | 5 | tables in `schema-M0.sql` | 5 | ✓ |
 
 ## 6. Normalization check (mandatory)
 
@@ -211,6 +225,7 @@ Renders with mermaid-cli: **yes**.
 | `PROJECT_MEMBER` | ✓ | ✓ single-column key | ✓ |
 | `PROJECT_PROVINCE` | ✓ | ✓ composite key (project_id, province_id): every non-key column describes the whole key | ✓ |
 | `READINESS_SNAPSHOT` | ✓ | ✓ single-column key | exception: `readiness_total` |
+| `READINESS_SOURCE` | ✓ | ✓ single-column key | ✓ |
 
 **Deliberate exceptions and their upkeep rules**
 
@@ -226,14 +241,14 @@ Renders with mermaid-cli: **yes**.
 | Rule | Statement | Enforced in | Named object | Seed rows that show it |
 |---|---|---|---|---|
 | BR-001 | Scores are computed only in the database view `v_project_readiness`; the interface never recomputes them. | VIEW (Plan step) + SEED CHECK | view `v_project_readiness`; seed_rules.readiness() recomputes the latest snapshot | `14_readiness_snapshot.csv` — 2026-09-27 · 68.75 — 68.75 = formula of M0 §9 on the seed data |
-| BR-002 | Gauges shown depend on segment: segment C has no *Dossier & permits* gauge; the *Logistics* gauge is shown as `—` until phase 2. | SEED CHECK + VIEW | seed_rules: no Article 13 slot on a segment C project | `09_project.csv` — Monsoon Signal · C · draft — Monsoon Signal (segment C)<br>`34_document_slot.csv` — SERVICE_CONTRACT_C · missing — its only slot is the segment C contract |
+| BR-002 | Gauges shown depend on segment: segment C has no *Dossier & permits* gauge; the *Logistics* gauge is shown as `—` until phase 2. | SEED CHECK + VIEW | seed_rules: no Article 13 slot on a segment C project | `09_project.csv` — Monsoon Signal · C · draft — Monsoon Signal (segment C)<br>`35_document_slot.csv` — SERVICE_CONTRACT_C · missing — its only slot is the segment C contract |
 | BR-003 | Each gauge always has one next step; when a gauge is complete its next step reads *Done*. | VIEW (Plan step) | `v_project_readiness.next_actions` — one action per gauge | `09_project.csv` — Monsoon Signal · C · draft — empty project: every gauge 0 % with one first next step |
 | BR-004 | Weights per segment are read from `segment_requirements`, never hard-coded. | SCHEMA | table `segment_requirement` (weights and items per segment) read by the view | `08_segment_requirement.csv` — C · ART13_LICENCE · false — segment C: licence *not needed* |
 | BR-005 | Projects are archived, never deleted. An archived project (`stage = archived`) is read-only for its members, leaves the project list, and keeps its documents, requests and notices. | SCHEMA + RLS (Plan step) | `ck_project_stage` (draft, preparing, archived); policy `rls_project_archived_read_only` | `09_project.csv` — Harbour Lights (cancelled) · A · archived — Harbour Lights (cancelled) is archived, not deleted |
 
 ## 8. Schema (mandatory)
 
-`data/schema/schema-M0.sql` — 4 tables in load order: `project`, `project_member`, `project_province`, `readiness_snapshot`; 6 foreign keys; 8 CHECK constraints. Portable SQL (SQLite 3 and PostgreSQL 14+).
+`data/schema/schema-M0.sql` — 5 tables in load order: `project`, `project_member`, `project_province`, `readiness_snapshot`, `readiness_source`; 6 foreign keys; 9 CHECK constraints. Portable SQL (SQLite 3 and PostgreSQL 14+).
 
 Load test: `python3 data/schema/load_check.py` runs every schema file, then every seed file in filename order with foreign keys on — **PASS** (also on PostgreSQL 16 with `--postgres`).
 
@@ -245,7 +260,7 @@ Load test: `python3 data/schema/load_check.py` runs every schema file, then ever
 | Regenerate | `python3 data/seed/generate_seed.py && python3 data/seed/check_seed.py` (must print PASS; `git status` stays clean) |
 | Random seed | none — no randomness and no clock: keys are UUIDv5 of readable names (namespace `6f1c2a8e-3b4d-5e6f-8a9b-0c1d2e3f4a5b`), so every run is byte-identical |
 | Business-rule values | computed by the generator, never typed: attention level (M2 BR-004), quote span (M2 §6.1), latest readiness (M0 §9), is_active, published |
-| Files | 4 files of this module, 43 rows (product: 46 files, 430 rows) |
+| Files | 5 files of this module, 47 rows (product: 47 files, 448 rows) |
 
 **Rows per file and row kinds** (1 = ordinary rows in every file)
 
@@ -255,6 +270,7 @@ Load test: `python3 data/schema/load_check.py` runs every schema file, then ever
 | `11_project_member.csv` | 12 | — | projects with only an owner | invitation to an address with no account (`pending`); member whose account was deactivated, kept |
 | `13_project_province.csv` | 9 | — | projects with none | — (no status column) |
 | `14_readiness_snapshot.csv` | 14 | 0.00 and 100.00 | `Monsoon Signal`, `Harbour Lights`: no snapshot | — (no status column) |
+| `15_readiness_source.csv` | 4 | — | — | — |
 
 ## 10. Edge case register (mandatory)
 
@@ -278,10 +294,15 @@ Computed from the seed files. (a) every enumerated value has a row; (b) empty st
 | `PROJECT.stage` | `draft` | 2 row(s), e.g. The Very Long Road from the No · B · draft |
 | `PROJECT.stage` | `preparing` | 5 row(s), e.g. Above the Terraces · A · preparing |
 | `PROJECT.stage` | `archived` | 1 row(s), e.g. Harbour Lights (cancelled) · A · archived |
+| `PROJECT_MEMBER.permission` | `owner` | 8 row(s), e.g. sophie.laurent@lumierenord.exa · owner · accepted |
 | `PROJECT_MEMBER.permission` | `view` | 3 row(s), e.g. daniel.okafor@kestrelpictures. · view · accepted |
-| `PROJECT_MEMBER.permission` | `edit` | 9 row(s), e.g. sophie.laurent@lumierenord.exa · edit · accepted |
+| `PROJECT_MEMBER.permission` | `edit` | 1 row(s), e.g. jiwoo.han@harbourline.example. · edit · accepted |
 | `PROJECT_MEMBER.invite_status` | `pending` | 1 row(s), e.g. seo.yeon.kim@harbourline.examp · view · pending |
-| `PROJECT_MEMBER.invite_status` | `accepted` | 11 row(s), e.g. sophie.laurent@lumierenord.exa · edit · accepted |
+| `PROJECT_MEMBER.invite_status` | `accepted` | 11 row(s), e.g. sophie.laurent@lumierenord.exa · owner · accepted |
+| `READINESS_SOURCE.gauge` | `content` | 1 row(s), e.g. content · true |
+| `READINESS_SOURCE.gauge` | `locations` | 1 row(s), e.g. locations · true |
+| `READINESS_SOURCE.gauge` | `partners` | 1 row(s), e.g. partners · true |
+| `READINESS_SOURCE.gauge` | `dossier` | 1 row(s), e.g. dossier · true |
 
 **(b) Empty states**
 
@@ -333,7 +354,7 @@ Data questions raised in `data/01`–`04` whose owner includes M0. All other ope
 | [NEEDS CLARIFICATION: Are READINESS_VIEW, DOSSIER_CHECK, LICENSING_TIMELINE and PROVINCE_READINESS computed on read, never stored?] | No | Group C (M0/M2/M3 owners) | Open |
 | [NEEDS CLARIFICATION: How is an invitation to an email without an account stored until accepted?] | Yes | M0 owner | Open |
 | [NEEDS CLARIFICATION: Can a project be deleted or only archived? What happens to its documents, requests and notices?] | Yes | M0 owner | Resolved 30/09/2026 — M0 §5.2 BR-005: archived, never deleted (`stage = archived`, M0 §5.1 FR-002); read-only; documents, requests and notices kept. |
-| [NEEDS CLARIFICATION: Add `owner` to PROJECT_MEMBER.permission, and which function accepts an invitation?] | Yes | M0 owner | Open |
+| [NEEDS CLARIFICATION: Add `owner` to PROJECT_MEMBER.permission, and which function accepts an invitation?] | Yes | M0 owner | Resolved 03/11/2026 — specs/005-m0-workspace plan D2: `owner` added to PROJECT_MEMBER.permission (one per project, the creator); D3: the invitee accepts on SC-10 after signing in with the invited email. |
 | [NEEDS CLARIFICATION: Add a creation time to PROJECT and LOCATION_QUERY so the demand index can be filtered by period (M10 FR-003, FR-005)?] | No | M0, M3, M10 owners | Open |
 
 ## 13. Human gates and sign-off

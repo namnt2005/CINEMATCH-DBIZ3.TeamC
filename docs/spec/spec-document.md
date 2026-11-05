@@ -80,7 +80,7 @@ The entities of CINEMATCH, with the canonical names used by the Session 5 data m
 | 8 | `SEGMENT_REQUIREMENT` | One item a segment needs or does not need, used to configure the journey and the gauges. | THING | M1 |
 | 9 | `SEGMENT_DECISION` | The segment given to a visitor or project from their answers, including any manual override. | EVENT | M1 |
 | 10 | `PROJECT` | A film or content production a producer is preparing to shoot in Vietnam. | THING | M0 |
-| 11 | `PROJECT_MEMBER` | A person's access to one project, with view or edit permission. | THING | M0 |
+| 11 | `PROJECT_MEMBER` | A person's access to one project: owner, edit or view permission. | THING | M0 |
 | 12 | `PROJECT_PROVINCE` | A province a project plans to shoot in. | THING | M0 |
 | 13 | `READINESS_VIEW` | The five gauge scores, overall readiness and next steps of a project, computed on read. | DERIVED (computed on read) | M0 |
 | 14 | `READINESS_SNAPSHOT` | The overall readiness of a project as recorded on one night. | EVENT | M0 |

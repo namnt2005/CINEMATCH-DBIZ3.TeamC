@@ -39,8 +39,10 @@ export function reasonText(t, decidedBy) {
 /** SC-02 #12: the other two segments, or all three when the answers matched no rule. */
 export const otherCards = (segment) => LETTERS.filter(s => s !== segment);
 
-/** D4: a project needs an account — a guest signs up and comes back; projects (M0) are not built yet. */
-export const confirmAction = ({ signedIn }) => (signedIn ? { note: 'router.member_note' } : { href: '/signup?next=%2Fstart' });
+/** D4: a project needs an account — a guest signs up and comes back; a member creates it with the segment pre-filled (M0 research R11). */
+export const confirmAction = ({ signedIn, segment }) => (signedIn
+  ? { href: `/projects?new=1&segment=${encodeURIComponent(segment)}` }
+  : { href: '/signup?next=%2Fstart' });
 
 /** Spec §3: answers in progress live only in this browser tab; a blocked storage never breaks the page. */
 export function saveAnswers(storage, answers) {

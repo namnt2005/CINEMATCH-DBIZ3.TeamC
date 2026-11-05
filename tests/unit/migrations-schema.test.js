@@ -4,15 +4,15 @@ import fs from 'node:fs';
 import { migration, parseTables, schemaTables } from './migration-helpers.js';
 
 describe('Schema migration generated from data/schema (T012, research R1, Constitution I)', () => {
-  test('R1: the 46 tables of data/schema/schema-summary.json are created exactly once', () => {
+  test('R1: the 47 tables of data/schema/schema-summary.json are created exactly once', () => {
     const summary = JSON.parse(fs.readFileSync('data/schema/schema-summary.json', 'utf8'));
     const expected = Object.values(summary).reduce((n, m) => n + (m.tables || 0), 0);
     const sql = migration('schema');
     const created = [...sql.matchAll(/CREATE TABLE (?:public\.)?(\w+) \(/g)].map(m => m[1]);
 
-    assert.equal(expected, 46);
-    assert.equal(created.length, 46);
-    assert.equal(new Set(created).size, 46, 'no table twice');
+    assert.equal(expected, 47);
+    assert.equal(created.length, 47);
+    assert.equal(new Set(created).size, 47, 'no table twice');
     assert.deepEqual([...created].sort(), Object.keys(schemaTables()).sort());
   });
 

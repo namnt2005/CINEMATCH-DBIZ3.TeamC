@@ -50,7 +50,7 @@ function annotations(sql) {
 }
 
 describe('Grants and Row Level Security on every table (T013, BR-001, FR-004, data-model §3–§4)', () => {
-  test('BR-001: Row Level Security is enabled on all 46 tables', () => {
+  test('BR-001: Row Level Security is enabled on all 47 tables', () => {
     const sql = migration('grantsRls');
     for (const table of Object.keys(schemaTables())) {
       assert.match(sql, new RegExp(`ALTER TABLE public\\.${table} ENABLE ROW LEVEL SECURITY;`), table);
