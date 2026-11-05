@@ -551,17 +551,23 @@ CREATE TABLE public.province_notice (
     interest_id UUID NOT NULL,
     province_id INTEGER NOT NULL,
     project_summary TEXT NOT NULL,
-    authority_email VARCHAR(254) NOT NULL,
+    authority_email VARCHAR(254),
     drafted_at TIMESTAMPTZ NOT NULL,
+    review_status VARCHAR(20),
+    review_note TEXT,
     reviewed_by UUID,
+    recipient VARCHAR(20),
     sent_at TIMESTAMPTZ,
     delivery_status VARCHAR(20),
     received_at TIMESTAMPTZ,
     response VARCHAR(20),
     note TEXT,
     responded_at TIMESTAMPTZ,
+    response_recorded_by UUID,
     CONSTRAINT pk_province_notice PRIMARY KEY (interest_id),
-    CONSTRAINT ck_province_notice_delivery_status CHECK (delivery_status IN ('queued', 'sent', 'bounced')),
+    CONSTRAINT ck_province_notice_review_status CHECK (review_status IN ('draft', 'submitted', 'changes_requested', 'approved')),
+    CONSTRAINT ck_province_notice_recipient CHECK (recipient IN ('peoples_committee', 'culture_department')),
+    CONSTRAINT ck_province_notice_delivery_status CHECK (delivery_status IN ('queued', 'downloaded', 'sent', 'bounced')),
     CONSTRAINT ck_province_notice_response CHECK (response IN ('received', 'info_needed', 'cannot_support'))
 );
 
@@ -570,6 +576,7 @@ CREATE TABLE public.consultation_booking (
     booking_id UUID NOT NULL,
     member_id UUID NOT NULL,
     topic VARCHAR(20) NOT NULL,
+    preferred_times JSONB NOT NULL,
     slot_start TIMESTAMPTZ NOT NULL,
     timezone VARCHAR(40) NOT NULL,
     officer_id UUID,
@@ -707,6 +714,7 @@ ALTER TABLE public.location_interest ADD CONSTRAINT fk_location_interest_locatio
 ALTER TABLE public.province_notice ADD CONSTRAINT fk_province_notice_interest_id FOREIGN KEY (interest_id) REFERENCES public.location_interest (interest_id);
 ALTER TABLE public.province_notice ADD CONSTRAINT fk_province_notice_province_id FOREIGN KEY (province_id) REFERENCES public.province (province_id);
 ALTER TABLE public.province_notice ADD CONSTRAINT fk_province_notice_reviewed_by FOREIGN KEY (reviewed_by) REFERENCES public.user_account (user_id);
+ALTER TABLE public.province_notice ADD CONSTRAINT fk_province_notice_response_recorded_by FOREIGN KEY (response_recorded_by) REFERENCES public.user_account (user_id);
 ALTER TABLE public.consultation_booking ADD CONSTRAINT fk_consultation_booking_member_id FOREIGN KEY (member_id) REFERENCES public.user_account (user_id);
 ALTER TABLE public.consultation_booking ADD CONSTRAINT fk_consultation_booking_officer_id FOREIGN KEY (officer_id) REFERENCES public.user_account (user_id);
 ALTER TABLE public.profile ADD CONSTRAINT fk_profile_user_id FOREIGN KEY (user_id) REFERENCES public.user_account (user_id);

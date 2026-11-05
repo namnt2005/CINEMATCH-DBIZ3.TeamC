@@ -8,6 +8,8 @@ import { canSeeAuthorityContact, getAuthorityContact, isContactAccessDenied } fr
 import { noDataLabel, nightShootingLabel, rainyMonthsLabel, monthsToAvoidLabel } from '../../../lib/locations/season-facts.js';
 import LocationMap from '../../components/map/location-map.js';
 import LocationPhoto from './location-photo.js';
+import InterestButton from './interest-button.js';
+import { listProjects } from '../../../lib/db/projects.js';
 
 // SC-16 #4 badge colours (M3 BR-010); the labels come from the dictionary
 const AVAILABILITY = {
@@ -80,6 +82,11 @@ export default async function LocationDetailPage({ params }) {
   }
 
   const availability = AVAILABILITY[location.availability];
+  // M7 R10: the caller's projects for *I'm interested in this location* (members only; staff have none)
+  const signedIn = Boolean(session.isAuthenticated && session.userId);
+  const myProjects = signedIn
+    ? ((await listProjects(session).catch(() => ({ projects: [] }))).projects || []).map(p => ({ project_id: p.project_id, project_name: p.project_name, permission: p.permission, stage: p.stage }))
+    : [];
 
   return (
     <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem 1rem' }}>
@@ -100,6 +107,11 @@ export default async function LocationDetailPage({ params }) {
             <div style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '0.25rem' }}>
               {location.province.name}
             </div>
+            {['vfda_staff', 'admin'].includes(session.role) ? null : (
+              <div style={{ marginTop: '0.75rem' }}>
+                <InterestButton locationId={location.location_id} signedIn={signedIn} projects={myProjects} loginHref={loginHref} />
+              </div>
+            )}
           </div>
           {availability && (
             <span

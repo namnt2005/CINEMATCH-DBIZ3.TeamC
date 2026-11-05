@@ -37,7 +37,7 @@ Elements:
 
 Every review shows *Recorded in the audit log*.
 
-## SC-33 `/consultation` (signed-in members; guests → `/login?next=%2Fconsultation`)
+## SC-33 `/consult` (signed-in members; guests → `/login?next=%2Fconsult`)
 
 Elements:
 - title and purpose;

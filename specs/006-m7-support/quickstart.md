@@ -37,11 +37,28 @@ Two roles: a member (owner of a project with a first shooting day) and a `vfda_s
 
 | # | Step | Expected |
 |---|---|---|
-| 1 | Member, `/consultation`: topic *Dossier*, zone *Asia/Seoul*, two preferred times → *Send request* | *Request sent — VFDA will reply by email*; the request under *Your requests* as *Waiting for VFDA*; no slot grid anywhere |
+| 1 | Member, `/consult`: topic *Dossier*, zone *Asia/Seoul*, two preferred times → *Send request* | *Request sent — VFDA will reply by email*; the request under *Your requests* as *Waiting for VFDA*; no slot grid anywhere |
 | 2 | **With the reviewer's go-ahead only**: the real email | one email in the test inbox: topic, both times in Seoul and Hanoi time, reply-to the member; `email_delivery` `sent` with `provider_message_id` |
 | 3 | Without `RESEND_API_KEY` | request saved, *the email could not be sent*, `email_delivery` `queued` |
 | 4 | Time the request from opening the page | under 2 minutes (SC-003) |
 
 ## Results
 
-*(filled in by the person who runs it)*
+### Offline — 06/11/2026
+
+Run by Claude Code in the session for Nam Tran (Nguyễn Trần Nam); review of the results by Nam Tran still due.
+
+| Check | Result |
+|---|---|
+| `npm test` | 673 tests: 672 passed, 1 failed — `tests/unit/seed-plan.test.js` *the 20 user-id columns*: 21 found, because D1 added the foreign key `province_notice.response_recorded_by`. The test predates M7 and is not changed without the reviewer's go-ahead |
+| `npm run build` | OK (39 pages; `/projects/[id]/provinces`, `/projects/[id]/provinces/[noticeId]/print`, `/admin/notices`, `/consult` built) |
+| `uv run tools/start_feature.py --check` | OK — `spec.md` matches `docs/spec/spec-M7.md` |
+| `python3 tools/build_supabase.py --check` | OK |
+| `python3 data/seed/check_seed.py` | PASS (47 tables, 447 rows) |
+| `python3 data/schema/load_check.py` | SQLite PASS |
+| `python3 tools/check_screens.py s3_en` / `s6_en` | OK / OK |
+| PostgreSQL (PGlite, scratch folder) | migration `20261106000100` applied; summary equal to the JS version on 7 pairs; every refusal and the audit rows as expected |
+
+### Online — `cinematch-dev`
+
+Not run yet. Waits for `npx supabase db push --remote` (migration `20261106000100`) and `node scripts/seed-supabase.mjs --reset` by Nam Tran. Then: `npm run test:rls`, `npm run check:supabase`, slices 1–3 above with a temporary member account and, as proposed by the agent and not yet confirmed by Nam Tran, the seed staff account signed in by an admin magic link (a temporary staff account cannot be removed once its review has written an append-only audit row; see `tests/rls/rls.test.js`), and one real email to `VFDA_CONSULT_EMAIL` (a test inbox; sending agreed by Nam Tran 06/11/2026).

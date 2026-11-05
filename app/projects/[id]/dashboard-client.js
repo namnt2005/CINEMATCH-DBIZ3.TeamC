@@ -1,8 +1,8 @@
 'use client';
 // SC-12, in the order of docs/screens/screen-spec-SC-12.md: sidebar (#2) → name, segment, organisation (#3) →
 // shoot date and countdown (#4) → overall readiness (#5) → one card per shown gauge with its next step and
-// button (#6–#9); then the Empty, Error and Success states. The deadline strip (#10, M5), recent activity (#11)
-// and the consultation button (#12, SC-33) are not built yet. Nothing is computed here (BR-001, SR-052).
+// button (#6–#9); then the Empty, Error and Success states. The deadline strip (#10, M5) and recent activity (#11)
+// are not built yet; the consultation line (#12) opens SC-33. Nothing is computed here (BR-001, SR-052).
 import { useState } from 'react';
 import { useLocale, useT } from '../../../lib/i18n/client.js';
 import { nextStepText } from '../../../lib/readiness/next-steps.js';
@@ -95,7 +95,7 @@ export default function DashboardClient({ project, requirements, documentTypes, 
         <ul style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 15rem), 1fr))', gap: '0.875rem', padding: 0, margin: 0 }}>
           {cards.map(card => <GaugeCard key={card.gauge} card={card} row={row} documentTypes={documentTypes} />)}
         </ul>
-        <p style={{ marginTop: '1.25rem', color: C.muted, fontSize: '0.875rem' }}>{t('dashboard.consultation')} · {t('landing.soon')}</p>
+        <p style={{ marginTop: '1.25rem', fontSize: '0.875rem' }}><a href="/consult" style={{ color: '#2563eb', textDecoration: 'none' }}>{t('dashboard.consultation')}</a></p>
       </div>
     </main>
   );

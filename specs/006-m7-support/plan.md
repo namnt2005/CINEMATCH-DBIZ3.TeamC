@@ -98,7 +98,7 @@ supabase/migrations/20261106000100_m7_notices.sql   # columns for pushed databas
 app/projects/[id]/provinces/page.js, provinces-client.js, provinces-view.js       # SC-32 member
 app/projects/[id]/provinces/[noticeId]/print/page.js                              # PDF (D4)
 app/admin/notices/page.js, notices-queue.js                                       # SC-32 staff
-app/consultation/page.js, consultation-form.js, consultation-view.js              # SC-33
+app/consult/page.js, consultation-form.js, consultation-view.js                   # SC-33 (route /consult, screen spec)
 app/locations/[slug]/interest-button.js                                           # SC-16 *I'm interested*
 app/projects/[id]/project-nav.js                                                  # + Provinces
 app/api/projects/[id]/interests/route.js, app/api/projects/[id]/notices/route.js
@@ -121,7 +121,7 @@ tests/unit/, tests/contracts/, tests/rls/rls.test.js
 | 3 | A province's reply is entered by hand (member or staff); there is no reply link for the province (spec §4.1). | BR-001: the province receives the letter from the crew, not from the system. |
 | 4 | Reply times do not feed the provincial readiness index yet (BR-004). | M3 SC-18 not built. |
 | 5 | The SC-32 staff queue and the new *Ask VFDA to review* label are not drawn on the mockup image. | No Playwright to redraw (`build_docs.py --img`); the Screen Spec text is the contract. |
-| 6 | The SC-33 Screen Spec still describes a slot grid, an officer and reminders. | Research Open question 4; the screen is built as the BR-005 request form. |
+| 6 | The SC-33 mockup image still shows the slot grid of the first design; the Screen Spec text was rewritten for BR-005 on 06/11/2026. | Redraw with `build_docs.py --img` once Playwright is installed. |
 
 ## Complexity Tracking
 

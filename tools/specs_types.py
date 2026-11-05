@@ -76,7 +76,7 @@ ATTR_TYPES = {
   ("LocationInterest", "created_at", "TIMESTAMPTZ", "Yes", ""),
   ("ProvinceNotice", "province_id", "INTEGER", "Yes", "the province the notice was addressed to, kept as sent even if the location's province later changes"),
   ("ProvinceNotice", "drafted_at", "TIMESTAMPTZ", "Yes", ""),
-  ("ProvinceNotice", "sent_at", "TIMESTAMPTZ", "No", "empty until VFDA sends it"),
+  ("ProvinceNotice", "sent_at", "TIMESTAMPTZ", "No", "empty until the crew first downloads the approved notice"),
   ("ProvinceNotice", "received_at", "TIMESTAMPTZ", "No", "empty until the province acknowledges it"),
   ("ConsultationBooking", "member_id", "UUID", "Yes", ""),
  ],

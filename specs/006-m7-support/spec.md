@@ -1,4 +1,4 @@
-<!-- DBIZ3-SNAPSHOT source=docs/spec/spec-M7.md sha256=0adfa0a33de20ae623d2e60bfd7747fbed55697bf8cdeed298e73bef36317723 taken=2026-11-05T17:52Z -->
+<!-- DBIZ3-SNAPSHOT source=docs/spec/spec-M7.md sha256=10900bacb3b6afc18946b3b7a3cd48389312c1cc746db6e12251b0d47bdc4414 taken=2026-11-05T19:03Z -->
 <!-- Read-only copy for Spec Kit. Do not edit here. Edit docs/spec/spec-M7.md, then run:
      uv run tools/start_feature.py --refresh -->
 
@@ -154,15 +154,18 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 |---|---|---|---|---|---|---|
 | FR-001 | `project_id` | `UUID` | Yes | `interest_id` | `UUID` |  |
 |  | `location_id` | `UUID` | Yes |  |  |  |
-| FR-002 | `interest_id` | `UUID` | Yes | `notification_id` | `UUID` | reviewed_by added (VFDA review step, SC-32); needs first shooting day; delivery_status records the download, not an email (BR-001) |
-|  | `project_summary` | `TEXT` | Yes | `delivery_status` | `ENUM(queued, sent, bounced)` |  |
-|  | `authority_email` | `VARCHAR(254)` | Yes |  |  |  |
+| FR-002 | `interest_id` | `UUID` | Yes | `notification_id` | `UUID` | reviewed_by added (VFDA review step, SC-32); needs first shooting day; review_note required when VFDA staff request changes; recipient chosen at the first download; authority_email copied from the verified authority contact when it has one (the crew sends the letter, so it may be empty); delivery_status records the download, not an email (BR-001) |
+|  | `project_summary` | `TEXT` | Yes | `review_status` | `ENUM(draft, submitted, changes_requested, approved)` |  |
+|  | `authority_email` | `VARCHAR(254)` | No | `delivery_status` | `ENUM(queued, downloaded, sent, bounced)` |  |
 |  | `reviewed_by` | `UUID` | Yes |  |  |  |
-| FR-003 | `interest_id` | `UUID` | Yes | `response_status` | `ENUM` |  |
+|  | `review_note` | `TEXT` | No |  |  |  |
+|  | `recipient` | `ENUM(peoples_committee, culture_department)` | No |  |  |  |
+| FR-003 | `interest_id` | `UUID` | Yes | `response_status` | `ENUM` | response_recorded_by = the member or VFDA staff who entered the reply |
 |  | `response` | `ENUM(received, info_needed, cannot_support)` | Yes | `responded_at` | `TIMESTAMPTZ` |  |
-|  | `note` | `TEXT` | No |  |  |  |
+|  | `note` | `TEXT` | No | `response_recorded_by` | `UUID` |  |
 | FR-004 | `project_id` | `UUID` | Yes | `interests` | `(location_id UUID, response_status ENUM, responded_at TIMESTAMPTZ)[]` | one card per province |
-| FR-005 | `topic` | `ENUM(dossier, locations, partners, provincial_notice, general)` | Yes | `booking_id` | `UUID` | IANA time zone; up to 3 preferred times, slot_start = the first (BR-005) |
+| FR-005 | `topic` | `ENUM(dossier, locations, partners, provincial_notice, general)` | Yes | `booking_id` | `UUID` | IANA time zone; preferred_times = 1–3 start times in UTC, slot_start = the first (BR-005) |
+|  | `preferred_times` | `JSONB` | Yes |  |  |  |
 |  | `slot_start` | `TIMESTAMPTZ` | Yes |  |  |  |
 |  | `timezone` | `VARCHAR(40)` | Yes |  |  |  |
 | FR-006 | `booking_id` | `UUID` | Yes | `booking_status` | `ENUM(confirmed, rescheduled)` |  |
@@ -184,8 +187,8 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 | Entity | Attributes (from Input/Output fields) | Relationships |
 |---|---|---|
 | LocationInterest | interest_id, project_id, location_id, created_at | belongs to Project and Location |
-| ProvinceNotice | interest_id, province_id, drafted_at, reviewed_by, sent_at, received_at, response, note, responded_at, delivery_status | belongs to LocationInterest |
-| ConsultationBooking | booking_id, member_id, topic, slot_start, timezone, officer_id, booking_status | belongs to UserAccount |
+| ProvinceNotice | interest_id, province_id, drafted_at, review_status, review_note, reviewed_by, recipient, sent_at, received_at, response, note, responded_at, response_recorded_by, delivery_status | belongs to LocationInterest |
+| ConsultationBooking | booking_id, member_id, topic, preferred_times, slot_start, timezone, officer_id, booking_status | belongs to UserAccount |
 
 ### 6.1 Attribute types
 
@@ -196,7 +199,7 @@ Types and required flags of the attributes above that no field in 5.1 declares (
 | LocationInterest | `created_at` | `TIMESTAMPTZ` | Yes |  |
 | ProvinceNotice | `province_id` | `INTEGER` | Yes | the province the notice was addressed to, kept as sent even if the location's province later changes |
 | ProvinceNotice | `drafted_at` | `TIMESTAMPTZ` | Yes |  |
-| ProvinceNotice | `sent_at` | `TIMESTAMPTZ` | No | empty until VFDA sends it |
+| ProvinceNotice | `sent_at` | `TIMESTAMPTZ` | No | empty until the crew first downloads the approved notice |
 | ProvinceNotice | `received_at` | `TIMESTAMPTZ` | No | empty until the province acknowledges it |
 | ConsultationBooking | `member_id` | `UUID` | Yes |  |
 

@@ -51,7 +51,10 @@ describe('Row Level Security on cinematch-dev (npm run test:rls)', () => {
   after(async () => {
     // Test fixtures only: the app never deletes a project (M0 BR-005); the secret key removes what this run made
     for (const id of createdProjects) {
-      for (const table of ['readiness_snapshot', 'project_province', 'project_member']) {
+      // M7: the notices hang off the interests (province_notice.interest_id)
+      const { data: interests } = await admin.from('location_interest').select('interest_id').eq('project_id', id);
+      for (const { interest_id } of interests || []) await admin.from('province_notice').delete().eq('interest_id', interest_id);
+      for (const table of ['location_interest', 'readiness_snapshot', 'project_province', 'project_member']) {
         await admin.from(table).delete().eq('project_id', id);
       }
       await admin.from('project').delete().eq('project_id', id);
@@ -207,5 +210,75 @@ describe('Row Level Security on cinematch-dev (npm run test:rls)', () => {
     const { error: direct } = await ownerClient.from('project').update({ logline: 'direct' }).eq('project_id', projectId);
     const { data } = await admin.from('project').select('stage, logline').eq('project_id', projectId).single();
     assert.deepEqual(data, { stage: 'archived', logline: null }, direct?.message);
+  });
+
+
+  // M7 (specs/006-m7-support T016, research R9). Staff are the seed account (synthetic data, already in Auth),
+  // signed in with an admin magic link — no password, no email sent: a temporary staff account could not be
+  // removed, because its review writes an append-only audit row (M10 BR-005) that references it.
+  const SEED_STAFF_EMAIL = 'thuha.nguyen@vfda-demo.example.vn';
+  const TRANG_AN = '607132bd-b05b-52c6-900f-5f2928c17a9e'; // published, Ninh Bình
+
+  async function seedStaffClient() {
+    const { data, error } = await admin.auth.admin.generateLink({ type: 'magiclink', email: SEED_STAFF_EMAIL });
+    if (error) throw new Error(`generateLink failed: ${error.message}`);
+    const client = createClient(URL, PUBLISHABLE, options);
+    const { data: session, error: otpError } = await client.auth.verifyOtp({ token_hash: data.properties.hashed_token, type: 'magiclink' });
+    if (otpError) throw new Error(`staff sign-in failed: ${otpError.message}`);
+    return { client, id: session.user.id };
+  }
+
+  async function createTestNotice() {
+    const project = await createTestProject();
+    const { error: dateError } = await project.ownerClient.rpc('app_update_project', { p_project_id: project.projectId, p_fields: { shoot_date: '2027-03-01' } });
+    assert.equal(dateError, null, dateError?.message);
+    const { data, error } = await project.ownerClient.rpc('app_express_interest', { p_project_id: project.projectId, p_location_id: TRANG_AN });
+    assert.equal(error, null, error?.message);
+    assert.equal(data.created, true);
+    return { ...project, noticeId: data.notice_id };
+  }
+
+  test('M7 RLS / FR-004: a member who is not on the project reads no interest or notice of it', async () => {
+    const { ownerClient, projectId, noticeId } = await createTestNotice();
+    const { data: own } = await ownerClient.from('province_notice').select('interest_id, review_status').eq('interest_id', noticeId);
+    assert.deepEqual(own, [{ interest_id: noticeId, review_status: 'draft' }], 'the owner reads the draft');
+    const outsider = await signedInClient(await createTestAccount(SIGNUP_METADATA));
+    const { data: interests, error } = await outsider.from('location_interest').select('interest_id').eq('project_id', projectId);
+    assert.equal(error, null, error?.message);
+    assert.equal(interests.length, 0);
+    const { data: notices, error: noticeError } = await outsider.from('province_notice').select('interest_id').eq('interest_id', noticeId);
+    assert.equal(noticeError, null, noticeError?.message);
+    assert.equal(notices.length, 0);
+  });
+
+  test('M7 RLS: a member cannot insert an interest or a notice directly — only through app_express_interest', async () => {
+    const { ownerClient, projectId } = await createTestProject();
+    const { error } = await ownerClient.from('location_interest').insert({
+      interest_id: randomUUID(), project_id: projectId, location_id: TRANG_AN, created_at: new Date().toISOString()
+    });
+    assert.ok(error, 'a direct insert is refused');
+    const { data } = await admin.from('location_interest').select('interest_id').eq('project_id', projectId);
+    assert.equal(data.length, 0);
+  });
+
+  test('M7 BR-001: a member cannot review a notice; VFDA staff can, and the review writes one audit_log row', async () => {
+    const { ownerClient, noticeId } = await createTestNotice();
+    const { error: submitError } = await ownerClient.rpc('app_submit_notice', { p_interest_id: noticeId });
+    assert.equal(submitError, null, submitError?.message);
+
+    const { error: memberError } = await ownerClient.rpc('app_review_notice', { p_interest_id: noticeId, p_decision: 'approve', p_note: null });
+    assert.match(memberError?.message ?? '', /FORBIDDEN/);
+    const { data: still } = await admin.from('province_notice').select('review_status').eq('interest_id', noticeId).single();
+    assert.equal(still.review_status, 'submitted');
+
+    const staff = await seedStaffClient();
+    const { data, error } = await staff.client.rpc('app_review_notice', { p_interest_id: noticeId, p_decision: 'approve', p_note: null });
+    assert.equal(error, null, error?.message);
+    assert.equal(data.review_status, 'approved');
+    const { data: notice } = await admin.from('province_notice').select('review_status, reviewed_by, delivery_status, sent_at').eq('interest_id', noticeId).single();
+    assert.deepEqual(notice, { review_status: 'approved', reviewed_by: staff.id, delivery_status: 'queued', sent_at: null });
+    const { data: audit } = await admin.from('audit_log').select('action, admin_id').eq('target_id', noticeId);
+    assert.deepEqual(audit, [{ action: 'notice.approve', admin_id: staff.id }]);
+    await staff.client.auth.signOut();
   });
 });

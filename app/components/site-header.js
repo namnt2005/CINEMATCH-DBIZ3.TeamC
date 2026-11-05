@@ -46,6 +46,7 @@ export default function SiteHeader({ state }) {
         <a href="/locations/match" style={link}>{t('header.match')}</a>
         {state.signedIn ? <a href="/projects" style={link}>{t('header.projects')}</a> : null}
         {['vfda_staff', 'admin'].includes(state.role) ? <a href="/admin/locations" style={link}>{t('header.admin')}</a> : null}
+        {['vfda_staff', 'admin'].includes(state.role) ? <a href="/admin/notices" style={link}>{t('notices.staff.header_link')}</a> : null}
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
           <LanguageSwitch />
           {state.signedIn ? (

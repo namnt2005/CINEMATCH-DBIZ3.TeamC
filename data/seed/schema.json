@@ -1704,13 +1704,17 @@
    "project_summary",
    "authority_email",
    "drafted_at",
+   "review_status",
+   "review_note",
    "reviewed_by",
+   "recipient",
    "sent_at",
    "delivery_status",
    "received_at",
    "response",
    "note",
-   "responded_at"
+   "responded_at",
+   "response_recorded_by"
   ],
   "pk": [
    "interest_id"
@@ -1719,7 +1723,6 @@
    "interest_id",
    "province_id",
    "project_summary",
-   "authority_email",
    "drafted_at",
    "reviewed_by",
    "response"
@@ -1739,11 +1742,27 @@
     "column": "reviewed_by",
     "references": "USER_ACCOUNT",
     "ref_column": null
+   },
+   {
+    "column": "response_recorded_by",
+    "references": "USER_ACCOUNT",
+    "ref_column": null
    }
   ],
   "enums": {
+   "review_status": [
+    "draft",
+    "submitted",
+    "changes_requested",
+    "approved"
+   ],
+   "recipient": [
+    "peoples_committee",
+    "culture_department"
+   ],
    "delivery_status": [
     "queued",
+    "downloaded",
     "sent",
     "bounced"
    ],
@@ -1764,6 +1783,7 @@
    "booking_id",
    "member_id",
    "topic",
+   "preferred_times",
    "slot_start",
    "timezone",
    "officer_id",
@@ -1775,6 +1795,7 @@
   "required": [
    "member_id",
    "topic",
+   "preferred_times",
    "slot_start",
    "timezone",
    "officer_id"

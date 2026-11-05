@@ -406,6 +406,9 @@ GRANT UPDATE ON public.consultation_booking TO authenticated;
 -- policy: consultation_booking select vfda_staff
 CREATE POLICY rls_consultation_booking_select_vfda_staff ON public.consultation_booking FOR SELECT TO authenticated
   USING (app.has_role('vfda_staff'));
+-- policy: consultation_booking select member
+CREATE POLICY rls_consultation_booking_select_member ON public.consultation_booking FOR SELECT TO authenticated
+  USING (member_id = auth.uid());
 -- policy: consultation_booking insert member
 CREATE POLICY rls_consultation_booking_insert_member ON public.consultation_booking FOR INSERT TO authenticated
   WITH CHECK (app.has_role('member') AND member_id = auth.uid());

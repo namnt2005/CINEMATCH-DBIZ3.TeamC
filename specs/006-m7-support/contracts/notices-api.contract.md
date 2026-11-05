@@ -8,7 +8,7 @@ Signed-in users only (401 otherwise). Error bodies `{ error, message, fields? }`
 
 | Route | Who | Body / query | Answer |
 |---|---|---|---|
-| `POST /api/projects/:id/interests` | owner / *edit* | `{ location_id }` | **201** `{ interest_id, notice_id, created }` (`created = false` when the location joined the province's open notice); 404 non-member or unknown location; 403 *view*; 409 `ARCHIVED`, `NO_AUTHORITY_CONTACT`, `ALREADY_SENT` (the province's letter was already downloaded) |
+| `POST /api/projects/:id/interests` | owner / *edit* | `{ location_id }` | **201** `{ interest_id, notice_id, created }` (`created = false` when the location joined the province's open notice); 404 non-member or unknown location; 403 *view*; 409 `ARCHIVED`, `ALREADY_SENT` (the province's letter was already downloaded) |
 | `GET /api/projects/:id/notices` | members | | **200** `{ notices: [{ notice_id, province: { id, name }, locations: [{ location_id, name }], review_status, review_note, delivery_status, recipient, drafted_at, sent_at, responded_at, response, note, can_submit, missing: ['shoot_date'] }] }`, one per province |
 | `POST /api/notices/:id/submit` | owner / *edit* | | **200** `{ review_status: 'submitted' }`; 409 `INVALID_STATE`; 422 `SHOOT_DATE_REQUIRED` (US-1 Scenario 2) |
 | `POST /api/notices/:id/download` | owner / *edit* | `{ recipient: peoples_committee \| culture_department }` | **200** `{ delivery_status, recipient, sent_at }`; the first call records `recipient`, `delivery_status = downloaded`, `sent_at`, later calls change nothing; 403 *view*; 404 not approved or not a member; 422 unknown recipient |

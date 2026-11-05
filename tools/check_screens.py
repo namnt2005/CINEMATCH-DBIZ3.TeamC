@@ -44,8 +44,8 @@ def main():
             if fid not in known_fr:
                 errs.append(f"{sid}: unknown subfunction {fid}")
         for q in s["oq"]:
-            if not (isinstance(q, tuple) and 2 <= len(q) <= 4 and q[0].startswith("[NEEDS CLARIFICATION:")):
-                errs.append(f"{sid}: open question must be ('[NEEDS CLARIFICATION: ...]', blocking, owner[, dup_of_module_question_number]): {q}")
+            if not (isinstance(q, tuple) and 2 <= len(q) <= 5 and q[0].startswith("[NEEDS CLARIFICATION:")):
+                errs.append(f"{sid}: open question must be ('[NEEDS CLARIFICATION: ...]', blocking, owner[, dup_of_module_question_number[, status]]): {q}")
     os.makedirs(out, exist_ok=True)
     for s, _ in mod.SCREENS:
         open(f"{out}/screen-spec-{s['sid']}.md", "w", encoding="utf-8").write(bd.arrays(bd.screen_md(s)))

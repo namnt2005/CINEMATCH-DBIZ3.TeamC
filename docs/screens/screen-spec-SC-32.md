@@ -66,7 +66,7 @@
 |---|---|---|---|---|
 | 1 | *+ Add province* button | tap | Choose from the 34 provinces and cities; suggestions from confirmed locations | stays |
 | 2 | *Ask VFDA to review* button | tap | Submits the notice to the VFDA review queue (`F-M7-02`) | stays |
-| 3 | *Download Word* / *Download PDF* (approved notice) | tap | Records the download with the chosen recipient (`delivery_status = downloaded`) and returns the letter; the crew sends it themselves (M7 BR-001) | stays |
+| 3 | *Download Word* / *Download PDF* (approved notice) | tap | Records the download with the chosen recipient (`delivery_status = downloaded`) and returns the letter (owner / edit; view members download without recording); the crew sends it themselves (M7 BR-001) | stays |
 | 4 | VFDA staff: *Approve* (review queue) | tap | Sets the notice approved, writes one `audit_log` row, notifies the project members | stays |
 | 5 | VFDA staff: *Request changes* (review queue) | tap | Requires a note; sets the notice to changes requested, writes one `audit_log` row, notifies the project members | stays |
 | 6 | *Next step: add to document kit* | tap | — | SC-26 |
@@ -103,7 +103,7 @@
 
 | # | Question | Blocking? | Status |
 |---|---|---|---|
-| 1 | [NEEDS CLARIFICATION: does VFDA have the authority / established practice to send notices to Provincial People's Committees, and what is the official letter template] | Yes | Open |
+| 1 | [NEEDS CLARIFICATION: does VFDA have the authority / established practice to send notices to Provincial People's Committees, and what is the official letter template] | Yes | Decided (provisional) — see spec-M7 Clarifications Q1 |
 | 2 | [NEEDS CLARIFICATION: should the notice go to the Provincial People's Committee or the provincial Department of Culture] | Yes | Open |
 
 ## Completion checklist

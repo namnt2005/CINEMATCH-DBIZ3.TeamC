@@ -61,14 +61,14 @@ The system never sends a notice (BR-001): no transition writes an email for a no
 
 | Function | Who | Checks | Effect |
 |---|---|---|---|
-| `app_express_interest(p_project_id, p_location_id)` | owner / *edit*, not archived | location published; authority contact email known (research Open question 5) | interest row; draft notice for a new province, or the location added to the open notice (R2); returns `{ interest_id, notice_id, created }` |
+| `app_express_interest(p_project_id, p_location_id)` | owner / *edit*, not archived | location published; `authority_email` from the verified contact when it has one, else empty (research Open question 5, decided 06/11/2026) | interest row; draft notice for a new province, or the location added to the open notice (R2); returns `{ interest_id, notice_id, created }` |
 | `app_submit_notice(p_interest_id)` | owner / *edit* | state `draft` or `changes_requested`; first shooting day set (`SHOOT_DATE_REQUIRED`) | summary recomputed; `submitted` |
 | `app_review_notice(p_interest_id, p_decision, p_note)` | `vfda_staff` (and `admin`) | state `submitted`; note required for `request_changes` | `approved` (+ `reviewed_by`, `delivery_status = queued`) or `changes_requested` (+ `review_note`); `audit_log`; notification |
 | `app_mark_notice_downloaded(p_interest_id, p_recipient)` | owner / *edit* (analysis I4) | state `approved` | first time: `recipient`, `delivery_status = downloaded`, `sent_at`; later calls change nothing. Reading the letter needs no function: any member, approved only |
 | `app_record_province_reply(p_interest_id, p_response, p_note)` | owner / *edit*, or staff | downloaded; response one of three | `response`, `note`, `responded_at`, `received_at`, `response_recorded_by`; staff: audit + notification |
 | `app_request_consultation(p_topic, p_timezone, p_preferred_times)` | signed-in member | R8 checks | booking row; returns `booking_id` (the API sends the email) |
 
-Error codes (`RAISE EXCEPTION`): `NOT_FOUND`, `FORBIDDEN`, `ARCHIVED`, `INVALID_STATE`, `SHOOT_DATE_REQUIRED`, `NO_AUTHORITY_CONTACT`, `NOTE_REQUIRED`, `VALIDATION_ERROR`.
+Error codes (`RAISE EXCEPTION`): `NOT_FOUND`, `FORBIDDEN`, `ARCHIVED`, `INVALID_STATE`, `SHOOT_DATE_REQUIRED`, `ALREADY_SENT`, `NOTE_REQUIRED`, `VALIDATION_ERROR`.
 
 ## 5. Grants and RLS
 

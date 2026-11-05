@@ -516,7 +516,7 @@ add(dict(
  ix=[
   ("*+ Add province* button", "tap", "Choose from the 34 provinces and cities; suggestions from confirmed locations", "stays"),
   ("*Ask VFDA to review* button", "tap", "Submits the notice to the VFDA review queue (`F-M7-02`)", "stays"),
-  ("*Download Word* / *Download PDF* (approved notice)", "tap", "Records the download with the chosen recipient (`delivery_status = downloaded`) and returns the letter; the crew sends it themselves (M7 BR-001)", "stays"),
+  ("*Download Word* / *Download PDF* (approved notice)", "tap", "Records the download with the chosen recipient (`delivery_status = downloaded`) and returns the letter (owner / edit; view members download without recording); the crew sends it themselves (M7 BR-001)", "stays"),
   ("VFDA staff: *Approve* (review queue)", "tap", "Sets the notice approved, writes one `audit_log` row, notifies the project members", "stays"),
   ("VFDA staff: *Request changes* (review queue)", "tap", "Requires a note; sets the notice to changes requested, writes one `audit_log` row, notifies the project members", "stays"),
   ("*Next step: add to document kit*", "tap", "—", "SC-26"),
@@ -532,6 +532,6 @@ add(dict(
  ],
  fr=[("F-M7-01", "Mark interest in a location"), ("F-M7-02", "Draft notice, VFDA review, download"), ("F-M7-03", "Province replies with three statuses"), ("F-M7-04", "Status tracking page")],
  resp=["Minimum supported width: **360px**.", "Narrow screens: the preview collapses into a *View notice* button; the 4-step progress becomes a vertical list.", "Progress is an `<ol>` with `aria-current=\"step\"`.", "Reply status has text, not colour alone."],
- oq=[("[NEEDS CLARIFICATION: does VFDA have the authority / established practice to send notices to Provincial People's Committees, and what is the official letter template]", True),
+ oq=[("[NEEDS CLARIFICATION: does VFDA have the authority / established practice to send notices to Provincial People's Committees, and what is the official letter template]", True, None, None, "Decided (provisional) — see spec-M7 Clarifications Q1"),
      ("[NEEDS CLARIFICATION: should the notice go to the Provincial People's Committee or the provincial Department of Culture]", True)],
 ), html)

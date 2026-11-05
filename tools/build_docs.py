@@ -87,7 +87,8 @@ def screen_md(s):
     for fid, what in s["fr"]:
         fr, m = frref(fid)
         frs.append((f"{fr} · spec-{m}.md ({fid})", what))
-    oq = [(i + 1, x[0], "Yes" if x[1] else "No", "Open") for i, x in enumerate(s["oq"])]
+    # an optional 5th element of the tuple gives the status of a question already decided elsewhere
+    oq = [(i + 1, x[0], "Yes" if x[1] else "No", x[4] if len(x) > 4 and x[4] else "Open") for i, x in enumerate(s["oq"])]
     also = f" (also covers `{s['also']}`)" if s.get("also") else ""
     return f"""# Screen Spec: {sid} {s['name']}
 

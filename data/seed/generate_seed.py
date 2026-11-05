@@ -526,24 +526,31 @@ for name, s, e, exp in [("Tết Dương lịch 2027","2027-01-01","2027-01-01",F
     add("PUBLIC_HOLIDAY", name=name, start_date=s, end_date=e, is_expected=str(exp).lower())
 
 # ------------------------------------------------------------------ M7 provincial notices, consultations
-NOT = [  # key, project, location, created, reviewed, sent, delivery, received, response, note, responded
- ("i1","ferry","trang-an","2026-09-15","thuha","2026-09-16","sent","2026-09-18","received","Tỉnh đã ghi nhận; liên hệ Ban Quản lý Tràng An trước 30 ngày.","2026-09-18"),
- ("i2","ferry","ha-long","2026-09-20","thuha","2026-09-21","sent","","","",""),
- ("i3","rice","cai-rang","2026-09-12","phuc","2026-09-13","sent","2026-09-15","info_needed","Đề nghị bổ sung lịch quay theo tuần và số lượng thuyền.","2026-09-17"),
- ("i4","sapa","mu-cang-chai","2026-09-05","phuc","2026-09-06","sent","2026-09-08","cannot_support","Mùa thu hoạch, địa phương không bố trí được hỗ trợ.","2026-09-10"),
- ("i5","lantern","hoi-an","2026-09-18","","","","","","",""),                     # drafted, not yet reviewed
- ("i6","blues","ha-long","2026-08-22","thuha","2026-08-23","bounced","","","",""),  # authority email bounced
- ("i7","signal","cai-rang","2026-09-21","","","","","","",""),                     # no first shooting day: sending blocked (M7 US-1)
- ("i8","ferry","tam-coc","2026-09-28","phuc","","queued","","","",""),              # reviewed, waiting in the e-mail queue
+# M7 BR-001 (revised 28/10/2026): the system never sends a notice; VFDA staff review the draft and the crew downloads
+# the approved letter and sends it (sent_at = first download). One notice per province per project (spec-M7 §9).
+NOT = [  # key, project, location, created, review, reviewer, review note, downloaded, recipient, received, response, note, recorded by, responded
+ ("i1","ferry","trang-an","2026-09-15","approved","thuha","","2026-09-16","peoples_committee","2026-09-18","received","Tỉnh đã ghi nhận; liên hệ Ban Quản lý Tràng An trước 30 ngày.","park","2026-09-18"),
+ ("i2","ferry","ha-long","2026-09-20","changes_requested","thuha","Add the crew size and the shooting days in Hạ Long.","","","","","","",""),
+ ("i3","rice","cai-rang","2026-09-12","approved","phuc","","2026-09-13","culture_department","2026-09-15","info_needed","Đề nghị bổ sung lịch quay theo tuần và số lượng thuyền.","phuc","2026-09-17"),
+ ("i4","sapa","mu-cang-chai","2026-09-05","approved","phuc","","2026-09-06","peoples_committee","2026-09-08","cannot_support","Mùa thu hoạch, địa phương không bố trí được hỗ trợ.","walsh","2026-09-10"),
+ ("i5","lantern","hoi-an","2026-09-18","submitted","","","","","","","","",""),          # in the VFDA review queue
+ ("i6","blues","ha-long","2026-08-22","approved","thuha","","","","","","","",""),       # approved, not yet downloaded (queued)
+ ("i7","signal","cai-rang","2026-09-21","draft","","","","","","","","",""),             # no first shooting day: review blocked (M7 US-1)
+ ("i8","ferry","tam-coc","2026-09-28","","","","","","","","","",""),                    # second Ninh Bình location: interest only, it joins notice i1
 ]
-for k, proj, loc, dr, rv, sent, dl, rec, resp, note, rd in NOT:
+for k, proj, loc, dr, rs, rv, rnote, dl, recip, rec, resp, note, rby, rd in NOT:
     add("LOCATION_INTEREST", interest_id=U("interest:" + k), project_id=PID[proj], location_id=LID[loc], created_at=TS(dr, "08:40"))
+    if not rs:
+        continue
     prov = next(p for kk, p, *_ in LOC if kk == loc)
-    email = next(a[4] for a in AC if a[0] == loc) or "vanphong@ubnd.example.vn"
+    email = next(a[4] for a in AC if a[0] == loc) or ""   # optional: the crew sends the letter (decision 06/11/2026)
     add("PROVINCE_NOTICE", interest_id=U("interest:" + k), province_id=P[prov],
         project_summary=f"{PROJ[proj][1]} — {PROJ[proj][2]}, first shooting day {PROJ[proj][4] or 'not set'}.",
-        authority_email=email, drafted_at=TS(dr, "08:41"), reviewed_by=UID[rv] if rv else "", sent_at=TS(sent, "09:00") if sent else "",
-        delivery_status=dl, received_at=TS(rec, "14:00") if rec else "", response=resp, note=note, responded_at=TS(rd, "14:05") if rd else "")
+        authority_email=email, drafted_at=TS(dr, "08:41"), review_status=rs, review_note=rnote, reviewed_by=UID[rv] if rv else "",
+        recipient=recip, sent_at=TS(dl, "09:00") if dl else "",
+        delivery_status="downloaded" if dl else ("queued" if rs == "approved" else ""),
+        received_at=TS(rec, "14:00") if rec else "", response=resp, note=note, responded_at=TS(rd, "14:05") if rd else "",
+        response_recorded_by=UID[rby] if rby else "")
 for k, member, topic, slot, tz, officer, st in [
     ("b1","park","dossier","2026-10-06T08:00:00+07:00","Asia/Seoul","phuc","confirmed"),
     ("b2","laurent","locations","2026-10-08T15:00:00+07:00","Europe/Paris","thuha","rescheduled"),
@@ -551,7 +558,8 @@ for k, member, topic, slot, tz, officer, st in [
     ("b4","tanaka","partners","2026-10-12T10:00:00+07:00","Asia/Tokyo","",""),       # not yet confirmed (status undeclared)
     ("b5","okafor","general","2026-10-13T16:00:00+07:00","Europe/London","thuha","confirmed"),
     ("b6","long","dossier","2026-10-14T09:00:00+07:00","America/Argentina/ComodRivadavia","phuc","confirmed")]:
-    add("CONSULTATION_BOOKING", booking_id=U("booking:" + k), member_id=UID[member], topic=topic, slot_start=slot,
+    add("CONSULTATION_BOOKING", booking_id=U("booking:" + k), member_id=UID[member], topic=topic,
+        preferred_times=json.dumps([slot]), slot_start=slot,
         timezone=tz, officer_id=UID[officer] if officer else "", booking_status=st)
 
 # ------------------------------------------------------------------ SYS notifications and e-mail

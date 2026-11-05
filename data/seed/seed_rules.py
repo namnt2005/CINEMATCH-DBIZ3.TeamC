@@ -173,6 +173,25 @@ def validate(S, T):
         want = readiness(T, pid)[1]
         if abs(float(r["readiness_total"]) - want) > 0.005:
             err.append(f"READINESS_SNAPSHOT {r['snapshot_date']}: {r['readiness_total']} but the formula gives {want:.2f} (M0 §9)")
+    # M7 BR-001 / D1 (specs/006-m7-support): review before download; one notice per province per project (spec-M7 §9)
+    interest = {r["interest_id"]: r for r in T["LOCATION_INTEREST"]}
+    per_province = {}
+    for r in T["PROVINCE_NOTICE"]:
+        tag = f"PROVINCE_NOTICE {r['interest_id']}"
+        if r["review_status"] == "approved" and not r["reviewed_by"]: err.append(f"{tag}: approved without a reviewer (M7 BR-001)")
+        if r["delivery_status"] == "downloaded" and (r["review_status"] != "approved" or not r["sent_at"]):
+            err.append(f"{tag}: downloaded but not approved, or no sent_at (M7 BR-001)")
+        if r["review_status"] == "changes_requested" and not r["review_note"]: err.append(f"{tag}: changes requested without a note")
+        if r["response"] and r["delivery_status"] != "downloaded": err.append(f"{tag}: a reply on a notice that was not downloaded (M7 BR-003)")
+        key = (interest[r["interest_id"]]["project_id"], r["province_id"])
+        per_province[key] = per_province.get(key, 0) + 1
+    for key, n in per_province.items():
+        if n > 1: err.append(f"PROVINCE_NOTICE: {n} notices for project {key[0]} in province {key[1]} (spec-M7 §9, one per province)")
+    # M7 BR-005 / D2: 1–3 preferred times, the first is slot_start
+    for r in T["CONSULTATION_BOOKING"]:
+        times = json.loads(r["preferred_times"] or "[]")
+        if not 1 <= len(times) <= 3 or times[0] != r["slot_start"]:
+            err.append(f"CONSULTATION_BOOKING {r['booking_id']}: preferred_times must hold 1–3 times, the first equal to slot_start (M7 BR-005)")
     # M2 BR-002 + upkeep rule of LEGAL_RULE.is_active
     for r in T["LEGAL_RULE"]:
         if r["status"] == "approved" and not (r["citation"] and r["approved_by"]):

@@ -298,7 +298,7 @@ Load test: `python3 data/schema/load_check.py` runs every schema file, then ever
 | Regenerate | `python3 data/seed/generate_seed.py && python3 data/seed/check_seed.py` (must print PASS; `git status` stays clean) |
 | Random seed | none — no randomness and no clock: keys are UUIDv5 of readable names (namespace `6f1c2a8e-3b4d-5e6f-8a9b-0c1d2e3f4a5b`), so every run is byte-identical |
 | Business-rule values | computed by the generator, never typed: attention level (M2 BR-004), quote span (M2 §6.1), latest readiness (M0 §9), is_active, published |
-| Files | 7 files of this module, 66 rows (product: 47 files, 448 rows) |
+| Files | 7 files of this module, 66 rows (product: 47 files, 447 rows) |
 
 **Rows per file and row kinds** (1 = ordinary rows in every file)
 
