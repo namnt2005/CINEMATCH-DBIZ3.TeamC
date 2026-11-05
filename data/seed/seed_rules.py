@@ -15,6 +15,9 @@ STORAGE_OPTIONAL = {("LEGAL_RULE", "approved_by"), ("LEGAL_RULE", "citation"), (
 UNUSED_ENUM_VALUES = {
     ("USER_ACCOUNT", "role", "guest"): "a guest is a visitor without an account; a new account is always member (SYS BR-002)",
     ("MODERATION_ITEM", "content_type", "showcase"): "showcase moderation waits for M8, phase 2 (M10 §9)",
+    # M7 BR-001 (06/11/2026): the crew downloads and sends the letter; kept for the day VFDA may send itself
+    ("PROVINCE_NOTICE", "delivery_status", "sent"): "used when VFDA is allowed to send notices itself (M7 BR-001, Clarifications Q1)",
+    ("PROVINCE_NOTICE", "delivery_status", "bounced"): "used when VFDA is allowed to send notices itself (M7 BR-001, Clarifications Q1)",
 }
 # M2 §9 test values for M2 BR-004 (attention level from verified findings)
 def attention_level(severities):
