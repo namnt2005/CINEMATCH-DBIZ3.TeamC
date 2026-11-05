@@ -8,7 +8,7 @@ sources: FUNCTIONS, FIELDS, ENTITIES, RULES, SCENARIOS, FLOWS, SCREENS, BOUNDARY
 
 # Logical Data Model — CINEMATCH
 
-47 tables, 317 columns. Every column is **copied** from a FIELDS row (section 5.1) or an ENTITIES attribute (section 6), with its declared type and Req / Opt flag. *system-set* = an output field (the system fills it); *not declared* = no flag in the input.
+47 tables, 322 columns. Every column is **copied** from a FIELDS row (section 5.1) or an ENTITIES attribute (section 6), with its declared type and Req / Opt flag. *system-set* = an output field (the system fills it); *not declared* = no flag in the input.
 
 **Every column has a declared type** — the types of the section 6 attributes that no 5.1 field declares come from section 6.1 of the owning Spec Document (cited as `<MODULE> §6.1`). Technical columns (`created_at`, `updated_at`) appear only where the spec declares them. The physical schema built from this model is in `data/schema/schema-<MODULE>.sql`; one readable view per module is in `data/data-model-<MODULE>.md`.
 
@@ -675,17 +675,21 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 | `interest_id` | `UUID` | Req | PK, FK → `LOCATION_INTEREST` | M7 §5.1 FR-002; M7 §6 |
 | `province_id` | `INTEGER` | Req | FK → `PROVINCE` | M7 §6 (derivable from the location — see Structural findings); M7 §6.1 |
 | `project_summary` | `TEXT` | Req |  | M7 §5.1 FR-002 |
-| `authority_email` | `VARCHAR(254)` | Req |  | M7 §5.1 FR-002 (copied from AUTHORITY_CONTACT) |
+| `authority_email` | `VARCHAR(254)` | Opt |  | M7 §5.1 FR-002 (copied from AUTHORITY_CONTACT when it has an email; optional since the crew sends the letter, decision 06/11/2026) |
 | `drafted_at` | `TIMESTAMPTZ` | Req |  | M7 §6; M7 §6.1 |
+| `review_status` | `ENUM(draft, submitted, changes_requested, approved)` | system-set |  | M7 §5.1 FR-002 (OUT); M7 §5.2 BR-001 |
+| `review_note` | `TEXT` | Opt |  | M7 §5.1 FR-002 (required when VFDA staff request changes) |
 | `reviewed_by` | `UUID` | Req | FK → `USER_ACCOUNT` | M7 §5.1 FR-002 |
+| `recipient` | `ENUM(peoples_committee, culture_department)` | Opt |  | M7 §5.1 FR-002 (chosen at the first download); Clarifications Q2 |
 | `sent_at` | `TIMESTAMPTZ` | Opt |  | M7 §6; M7 §6.1 |
-| `delivery_status` | `ENUM(queued, sent, bounced)` | system-set |  | M7 §5.1 FR-002 (OUT) |
+| `delivery_status` | `ENUM(queued, downloaded, sent, bounced)` | system-set |  | M7 §5.1 FR-002 (OUT; records the download, BR-001) |
 | `received_at` | `TIMESTAMPTZ` | Opt |  | M7 §6; M7 §6.1 |
 | `response` | `ENUM(received, info_needed, cannot_support)` | Req |  | M7 §5.1 FR-003; M7 §5.2 BR-003 |
 | `note` | `TEXT` | Opt |  | M7 §5.1 FR-003 |
 | `responded_at` | `TIMESTAMPTZ` | system-set |  | M7 §5.1 FR-003 (OUT) |
+| `response_recorded_by` | `UUID` | system-set | FK → `USER_ACCOUNT` | M7 §5.1 FR-003 (OUT; the member or VFDA staff who entered the reply) |
 
-**Natural key:** interest_id (one notice per interest).
+**Natural key:** interest_id; at most one notice per project and province (spec-M7 §9, seed rule).
 
 ## CONSULTATION_BOOKING
 
@@ -696,6 +700,7 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 | `booking_id` | `UUID` | system-set | PK | M7 §5.1 FR-005 (OUT) |
 | `member_id` | `UUID` | Req | FK → `USER_ACCOUNT` | M7 §6; M7 §6.1 |
 | `topic` | `ENUM(dossier, locations, partners, provincial_notice, general)` | Req |  | M7 §5.1 FR-005 |
+| `preferred_times` | `JSONB` | Req |  | M7 §5.1 FR-005 (1–3 start times in UTC; BR-005) |
 | `slot_start` | `TIMESTAMPTZ` | Req |  | M7 §5.1 FR-005 |
 | `timezone` | `VARCHAR(40)` | Req |  | M7 §5.1 FR-005 (IANA) |
 | `officer_id` | `UUID` | Req | FK → `USER_ACCOUNT` | M7 §5.1 FR-006 |
@@ -789,7 +794,7 @@ Reported only — nothing was fixed in the model.
 | (i) freeze | QUARTERLY_REPORT.demand_index ← DEMAND_INDEX | Settled: the report keeps the indicators it was drafted from (M10 FR-007), so a reread report does not change when platform data changes. | — |
 | (i) freeze | MODERATION_ITEM → submitted content | The last approved text stays public while the new one waits (M10 BR-001), but no column holds the waiting version. | OQ-04-20 |
 | (i) freeze | COLLAB_REQUEST → ORGANISATION verified badge | Settled: the request continues if the badge expires (M4 §3 Edge cases). | — |
-| (ii) delete | USER_ACCOUNT (in 19 relationships) | Settled by SYS BR-005: never hard-deleted. Deleting an account sets `account_status = deactivated` at once and replaces name and email with anonymous values within 30 days; projects, uploads, access logs and approvals stay and show *Former member*. | OQ-04-6 (resolved) |
+| (ii) delete | USER_ACCOUNT (in 20 relationships) | Settled by SYS BR-005: never hard-deleted. Deleting an account sets `account_status = deactivated` at once and replaces name and email with anonymous values within 30 days; projects, uploads, access logs and approvals stay and show *Former member*. | OQ-04-6 (resolved) |
 | (ii) delete | PROJECT (in 14 relationships) | Settled by M0 BR-005: archived, never deleted (`stage = archived`); read-only, leaves the project list, keeps documents, requests and notices. | OQ-04-7 (resolved) |
 | (ii) delete | LOCATION (shortlists, interests, notices) | Settled by M3 BR-008: unpublished, never deleted (`intake_status = unpublished`); shortlists and notices keep it and show *No longer published*. | OQ-04-8 (resolved) |
 | (ii) delete | ORGANISATION (requests, proofread paragraphs, moderation items) | Settled by M4 BR-008: deactivated, never deleted (`org_status = deactivated`); open requests are closed as `withdrawn` and the producer is notified; the access log is kept. | OQ-04-9 (resolved) |
@@ -879,6 +884,7 @@ erDiagram
     LOCATION_INTEREST ||--|| PROVINCE_NOTICE : "is announced by"
     PROVINCE ||..o{ PROVINCE_NOTICE : "is addressed by"
     USER_ACCOUNT |o..o{ PROVINCE_NOTICE : "reviews"
+    USER_ACCOUNT |o..o{ PROVINCE_NOTICE : "records the reply of"
     USER_ACCOUNT ||..o{ CONSULTATION_BOOKING : "books"
     USER_ACCOUNT |o..o{ CONSULTATION_BOOKING : "is assigned"
     ORGANISATION |o..o{ MODERATION_ITEM : "is reviewed through"
@@ -1252,20 +1258,25 @@ erDiagram
         uuid interest_id PK,FK "M7 s5.1 FR-002; M7 s6"
         int province_id FK "M7 s6 (derivable from the location - see Structural findings); M7 s6.1"
         string project_summary "M7 s5.1 FR-002"
-        string authority_email "M7 s5.1 FR-002 (copied from AUTHORITY_CONTACT)"
+        string authority_email "M7 s5.1 FR-002 (copied from AUTHORITY_CONTACT when it has an email; optional since the crew sends the letter, decision 06/11/2026)"
         datetime drafted_at "M7 s6; M7 s6.1"
+        enum review_status "M7 s5.1 FR-002 (OUT); M7 s5.2 BR-001"
+        string review_note "M7 s5.1 FR-002 (required when VFDA staff request changes)"
         uuid reviewed_by FK "M7 s5.1 FR-002"
+        enum recipient "M7 s5.1 FR-002 (chosen at the first download); Clarifications Q2"
         datetime sent_at "M7 s6; M7 s6.1"
-        enum delivery_status "M7 s5.1 FR-002 (OUT)"
+        enum delivery_status "M7 s5.1 FR-002 (OUT; records the download, BR-001)"
         datetime received_at "M7 s6; M7 s6.1"
         enum response "M7 s5.1 FR-003; M7 s5.2 BR-003"
         string note "M7 s5.1 FR-003"
         datetime responded_at "M7 s5.1 FR-003 (OUT)"
+        uuid response_recorded_by FK "M7 s5.1 FR-003 (OUT; the member or VFDA staff who entered the reply)"
     }
     CONSULTATION_BOOKING {
         uuid booking_id PK "M7 s5.1 FR-005 (OUT)"
         uuid member_id FK "M7 s6; M7 s6.1"
         enum topic "M7 s5.1 FR-005"
+        string preferred_times "declared JSONB - M7 s5.1 FR-005 (1–3 start times in UTC; BR-005)"
         datetime slot_start "M7 s5.1 FR-005"
         string timezone "M7 s5.1 FR-005 (IANA)"
         uuid officer_id FK "M7 s5.1 FR-006"

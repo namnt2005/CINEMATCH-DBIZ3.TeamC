@@ -48,7 +48,7 @@ CITATION SCHEME = <MODULE> §<section> <ID>
 | Entity | Definition (one sentence) | Kind | Owner | Source | Table | Seed file (rows) |
 |---|---|---|---|---|---|---|
 | `LOCATION_INTEREST` | A member's statement that a project is interested in a location. | EVENT | M7 | spec §6 — M7 §6; M7 §5.1 FR-001 | `location_interest` | `42_location_interest.csv` (8) |
-| `PROVINCE_NOTICE` | The notice VFDA sends a province about a project's interest, and the province's reply. | EVENT | M7 | spec §6 — M7 §6; M7 §5.1 FR-002, FR-003 | `province_notice` | `43_province_notice.csv` (8) |
+| `PROVINCE_NOTICE` | The notice VFDA sends a province about a project's interest, and the province's reply. | EVENT | M7 | spec §6 — M7 §6; M7 §5.1 FR-002, FR-003 | `province_notice` | `43_province_notice.csv` (7) |
 | `CONSULTATION_BOOKING` | A member's booked consultation slot with a VFDA officer. | EVENT | M7 | spec §6 — M7 §6; M7 §5.1 FR-005 | `consultation_booking` | `44_consultation_booking.csv` (6) |
 
 **Entities of other modules referenced here** (drawn without attributes in §5): `LOCATION` (M3), `PROJECT` (M0), `PROVINCE` (M3), `USER_ACCOUNT` (SYS).
@@ -75,17 +75,21 @@ Every attribute traces to a §5.1 field, a §6.1 declared type, a key, or a deli
 | `interest_id` | `UUID` | Req | PK, FK → `LOCATION_INTEREST` | §5.1 field | M7 §5.1 FR-002; M7 §6 |
 | `province_id` | `INTEGER` | Req | FK → `PROVINCE` | §6.1 declared type | M7 §6 (derivable from the location — see Structural findings); M7 §6.1 |
 | `project_summary` | `TEXT` | Req |  | §5.1 field | M7 §5.1 FR-002 |
-| `authority_email` | `VARCHAR(254)` | Req |  | §5.1 field | M7 §5.1 FR-002 (copied from AUTHORITY_CONTACT) |
+| `authority_email` | `VARCHAR(254)` | Opt |  | §5.1 field | M7 §5.1 FR-002 (copied from AUTHORITY_CONTACT when it has an email; optional since the crew sends the letter, decision 06/11/2026) |
 | `drafted_at` | `TIMESTAMPTZ` | Req |  | §6.1 declared type | M7 §6; M7 §6.1 |
+| `review_status` | `ENUM(draft, submitted, changes_requested, approved)` | system-set |  | §5.1 field | M7 §5.1 FR-002 (OUT); M7 §5.2 BR-001 |
+| `review_note` | `TEXT` | Opt |  | §5.1 field | M7 §5.1 FR-002 (required when VFDA staff request changes) |
 | `reviewed_by` | `UUID` | Req | FK → `USER_ACCOUNT` | §5.1 field | M7 §5.1 FR-002 |
+| `recipient` | `ENUM(peoples_committee, culture_department)` | Opt |  | §5.1 field | M7 §5.1 FR-002 (chosen at the first download); Clarifications Q2 |
 | `sent_at` | `TIMESTAMPTZ` | Opt |  | §6.1 declared type | M7 §6; M7 §6.1 |
-| `delivery_status` | `ENUM(queued, sent, bounced)` | system-set |  | §5.1 field | M7 §5.1 FR-002 (OUT) |
+| `delivery_status` | `ENUM(queued, downloaded, sent, bounced)` | system-set |  | §5.1 field | M7 §5.1 FR-002 (OUT; records the download, BR-001) |
 | `received_at` | `TIMESTAMPTZ` | Opt |  | §6.1 declared type | M7 §6; M7 §6.1 |
 | `response` | `ENUM(received, info_needed, cannot_support)` | Req |  | §5.1 field | M7 §5.1 FR-003; M7 §5.2 BR-003 |
 | `note` | `TEXT` | Opt |  | §5.1 field | M7 §5.1 FR-003 |
 | `responded_at` | `TIMESTAMPTZ` | system-set |  | §5.1 field | M7 §5.1 FR-003 (OUT) |
+| `response_recorded_by` | `UUID` | system-set | FK → `USER_ACCOUNT` | §5.1 field | M7 §5.1 FR-003 (OUT; the member or VFDA staff who entered the reply) |
 
-**Natural key:** interest_id (one notice per interest).
+**Natural key:** interest_id; at most one notice per project and province (spec-M7 §9, seed rule).
 
 ### CONSULTATION_BOOKING
 
@@ -94,6 +98,7 @@ Every attribute traces to a §5.1 field, a §6.1 declared type, a key, or a deli
 | `booking_id` | `UUID` | system-set | PK | §5.1 field | M7 §5.1 FR-005 (OUT) |
 | `member_id` | `UUID` | Req | FK → `USER_ACCOUNT` | §6.1 declared type | M7 §6; M7 §6.1 |
 | `topic` | `ENUM(dossier, locations, partners, provincial_notice, general)` | Req |  | §5.1 field | M7 §5.1 FR-005 |
+| `preferred_times` | `JSONB` | Req |  | §5.1 field | M7 §5.1 FR-005 (1–3 start times in UTC; BR-005) |
 | `slot_start` | `TIMESTAMPTZ` | Req |  | §5.1 field | M7 §5.1 FR-005 |
 | `timezone` | `VARCHAR(40)` | Req |  | §5.1 field | M7 §5.1 FR-005 (IANA) |
 | `officer_id` | `UUID` | Req | FK → `USER_ACCOUNT` | §5.1 field | M7 §5.1 FR-006 |
@@ -112,6 +117,7 @@ Each relationship is read in both directions; the citation is the spec line it c
 | `LOCATION_INTEREST` \|\|--\|\| `PROVINCE_NOTICE` | Each location interest is announced by exactly one province notice | Each province notice announces exactly one location interest | neither | identifying (`--`) | M7 §6 ("belongs to LocationInterest"); M7 §3 US-1 ("a notice ... is drafted" when interest is saved) |
 | `PROVINCE` \|\|..o{ `PROVINCE_NOTICE` | Each province is addressed by zero or more province notices | Each province notice is addressed to exactly one province | PROVINCE_NOTICE side | non-identifying (`..`) | M7 §6 (province_id) |
 | `USER_ACCOUNT` \|o..o{ `PROVINCE_NOTICE` | Each user account reviews zero or more province notices | Each province notice is reviewed by zero or one user account | both sides | non-identifying (`..`) | M7 §6 (reviewed_by); M7 §3 US-1 (notice drafted before review) |
+| `USER_ACCOUNT` \|o..o{ `PROVINCE_NOTICE` | Each user account records the reply of zero or more province notices | Each province notice has its reply recorded by zero or one user account | both sides | non-identifying (`..`) | M7 §5.1 FR-003 (response_recorded_by); M7 §3 US-2 |
 | `USER_ACCOUNT` \|\|..o{ `CONSULTATION_BOOKING` | Each user account books zero or more consultations | Each consultation is booked by exactly one user account | CONSULTATION_BOOKING side | non-identifying (`..`) | M7 §6 (member_id; "belongs to UserAccount") |
 | `USER_ACCOUNT` \|o..o{ `CONSULTATION_BOOKING` | Each user account is assigned zero or more consultations as officer | Each consultation is assigned to zero or one officer | both sides | non-identifying (`..`) | M7 §6 (officer_id); M7 §5.1 FR-006 (officer assigned after booking) |
 
@@ -126,6 +132,7 @@ erDiagram
     LOCATION_INTEREST ||--|| PROVINCE_NOTICE : "is announced by"
     PROVINCE ||..o{ PROVINCE_NOTICE : "is addressed by"
     USER_ACCOUNT |o..o{ PROVINCE_NOTICE : "reviews"
+    USER_ACCOUNT |o..o{ PROVINCE_NOTICE : "records the reply of"
     USER_ACCOUNT ||..o{ CONSULTATION_BOOKING : "books"
     USER_ACCOUNT |o..o{ CONSULTATION_BOOKING : "is assigned"
     LOCATION_INTEREST {
@@ -140,18 +147,23 @@ erDiagram
         string project_summary
         string authority_email
         datetime drafted_at
+        enum review_status
+        string review_note
         uuid reviewed_by FK
+        enum recipient
         datetime sent_at
         enum delivery_status
         datetime received_at
         enum response
         string note
         datetime responded_at
+        uuid response_recorded_by FK
     }
     CONSULTATION_BOOKING {
         uuid booking_id PK
         uuid member_id FK
         enum topic
+        string preferred_times
         datetime slot_start
         string timezone
         uuid officer_id FK
@@ -167,9 +179,9 @@ Renders with mermaid-cli: **yes**.
 |---|---|---|---|---|
 | Entities owned and stored (catalogue §2) | 3 | entity blocks in the ERD (§5) | 3 | ✓ |
 | Entities owned and stored (catalogue §2) | 3 | tables in `schema-M7.sql` | 3 | ✓ |
-| Attributes (§3) | 23 | columns in `schema-M7.sql` | 23 | ✓ |
-| Relationships with the child in this module (§4) | 7 | FOREIGN KEY constraints in `schema-M7.sql` | 7 | ✓ |
-| Relationships touching this module (§4) | 7 | relationship lines in the ERD (§5) | 7 | ✓ |
+| Attributes (§3) | 28 | columns in `schema-M7.sql` | 28 | ✓ |
+| Relationships with the child in this module (§4) | 8 | FOREIGN KEY constraints in `schema-M7.sql` | 8 | ✓ |
+| Relationships touching this module (§4) | 8 | relationship lines in the ERD (§5) | 8 | ✓ |
 | Seed files of this module (§9) | 3 | tables in `schema-M7.sql` | 3 | ✓ |
 
 ## 6. Normalization check (mandatory)
@@ -194,15 +206,15 @@ Renders with mermaid-cli: **yes**.
 
 | Rule | Statement | Enforced in | Named object | Seed rows that show it |
 |---|---|---|---|---|
-| BR-001 | The system never sends a notice. It drafts the notice; a VFDA staff member reviews it (SC-32); only the approved version can be downloaded, and the producer sends it to the recipient they choose (Clarifications Q1–Q3, 28/10/2026). | SCHEMA + APP | `reviewed_by` on PROVINCE_NOTICE; sending only from the VFDA domain | `43_province_notice.csv` — sent · received; sent · cannot_support (+2) — sent after a VFDA review |
-| BR-002 | Every notice states that it does not replace the filming licence from the Ministry of Culture, Sports and Tourism. | NOT DATA | fixed sentence in the notice template | `43_province_notice.csv` — sent · received; sent · cannot_support (+2) — every sent notice uses the template |
-| BR-003 | The province's reply is one of three final values; the free-text note is kept as entered. | SCHEMA | `ck_province_notice_response` (received, info_needed, cannot_support) | `43_province_notice.csv` — sent · cannot_support — a *cannot support* reply |
-| BR-004 | Reply times feed the provincial readiness index (M3). | VIEW (Plan step) | `v_province_readiness` reads responded_at − sent_at | `43_province_notice.csv` — sent · received — a reply with its time |
-| BR-005 | In the MVP, SC-33 is a consultation request, not a slot calendar: the member sends topic and preferred times, and VFDA staff reply with a proposed time by email (Clarifications Q5, 28/10/2026). A slot calendar is offered only after VFDA declares its staffed hours. | APP (Plan step) | configuration flag *booking open* set by VFDA; no stored entity | `44_consultation_booking.csv` — general · confirmed · Europe/London; locations · rescheduled · Europe/Paris (+4) — bookings exist only once VFDA has declared its hours |
+| BR-001 | The system never sends a notice. It drafts the notice; a VFDA staff member reviews it (SC-32); only the approved version can be downloaded, and the producer sends it to the recipient they choose (Clarifications Q1–Q3, 28/10/2026). | SCHEMA + APP | `review_status`, `reviewed_by` on PROVINCE_NOTICE; `app_review_notice` (staff, audit row) and `app_mark_notice_downloaded` (approved only); no sending path | `43_province_notice.csv` — downloaded · received; downloaded · cannot_support (+1) — approved by VFDA staff, then downloaded by the crew<br>`43_province_notice.csv` — 64f1fa54 — waiting in the VFDA review queue |
+| BR-002 | Every notice states that it does not replace the filming licence from the Ministry of Culture, Sports and Tourism. Draft wording, **pending approval by the VFDA Legal Board**: *Thư này không thay thế giấy phép quay phim do Bộ Văn hóa, Thể thao và Du lịch cấp.* / *This letter does not replace the filming licence issued by the Ministry of Culture, Sports and Tourism.* | NOT DATA | fixed sentence in the notice template (`lib/notices/letter.js`) | `43_province_notice.csv` — downloaded · received; downloaded · cannot_support (+1) — every downloaded letter carries the sentence |
+| BR-003 | The province's reply is one of three final values; the free-text note is kept as entered. | SCHEMA | `ck_province_notice_response` (received, info_needed, cannot_support) | `43_province_notice.csv` — downloaded · cannot_support — a *cannot support* reply |
+| BR-004 | Reply times feed the provincial readiness index (M3). | VIEW (Plan step) | `v_province_readiness` reads responded_at − sent_at | `43_province_notice.csv` — downloaded · received — a reply with its time |
+| BR-005 | In the MVP, SC-33 is a consultation request, not a slot calendar: the member sends topic and preferred times, and VFDA staff reply with a proposed time by email (Clarifications Q5, 28/10/2026). A slot calendar is offered only after VFDA declares its staffed hours. | APP | SC-33 request form (`app_request_consultation`, email to VFDA); no slot calendar | `44_consultation_booking.csv` — general · confirmed · Europe/London; locations · rescheduled · Europe/Paris (+4) — requests with 1–3 preferred times; VFDA replies by email |
 
 ## 8. Schema (mandatory)
 
-`data/schema/schema-M7.sql` — 3 tables in load order: `location_interest`, `province_notice`, `consultation_booking`; 7 foreign keys; 4 CHECK constraints. Portable SQL (SQLite 3 and PostgreSQL 14+).
+`data/schema/schema-M7.sql` — 3 tables in load order: `location_interest`, `province_notice`, `consultation_booking`; 8 foreign keys; 6 CHECK constraints. Portable SQL (SQLite 3 and PostgreSQL 14+).
 
 Load test: `python3 data/schema/load_check.py` runs every schema file, then every seed file in filename order with foreign keys on — **PASS** (also on PostgreSQL 16 with `--postgres`).
 
@@ -214,14 +226,14 @@ Load test: `python3 data/schema/load_check.py` runs every schema file, then ever
 | Regenerate | `python3 data/seed/generate_seed.py && python3 data/seed/check_seed.py` (must print PASS; `git status` stays clean) |
 | Random seed | none — no randomness and no clock: keys are UUIDv5 of readable names (namespace `6f1c2a8e-3b4d-5e6f-8a9b-0c1d2e3f4a5b`), so every run is byte-identical |
 | Business-rule values | computed by the generator, never typed: attention level (M2 BR-004), quote span (M2 §6.1), latest readiness (M0 §9), is_active, published |
-| Files | 3 files of this module, 22 rows (product: 47 files, 448 rows) |
+| Files | 3 files of this module, 21 rows (product: 47 files, 447 rows) |
 
 **Rows per file and row kinds** (1 = ordinary rows in every file)
 
 | File | Rows | (2) Boundary | (3) Empty case | (4) Exceptional state |
 |---|---|---|---|---|
 | `42_location_interest.csv` | 8 | — | `Monsoon Signal`: no first shooting day | — (see notices) |
-| `43_province_notice.csv` | 8 | — | `i5`, `i7`: drafted, not reviewed | `bounced`; `cannot_support`; `i8`: reviewed, `queued` |
+| `43_province_notice.csv` | 7 | — | `i5`, `i7`: drafted, not reviewed | `bounced`; `cannot_support`; `i8`: reviewed, `queued` |
 | `44_consultation_booking.csv` | 6 | time zone `America/Argentina/ComodRivadavia` | `b4`: no officer yet | `rescheduled` |
 
 ## 10. Edge case register (mandatory)
@@ -232,12 +244,19 @@ Computed from the seed files. (a) every enumerated value has a row; (b) empty st
 
 | Column | Value | Seed rows |
 |---|---|---|
+| `PROVINCE_NOTICE.review_status` | `draft` | 1 row(s), e.g.  |
+| `PROVINCE_NOTICE.review_status` | `submitted` | 1 row(s), e.g.  |
+| `PROVINCE_NOTICE.review_status` | `changes_requested` | 1 row(s), e.g.  |
+| `PROVINCE_NOTICE.review_status` | `approved` | 4 row(s), e.g. downloaded · received |
+| `PROVINCE_NOTICE.recipient` | `peoples_committee` | 2 row(s), e.g. downloaded · received |
+| `PROVINCE_NOTICE.recipient` | `culture_department` | 1 row(s), e.g. downloaded · info_needed |
 | `PROVINCE_NOTICE.delivery_status` | `queued` | 1 row(s), e.g. queued |
-| `PROVINCE_NOTICE.delivery_status` | `sent` | 4 row(s), e.g. sent · received |
-| `PROVINCE_NOTICE.delivery_status` | `bounced` | 1 row(s), e.g. bounced |
-| `PROVINCE_NOTICE.response` | `received` | 1 row(s), e.g. sent · received |
-| `PROVINCE_NOTICE.response` | `info_needed` | 1 row(s), e.g. sent · info_needed |
-| `PROVINCE_NOTICE.response` | `cannot_support` | 1 row(s), e.g. sent · cannot_support |
+| `PROVINCE_NOTICE.delivery_status` | `downloaded` | 3 row(s), e.g. downloaded · received |
+| `PROVINCE_NOTICE.delivery_status` | `sent` | not used — ? |
+| `PROVINCE_NOTICE.delivery_status` | `bounced` | not used — ? |
+| `PROVINCE_NOTICE.response` | `received` | 1 row(s), e.g. downloaded · received |
+| `PROVINCE_NOTICE.response` | `info_needed` | 1 row(s), e.g. downloaded · info_needed |
+| `PROVINCE_NOTICE.response` | `cannot_support` | 1 row(s), e.g. downloaded · cannot_support |
 | `CONSULTATION_BOOKING.topic` | `dossier` | 2 row(s), e.g. dossier · confirmed · America/Argentina/ComodRivadav |
 | `CONSULTATION_BOOKING.topic` | `locations` | 1 row(s), e.g. locations · rescheduled · Europe/Paris |
 | `CONSULTATION_BOOKING.topic` | `partners` | 1 row(s), e.g. partners · Asia/Tokyo |

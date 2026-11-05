@@ -61,6 +61,7 @@
 %% LOCATION_INTEREST PROVINCE_NOTICE | Each location interest is announced by exactly one province notice | Each province notice announces exactly one location interest | neither | M7 §6 ("belongs to LocationInterest"); M7 §3 US-1 ("a notice ... is drafted" when interest is saved)
 %% PROVINCE PROVINCE_NOTICE | Each province is addressed by zero or more province notices | Each province notice is addressed to exactly one province | PROVINCE_NOTICE side | M7 §6 (province_id)
 %% USER_ACCOUNT PROVINCE_NOTICE | Each user account reviews zero or more province notices | Each province notice is reviewed by zero or one user account | both sides | M7 §6 (reviewed_by); M7 §3 US-1 (notice drafted before review)
+%% USER_ACCOUNT PROVINCE_NOTICE | Each user account records the reply of zero or more province notices | Each province notice has its reply recorded by zero or one user account | both sides | M7 §5.1 FR-003 (response_recorded_by); M7 §3 US-2
 %% USER_ACCOUNT CONSULTATION_BOOKING | Each user account books zero or more consultations | Each consultation is booked by exactly one user account | CONSULTATION_BOOKING side | M7 §6 (member_id; "belongs to UserAccount")
 %% USER_ACCOUNT CONSULTATION_BOOKING | Each user account is assigned zero or more consultations as officer | Each consultation is assigned to zero or one officer | both sides | M7 §6 (officer_id); M7 §5.1 FR-006 (officer assigned after booking)
 %% ORGANISATION MODERATION_ITEM | Each organisation is reviewed through zero or more moderation items | Each moderation item concerns zero or one organisation (exactly one of organisation or location image) | both sides | M10 §6 ("refers to Organisation or LocationImage"); M10 §3 US-1 (content type org_profile)
@@ -136,6 +137,7 @@ erDiagram
     LOCATION_INTEREST ||--|| PROVINCE_NOTICE : "is announced by"
     PROVINCE ||..o{ PROVINCE_NOTICE : "is addressed by"
     USER_ACCOUNT |o..o{ PROVINCE_NOTICE : "reviews"
+    USER_ACCOUNT |o..o{ PROVINCE_NOTICE : "records the reply of"
     USER_ACCOUNT ||..o{ CONSULTATION_BOOKING : "books"
     USER_ACCOUNT |o..o{ CONSULTATION_BOOKING : "is assigned"
     ORGANISATION |o..o{ MODERATION_ITEM : "is reviewed through"

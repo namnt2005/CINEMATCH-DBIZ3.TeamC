@@ -155,6 +155,7 @@ Each relationship is read in both directions; the citation is the spec line it c
 | `USER_ACCOUNT` \|\|..o{ `DOCUMENT` | Each user account uploads zero or more documents | Each document is uploaded by exactly one user account | DOCUMENT side | non-identifying (`..`) | M5 §6 (uploaded_by) |
 | `USER_ACCOUNT` \|o..o{ `BILINGUAL_PARAGRAPH` | Each user account proofreads zero or more paragraphs | Each paragraph is proofread by zero or one user account | both sides | non-identifying (`..`) | M5 §6 (reviewed_by); M5 §3 US-2 ("not proofread") |
 | `USER_ACCOUNT` \|o..o{ `PROVINCE_NOTICE` | Each user account reviews zero or more province notices | Each province notice is reviewed by zero or one user account | both sides | non-identifying (`..`) | M7 §6 (reviewed_by); M7 §3 US-1 (notice drafted before review) |
+| `USER_ACCOUNT` \|o..o{ `PROVINCE_NOTICE` | Each user account records the reply of zero or more province notices | Each province notice has its reply recorded by zero or one user account | both sides | non-identifying (`..`) | M7 §5.1 FR-003 (response_recorded_by); M7 §3 US-2 |
 | `USER_ACCOUNT` \|\|..o{ `CONSULTATION_BOOKING` | Each user account books zero or more consultations | Each consultation is booked by exactly one user account | CONSULTATION_BOOKING side | non-identifying (`..`) | M7 §6 (member_id; "belongs to UserAccount") |
 | `USER_ACCOUNT` \|o..o{ `CONSULTATION_BOOKING` | Each user account is assigned zero or more consultations as officer | Each consultation is assigned to zero or one officer | both sides | non-identifying (`..`) | M7 §6 (officer_id); M7 §5.1 FR-006 (officer assigned after booking) |
 | `USER_ACCOUNT` \|\|..o{ `MODERATION_ITEM` | Each user account submits zero or more moderation items | Each moderation item is submitted by exactly one user account | MODERATION_ITEM side | non-identifying (`..`) | M10 §5.1 FR-001 (OUT submitted_by UUID) |
@@ -184,6 +185,7 @@ erDiagram
     USER_ACCOUNT ||..o{ DOCUMENT : "uploads"
     USER_ACCOUNT |o..o{ BILINGUAL_PARAGRAPH : "proofreads"
     USER_ACCOUNT |o..o{ PROVINCE_NOTICE : "reviews"
+    USER_ACCOUNT |o..o{ PROVINCE_NOTICE : "records the reply of"
     USER_ACCOUNT ||..o{ CONSULTATION_BOOKING : "books"
     USER_ACCOUNT |o..o{ CONSULTATION_BOOKING : "is assigned"
     USER_ACCOUNT ||..o{ MODERATION_ITEM : "submits"
@@ -245,7 +247,7 @@ Renders with mermaid-cli: **yes**.
 | Entities owned and stored (catalogue §2) | 6 | tables in `schema-SYS.sql` | 6 | ✓ |
 | Attributes (§3) | 31 | columns in `schema-SYS.sql` | 31 | ✓ |
 | Relationships with the child in this module (§4) | 5 | FOREIGN KEY constraints in `schema-SYS.sql` | 5 | ✓ |
-| Relationships touching this module (§4) | 22 | relationship lines in the ERD (§5) | 22 | ✓ |
+| Relationships touching this module (§4) | 23 | relationship lines in the ERD (§5) | 23 | ✓ |
 | Seed files of this module (§9) | 6 | tables in `schema-SYS.sql` | 6 | ✓ |
 
 ## 6. Normalization check (mandatory)
@@ -290,7 +292,7 @@ Load test: `python3 data/schema/load_check.py` runs every schema file, then ever
 | Regenerate | `python3 data/seed/generate_seed.py && python3 data/seed/check_seed.py` (must print PASS; `git status` stays clean) |
 | Random seed | none — no randomness and no clock: keys are UUIDv5 of readable names (namespace `6f1c2a8e-3b4d-5e6f-8a9b-0c1d2e3f4a5b`), so every run is byte-identical |
 | Business-rule values | computed by the generator, never typed: attention level (M2 BR-004), quote span (M2 §6.1), latest readiness (M0 §9), is_active, published |
-| Files | 6 files of this module, 73 rows (product: 47 files, 448 rows) |
+| Files | 6 files of this module, 73 rows (product: 47 files, 447 rows) |
 
 **Rows per file and row kinds** (1 = ordinary rows in every file)
 
@@ -348,6 +350,7 @@ Computed from the seed files. (a) every enumerated value has a row; (b) empty st
 | `USER_ACCOUNT` with no `DOCUMENT` (uploads) | 12 row(s), e.g. tuan.huynh@mekongframe.example · partner · active |
 | `USER_ACCOUNT` with no `BILINGUAL_PARAGRAPH` (proofreads) | 14 row(s), e.g. yui.tanaka@sakuralane.example. · member · active |
 | `USER_ACCOUNT` with no `PROVINCE_NOTICE` (reviews) | 14 row(s), e.g. yui.tanaka@sakuralane.example. · member · active |
+| `USER_ACCOUNT` with no `PROVINCE_NOTICE` (records the reply of) | 14 row(s), e.g. yui.tanaka@sakuralane.example. · member · active |
 | `USER_ACCOUNT` with no `CONSULTATION_BOOKING` (books) | 10 row(s), e.g. tuan.huynh@mekongframe.example · partner · active |
 | `USER_ACCOUNT` with no `CONSULTATION_BOOKING` (is assigned) | 10 row(s), e.g. tuan.huynh@mekongframe.example · partner · active |
 | `USER_ACCOUNT` with no `MODERATION_ITEM` (submits) | 15 row(s), e.g. yui.tanaka@sakuralane.example. · member · active |

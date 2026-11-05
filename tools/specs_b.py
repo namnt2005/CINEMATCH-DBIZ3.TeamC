@@ -541,93 +541,94 @@ MODULES.append(dict(
 MODULES.append(dict(
  id="M7", name="VFDA support — provincial notices and consultations",
  source="Function List rows 89–95 (F-M7-01 .. F-M7-07); Use Case UC-22, UC-23; Screens SC-32, SC-33",
- purpose="This module lets a producer tell the provinces where they plan to shoot, through VFDA, and see each province's reply; it also lets them book a consultation with VFDA staff. "
+ purpose="This module lets a producer tell the provinces where they plan to shoot, with a letter reviewed by VFDA, and see each province's reply; it also lets them send VFDA a consultation request. "
          "It turns VFDA's relationships with local governments into something a foreign producer can use.",
  in_scope=["Registering interest in a location, generating the provincial notice, recording the province's reply, tracking status.",
-           "Booking, confirming and reminding VFDA consultations."],
+           "Sending VFDA a consultation request (topic, preferred times, time zone); VFDA replies by email (BR-005)."],
  out_scope=["The filming licence itself (issued by the Ministry of Culture, Sports and Tourism).",
             "Negotiating with a province on the producer's behalf beyond the notice."],
  depends=["M3 (location, authority contact)", "M0 (project data)", "M4 (confirmed partner shown in the notice)", "SYS (email, notifications)"],
- actors=[("Member", "Primary — registers interest, follows replies, books consultations", "Function List (F-M7-01, 04, 05)"),
-         ("Provincial People's Committee / Department of Culture", "Secondary — replies to the notice", "Function List (F-M7-03)"),
-         ("VFDA staff", "Secondary — reviews and sends notices, confirms consultations", "Function List (F-M7-06)"),
-         ("System", "Generates notices and reminders", "Function List (F-M7-02, 07)")],
+ actors=[("Member", "Primary — registers interest, downloads and sends the approved notice, records replies, sends consultation requests", "Function List (F-M7-01, 03, 04, 05)"),
+         ("Provincial People's Committee / Department of Culture", "Secondary — replies to the letter the crew sent; the reply is recorded by the member or VFDA staff", "Function List (F-M7-03)"),
+         ("VFDA staff", "Secondary — reviews notices, may record replies, answers consultation requests by email", "Function List (F-M7-02, 03, 06)"),
+         ("System", "Drafts notices from project data", "Function List (F-M7-02)")],
  stories=[
   dict(id="US-1", p="P2", title="Let the province know we are coming",
-       journey="As a producer, I want the province to be told about my shoot through VFDA, so that local officials are prepared and I am not a surprise.",
+       journey="As a producer, I want to tell the province about my shoot with a letter VFDA has reviewed, so that local officials are prepared and I am not a surprise.",
        acc=["**Given** a member clicks *I'm interested* on Tràng An for project The Last Ferry, **When** it is saved, **Then** a notice for Ninh Bình is drafted from the project data and appears on the Provinces page at step 1.",
-            "**Given** a notice missing the first shooting day, **When** the member tries to send it, **Then** sending is disabled with *A first shooting day is needed before notifying*."]),
+            "**Given** a notice missing the first shooting day, **When** the member tries to ask VFDA to review it, **Then** this is disabled with *A first shooting day is needed before notifying*."]),
   dict(id="US-2", p="P2", title="See the province's reply",
        journey="As a producer, I want to see each province's reply and what to do next, so that I can plan meetings with the right local office.",
-       acc=["**Given** the province replies *More info needed* with a note, **When** VFDA records it, **Then** the producer gets a notification and the card shows the status, the date and the note."]),
-  dict(id="US-3", p="P3", title="Book time with VFDA",
-       journey="As a producer abroad, I want to book a call with VFDA in my own time zone, so that a real person can answer what the tools cannot.",
-       acc=["**Given** a producer in Seoul picks a slot, **When** VFDA confirms, **Then** both receive the time in their own time zone and a reminder 24 hours before."]),
+       acc=["**Given** the province replies *More info needed* with a note, **When** the member or VFDA staff record it, **Then** the card shows the status, the date and the note, and the producer gets a notification when VFDA staff recorded it."]),
+  dict(id="US-3", p="P3", title="Ask VFDA for a consultation",
+       journey="As a producer abroad, I want to ask VFDA for a call at times that suit me in my own time zone, so that a real person can answer what the tools cannot.",
+       acc=["**Given** a producer in Seoul chooses a topic and two preferred times in Asia/Seoul, **When** they send the request, **Then** VFDA receives it by email with each time in Seoul and Hanoi time, the request shows *Waiting for VFDA*, and VFDA replies with a proposed time by email (BR-005)."]),
  ],
- edge=["The authority email bounces: the notice is marked *Not delivered* and VFDA staff are alerted to find another channel.",
+ edge=["The crew cannot deliver the letter to the office they chose: they download it again addressed to the other office (People's Committee or Department of Culture).",
        "The province never replies: after [NEEDS CLARIFICATION: N] working days VFDA staff are reminded to follow up.",
-       "The producer removes the location from the shortlist after the notice was sent: the notice stays; VFDA may send a withdrawal."],
+       "The producer removes the location from the shortlist after the notice was sent: the notice stays; the crew may write to the province themselves (no withdrawal letter is generated in the MVP)."],
  flows=[("4.1 Usage flow — Provincial People's Committee / Department of Culture",
 """flowchart TD
-    S([Receive a notice email: a film crew is interested in a local location]) --> OPEN[Open the reply link]
-    OPEN --> Q{How does the province reply?}
+    S([Receive the crew's letter about a local location]) --> Q{How does the province reply?}
     Q -- Received --> R1[Status: received]
     Q -- More information needed --> R2[Status: info_needed]
     Q -- Cannot support at this time --> R3[Status: cannot_support]
-    R1 --> E([The producer sees the status on the tracking page])
-    R2 --> E
-    R3 --> E""",
-"Textualised from `docs/architecture/usage-flow.md` flow 6, translated. Diamond Q added in Step 3 from F-M7-03 — confirmed by the Client.")],
- seqs=[("4.2 Sequence — provincial notice (SEQ-11)",
+    R1 --> REC[The member or VFDA staff record the reply]
+    R2 --> REC
+    R3 --> REC
+    REC --> E([The producer sees the status on the tracking page])""",
+"**Derived** 06/11/2026 from `docs/architecture/usage-flow.md` flow 6 for BR-001 (Clarifications Q1–Q3): the province receives the letter from the crew, not an email with a reply link; the reply is recorded by the member or VFDA staff. Diamond Q added in Step 3 from F-M7-03. To confirm with the Client.")],
+ seqs=[("4.2 Sequence — provincial notice (adapted from SEQ-11)",
 """sequenceDiagram
     actor U as Producer
     participant FE as Next.js app
     participant DB as Supabase PostgreSQL + RLS
-    participant MAIL as Resend
-    actor PV as Provincial People's Committee
+    actor ST as VFDA staff
+    actor PV as People's Committee or Department of Culture
 
     U->>FE: Click I'm interested in this location
-    FE->>DB: INSERT location_interest (project_id, location_id)
-    DB->>DB: Database webhook fires
-    DB->>MAIL: Compose the letter with the project summary
-    MAIL->>PV: A film crew is interested in a location in your province
-    PV->>FE: Open the reply link
-    PV->>FE: Received / More information needed / Cannot support
-    FE->>DB: UPDATE reply status
-    DB->>MAIL: Notify the producer
-    MAIL->>U: The province has replied
-    U->>FE: View the provincial coordination page
-    Note over DB: This came from the BA Report executive summary and was missed in MVP v1""",
-"Textualised from SEQ-11 (Figure 14), translated. 5 participants, 11 messages. SC-32 inserts a VFDA review before the email is sent — see §11.")],
+    FE->>DB: Save location_interest and draft the notice from project data
+    U->>FE: Ask VFDA to review the notice
+    FE->>DB: Notice submitted
+    ST->>FE: Approve, or request changes with a note
+    FE->>DB: Review result and an audit_log row
+    FE-->>U: Notification: approved or changes requested
+    U->>FE: Choose the recipient, download Word or PDF
+    FE->>DB: delivery_status = downloaded
+    U->>PV: Send the letter (outside the system)
+    PV-->>U: Official reply
+    U->>FE: Record the reply (or VFDA staff record it)
+    FE->>DB: response, note, responded_at""",
+"**Derived** 06/11/2026 from SEQ-11 (Figure 14) for BR-001 (Clarifications Q1–Q3): the database webhook and the emails to and from the province are removed; the VFDA review (SC-32) and the crew's download are added. To confirm with the Client.")],
  fr=[("F-M7-01", "The system SHOULD record a member's interest in a location for a project.", "Member", "Should"),
-     ("F-M7-02", "The system SHOULD generate the provincial notice from project data and queue it for VFDA staff to review and send from VFDA's domain.", "System / VFDA Staff", "Should"),
-     ("F-M7-03", "The system SHOULD record the province's reply as received, info_needed or cannot_support, with an optional note and time.", "Province / VFDA Staff", "Should"),
+     ("F-M7-02", "The system SHOULD draft the provincial notice from project data and queue it for VFDA staff to review; the member downloads the approved notice and sends it themselves.", "System / VFDA Staff / Member", "Should"),
+     ("F-M7-03", "The system SHOULD record the province's reply, entered by the member or VFDA staff, as received, info_needed or cannot_support, with an optional note and time.", "Member / VFDA Staff", "Should"),
      ("F-M7-04", "The system SHOULD show the producer, per province, the four-step progress and the reply.", "Member", "Should"),
-     ("F-M7-05", "The system SHOULD let a member book a VFDA consultation by topic and slot, handling time zones.", "Member", "Should"),
+     ("F-M7-05", "The system SHOULD let a member send VFDA a consultation request with a topic, up to three preferred times and their time zone; VFDA replies by email.", "Member", "Should"),
      ("F-M7-06", "The system SHOULD let VFDA staff confirm or reschedule and assign an officer.", "VFDA Staff", "Should"),
      ("F-M7-07", "The system SHOULD remind both sides before the consultation.", "System", "Should")],
  io={
   "F-M7-01": ("project_id UUID Req; location_id UUID Req", "interest_id UUID", ""),
-  "F-M7-02": ("interest_id UUID Req; project_summary TEXT Req; authority_email VARCHAR(254) Req; reviewed_by UUID Req", "notification_id UUID; delivery_status ENUM(queued, sent, bounced)", "reviewed_by added (VFDA review step, SC-32); needs first shooting day"),
-  "F-M7-03": ("interest_id UUID Req; response ENUM(received, info_needed, cannot_support) Req; note TEXT Opt", "response_status ENUM; responded_at TIMESTAMPTZ", ""),
+  "F-M7-02": ("interest_id UUID Req; project_summary TEXT Req; authority_email VARCHAR(254) Opt; reviewed_by UUID Req; review_note TEXT Opt; recipient ENUM(peoples_committee, culture_department) Opt", "notification_id UUID; review_status ENUM(draft, submitted, changes_requested, approved); delivery_status ENUM(queued, downloaded, sent, bounced)", "reviewed_by added (VFDA review step, SC-32); needs first shooting day; review_note required when VFDA staff request changes; recipient chosen at the first download; authority_email copied from the verified authority contact when it has one (the crew sends the letter, so it may be empty); delivery_status records the download, not an email (BR-001)"),
+  "F-M7-03": ("interest_id UUID Req; response ENUM(received, info_needed, cannot_support) Req; note TEXT Opt", "response_status ENUM; responded_at TIMESTAMPTZ; response_recorded_by UUID", "response_recorded_by = the member or VFDA staff who entered the reply"),
   "F-M7-04": ("project_id UUID Req", "interests ARRAY<(location_id UUID, response_status ENUM, responded_at TIMESTAMPTZ)>", "one card per province"),
-  "F-M7-05": ("topic ENUM(dossier, locations, partners, provincial_notice, general) Req; slot_start TIMESTAMPTZ Req; timezone VARCHAR(40) Req", "booking_id UUID", "IANA time zone"),
+  "F-M7-05": ("topic ENUM(dossier, locations, partners, provincial_notice, general) Req; preferred_times JSONB Req; slot_start TIMESTAMPTZ Req; timezone VARCHAR(40) Req", "booking_id UUID", "IANA time zone; preferred_times = 1–3 start times in UTC, slot_start = the first (BR-005)"),
   "F-M7-06": ("booking_id UUID Req; officer_id UUID Req", "booking_status ENUM(confirmed, rescheduled)", ""),
   "F-M7-07": ("booking_id UUID Req", "reminders ARRAY<notification>", "2 records, 24 h before"),
  },
  br=[("BR-001", "The system never sends a notice. It drafts the notice; a VFDA staff member reviews it (SC-32); only the approved version can be downloaded, and the producer sends it to the recipient they choose (Clarifications Q1–Q3, 28/10/2026).", "VFDA's mandate to write to provinces is unconfirmed; a human still checks every notice."),
-     ("BR-002", "Every notice states that it does not replace the filming licence from the Ministry of Culture, Sports and Tourism.", "Avoids a province or producer mistaking it for permission."),
+     ("BR-002", "Every notice states that it does not replace the filming licence from the Ministry of Culture, Sports and Tourism. Draft wording, **pending approval by the VFDA Legal Board**: *Thư này không thay thế giấy phép quay phim do Bộ Văn hóa, Thể thao và Du lịch cấp.* / *This letter does not replace the filming licence issued by the Ministry of Culture, Sports and Tourism.*", "Avoids a province or producer mistaking it for permission."),
      ("BR-003", "The province's reply is one of three final values; the free-text note is kept as entered.", "Consistent tracking and reporting."),
      ("BR-004", "Reply times feed the provincial readiness index (M3).", "Makes responsiveness visible and comparable."),
      ("BR-005", "In the MVP, SC-33 is a consultation request, not a slot calendar: the member sends topic and preferred times, and VFDA staff reply with a proposed time by email (Clarifications Q5, 28/10/2026). A slot calendar is offered only after VFDA declares its staffed hours.", "A booking form nobody answers does more harm than no form (TL4 §5.7, TL5 M7·2).")],
  entities=[("LocationInterest", "interest_id, project_id, location_id, created_at", "belongs to Project and Location"),
-           ("ProvinceNotice", "interest_id, province_id, drafted_at, reviewed_by, sent_at, received_at, response, note, responded_at, delivery_status", "belongs to LocationInterest"),
-           ("ConsultationBooking", "booking_id, member_id, topic, slot_start, timezone, officer_id, booking_status", "belongs to UserAccount")],
+           ("ProvinceNotice", "interest_id, province_id, drafted_at, review_status, review_note, reviewed_by, recipient, sent_at, received_at, response, note, responded_at, response_recorded_by, delivery_status", "belongs to LocationInterest"),
+           ("ConsultationBooking", "booking_id, member_id, topic, preferred_times, slot_start, timezone, officer_id, booking_status", "belongs to UserAccount")],
  screens=[("SC-32", "Provincial People's Committee notices", "Should", "docs/screens/screen-spec-SC-32.md"),
           ("SC-33", "Book a VFDA consultation", "Should", None)],
  sc=[("A producer knows the reply status of every province on their shortlist without contacting anyone.", "Walkthrough with 5 producers."),
      ("Provinces reply to four in five notices within 7 working days.", "Reply times over the first 30 notices."),
-     ("A producer abroad books a consultation in their own time zone in under 2 minutes.", "Timed test with 3 producers in different time zones.")],
+     ("A producer abroad sends a consultation request in their own time zone in under 2 minutes.", "Timed test with 3 producers in different time zones.")],
  assumptions=["VFDA staff have capacity to review notices within 2 working days.",
               "One notice per province per project, even when several locations are in the same province.",
      "Test value used until VFDA confirms: VFDA staff are reminded to follow up a notice after 5 working days without reply."],
@@ -637,11 +638,12 @@ MODULES.append(dict(
      ("After how many working days without reply should VFDA follow up?", False, "Client (VFDA)")],
  trace=[("1. Purpose", "System Design v2.0 — 1. Schematic, §1.2 (M7); BA Report executive summary", "`docs/architecture/context.md`"),
         ("4.1 Usage flow", "FLOW-01 flow 6 (Figure 3) + Step 3 addition", "`docs/architecture/usage-flow.md` §6"),
-        ("4.2 Sequence", "SEQ-11 (Figure 14)", "`docs/architecture/sequence-diagrams.md` — SEQ-11"),
+        ("4.2 Sequence", "SEQ-11 (Figure 14), adapted for BR-001", "`docs/architecture/sequence-diagrams.md` — SEQ-11"),
         ("5. Functional requirements", "Function List rows 89–95", "`docs/function-list.md` rows 89–95"),
         ("7. Screens", "Screen List SC-32, SC-33", "`docs/screen-list.md` §1")],
- recon=[("Notice dispatch", "Sent automatically by a database webhook (SEQ-11); F-M7-02 sends from VFDA's domain", "Drafted automatically, reviewed by VFDA staff (SC-32), downloaded and sent by the producer; `delivery_status` records the download, not an email (BR-001)", "Group C decision 28/10/2026 — VFDA to confirm"),
-        ("Consultation booking", "F-M7-05..07: slot booking with time zones, confirmation and reminders", "Request + email reply in the MVP (BR-005); F-M7-05..07 kept for a later phase", "Group C decision 28/10/2026 — VFDA to confirm"),
+ recon=[("Notice dispatch", "Sent automatically by a database webhook (SEQ-11); F-M7-02 sends from VFDA's domain", "F-M7-02 rewritten (code kept): drafted from project data, reviewed by VFDA staff (SC-32), downloaded and sent by the producer; `delivery_status` records the download, not an email (BR-001); §4.1 and §4.2 redrawn", "Group C decision 28/10/2026, text 06/11/2026 — VFDA to confirm"),
+        ("Province reply", "F-M7-03: the province replies through a link; VFDA records it", "Recorded by the member, who sent the letter, or by VFDA staff; who recorded it is stored", "Group C decision 06/11/2026 — VFDA to confirm"),
+        ("Consultation booking", "F-M7-05..07: slot booking with time zones, confirmation and reminders", "F-M7-05 rewritten as a request (topic, up to three preferred times, time zone) answered by email (BR-005); F-M7-06 (confirm, reschedule, assign an officer) and F-M7-07 (reminders): later phase", "Group C decision 28/10/2026, text 06/11/2026 — VFDA to confirm"),
         ("Module priority", "Must", "Should — Tier 2 of the screen list file (#20)", "Changed — Confirmed by the Client"),
         ("Booking availability", "Booking always open (F-M7-05)", "Offered only once VFDA declares staffed hours (BR-005)", "Added — Group C decision 01/10/2026")],
 ))

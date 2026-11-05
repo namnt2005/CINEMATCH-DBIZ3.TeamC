@@ -123,6 +123,7 @@ POLICIES = [
          using="EXISTS (SELECT 1 FROM public.location_interest i WHERE i.interest_id = province_notice.interest_id "
                "AND app.is_project_member(i.project_id))"),
     dict(table='consultation_booking', op='select', roles=['vfda_staff'], using=has('vfda_staff')),
+    dict(table='consultation_booking', op='select', roles=['member'], using='member_id = auth.uid()'),
     dict(table='consultation_booking', op='insert', roles=['member'], check=f"{has('member')} AND member_id = auth.uid()"),
     dict(table='consultation_booking', op='update', roles=['vfda_staff'], using=has('vfda_staff')),
 

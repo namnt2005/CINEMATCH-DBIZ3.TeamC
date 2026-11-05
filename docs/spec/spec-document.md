@@ -66,7 +66,7 @@ The 104 functional requirements are in §5 of the module files (table in section
 
 ### 5.1 Entities
 
-The entities of CINEMATCH, with the canonical names used by the Session 5 data model (`data/01-entity-dictionary.md`). 51 entities: 46 are stored as tables (one CSV each in `data/seed/`) and 5 are *derived* — computed on read, never stored.
+The entities of CINEMATCH, with the canonical names used by the Session 5 data model (`data/01-entity-dictionary.md`). 52 entities: 47 are stored as tables (one CSV each in `data/seed/`) and 5 are *derived* — computed on read, never stored.
 
 | # | Entity | Definition | Kind | Owner module |
 |---|---|---|---|---|
@@ -84,43 +84,44 @@ The entities of CINEMATCH, with the canonical names used by the Session 5 data m
 | 12 | `PROJECT_PROVINCE` | A province a project plans to shoot in. | THING | M0 |
 | 13 | `READINESS_VIEW` | The five gauge scores, overall readiness and next steps of a project, computed on read. | DERIVED (computed on read) | M0 |
 | 14 | `READINESS_SNAPSHOT` | The overall readiness of a project as recorded on one night. | EVENT | M0 |
-| 15 | `LEGAL_RULE` | A content or dossier rule written and signed by the VFDA Legal Board, with its legal citation. | THING | M2 |
-| 16 | `RULE_SET_VERSION` | A numbered edition of the active rule set, created each time a rule is activated. | EVENT | M2 |
-| 17 | `PRECHECK_RUN` | One 200-word content pre-check, kept as a demand data point. | EVENT | M2 |
-| 18 | `PRECHECK_FINDING` | One passage of a pre-checked summary that matches an approved rule. | EVENT | M2 |
-| 19 | `COMPLIANCE_RUN` | One content check of a project against the active rule set. | EVENT | M2 |
-| 20 | `COMPLIANCE_FINDING` | One finding of a project content check that a member can mark as reviewed. | EVENT | M2 |
-| 21 | `DOSSIER_CHECK` | The Article 13 completeness result of a project, computed from its document slots. | DERIVED (computed on read) | M2 |
-| 22 | `LICENSING_TIMELINE` | The safe and latest submission dates of a project, computed from its first shooting day. | DERIVED (computed on read) | M2 |
-| 23 | `LOCATION` | A filming location in Vietnam described and published by VFDA staff. | THING | M3 |
-| 24 | `LOCATION_IMAGE` | A photo of a location with its source and usage right. | THING | M3 |
-| 25 | `AUTHORITY_CONTACT` | The local authority office and person to contact about filming at a location, verified by VFDA. | THING | M3 |
-| 26 | `PROVINCE` | One of the 34 provincial-level units after the 2025 reorganisation. | THING | M3 |
-| 27 | `LOCATION_QUERY` | A scene description a user typed and the attributes extracted from it, stored without personal data. | EVENT | M3 |
-| 28 | `PROJECT_SHORTLIST` | A location a project has kept as its primary or backup choice. | THING | M3 |
-| 29 | `PROVINCE_READINESS` | A province's readiness index computed from platform data, with sample sizes. | DERIVED (computed on read) | M3 |
-| 30 | `ORGANISATION` | A Vietnamese service company listed in the partner directory. | THING | M4 |
-| 31 | `ORGANISATION_MEMBER_LAYER` | The part of a partner profile visible to signed-in members. | THING | M4 |
-| 32 | `ORGANISATION_PRIVATE_LAYER` | The part of a partner profile visible only after an accepted request and NDA. | THING | M4 |
-| 33 | `VERIFICATION_REQUEST` | A partner's application for the VFDA Verified badge and VFDA's decision on it. | EVENT | M4 |
-| 34 | `COLLAB_REQUEST` | A producer's request to a partner to work on one project, followed to confirmation. | EVENT | M4 |
-| 35 | `COLLAB_MESSAGE` | A message written inside a collaboration request, including every response note; never edited once sent. | EVENT | M4 |
-| 36 | `NDA_ACCEPTANCE` | One party's acceptance of a given NDA version for one collaboration request. | EVENT | M4 |
-| 37 | `DOCUMENT_ACCESS_LOG` | A record that one person viewed one shared document at one time. | EVENT | M4 |
-| 38 | `DOCUMENT_TYPE` | A kind of dossier document, with its legal basis and template. | THING | M5 |
-| 39 | `DOCUMENT_SLOT` | The place for one document type in one project, with its status. | THING | M5 |
-| 40 | `DOCUMENT` | One uploaded file version in a project's document slot. | THING | M5 |
-| 41 | `BILINGUAL_DOCUMENT` | A generated English–Vietnamese draft of one document of a project. | THING | M5 |
-| 42 | `BILINGUAL_PARAGRAPH` | One aligned source/Vietnamese paragraph pair of a bilingual draft, with its proofreading status. | THING | M5 |
-| 43 | `PROJECT_GLOSSARY` | A project's agreed translation of one term, applied to every later draft of that project. | THING | M5 |
-| 44 | `PUBLIC_HOLIDAY` | A public holiday period shown on the licensing timeline, official or expected. | THING | M5 |
-| 45 | `LOCATION_INTEREST` | A member's statement that a project is interested in a location. | EVENT | M7 |
-| 46 | `PROVINCE_NOTICE` | The notice VFDA sends a province about a project's interest, and the province's reply. | EVENT | M7 |
-| 47 | `CONSULTATION_BOOKING` | A member's booked consultation slot with a VFDA officer. | EVENT | M7 |
-| 48 | `MODERATION_ITEM` | A partner's published content (profile text or location photo) waiting for, or carrying, VFDA staff's approve-or-hide decision. | EVENT | M10 |
-| 49 | `AUDIT_LOG` | A permanent record of one administrative action: who did what to which record, and when. | EVENT | M10 |
-| 50 | `DEMAND_INDEX` | The six demand indicators of a reporting period, each with its sample size, computed from platform data. | DERIVED (computed on read) | M10 |
-| 51 | `QUARTERLY_REPORT` | A quarterly demand report with its bilingual commentary, reread by a staff member before it is exported. | THING | M10 |
+| 15 | `READINESS_SOURCE` | Whether the module behind one counted gauge currently reports to the readiness dashboard. | THING | M0 |
+| 16 | `LEGAL_RULE` | A content or dossier rule written and signed by the VFDA Legal Board, with its legal citation. | THING | M2 |
+| 17 | `RULE_SET_VERSION` | A numbered edition of the active rule set, created each time a rule is activated. | EVENT | M2 |
+| 18 | `PRECHECK_RUN` | One 200-word content pre-check, kept as a demand data point. | EVENT | M2 |
+| 19 | `PRECHECK_FINDING` | One passage of a pre-checked summary that matches an approved rule. | EVENT | M2 |
+| 20 | `COMPLIANCE_RUN` | One content check of a project against the active rule set. | EVENT | M2 |
+| 21 | `COMPLIANCE_FINDING` | One finding of a project content check that a member can mark as reviewed. | EVENT | M2 |
+| 22 | `DOSSIER_CHECK` | The Article 13 completeness result of a project, computed from its document slots. | DERIVED (computed on read) | M2 |
+| 23 | `LICENSING_TIMELINE` | The safe and latest submission dates of a project, computed from its first shooting day. | DERIVED (computed on read) | M2 |
+| 24 | `LOCATION` | A filming location in Vietnam described and published by VFDA staff. | THING | M3 |
+| 25 | `LOCATION_IMAGE` | A photo of a location with its source and usage right. | THING | M3 |
+| 26 | `AUTHORITY_CONTACT` | The local authority office and person to contact about filming at a location, verified by VFDA. | THING | M3 |
+| 27 | `PROVINCE` | One of the 34 provincial-level units after the 2025 reorganisation. | THING | M3 |
+| 28 | `LOCATION_QUERY` | A scene description a user typed and the attributes extracted from it, stored without personal data. | EVENT | M3 |
+| 29 | `PROJECT_SHORTLIST` | A location a project has kept as its primary or backup choice. | THING | M3 |
+| 30 | `PROVINCE_READINESS` | A province's readiness index computed from platform data, with sample sizes. | DERIVED (computed on read) | M3 |
+| 31 | `ORGANISATION` | A Vietnamese service company listed in the partner directory. | THING | M4 |
+| 32 | `ORGANISATION_MEMBER_LAYER` | The part of a partner profile visible to signed-in members. | THING | M4 |
+| 33 | `ORGANISATION_PRIVATE_LAYER` | The part of a partner profile visible only after an accepted request and NDA. | THING | M4 |
+| 34 | `VERIFICATION_REQUEST` | A partner's application for the VFDA Verified badge and VFDA's decision on it. | EVENT | M4 |
+| 35 | `COLLAB_REQUEST` | A producer's request to a partner to work on one project, followed to confirmation. | EVENT | M4 |
+| 36 | `COLLAB_MESSAGE` | A message written inside a collaboration request, including every response note; never edited once sent. | EVENT | M4 |
+| 37 | `NDA_ACCEPTANCE` | One party's acceptance of a given NDA version for one collaboration request. | EVENT | M4 |
+| 38 | `DOCUMENT_ACCESS_LOG` | A record that one person viewed one shared document at one time. | EVENT | M4 |
+| 39 | `DOCUMENT_TYPE` | A kind of dossier document, with its legal basis and template. | THING | M5 |
+| 40 | `DOCUMENT_SLOT` | The place for one document type in one project, with its status. | THING | M5 |
+| 41 | `DOCUMENT` | One uploaded file version in a project's document slot. | THING | M5 |
+| 42 | `BILINGUAL_DOCUMENT` | A generated English–Vietnamese draft of one document of a project. | THING | M5 |
+| 43 | `BILINGUAL_PARAGRAPH` | One aligned source/Vietnamese paragraph pair of a bilingual draft, with its proofreading status. | THING | M5 |
+| 44 | `PROJECT_GLOSSARY` | A project's agreed translation of one term, applied to every later draft of that project. | THING | M5 |
+| 45 | `PUBLIC_HOLIDAY` | A public holiday period shown on the licensing timeline, official or expected. | THING | M5 |
+| 46 | `LOCATION_INTEREST` | A member's statement that a project is interested in a location. | EVENT | M7 |
+| 47 | `PROVINCE_NOTICE` | The notice VFDA sends a province about a project's interest, and the province's reply. | EVENT | M7 |
+| 48 | `CONSULTATION_BOOKING` | A member's booked consultation slot with a VFDA officer. | EVENT | M7 |
+| 49 | `MODERATION_ITEM` | A partner's published content (profile text or location photo) waiting for, or carrying, VFDA staff's approve-or-hide decision. | EVENT | M10 |
+| 50 | `AUDIT_LOG` | A permanent record of one administrative action: who did what to which record, and when. | EVENT | M10 |
+| 51 | `DEMAND_INDEX` | The six demand indicators of a reporting period, each with its sample size, computed from platform data. | DERIVED (computed on read) | M10 |
+| 52 | `QUARTERLY_REPORT` | A quarterly demand report with its bilingual commentary, reread by a staff member before it is exported. | THING | M10 |
 
 Columns, keys and relationships: `data/04-data-model.md`. Diagram: `data/03-erd.mmd`.
 
@@ -180,7 +181,7 @@ All business rules, as written in §5.2 of each module file:
 | M5 | BR-005 | The countdown uses the same calculation as M2 (F-M2-17) and the dashboard. |
 | M5 | BR-006 | Glossary terms a project adds (SC-28) are stored with the project (`project_glossary`) and applied to every later draft of that project. |
 | M7 | BR-001 | The system never sends a notice. It drafts the notice; a VFDA staff member reviews it (SC-32); only the approved version can be downloaded, and the producer sends it to the recipient they choose (Clarifications Q1–Q3, 28/10/2026). |
-| M7 | BR-002 | Every notice states that it does not replace the filming licence from the Ministry of Culture, Sports and Tourism. |
+| M7 | BR-002 | Every notice states that it does not replace the filming licence from the Ministry of Culture, Sports and Tourism. Draft wording, **pending approval by the VFDA Legal Board**: *Thư này không thay thế giấy phép quay phim do Bộ Văn hóa, Thể thao và Du lịch cấp.* / *This letter does not replace the filming licence issued by the Ministry of Culture, Sports and Tourism.* |
 | M7 | BR-003 | The province's reply is one of three final values; the free-text note is kept as entered. |
 | M7 | BR-004 | Reply times feed the provincial readiness index (M3). |
 | M7 | BR-005 | In the MVP, SC-33 is a consultation request, not a slot calendar: the member sends topic and preferred times, and VFDA staff reply with a proposed time by email (Clarifications Q5, 28/10/2026). A slot calendar is offered only after VFDA declares its staffed hours. |
