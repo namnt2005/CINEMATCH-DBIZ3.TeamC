@@ -59,6 +59,22 @@ Run by Claude Code in the session for Nam Tran (Nguyễn Trần Nam); review of 
 | `python3 tools/check_screens.py s3_en` / `s6_en` | OK / OK |
 | PostgreSQL (PGlite, scratch folder) | migration `20261106000100` applied; summary equal to the JS version on 7 pairs; every refusal and the audit rows as expected |
 
-### Online — `cinematch-dev`
+### Checks after the push — 06/11/2026
 
-Not run yet. Waits for `npx supabase db push --remote` (migration `20261106000100`) and `node scripts/seed-supabase.mjs --reset` by Nam Tran. Then: `npm run test:rls`, `npm run check:supabase`, slices 1–3 above with a temporary member account and, as proposed by the agent and not yet confirmed by Nam Tran, the seed staff account signed in by an admin magic link (a temporary staff account cannot be removed once its review has written an append-only audit row; see `tests/rls/rls.test.js`), and one real email to `VFDA_CONSULT_EMAIL` (a test inbox; sending agreed by Nam Tran 06/11/2026).
+Nam Tran ran `npx supabase db push --remote` (migration `20261106000100`) and `node scripts/seed-supabase.mjs --reset` on `cinematch-dev` (both successful). Then, run by Claude Code in the session (no sign-in; member fixtures only, removed afterwards):
+
+| Command | Result |
+|---|---|
+| `npm test` | 673 tests, 673 passed, 0 failed (`seed-plan.test.js` now counts 21 user-id columns, approved by Nam Tran) |
+| `npm run build` | OK (39 pages) |
+| `npm run test:rls` | 16 tests, 16 passed — the 3 M7 tests: an outsider reads no interest or notice; no direct insert; the owner cannot review their notice (no audit row) |
+| `npm run check:supabase` | 7 PASS |
+| `uv run tools/start_feature.py --check` | OK |
+| `python3 tools/build_supabase.py --check` | OK |
+| Leftovers (read-only count) | 0 fixture projects, profiles, organisations, accounts, Auth users; `location_interest` 8 and `province_notice` 7 rows, as the seed |
+
+Staff review (approve / request changes, one audit row each) is not in the online suite: no staff account is created or signed in by the agent (decision of Nam Tran, 06/11/2026). Nam Tran runs slices 1–3 in the browser as the seed accounts `yui.tanaka@sakuralane.example.jp` (member, owner of *Lantern Street*) and `thuha.nguyen@vfda-demo.example.vn` (vfda_staff).
+
+### Browser run — slices 1–3
+
+*(to fill in after Nam Tran's run)*

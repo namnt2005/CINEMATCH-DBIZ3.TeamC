@@ -146,7 +146,7 @@ Each implementation task names the test task it turns green. `npm test` stays of
   - the reply status reads Waiting when there is none;
   - staff tabs Submitted / Changes requested / Approved;
   - the SC-16 button only for members with an owner / *edit* project, and a sign-in line for guests.
-- [ ] T016 [P] [US1] Add to the online suite tests/rls/rls.test.js (RLS, R9; run by `npm run test:rls`):
+- [X] T016 [P] [US1] Add to the online suite tests/rls/rls.test.js (RLS, R9; run by `npm run test:rls`):
   - a member who is not on the project reads no `location_interest` or `province_notice` row of it;
   - a member cannot insert into `location_interest` directly;
   - a member cannot run `app_review_notice`; a `vfda_staff` fixture can, and its review writes one `audit_log` row;
@@ -280,7 +280,7 @@ Each implementation task names the test task it turns green. `npm test` stays of
 
 ## Phase 6: Polish & Cross-Cutting Concerns
 
-- [ ] T045 Run `npm test`, `npm run build`, `npm run test:rls`, `npm run check:supabase`, `uv run tools/start_feature.py --check`, `python3 tools/build_supabase.py --check`, `python3 data/seed/check_seed.py`, `python3 data/schema/load_check.py` and record them in specs/006-m7-support/quickstart.md §Results
+- [X] T045 Run `npm test`, `npm run build`, `npm run test:rls`, `npm run check:supabase`, `uv run tools/start_feature.py --check`, `python3 tools/build_supabase.py --check`, `python3 data/seed/check_seed.py`, `python3 data/schema/load_check.py` and record them in specs/006-m7-support/quickstart.md §Results
 - [X] T046 Add the build-log entry (feature row, run entry, spec issues of research Open questions 1–8 in §3) in docs/build/build-log.md and the AI-use row in docs/ai-use-log.md, with the names of who ran and who reviewed
 
 ---

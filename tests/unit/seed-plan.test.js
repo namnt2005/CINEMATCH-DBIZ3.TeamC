@@ -51,10 +51,13 @@ describe('Seed loader plan (T017, research R7, D3, Constitution IV)', () => {
     }
   });
 
-  test('D3: the 20 user-id columns (user_account.user_id and its 19 foreign keys) are found in data/schema', async () => {
+  test('D3: the 21 user-id columns (user_account.user_id and its 20 foreign keys) are found in data/schema', async () => {
     const { userReferenceColumns } = await loadPlan();
     const columns = userReferenceColumns(schemaSql());
-    assert.equal(columns.length, 20);
+    // 20 → 21 on 06/11/2026 (approved by Nam Tran): M7 D1 added province_notice.response_recorded_by → user_account,
+    // who recorded the province's reply (specs/006-m7-support/plan.md D1, D3); the loader must re-key it too
+    assert.equal(columns.length, 21);
+    assert.ok(columns.some(c => c.table === 'province_notice' && c.column === 'response_recorded_by'));
     assert.ok(columns.some(c => c.table === 'audit_log' && c.column === 'admin_id'));
     assert.ok(columns.some(c => c.table === 'authority_contact' && c.column === 'verified_by'));
     assert.ok(columns.some(c => c.table === 'profile' && c.column === 'user_id'));

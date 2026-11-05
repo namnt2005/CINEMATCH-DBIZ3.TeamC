@@ -213,20 +213,11 @@ describe('Row Level Security on cinematch-dev (npm run test:rls)', () => {
   });
 
 
-  // M7 (specs/006-m7-support T016, research R9). Staff are the seed account (synthetic data, already in Auth),
-  // signed in with an admin magic link — no password, no email sent: a temporary staff account could not be
-  // removed, because its review writes an append-only audit row (M10 BR-005) that references it.
-  const SEED_STAFF_EMAIL = 'thuha.nguyen@vfda-demo.example.vn';
+  // M7 (specs/006-m7-support T016, research R9). Member fixtures only: no staff account is created or signed in
+  // here (decision of Nam Tran, 06/11/2026). That VFDA staff can review, with one audit_log row per review, is
+  // checked by Nam Tran signing in as the seed vfda_staff account in the browser (quickstart §Results), by the
+  // PGlite run of the migration, and offline by tests/unit/notices-data.test.js.
   const TRANG_AN = '607132bd-b05b-52c6-900f-5f2928c17a9e'; // published, Ninh Bình
-
-  async function seedStaffClient() {
-    const { data, error } = await admin.auth.admin.generateLink({ type: 'magiclink', email: SEED_STAFF_EMAIL });
-    if (error) throw new Error(`generateLink failed: ${error.message}`);
-    const client = createClient(URL, PUBLISHABLE, options);
-    const { data: session, error: otpError } = await client.auth.verifyOtp({ token_hash: data.properties.hashed_token, type: 'magiclink' });
-    if (otpError) throw new Error(`staff sign-in failed: ${otpError.message}`);
-    return { client, id: session.user.id };
-  }
 
   async function createTestNotice() {
     const project = await createTestProject();
@@ -261,24 +252,18 @@ describe('Row Level Security on cinematch-dev (npm run test:rls)', () => {
     assert.equal(data.length, 0);
   });
 
-  test('M7 BR-001: a member cannot review a notice; VFDA staff can, and the review writes one audit_log row', async () => {
+  test('M7 BR-001: a project owner cannot review their own notice; it stays submitted and no audit row is written', async () => {
     const { ownerClient, noticeId } = await createTestNotice();
     const { error: submitError } = await ownerClient.rpc('app_submit_notice', { p_interest_id: noticeId });
     assert.equal(submitError, null, submitError?.message);
-
-    const { error: memberError } = await ownerClient.rpc('app_review_notice', { p_interest_id: noticeId, p_decision: 'approve', p_note: null });
-    assert.match(memberError?.message ?? '', /FORBIDDEN/);
-    const { data: still } = await admin.from('province_notice').select('review_status').eq('interest_id', noticeId).single();
-    assert.equal(still.review_status, 'submitted');
-
-    const staff = await seedStaffClient();
-    const { data, error } = await staff.client.rpc('app_review_notice', { p_interest_id: noticeId, p_decision: 'approve', p_note: null });
-    assert.equal(error, null, error?.message);
-    assert.equal(data.review_status, 'approved');
-    const { data: notice } = await admin.from('province_notice').select('review_status, reviewed_by, delivery_status, sent_at').eq('interest_id', noticeId).single();
-    assert.deepEqual(notice, { review_status: 'approved', reviewed_by: staff.id, delivery_status: 'queued', sent_at: null });
-    const { data: audit } = await admin.from('audit_log').select('action, admin_id').eq('target_id', noticeId);
-    assert.deepEqual(audit, [{ action: 'notice.approve', admin_id: staff.id }]);
-    await staff.client.auth.signOut();
+    for (const decision of ['approve', 'request_changes']) {
+      const { error } = await ownerClient.rpc('app_review_notice', { p_interest_id: noticeId, p_decision: decision, p_note: 'self review' });
+      assert.match(error?.message ?? '', /FORBIDDEN/, decision);
+    }
+    const { error: direct } = await ownerClient.from('province_notice').update({ review_status: 'approved' }).eq('interest_id', noticeId);
+    const { data: notice } = await admin.from('province_notice').select('review_status, reviewed_by').eq('interest_id', noticeId).single();
+    assert.deepEqual(notice, { review_status: 'submitted', reviewed_by: null }, direct?.message);
+    const { data: audit } = await admin.from('audit_log').select('action').eq('target_id', noticeId);
+    assert.deepEqual(audit, []);
   });
 });
