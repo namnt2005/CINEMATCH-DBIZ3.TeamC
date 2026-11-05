@@ -12,10 +12,10 @@
   "checks": 9
  },
  "M0": {
-  "tables": 4,
-  "columns": 24,
+  "tables": 5,
+  "columns": 26,
   "fks": 6,
-  "checks": 8
+  "checks": 9
  },
  "M2": {
   "tables": 6,

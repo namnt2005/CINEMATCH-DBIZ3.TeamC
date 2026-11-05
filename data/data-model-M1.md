@@ -188,7 +188,7 @@ Kept as a JSON array (1NF exception): the whole list is what functions filter an
 | BR-001 | The segment is decided by a deterministic decision table (`segment_rules`) approved by VFDA; the same answers always give the same segment. | SCHEMA + SEED CHECK | `pk_segment_rule`, `ck_segment_rule_result_segment`; seed_rules: a decision without override equals its rule | `07_segment_rule.csv` — abroad · foreign · A · 2026.1 — abroad + foreign → A<br>`07_segment_rule.csv` — abroad · foreign · A · 2025.12 — a superseded version is kept, never used |
 | BR-002 | Question 4 never changes the segment; it only pre-selects service groups in M4. | APP (Plan step) | router function ignores q4_needs when choosing the segment | `10_segment_decision.csv` — session:5e0f7b22 · B — q4 = equipment, locations; segment from q1–q3 only |
 | BR-003 | A manual override is always allowed and always recorded. | SCHEMA + SEED CHECK | `ck_segment_decision_segment_override`; seed_rules: an override sets the segment | `10_segment_decision.csv` — session:7c1e9a40 · B · B — override A → B is recorded<br>`10_segment_decision.csv` — session:0b6e93aa · C · C — override A → C is recorded |
-| BR-004 | Changing segment never deletes documents or answers; items that no longer apply are hidden, not removed. | SEED CHECK + APP | segment change writes a new SEGMENT_DECISION; documents are never deleted | `10_segment_decision.csv` — B — Rice and Salt moved from A to B<br>`34_document_slot.csv` — A13_APPLICATION · present; A13_ART9_COMMITMENT · missing (+2) — its document slots are kept |
+| BR-004 | Changing segment never deletes documents or answers; items that no longer apply are hidden, not removed. | SEED CHECK + APP | segment change writes a new SEGMENT_DECISION; documents are never deleted | `10_segment_decision.csv` — B — Rice and Salt moved from A to B<br>`35_document_slot.csv` — A13_APPLICATION · present; A13_ART9_COMMITMENT · missing (+2) — its document slots are kept |
 
 ## 8. Schema (mandatory)
 
@@ -204,7 +204,7 @@ Load test: `python3 data/schema/load_check.py` runs every schema file, then ever
 | Regenerate | `python3 data/seed/generate_seed.py && python3 data/seed/check_seed.py` (must print PASS; `git status` stays clean) |
 | Random seed | none — no randomness and no clock: keys are UUIDv5 of readable names (namespace `6f1c2a8e-3b4d-5e6f-8a9b-0c1d2e3f4a5b`), so every run is byte-identical |
 | Business-rule values | computed by the generator, never typed: attention level (M2 BR-004), quote span (M2 §6.1), latest readiness (M0 §9), is_active, published |
-| Files | 3 files of this module, 45 rows (product: 46 files, 444 rows) |
+| Files | 3 files of this module, 45 rows (product: 47 files, 448 rows) |
 
 **Rows per file and row kinds** (1 = ordinary rows in every file)
 

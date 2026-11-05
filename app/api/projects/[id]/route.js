@@ -1,11 +1,12 @@
 import { getProject, updateProject } from '../../../../lib/db/projects.js';
 import { validateProjectUpdate } from '../../../../lib/projects/input.js';
-import { projectError, fromProjectError, memberSession, readBody } from '../../../../lib/api/projects.js';
+import { projectError, fromProjectError, memberSession, readBody, isUuid } from '../../../../lib/api/projects.js';
 
 /** GET /api/projects/:id — the project, the caller's permission, members and the view row; 404 for non-members. */
 export async function GET(req, { params }) {
   const session = await memberSession(req);
   if (!session) return projectError('UNAUTHENTICATED');
+  if (!isUuid(params.id)) return projectError('NOT_FOUND');
   const project = await getProject(session, params.id);
   return project ? Response.json(project) : projectError('NOT_FOUND');
 }
@@ -14,6 +15,7 @@ export async function GET(req, { params }) {
 export async function PATCH(req, { params }) {
   const session = await memberSession(req);
   if (!session) return projectError('UNAUTHENTICATED');
+  if (!isUuid(params.id)) return projectError('NOT_FOUND');
   const { ok, errors, value } = validateProjectUpdate(await readBody(req));
   if (!ok) return projectError('VALIDATION_ERROR', { fields: errors });
   try {

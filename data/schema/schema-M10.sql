@@ -5,7 +5,7 @@
 -- (python3 data/schema/load_check.py does both and reports any error).
 -- Rules that span tables are not here: see data/data-model-M10.md, section 7.
 
--- MODERATION_ITEM: A partner's published content (profile text or location photo) waiting for, or carrying, VFDA staff's approve-or-hide decision. (owner M10; seed file 44_moderation_item.csv)
+-- MODERATION_ITEM: A partner's published content (profile text or location photo) waiting for, or carrying, VFDA staff's approve-or-hide decision. (owner M10; seed file 45_moderation_item.csv)
 CREATE TABLE moderation_item (
     content_id UUID NOT NULL,
     content_type VARCHAR(20),
@@ -32,7 +32,7 @@ CREATE TABLE moderation_item (
     CONSTRAINT ck_moderation_item_hidden_needs_reason CHECK (content_status <> 'hidden' OR reason IS NOT NULL)
 );
 
--- AUDIT_LOG: A permanent record of one administrative action: who did what to which record, and when. (owner M10; seed file 45_audit_log.csv)
+-- AUDIT_LOG: A permanent record of one administrative action: who did what to which record, and when. (owner M10; seed file 46_audit_log.csv)
 CREATE TABLE audit_log (
     audit_log_id UUID NOT NULL,
     action VARCHAR(60) NOT NULL,
@@ -43,7 +43,7 @@ CREATE TABLE audit_log (
     CONSTRAINT fk_audit_log_admin_id FOREIGN KEY (admin_id) REFERENCES user_account (user_id)
 );
 
--- QUARTERLY_REPORT: A quarterly demand report with its bilingual commentary, reread by a staff member before it is exported. (owner M10; seed file 46_quarterly_report.csv)
+-- QUARTERLY_REPORT: A quarterly demand report with its bilingual commentary, reread by a staff member before it is exported. (owner M10; seed file 47_quarterly_report.csv)
 CREATE TABLE quarterly_report (
     report_id UUID NOT NULL,
     period_start DATE NOT NULL,

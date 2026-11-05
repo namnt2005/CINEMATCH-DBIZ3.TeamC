@@ -17,10 +17,10 @@ Seven criteria (the first six from the Batini–Ceri–Navathe framework for con
 | 1. Completeness | **Pass** | Every FIELDS output that must be remembered has a column. The two that do not — SYS FR-010 `search_vector TSVECTOR` and FR-011 `embedding VECTOR(n)` — are search indexes over LOCATION and ORGANISATION_MEMBER_LAYER text that the database computes from existing columns; they belong to the physical design (indexes), which the process leaves to the Plan step (*never skip a level*). Runtime-only outputs (SYS FR-004 `access_granted`, M1 FR-003 `data_retained`, M4 FR-007 `similarity`) and Supabase Auth data (SYS FR-002 `session_token`, SYS §5.2 BR-004) are not stored by design. *Fixed 01/10/2026: was Fail — the two index columns were reported missing.* | At the Plan step, create the two indexes on LOCATION and ORGANISATION_MEMBER_LAYER (`n` stays [NEEDS CLARIFICATION], SYS §10). |
 | 2. Correctness | **Pass** | All 66 relationships match the wording of their cited evidence, e.g. *"a notice ... is drafted"* when the interest is saved (M7 §3 US-1) → 1:1. *Fixed 01/10/2026: was Fail — PRODUCER_ORGANISATION – PROFILE said every profile works for exactly one organisation; it is now zero-or-one on both sides (SYS §6.1, SYS BR-002), in 03 and 04 together; the seed's 7 staff and partner profiles have none.* | — |
 | 3. Minimality | **Pass** | No column duplicates another without a written reason. BILINGUAL_DOCUMENT.watermark (*always true*, M5 FR-005) is dropped; LEGAL_RULE.is_active and PROVINCE_NOTICE.province_id are kept as deliberate exceptions, each with its upkeep rule (Structural findings, minimality). The five *derived* entities (including M10's DEMAND_INDEX) stay out of the tables. *Fixed 01/10/2026: was Fail — three derivable columns had no decision.* | — |
-| 4. Readability | **Pass** | The full conceptual ERD (46 entities, 66 relationships) stays the single source in 03; each module now has its own readable view with attributes in `data/data-model-<MODULE>.md` §5, and one picture per module in `docs/word/data/erd-views/`. Every relationship also reads as a forward and reverse sentence. *Fixed 01/10/2026: was Fail — only the one large diagram existed.* | — |
+| 4. Readability | **Pass** | The full conceptual ERD (47 entities, 66 relationships) stays the single source in 03; each module now has its own readable view with attributes in `data/data-model-<MODULE>.md` §5, and one picture per module in `docs/word/data/erd-views/`. Every relationship also reads as a forward and reverse sentence. *Fixed 01/10/2026: was Fail — only the one large diagram existed.* | — |
 | 5. Extensibility | **Pass** | Business case tested: **M6 entry logistics — temporary import of filming equipment** (Won't now, phase 2, docs/prd.md §4.4). It adds new entities hanging off PROJECT (an equipment list and a customs declaration) and new DOCUMENT_TYPE rows with basis `law` or `common`; no existing table or relationship changes. | — |
 | 6. Integration | **Pass** | BOUNDARY: passwords and tokens stay in Supabase Auth (SYS BR-004) — USER_ACCOUNT has no password column ✓; Resend's `provider_message_id` is kept ✓; documents are stored by path (`file_path TEXT`, M5 §6.1), not as bytes ✓. SCREENS now use the logical names of 04 (`document_slot.state`, `collab_request.status = confirmed`, `organisation.org_name` …). *Fixed 01/10/2026: was Fail — SC-25, SC-27, SC-19 and 18 other Screen Specs named columns differently from FIELDS.* | — |
-| 7. Traceability | **Pass** | All 315 columns cite a FIELDS row, a §6 attribute or a §6.1 declaration, and every column has a declared type (0 *type not declared*). *Fixed 01/10/2026: was Fail — 2 identifiers were undeclared and 62 columns had no type; both are now declared in the owning specs' §6.1.* | — |
+| 7. Traceability | **Pass** | All 317 columns cite a FIELDS row, a §6 attribute or a §6.1 declaration, and every column has a declared type (0 *type not declared*). *Fixed 01/10/2026: was Fail — 2 identifiers were undeclared and 62 columns had no type; both are now declared in the owning specs' §6.1.* | — |
 
 **Result: 7 Pass, 0 Fail, 0 Not assessed** — every slot the criteria need was present in the INPUT MAP.
 
@@ -32,7 +32,7 @@ The team must challenge at least one more Pass or Fail in class before signing b
 
 ## Seed coverage (from S5)
 
-34 acceptance scenarios: **29 runnable, 4 partly, 1 not runnable** (M2 US-5: rule ↔ segment is not modelled). `check_seed.py`: PASS — 46 tables, 427 rows, 68 foreign-key columns resolve, every declared enum value is used (or its absence explained), generation is deterministic. Full table in `seed/README.md`.
+34 acceptance scenarios: **29 runnable, 4 partly, 1 not runnable** (M2 US-5: rule ↔ segment is not modelled). `check_seed.py`: PASS — 47 tables, 427 rows, 68 foreign-key columns resolve, every declared enum value is used (or its absence explained), generation is deterministic. Full table in `seed/README.md`.
 
 ## Consolidated open questions
 
@@ -96,7 +96,7 @@ All 45 questions raised in 01–04: **30 still open, 11 of them blocking**; 15 r
 | `data/04-data-model.md` | S4 | Draft — renders; type decisions applied, natural keys await human gate 4 |
 | `data/schema/schema-<MODULE>.sql` (9) + `load_check.py` | S4 (physical) | Creates the database; seed loads in filename order (`load_check.py`: PASS) |
 | `data/data-model-<MODULE>.md` (9) | S1–S6 per module | One file per module in the Data Model and Mockup Data layout |
-| `data/seed/NN_<table>.csv` (46) + `generate_seed.py`, `seed_rules.py`, `check_seed.py`, `schema.json`, `README.md` | S5 | Check PASS |
+| `data/seed/NN_<table>.csv` (47) + `generate_seed.py`, `seed_rules.py`, `check_seed.py`, `schema.json`, `README.md` | S5 | Check PASS |
 | `data/05-review.md` | S6 | This file — awaits human gate 6 |
 
 ---

@@ -7,7 +7,7 @@
 | Module | M10 — VFDA back office — moderation, demand index, quarterly report, audit log |
 | Spec Document | `docs/spec/spec-M10.md` |
 | Schema | `data/schema/schema-M10.sql` |
-| Seed files | `44_moderation_item.csv`, `45_audit_log.csv`, `46_quarterly_report.csv` |
+| Seed files | `45_moderation_item.csv`, `46_audit_log.csv`, `47_quarterly_report.csv` |
 | Version / date | v1.0 — 01/10/2026 |
 | Prepared by | Group C (draft by an AI agent, see `docs/ai-use-log.md`) |
 | Status | Ready for the human gates in section 13 |
@@ -47,10 +47,10 @@ CITATION SCHEME = <MODULE> §<section> <ID>
 
 | Entity | Definition (one sentence) | Kind | Owner | Source | Table | Seed file (rows) |
 |---|---|---|---|---|---|---|
-| `MODERATION_ITEM` | A partner's published content (profile text or location photo) waiting for, or carrying, VFDA staff's approve-or-hide decision. | EVENT | M10 | spec §6 — M10 §6; M10 §5.1 FR-001, FR-002; M10 §5.2 BR-001 | `moderation_item` | `44_moderation_item.csv` (4) |
-| `AUDIT_LOG` | A permanent record of one administrative action: who did what to which record, and when. | EVENT | M10 | spec §6 — M10 §6; M10 §5.1 FR-008; M10 §5.2 BR-005 | `audit_log` | `45_audit_log.csv` (14) |
+| `MODERATION_ITEM` | A partner's published content (profile text or location photo) waiting for, or carrying, VFDA staff's approve-or-hide decision. | EVENT | M10 | spec §6 — M10 §6; M10 §5.1 FR-001, FR-002; M10 §5.2 BR-001 | `moderation_item` | `45_moderation_item.csv` (4) |
+| `AUDIT_LOG` | A permanent record of one administrative action: who did what to which record, and when. | EVENT | M10 | spec §6 — M10 §6; M10 §5.1 FR-008; M10 §5.2 BR-005 | `audit_log` | `46_audit_log.csv` (14) |
 | `DEMAND_INDEX` | The six demand indicators of a reporting period, each with its sample size, computed from platform data. | DERIVED (computed on read, not stored) | M10 | spec §6 — M10 §6 ("not stored"); M10 §5.1 FR-003; M10 §5.2 BR-003 | — | — |
-| `QUARTERLY_REPORT` | A quarterly demand report with its bilingual commentary, reread by a staff member before it is exported. | THING | M10 | spec §6 — M10 §6; M10 §5.1 FR-006, FR-007; M10 §5.2 BR-004 | `quarterly_report` | `46_quarterly_report.csv` (1) |
+| `QUARTERLY_REPORT` | A quarterly demand report with its bilingual commentary, reread by a staff member before it is exported. | THING | M10 | spec §6 — M10 §6; M10 §5.1 FR-006, FR-007; M10 §5.2 BR-004 | `quarterly_report` | `47_quarterly_report.csv` (1) |
 
 **Entities of other modules referenced here** (drawn without attributes in §5): `LOCATION_IMAGE` (M3), `ORGANISATION` (M4), `USER_ACCOUNT` (SYS).
 
@@ -194,11 +194,11 @@ Renders with mermaid-cli: **yes**.
 
 | Rule | Statement | Enforced in | Named object | Seed rows that show it |
 |---|---|---|---|---|
-| BR-001 | Content published by partners (profile text, photos) is shown to the public only after VFDA staff approve it; until then the last approved version stays public. | SCHEMA + RLS (Plan step) | `ck_moderation_item_content_status`; policy `rls_public_reads_approved_only` | `44_moderation_item.csv` — org_profile · pending; location_image · pending — waiting: the public sees the last approved version |
-| BR-002 | Hiding content requires a written reason, which is sent to the author. | SCHEMA | `ck_moderation_item_hidden_needs_reason` | `44_moderation_item.csv` — location_image · hidden — hidden with a reason |
-| BR-003 | Every indicator shows the number of records it was computed from; below 5 records it shows *Not enough data* instead of a value. | SEED CHECK + VIEW | seed_rules: indicators below 5 records carry no value; view `v_demand_index` | `46_quarterly_report.csv` — 2026-07-01 · 2026-09-30 — Q3 2026: indicators 4–6 below 5 records → *not enough data* |
-| BR-004 | A quarterly report can be exported only after a named staff member has marked it reread; the draft commentary is never sent as written by the model. | SCHEMA | `ck_quarterly_report_reread_before_export` | `46_quarterly_report.csv` — 2026-07-01 · 2026-09-30 — reread by Nguyễn Thị Thu Hà, then exported |
-| BR-005 | Audit records are append-only: no role, including admin, can update or delete them, and the admin action and its record are committed together or not at all. | TRIGGER (Plan step) | trigger `trg_audit_log_append_only`; the admin action and its record in one transaction | `45_audit_log.csv` — location.availability · 2026-09-25T15:05:00+07:00; location.unpublish · 2026-09-19T16:40:00+07:00 (+12) — 14 records; none edited |
+| BR-001 | Content published by partners (profile text, photos) is shown to the public only after VFDA staff approve it; until then the last approved version stays public. | SCHEMA + RLS (Plan step) | `ck_moderation_item_content_status`; policy `rls_public_reads_approved_only` | `45_moderation_item.csv` — org_profile · pending; location_image · pending — waiting: the public sees the last approved version |
+| BR-002 | Hiding content requires a written reason, which is sent to the author. | SCHEMA | `ck_moderation_item_hidden_needs_reason` | `45_moderation_item.csv` — location_image · hidden — hidden with a reason |
+| BR-003 | Every indicator shows the number of records it was computed from; below 5 records it shows *Not enough data* instead of a value. | SEED CHECK + VIEW | seed_rules: indicators below 5 records carry no value; view `v_demand_index` | `47_quarterly_report.csv` — 2026-07-01 · 2026-09-30 — Q3 2026: indicators 4–6 below 5 records → *not enough data* |
+| BR-004 | A quarterly report can be exported only after a named staff member has marked it reread; the draft commentary is never sent as written by the model. | SCHEMA | `ck_quarterly_report_reread_before_export` | `47_quarterly_report.csv` — 2026-07-01 · 2026-09-30 — reread by Nguyễn Thị Thu Hà, then exported |
+| BR-005 | Audit records are append-only: no role, including admin, can update or delete them, and the admin action and its record are committed together or not at all. | TRIGGER (Plan step) | trigger `trg_audit_log_append_only`; the admin action and its record in one transaction | `46_audit_log.csv` — location.availability · 2026-09-25T15:05:00+07:00; location.unpublish · 2026-09-19T16:40:00+07:00 (+12) — 14 records; none edited |
 
 ## 8. Schema (mandatory)
 
@@ -214,15 +214,15 @@ Load test: `python3 data/schema/load_check.py` runs every schema file, then ever
 | Regenerate | `python3 data/seed/generate_seed.py && python3 data/seed/check_seed.py` (must print PASS; `git status` stays clean) |
 | Random seed | none — no randomness and no clock: keys are UUIDv5 of readable names (namespace `6f1c2a8e-3b4d-5e6f-8a9b-0c1d2e3f4a5b`), so every run is byte-identical |
 | Business-rule values | computed by the generator, never typed: attention level (M2 BR-004), quote span (M2 §6.1), latest readiness (M0 §9), is_active, published |
-| Files | 3 files of this module, 19 rows (product: 46 files, 444 rows) |
+| Files | 3 files of this module, 19 rows (product: 47 files, 448 rows) |
 
 **Rows per file and row kinds** (1 = ordinary rows in every file)
 
 | File | Rows | (2) Boundary | (3) Empty case | (4) Exceptional state |
 |---|---|---|---|---|
-| `44_moderation_item.csv` | 4 | — | organisations and photos never moderated | `pending`, `approved`, `hidden` with reason |
-| `45_audit_log.csv` | 14 | — | accounts with no admin action | `rule.retire`, `location.unpublish`, `location.availability` (2 changes) |
-| `46_quarterly_report.csv` | 1 | — | only one quarter reported | indicators 4–6 below 5 records: *not enough data* (M10 BR-003) |
+| `45_moderation_item.csv` | 4 | — | organisations and photos never moderated | `pending`, `approved`, `hidden` with reason |
+| `46_audit_log.csv` | 14 | — | accounts with no admin action | `rule.retire`, `location.unpublish`, `location.availability` (2 changes) |
+| `47_quarterly_report.csv` | 1 | — | only one quarter reported | indicators 4–6 below 5 records: *not enough data* (M10 BR-003) |
 
 ## 10. Edge case register (mandatory)
 
@@ -247,8 +247,8 @@ No optional child relationship starts in this module.
 
 | Rule | Seed row |
 |---|---|
-| Below 5 records → not enough data (M10 BR-003) | `46_quarterly_report.csv` — 2026-07-01 · 2026-09-30 — indicator 5: 3 records, no value |
-| Period end ≥ start (ck_quarterly_report_period) | `46_quarterly_report.csv` — 2026-07-01 · 2026-09-30 — 01/07–30/09/2026 |
+| Below 5 records → not enough data (M10 BR-003) | `47_quarterly_report.csv` — 2026-07-01 · 2026-09-30 — indicator 5: 3 records, no value |
+| Period end ≥ start (ck_quarterly_report_period) | `47_quarterly_report.csv` — 2026-07-01 · 2026-09-30 — 01/07–30/09/2026 |
 
 **(d) Business rules** — 5 of 5 rules have their rows named in section 7.
 

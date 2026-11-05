@@ -5,7 +5,7 @@
 -- (python3 data/schema/load_check.py does both and reports any error).
 -- Rules that span tables are not here: see data/data-model-M2.md, section 7.
 
--- RULE_SET_VERSION: A numbered edition of the active rule set, created each time a rule is activated. (owner M2; seed file 15_rule_set_version.csv)
+-- RULE_SET_VERSION: A numbered edition of the active rule set, created each time a rule is activated. (owner M2; seed file 16_rule_set_version.csv)
 CREATE TABLE rule_set_version (
     rule_version VARCHAR(20) NOT NULL,
     created_at TIMESTAMPTZ NOT NULL,
@@ -14,7 +14,7 @@ CREATE TABLE rule_set_version (
     CONSTRAINT fk_rule_set_version_created_by FOREIGN KEY (created_by) REFERENCES user_account (user_id)
 );
 
--- LEGAL_RULE: A content or dossier rule written and signed by the VFDA Legal Board, with its legal citation. (owner M2; seed file 16_legal_rule.csv)
+-- LEGAL_RULE: A content or dossier rule written and signed by the VFDA Legal Board, with its legal citation. (owner M2; seed file 17_legal_rule.csv)
 CREATE TABLE legal_rule (
     rule_id UUID NOT NULL,
     rule_code VARCHAR(40) NOT NULL,
@@ -47,7 +47,7 @@ CREATE TABLE legal_rule (
     CONSTRAINT ck_legal_rule_active_matches_status CHECK ((CAST(is_active AS TEXT) = 'true') = (status = 'approved'))
 );
 
--- PRECHECK_RUN: One 200-word content pre-check, kept as a demand data point. (owner M2; seed file 17_precheck_run.csv)
+-- PRECHECK_RUN: One 200-word content pre-check, kept as a demand data point. (owner M2; seed file 18_precheck_run.csv)
 CREATE TABLE precheck_run (
     brief_id UUID NOT NULL,
     project_id UUID,
@@ -65,7 +65,7 @@ CREATE TABLE precheck_run (
     CONSTRAINT fk_precheck_run_rule_version FOREIGN KEY (rule_version) REFERENCES rule_set_version (rule_version)
 );
 
--- PRECHECK_FINDING: One passage of a pre-checked summary that matches an approved rule. (owner M2; seed file 18_precheck_finding.csv)
+-- PRECHECK_FINDING: One passage of a pre-checked summary that matches an approved rule. (owner M2; seed file 19_precheck_finding.csv)
 CREATE TABLE precheck_finding (
     brief_id UUID NOT NULL,
     rule_code VARCHAR(40) NOT NULL,
@@ -81,7 +81,7 @@ CREATE TABLE precheck_finding (
     CONSTRAINT ck_precheck_finding_span_matches_quote CHECK (span_end - span_start = LENGTH(quoted_text))
 );
 
--- COMPLIANCE_RUN: One content check of a project against the active rule set. (owner M2; seed file 19_compliance_run.csv)
+-- COMPLIANCE_RUN: One content check of a project against the active rule set. (owner M2; seed file 20_compliance_run.csv)
 CREATE TABLE compliance_run (
     run_id UUID NOT NULL,
     project_id UUID NOT NULL,
@@ -92,7 +92,7 @@ CREATE TABLE compliance_run (
     CONSTRAINT fk_compliance_run_rule_version FOREIGN KEY (rule_version) REFERENCES rule_set_version (rule_version)
 );
 
--- COMPLIANCE_FINDING: One finding of a project content check that a member can mark as reviewed. (owner M2; seed file 20_compliance_finding.csv)
+-- COMPLIANCE_FINDING: One finding of a project content check that a member can mark as reviewed. (owner M2; seed file 21_compliance_finding.csv)
 CREATE TABLE compliance_finding (
     finding_id UUID NOT NULL,
     run_id UUID NOT NULL,

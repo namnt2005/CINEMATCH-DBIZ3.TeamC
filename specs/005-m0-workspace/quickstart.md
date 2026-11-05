@@ -4,7 +4,7 @@ Feature: `005-m0-workspace` · [contracts/](contracts/) · [data-model.md](data-
 
 ## Prerequisites
 
-`npm install` on `005-m0-workspace`. After D1/D2: `python3 tools/build_data.py --mermaid`, `python3 tools/build_schema.py`, `python3 data/seed/generate_seed.py && python3 data/seed/check_seed.py` (PASS), `python3 data/schema/load_check.py` (PASS), `python3 tools/build_dm_docs.py --mermaid`, `python3 tools/build_supabase.py`; online: `npx supabase db push --db-url "$SUPABASE_DB_URL"` and `node scripts/seed-supabase.mjs --reset` (`SUPABASE_DB_URL` exported in the terminal only).
+`npm install` on `005-m0-workspace`. After D1/D2: `python3 tools/build_data.py --mermaid`, `python3 tools/build_schema.py`, `python3 data/seed/generate_seed.py && python3 data/seed/check_seed.py` (PASS), `python3 data/schema/load_check.py` (PASS), `python3 tools/build_dm_docs.py --mermaid`, `python3 tools/build_supabase.py`; online: `npx supabase db push --remote` and `node scripts/seed-supabase.mjs --reset` (`SUPABASE_DB_URL` exported in the terminal only).
 
 ## Slice 1 — create a project (US-1)
 
@@ -19,9 +19,10 @@ Feature: `005-m0-workspace` · [contracts/](contracts/) · [data-model.md](data-
 
 | # | Step | Expected |
 |---|---|---|
-| 1 | *The Last Ferry* (seed, A) | Dossier gauge 50 % naming the two missing components; overall 68.75 (shown 69) = its latest seed snapshot (US-2 Scenario 1, BR-001) |
+| 1 | *The Last Ferry* (seed, A) | Dossier gauge 25 % (1 of 4 in the seed) naming the three missing components; overall 68.75 (shown 69) = its latest seed snapshot (BR-001). US-2 Scenario 1 (2 of 4 → 50 %) is checked by `tests/unit/readiness-view.test.js` |
 | 2 | *Monsoon Signal* (seed, C) | three counted gauges, no Dossier gauge, Logistics `—` (US-2 Scenario 2, BR-002) |
 | 3 | Make the view fail (test fake) | every gauge `—` with *Try again*, never 0 % (US-2 Scenario 3) |
+| 3b | Set `readiness_source.reporting = false` for one gauge (System, then back to true) | that gauge `—` *Not calculated yet*; the overall uses only the gauges that reported and says *Calculated from 3 of 4 gauges* (spec §3 edge case, decision H1) |
 | 4 | Project list vs dashboard | the same readiness number (SC-003) |
 | 5 | `npm run snapshot` twice on the same day | one row per active project, none for archived ones (FR-008) |
 
@@ -63,4 +64,36 @@ Slices 1–3 not run: no M0 code yet (T007–T012, T019–T025, T031–T034, T04
 | Build | `npm run build` | OK (`/projects`, `/projects/[id]`, `/projects/[id]/settings`, 7 API routes) |
 | Spec snapshot | `uv run tools/start_feature.py --check` | OK |
 | Snapshot offline | `node scripts/snapshot-readiness.mjs 2026-11-03` | 7 projects recorded |
-| Slices 1–3 on `cinematch-dev` (T026, T035, T045) | — | not run: waiting for `supabase db push` and the reseed |
+| Slices 1–3 on `cinematch-dev` (T026, T035, T045) | — | not run: waiting for `npx supabase db push --remote` and the reseed |
+
+### 05/11/2026 — on `cinematch-dev` (T026, T035, T045, T046), run by Claude Code for Nam Tran
+
+Before: Nam Tran ran `npx supabase db push --remote` (migrations `20261103000100`, `20261103000200`, then `20261105000100`) and `node scripts/seed-supabase.mjs --reset` (47 tables, 448 rows) — all successful. Temporary accounts (4 per walk-through) were made with the admin API and removed afterwards with their rows: 0 projects, members, accounts or organisations left; no key, password or cookie printed.
+
+| Slice / step | Result |
+|---|---|
+| 1.2 Router Yes / Outside Vietnam / Foreign company → *Create a project with this segment* | `/projects?new=1&segment=A`; panel open, segment A, *Create project* disabled |
+| 1.3 Name + format → *Create project* | disabled with the name only, enabled with the three fields; dashboard in 5.9 s from the router (SC-002); *Project … created*; every gauge 0 %, Logistics `—`, *Start with a content pre-check*; SC-13 *Your permission: Owner* |
+| 1.4 Another member | not in their list; `GET /api/projects/:id` 404, `/readiness` 404 |
+| 2.1 *The Last Ferry* | overall 69 % (68.75 = seed snapshot 2026-09-27); Content 80 % (1 open finding), Locations 100 % *Done*, Partners 70 % *Confirm the partner who accepted*, Dossier 25 % naming the three missing components, Logistics `—` *Not counted* |
+| 2.2 *Monsoon Signal* (C) | Content, Locations, Partners, Logistics — no Dossier card; *Equal average of the 3 counted gauges* |
+| 2.3b H1, partners not reporting | Partners `—` *Not calculated yet*; overall 68 % (68.33) *Calculated from 3 of 4 gauges*; API `gauges_reported` 3, `gauges_not_reported` ["partners"]; flag restored |
+| 2.4 List vs dashboard | equal for every project checked (68.75 / 68.75, 0 / 0) |
+| 2.5 `npm run snapshot` twice | 7 projects recorded, then 0 (archived *Harbour Lights* skipped) |
+| H3 `GET /api/projects/:id/readiness` | `gauge_scores` object and `next_actions` array, in `gauges_shown` order |
+| 3.1 Owner invites with *edit* | pending row, `email_delivery` queued (`project.invite`, no notification); same email again 409 `ALREADY_INVITED` |
+| 3.2 Invitee → *Invitations* → *Accept* | the project appears in their list |
+| 3.3 *view* member on SC-13 | read-only fields, no Save, no invite row, no archive, stage as text; PATCH 403 |
+| 3.4 Editor edits name, shoot date 2027-04-01, stage Preparing | saved; a past date shows *Must be after today* |
+| 3.5 Owner archives | *… archived — find it under Archived*; out of the default list, under Archived; PATCH 409 `ARCHIVED`; DELETE 405 |
+
+| T046 command | Result |
+|---|---|
+| `npm test` | 558 tests, 558 passed, 0 failed |
+| `npm run build` | OK |
+| `npm run test:rls` | 13 / 13 passed (5 M0); no fixture organisation left |
+| `npm run check:supabase` | 7 PASS, 0 FAIL |
+| `uv run tools/start_feature.py --check` | OK |
+| `python3 tools/build_supabase.py --check` | OK |
+| `python3 data/seed/check_seed.py` | PASS (47 tables, 448 rows) |
+

@@ -7,7 +7,7 @@
 | Module | M2 — Content pre-check and Article 13 dossier check |
 | Spec Document | `docs/spec/spec-M2.md` |
 | Schema | `data/schema/schema-M2.sql` |
-| Seed files | `16_legal_rule.csv`, `15_rule_set_version.csv`, `17_precheck_run.csv`, `18_precheck_finding.csv`, `19_compliance_run.csv`, `20_compliance_finding.csv` |
+| Seed files | `17_legal_rule.csv`, `16_rule_set_version.csv`, `18_precheck_run.csv`, `19_precheck_finding.csv`, `20_compliance_run.csv`, `21_compliance_finding.csv` |
 | Version / date | v1.0 — 01/10/2026 |
 | Prepared by | Group C (draft by an AI agent, see `docs/ai-use-log.md`) |
 | Status | Ready for the human gates in section 13 |
@@ -47,12 +47,12 @@ CITATION SCHEME = <MODULE> §<section> <ID>
 
 | Entity | Definition (one sentence) | Kind | Owner | Source | Table | Seed file (rows) |
 |---|---|---|---|---|---|---|
-| `LEGAL_RULE` | A content or dossier rule written and signed by the VFDA Legal Board, with its legal citation. | THING | M2 | spec §6 — M2 §6; M2 §5.1 FR-001, FR-002; M2 §5.2 BR-008 | `legal_rule` | `16_legal_rule.csv` (9) |
-| `RULE_SET_VERSION` | A numbered edition of the active rule set, created each time a rule is activated. | EVENT | M2 | spec §6 — M2 §6; M2 §5.1 FR-004 | `rule_set_version` | `15_rule_set_version.csv` (3) |
-| `PRECHECK_RUN` | One 200-word content pre-check, kept as a demand data point. | EVENT | M2 | spec §6 — M2 §6; M2 §5.1 FR-007 | `precheck_run` | `17_precheck_run.csv` (7) |
-| `PRECHECK_FINDING` | One passage of a pre-checked summary that matches an approved rule. | EVENT | M2 | spec §6 — M2 §6; M2 §5.1 FR-006 | `precheck_finding` | `18_precheck_finding.csv` (6) |
-| `COMPLIANCE_RUN` | One content check of a project against the active rule set. | EVENT | M2 | spec §6 — M2 §6 | `compliance_run` | `19_compliance_run.csv` (6) |
-| `COMPLIANCE_FINDING` | One finding of a project content check that a member can mark as reviewed. | EVENT | M2 | spec §6 — M2 §6; M2 §5.1 FR-014 | `compliance_finding` | `20_compliance_finding.csv` (6) |
+| `LEGAL_RULE` | A content or dossier rule written and signed by the VFDA Legal Board, with its legal citation. | THING | M2 | spec §6 — M2 §6; M2 §5.1 FR-001, FR-002; M2 §5.2 BR-008 | `legal_rule` | `17_legal_rule.csv` (9) |
+| `RULE_SET_VERSION` | A numbered edition of the active rule set, created each time a rule is activated. | EVENT | M2 | spec §6 — M2 §6; M2 §5.1 FR-004 | `rule_set_version` | `16_rule_set_version.csv` (3) |
+| `PRECHECK_RUN` | One 200-word content pre-check, kept as a demand data point. | EVENT | M2 | spec §6 — M2 §6; M2 §5.1 FR-007 | `precheck_run` | `18_precheck_run.csv` (7) |
+| `PRECHECK_FINDING` | One passage of a pre-checked summary that matches an approved rule. | EVENT | M2 | spec §6 — M2 §6; M2 §5.1 FR-006 | `precheck_finding` | `19_precheck_finding.csv` (6) |
+| `COMPLIANCE_RUN` | One content check of a project against the active rule set. | EVENT | M2 | spec §6 — M2 §6 | `compliance_run` | `20_compliance_run.csv` (6) |
+| `COMPLIANCE_FINDING` | One finding of a project content check that a member can mark as reviewed. | EVENT | M2 | spec §6 — M2 §6; M2 §5.1 FR-014 | `compliance_finding` | `21_compliance_finding.csv` (6) |
 | `DOSSIER_CHECK` | The Article 13 completeness result of a project, computed from its document slots. | DERIVED (computed on read, not stored) | M2 | spec §6 — M2 §6 ("derived from DocumentSlots (M5)") | — | — |
 | `LICENSING_TIMELINE` | The safe and latest submission dates of a project, computed from its first shooting day. | DERIVED (computed on read, not stored) | M2 | spec §6 — M2 §6 ("derived from Project.shoot_date"); M2 §5.2 BR-006 | — | — |
 
@@ -282,14 +282,14 @@ Renders with mermaid-cli: **yes**.
 
 | Rule | Statement | Enforced in | Named object | Seed rows that show it |
 |---|---|---|---|---|
-| BR-001 | Every finding shown to a user cites a rule written and signed by the VFDA Legal Board; findings without a valid citation are dropped by code before display. | APP (Plan step) + SCHEMA | Edge Function drops unverified findings; `fk_precheck_finding_rule_code` → `legal_rule.rule_code` | `17_precheck_run.csv` — cc6bcb72 — every finding dropped: no level shown<br>`18_precheck_finding.csv` — A9-MIL · đồn biên phòng trên núi; A9-MIL · soldiers ask him to take them across i — a kept finding cites an approved rule |
-| BR-002 | A rule becomes active only when it has a citation **and** an approver; this is enforced by a database CHECK constraint. | SCHEMA | `ck_legal_rule_approved_needs_signature` | `16_legal_rule.csv` — A9-DRUG · draft · action; A9-HERIT · draft · notice — draft rules without citation and approver (cannot be active)<br>`16_legal_rule.csv` — A9-LONG · approved · action; A9-PERSON · approved · notice (+4) — approved rules carry both |
-| BR-003 | The words *approved*, *accepted*, *legally compliant* and *safe* never appear in results, including when nothing is found. | NOT DATA | wording rule of the result screens (SC-48, SC-27); tested by acceptance scenario M2 US-1 | `17_precheck_run.csv` — US · low; FR · low (+2) — a *Low* result must still not say *safe* |
-| BR-004 | The attention level is derived deterministically from the number and severity of verified findings, never from a model score. | SEED CHECK + APP | seed_rules.attention_level() (M2 §9 thresholds) computes the level before writing | `17_precheck_run.csv` — VN · high — 2 *action* findings → High<br>`17_precheck_run.csv` — KR · medium — 1 *action* finding → Medium<br>`17_precheck_run.csv` — US · low — 1 *notice* finding → Low (corrected 01/10/2026) |
-| BR-005 | The dossier completeness check uses fixed rules, not a language model. | VIEW (Plan step) | view `v_dossier_check` counts slots in state `present` — no language model | `34_document_slot.csv` — A13_APPLICATION · present — 1 of 4 components present for The Last Ferry |
+| BR-001 | Every finding shown to a user cites a rule written and signed by the VFDA Legal Board; findings without a valid citation are dropped by code before display. | APP (Plan step) + SCHEMA | Edge Function drops unverified findings; `fk_precheck_finding_rule_code` → `legal_rule.rule_code` | `18_precheck_run.csv` — cc6bcb72 — every finding dropped: no level shown<br>`19_precheck_finding.csv` — A9-MIL · đồn biên phòng trên núi; A9-MIL · soldiers ask him to take them across i — a kept finding cites an approved rule |
+| BR-002 | A rule becomes active only when it has a citation **and** an approver; this is enforced by a database CHECK constraint. | SCHEMA | `ck_legal_rule_approved_needs_signature` | `17_legal_rule.csv` — A9-DRUG · draft · action; A9-HERIT · draft · notice — draft rules without citation and approver (cannot be active)<br>`17_legal_rule.csv` — A9-LONG · approved · action; A9-PERSON · approved · notice (+4) — approved rules carry both |
+| BR-003 | The words *approved*, *accepted*, *legally compliant* and *safe* never appear in results, including when nothing is found. | NOT DATA | wording rule of the result screens (SC-48, SC-27); tested by acceptance scenario M2 US-1 | `18_precheck_run.csv` — US · low; FR · low (+2) — a *Low* result must still not say *safe* |
+| BR-004 | The attention level is derived deterministically from the number and severity of verified findings, never from a model score. | SEED CHECK + APP | seed_rules.attention_level() (M2 §9 thresholds) computes the level before writing | `18_precheck_run.csv` — VN · high — 2 *action* findings → High<br>`18_precheck_run.csv` — KR · medium — 1 *action* finding → Medium<br>`18_precheck_run.csv` — US · low — 1 *notice* finding → Low (corrected 01/10/2026) |
+| BR-005 | The dossier completeness check uses fixed rules, not a language model. | VIEW (Plan step) | view `v_dossier_check` counts slots in state `present` — no language model | `35_document_slot.csv` — A13_APPLICATION · present — 1 of 4 components present for The Last Ferry |
 | BR-006 | Safe deadline = first shooting day − buffer − 20 − 20 working days; latest deadline = first shooting day − buffer − 20 working days. Working days exclude Saturdays, Sundays and dates of type PUBLIC_HOLIDAY (Clarifications Q1). | VIEW (Plan step) | view `v_licensing_timeline` (shoot_date − buffer − 20 [− 20]) | `09_project.csv` — The Last Ferry · A · preparing — 15/03/2027, buffer 7 → 27/01/2027 and 16/02/2027<br>`09_project.csv` — Quiet Harbour Blues · A · preparing — safe deadline already passed |
-| BR-007 | Every check stores the rule-set version it used. | SCHEMA | `fk_precheck_run_rule_version`, `fk_compliance_run_rule_version` (NOT NULL on compliance runs) | `19_compliance_run.csv` — 2026.07 · 2026-08-10T14:00:00+07:00 — older run kept with its older version |
-| BR-008 | Legal rules are retired, never deleted (`status = retired`); a finding keeps showing the text of the rule version it cited. | SCHEMA + SEED CHECK | `ck_legal_rule_status`, `ck_legal_rule_active_matches_status`; no DELETE in any function | `16_legal_rule.csv` — A9-MAP · retired · action — A9-MAP retired, not active, not deleted<br>`45_audit_log.csv` — rule.retire · 2026-08-28T15:35:00+07:00 — the retirement is audited |
+| BR-007 | Every check stores the rule-set version it used. | SCHEMA | `fk_precheck_run_rule_version`, `fk_compliance_run_rule_version` (NOT NULL on compliance runs) | `20_compliance_run.csv` — 2026.07 · 2026-08-10T14:00:00+07:00 — older run kept with its older version |
+| BR-008 | Legal rules are retired, never deleted (`status = retired`); a finding keeps showing the text of the rule version it cited. | SCHEMA + SEED CHECK | `ck_legal_rule_status`, `ck_legal_rule_active_matches_status`; no DELETE in any function | `17_legal_rule.csv` — A9-MAP · retired · action — A9-MAP retired, not active, not deleted<br>`46_audit_log.csv` — rule.retire · 2026-08-28T15:35:00+07:00 — the retirement is audited |
 
 ## 8. Schema (mandatory)
 
@@ -305,18 +305,18 @@ Load test: `python3 data/schema/load_check.py` runs every schema file, then ever
 | Regenerate | `python3 data/seed/generate_seed.py && python3 data/seed/check_seed.py` (must print PASS; `git status` stays clean) |
 | Random seed | none — no randomness and no clock: keys are UUIDv5 of readable names (namespace `6f1c2a8e-3b4d-5e6f-8a9b-0c1d2e3f4a5b`), so every run is byte-identical |
 | Business-rule values | computed by the generator, never typed: attention level (M2 BR-004), quote span (M2 §6.1), latest readiness (M0 §9), is_active, published |
-| Files | 6 files of this module, 37 rows (product: 46 files, 444 rows) |
+| Files | 6 files of this module, 37 rows (product: 47 files, 448 rows) |
 
 **Rows per file and row kinds** (1 = ordinary rows in every file)
 
 | File | Rows | (2) Boundary | (3) Empty case | (4) Exceptional state |
 |---|---|---|---|---|
-| `16_legal_rule.csv` | 9 | 200-character title | `A9-RELIG`: never cited by a pre-check | `A9-DRUG`, `A9-HERIT`: draft, no citation, no approver; `A9-MAP`: retired, not active (M2 BR-008) |
-| `15_rule_set_version.csv` | 3 | — | 2026.06: no run applied it | — (no status column) |
-| `17_precheck_run.csv` | 7 | all flags `unsure` | `g-fr`: no finding | `g-dropped`: every finding dropped, no attention level |
-| `18_precheck_finding.csv` | 6 | span starting at 0 | — | — (no status column) |
-| `19_compliance_run.csv` | 6 | — | `sapa-a`: no finding | older run on an older rule-set version; `blues-a` on `Quiet Harbour Blues`: nothing flagged, so its content gauge is 100 (the 100.00 boundary snapshot) |
-| `20_compliance_finding.csv` | 6 | — | — | `open` findings next to `reviewed` ones |
+| `17_legal_rule.csv` | 9 | 200-character title | `A9-RELIG`: never cited by a pre-check | `A9-DRUG`, `A9-HERIT`: draft, no citation, no approver; `A9-MAP`: retired, not active (M2 BR-008) |
+| `16_rule_set_version.csv` | 3 | — | 2026.06: no run applied it | — (no status column) |
+| `18_precheck_run.csv` | 7 | all flags `unsure` | `g-fr`: no finding | `g-dropped`: every finding dropped, no attention level |
+| `19_precheck_finding.csv` | 6 | span starting at 0 | — | — (no status column) |
+| `20_compliance_run.csv` | 6 | — | `sapa-a`: no finding | older run on an older rule-set version; `blues-a` on `Quiet Harbour Blues`: nothing flagged, so its content gauge is 100 (the 100.00 boundary snapshot) |
+| `21_compliance_finding.csv` | 6 | — | — | `open` findings next to `reviewed` ones |
 
 ## 10. Edge case register (mandatory)
 
@@ -362,8 +362,8 @@ Computed from the seed files. (a) every enumerated value has a row; (b) empty st
 | Rule | Seed row |
 |---|---|
 | Deadline already passed (M2 BR-006) | `09_project.csv` — Quiet Harbour Blues · A · preparing — first day 10/11/2026: safe deadline 24/09/2026 is past |
-| Quote starts at character 0 (M2 §6.1) | `18_precheck_finding.csv` — A9-PERSON · Based on the life of a — span starting at 0 |
-| Rule title ≤ 200 characters (M2 §5.1 FR-002) | `16_legal_rule.csv` — A9-LONG · approved · action — 200-character title |
+| Quote starts at character 0 (M2 §6.1) | `19_precheck_finding.csv` — A9-PERSON · Based on the life of a — span starting at 0 |
+| Rule title ≤ 200 characters (M2 §5.1 FR-002) | `17_legal_rule.csv` — A9-LONG · approved · action — 200-character title |
 
 **(d) Business rules** — 8 of 8 rules have their rows named in section 7.
 

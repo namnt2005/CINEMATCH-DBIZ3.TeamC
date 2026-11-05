@@ -57,7 +57,7 @@ CINEMATCH-DBIZ3.TeamC/
 │   │   └── load_check.py
 │   └── seed/
 │       ├── README.md  schema.json  generate_seed.py  seed_rules.py  check_seed.py
-│       └── NN_<table>.csv  (46 files, in load order)
+│       └── NN_<table>.csv  (47 files, in load order)
 └── tools/
     ├── README.md              ← what each script does and what it needs
     ├── check_env.py           ← Session 6 environment check
@@ -71,7 +71,7 @@ CINEMATCH-DBIZ3.TeamC/
 | `docs/screens/` | One Screen Spec and one annotated mockup per screen — every MVP screen | 41 specs · 41 images |
 | `docs/word/` | Word copies for submission — same content as the Markdown | 58 files + ERD views |
 | `docs/env/` | Environment Readiness Report for Session 6 | 1 report |
-| `data/` | One data-model file per module; entity dictionary, CRUD matrix, conceptual ERD, logical model, review; portable SQL schema; seed data with its generator, rule validator and integrity check | 51 entities · 46 tables · 313 columns · 427 seed rows |
+| `data/` | One data-model file per module; entity dictionary, CRUD matrix, conceptual ERD, logical model, review; portable SQL schema; seed data with its generator, rule validator and integrity check | 52 entities · 47 tables · 317 columns · 448 seed rows |
 | `tools/` | The environment check and the generators that rebuild `docs/`, `data/` and `docs/word/` | — |
 
 Four rules govern the structure: one module per spec file, one screen per image file, DBIZ2 IDs reused unchanged, and everything text except the screen mockups. The data package adds one more: every entity, column and relationship cites the spec line it came from.

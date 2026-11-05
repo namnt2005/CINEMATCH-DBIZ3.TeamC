@@ -24,7 +24,7 @@ short, factual and current.
 ## 3. Commands that are safe to run
 
 - `uv run tools/check_env.py --repo --path A` : environment and repository check (Path A = Claude Code; members on Path B run it without `--path A`).
-- `python3 data/seed/generate_seed.py && python3 data/seed/check_seed.py` : regenerates the seed data (46 files `NN_<table>.csv`, 427 rows); must end with `PASS` and leave `git status` clean.
+- `python3 data/seed/generate_seed.py && python3 data/seed/check_seed.py` : regenerates the seed data (47 files `NN_<table>.csv`, 448 rows); must end with `PASS` and leave `git status` clean.
 - `python3 data/schema/load_check.py` : creates an empty database from `data/schema/schema-*.sql` and loads the seed files in filename order; must end with `PASS` (add `--postgres "<DSN>"` to also test PostgreSQL).
 - `python3 tools/check_screens.py s1_en --out /tmp/screens` (one call per `s1_en` … `s7_en`) : checks one screen-data file and renders it to a scratch folder outside the repository.
 - `npm install`, `npm test`, `npm run dev`, `npm run build` : install, run all tests, start the local site (http://localhost:3000), production build.
@@ -63,7 +63,7 @@ short, factual and current.
 | `docs/ai-use-log.md` | humans | Log of AI use: every agent task, who checked it, what a person changed. Agents append a row after each task |
 | `data/` | humans | Data model (`01`–`05`, `data-model-<MODULE>.md`), read-only for agents |
 | `data/schema/` | generated | `schema-<MODULE>.sql` (portable SQL, 9 files) and `load_check.py`, rebuilt by `tools/build_schema.py` |
-| `data/seed/` | generated | `NN_<table>.csv` seed files (46), `schema.json`, generator, rules and checker |
+| `data/seed/` | generated | `NN_<table>.csv` seed files (47), `schema.json`, generator, rules and checker |
 | `tools/` | humans | `check_env.py` and the generators that rebuild `docs/` and `data/` (see `tools/README.md`) |
 | `.specify/` | Spec Kit | Templates and scripts (created in step C5); `memory/constitution.md` is the project constitution, filled 01/10/2026 and owned by humans |
 | `.claude/` | Claude Code | Spec Kit skills and shared settings (created in step C5) |

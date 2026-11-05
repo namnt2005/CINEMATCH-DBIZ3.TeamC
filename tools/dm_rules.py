@@ -15,7 +15,7 @@ LABEL = {
  "SEGMENT_RULE": ["q2_release", "q3_producer", "result_segment", "version"], "SEGMENT_REQUIREMENT": ["segment", "requirement_code", "needed"],
  "SEGMENT_DECISION": ["session_key", "segment", "segment_override"], "PROJECT": ["project_name", "segment", "stage"],
  "PROJECT_MEMBER": ["invitee_email", "permission", "invite_status"], "PROJECT_PROVINCE": ["province_id"], "PROVINCE": ["name", "region"],
- "READINESS_SNAPSHOT": ["snapshot_date", "readiness_total"], "RULE_SET_VERSION": ["rule_version"],
+ "READINESS_SNAPSHOT": ["snapshot_date", "readiness_total"], "READINESS_SOURCE": ["gauge", "reporting"], "RULE_SET_VERSION": ["rule_version"],
  "LEGAL_RULE": ["rule_code", "status", "severity"], "PRECHECK_RUN": ["country_guess", "attention_level"],
  "PRECHECK_FINDING": ["rule_code", "quoted_text"], "COMPLIANCE_RUN": ["rule_version", "run_at"],
  "COMPLIANCE_FINDING": ["rule_code", "finding_status"], "LOCATION": ["slug", "intake_status", "availability"],

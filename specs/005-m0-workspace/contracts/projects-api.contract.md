@@ -12,6 +12,6 @@ Feature: `005-m0-workspace` · Signed-in members only (401 otherwise). Error bod
 | `POST /api/projects/:id/invitations` | `{ invitee_email, permission: view \| edit }` | **201** pending member + queued email; 403 when not owner; 409 `ALREADY_INVITED` |
 | `GET /api/invitations` | | **200** pending invitations for the caller's account email: project name, permission |
 | `POST /api/invitations/:member_id/accept` | | **200**; 404 when the invitation is not for the caller's email |
-| `GET /api/projects/:id/readiness` | | **200** the view row; 404 non-member; 503 `READINESS_UNAVAILABLE` when the view fails (the screen shows `—`) |
+| `GET /api/projects/:id/readiness` | | **200** `{ gauges_shown, gauges_counted, readiness_total, gauge_scores, next_actions, next_action_primary, details }` ([readiness-view.contract.md](readiness-view.contract.md) §API shape, H3); 404 non-member or malformed id; 503 `READINESS_UNAVAILABLE` when the view fails (the screen shows `—`) |
 
 Nightly: `app_snapshot_readiness(current_date)` (pg_cron) / `npm run snapshot` — one `readiness_snapshot` per non-archived project per date.

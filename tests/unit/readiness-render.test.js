@@ -4,7 +4,13 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 // One view body, rendered for both databases (BR-001, specs/005-m0-workspace/research.md R3)
-const MIGRATION = path.join('supabase', 'migrations', '20261103000200_m0_readiness.sql');
+// The newest migration that defines the view is the one databases run last (H1 re-created it on 05/11/2026)
+const MIGRATION = (() => {
+  const dir = path.join('supabase', 'migrations');
+  const files = fs.readdirSync(dir).filter(f => f.endsWith('.sql')).sort()
+    .filter(f => /CREATE (OR REPLACE )?VIEW app\.project_readiness/.test(fs.readFileSync(path.join(dir, f), 'utf8')));
+  return path.join(dir, files.at(-1) ?? '20261103000200_m0_readiness.sql');
+})();
 const render = async (dialect) => (await import('../../lib/readiness/render-view.js')).renderView(dialect);
 
 function readMigration() {

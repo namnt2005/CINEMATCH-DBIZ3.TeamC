@@ -8,7 +8,7 @@ sources: FUNCTIONS, FIELDS, ENTITIES, RULES, SCENARIOS, FLOWS, SCREENS, BOUNDARY
 
 # CRUD Matrix — CINEMATCH
 
-Long form: one row per (function, entity) pair that interacts — 167 rows over 96 of the 104 functions. Function IDs are the DBIZ2 Subfunction IDs; `F-M3-08` is `FR-008` in `docs/spec/spec-M3.md`. Each row was decided from the function description and its I/O row, not from the entity name.
+Long form: one row per (function, entity) pair that interacts — 168 rows over 96 of the 104 functions. Function IDs are the DBIZ2 Subfunction IDs; `F-M3-08` is `FR-008` in `docs/spec/spec-M3.md`. Each row was decided from the function description and its I/O row, not from the entity name.
 
 ## Interactions
 
@@ -44,6 +44,7 @@ Long form: one row per (function, entity) pair that interacts — 167 rows over 
 | F-M0-04 | `PROJECT_MEMBER` | C | M0 §5.1 FR-004 |
 | F-M0-05 | `READINESS_VIEW` | R | M0 §5.1 FR-005; M0 §5.2 BR-001 |
 | F-M0-05 | `SEGMENT_REQUIREMENT` | R | M0 §5.1 FR-005 (weights from segment_requirements) |
+| F-M0-05 | `READINESS_SOURCE` | R | M0 §3 Edge cases ("A module fails to report"); specs/005-m0-workspace decision H1 (05/11/2026) |
 | F-M0-06 | `READINESS_VIEW` | R | M0 §5.1 FR-006 |
 | F-M0-06 | `PROJECT` | R | M0 §5.1 FR-006 (project's segment) |
 | F-M0-07 | `READINESS_VIEW` | R | M0 §5.1 FR-007 |
@@ -200,6 +201,7 @@ Long form: one row per (function, entity) pair that interacts — 167 rows over 
 | `PROJECT_PROVINCE` | F-M0-01 | F-M10-03 | — | — |
 | `READINESS_VIEW` *(derived)* | — | F-M0-03, F-M0-05, F-M0-06, F-M0-07, F-M0-08, F-M2-10, F-M3-18, F-M4-16 | — | — |
 | `READINESS_SNAPSHOT` | F-M0-08 | F-M0-09 | — | — |
+| `READINESS_SOURCE` | — | F-M0-05 | — | — |
 | `LEGAL_RULE` | F-M2-02 | F-M2-01, F-M2-06, F-M2-11, F-M2-12, F-M2-13, F-M2-15, F-M2-16 | F-M2-02, F-M2-03 | — |
 | `RULE_SET_VERSION` | F-M2-04 | — | — | — |
 | `PRECHECK_RUN` | F-M2-07 | F-M10-03 | F-M2-06 | — |
@@ -251,6 +253,7 @@ Reported only — no function or entity was added to make the matrix look comple
 | 3 — created by several owners | `EMAIL_DELIVERY (M4, M7, SYS)` | Ownership unclear — SYS should own; M4/M7 should call F-SYS-08. | |
 | 1 — no C | `SEGMENT_RULE` | Missing function — VFDA edits the decision table (M1 BR-001 "approved by VFDA"); belongs to M10, whose Spec Document has no such function yet. | |
 | 1 — no C | `SEGMENT_REQUIREMENT` | Missing function — VFDA-maintained configuration; belongs to M10, whose Spec Document has no such function yet. | |
+| 1 — no C | `READINESS_SOURCE` | Missing function — VFDA or the team sets a module's flag to false when it fails to report (M0 §3 edge case, decision H1 of 05/11/2026); belongs to M10, whose Spec Document has no such function yet. | |
 | 2 — C but no R | `RULE_SET_VERSION` | Missing function — results show "rule set 2026.08" (M2 US-1), so something reads it. | |
 | 1 — no C | `COMPLIANCE_RUN` | Missing function — the project content check is described (M2 §6, SC-48) but no FR runs it. | |
 | 5 — no function touches it | `COMPLIANCE_RUN` | Missing function — the project content check is described (M2 §6, SC-48) but no FR runs it. | |

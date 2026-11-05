@@ -44,7 +44,7 @@ Paths are found automatically on macOS, Windows and Linux (`toolpaths.py`). To f
 | 1 | `python3 tools/build_docs.py --mermaid` | `docs/spec/spec-*.md`, `docs/screens/screen-spec-*.md`, `docs/mvp-scope.md` |
 | 1b | `python3 tools/build_index.py` | `docs/spec/spec-document.md`, `docs/spec/README.md`, `docs/screens/README.md` (run again after step 2e) |
 | 2 | `python3 tools/build_data.py --mermaid` | `data/01`–`05`, `data/03-erd.mmd`, `data/seed/schema.json` (with the load order and the `NN_<table>.csv` file names) |
-| 2b | `python3 data/seed/generate_seed.py && python3 data/seed/check_seed.py` | `data/seed/NN_<table>.csv` (46 files, 427 rows); the generator validates every rule before it writes |
+| 2b | `python3 data/seed/generate_seed.py && python3 data/seed/check_seed.py` | `data/seed/NN_<table>.csv` (47 files, 448 rows); the generator validates every rule before it writes |
 | 2c | `python3 tools/build_schema.py` | `data/schema/schema-<MODULE>.sql` (9 files), `data/schema/schema-summary.json` |
 | 2d | `python3 data/schema/load_check.py` | nothing — loads schema and seed into an empty SQLite database (gate G3); `--postgres "<DSN>"` also tests PostgreSQL |
 | 2e | `python3 tools/build_dm_docs.py --mermaid` | `data/data-model-<MODULE>.md` (9 files, one per module) |

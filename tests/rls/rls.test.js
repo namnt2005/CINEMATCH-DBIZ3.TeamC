@@ -57,9 +57,12 @@ describe('Row Level Security on cinematch-dev (npm run test:rls)', () => {
       await admin.from('project').delete().eq('project_id', id);
     }
     for (const id of created) {
+      // the sign-up trigger also made a producer_organisation for the fixture (build-log Entry 10)
+      const { data: profile } = await admin.from('profile').select('producer_org_id').eq('user_id', id).maybeSingle();
       for (const table of ['consent', 'profile', 'user_account']) {
         await admin.from(table).delete().eq('user_id', id);
       }
+      if (profile?.producer_org_id) await admin.from('producer_organisation').delete().eq('producer_org_id', profile.producer_org_id);
       await admin.auth.admin.deleteUser(id);
     }
   });

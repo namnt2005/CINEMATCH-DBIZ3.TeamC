@@ -56,6 +56,14 @@ CREATE TABLE public.readiness_snapshot (
     CONSTRAINT ck_readiness_snapshot_range CHECK (readiness_total BETWEEN 0 AND 100)
 );
 
+-- READINESS_SOURCE: Whether the module behind one counted gauge currently reports to the readiness dashboard. (owner M0; seed file 15_readiness_source.csv)
+CREATE TABLE public.readiness_source (
+    gauge VARCHAR(20) NOT NULL,
+    reporting BOOLEAN NOT NULL,
+    CONSTRAINT pk_readiness_source PRIMARY KEY (gauge),
+    CONSTRAINT ck_readiness_source_gauge CHECK (gauge IN ('content', 'locations', 'partners', 'dossier'))
+);
+
 -- SEGMENT_RULE: One row of the VFDA-approved decision table that maps router answers to segment A, B or C. (owner M1; seed file 07_segment_rule.csv)
 CREATE TABLE public.segment_rule (
     segment_rule_id UUID NOT NULL,
@@ -104,7 +112,7 @@ CREATE TABLE public.segment_decision (
     CONSTRAINT ck_segment_decision_one_owner CHECK ((project_id IS NULL) <> (session_key IS NULL))
 );
 
--- MODERATION_ITEM: A partner's published content (profile text or location photo) waiting for, or carrying, VFDA staff's approve-or-hide decision. (owner M10; seed file 44_moderation_item.csv)
+-- MODERATION_ITEM: A partner's published content (profile text or location photo) waiting for, or carrying, VFDA staff's approve-or-hide decision. (owner M10; seed file 45_moderation_item.csv)
 CREATE TABLE public.moderation_item (
     content_id UUID NOT NULL,
     content_type VARCHAR(20),
@@ -127,7 +135,7 @@ CREATE TABLE public.moderation_item (
     CONSTRAINT ck_moderation_item_hidden_needs_reason CHECK (content_status <> 'hidden' OR reason IS NOT NULL)
 );
 
--- AUDIT_LOG: A permanent record of one administrative action: who did what to which record, and when. (owner M10; seed file 45_audit_log.csv)
+-- AUDIT_LOG: A permanent record of one administrative action: who did what to which record, and when. (owner M10; seed file 46_audit_log.csv)
 CREATE TABLE public.audit_log (
     audit_log_id UUID NOT NULL,
     action VARCHAR(60) NOT NULL,
@@ -137,7 +145,7 @@ CREATE TABLE public.audit_log (
     CONSTRAINT pk_audit_log PRIMARY KEY (audit_log_id)
 );
 
--- QUARTERLY_REPORT: A quarterly demand report with its bilingual commentary, reread by a staff member before it is exported. (owner M10; seed file 46_quarterly_report.csv)
+-- QUARTERLY_REPORT: A quarterly demand report with its bilingual commentary, reread by a staff member before it is exported. (owner M10; seed file 47_quarterly_report.csv)
 CREATE TABLE public.quarterly_report (
     report_id UUID NOT NULL,
     period_start DATE NOT NULL,
@@ -155,7 +163,7 @@ CREATE TABLE public.quarterly_report (
     CONSTRAINT ck_quarterly_report_reread_before_export CHECK (exported_at IS NULL OR reread_by IS NOT NULL)
 );
 
--- RULE_SET_VERSION: A numbered edition of the active rule set, created each time a rule is activated. (owner M2; seed file 15_rule_set_version.csv)
+-- RULE_SET_VERSION: A numbered edition of the active rule set, created each time a rule is activated. (owner M2; seed file 16_rule_set_version.csv)
 CREATE TABLE public.rule_set_version (
     rule_version VARCHAR(20) NOT NULL,
     created_at TIMESTAMPTZ NOT NULL,
@@ -163,7 +171,7 @@ CREATE TABLE public.rule_set_version (
     CONSTRAINT pk_rule_set_version PRIMARY KEY (rule_version)
 );
 
--- LEGAL_RULE: A content or dossier rule written and signed by the VFDA Legal Board, with its legal citation. (owner M2; seed file 16_legal_rule.csv)
+-- LEGAL_RULE: A content or dossier rule written and signed by the VFDA Legal Board, with its legal citation. (owner M2; seed file 17_legal_rule.csv)
 CREATE TABLE public.legal_rule (
     rule_id UUID NOT NULL,
     rule_code VARCHAR(40) NOT NULL,
@@ -194,7 +202,7 @@ CREATE TABLE public.legal_rule (
     CONSTRAINT ck_legal_rule_active_matches_status CHECK ((CAST(is_active AS TEXT) = 'true') = (status = 'approved'))
 );
 
--- PRECHECK_RUN: One 200-word content pre-check, kept as a demand data point. (owner M2; seed file 17_precheck_run.csv)
+-- PRECHECK_RUN: One 200-word content pre-check, kept as a demand data point. (owner M2; seed file 18_precheck_run.csv)
 CREATE TABLE public.precheck_run (
     brief_id UUID NOT NULL,
     project_id UUID,
@@ -210,7 +218,7 @@ CREATE TABLE public.precheck_run (
     CONSTRAINT ck_precheck_run_attention_level CHECK (attention_level IN ('low', 'medium', 'high'))
 );
 
--- PRECHECK_FINDING: One passage of a pre-checked summary that matches an approved rule. (owner M2; seed file 18_precheck_finding.csv)
+-- PRECHECK_FINDING: One passage of a pre-checked summary that matches an approved rule. (owner M2; seed file 19_precheck_finding.csv)
 CREATE TABLE public.precheck_finding (
     brief_id UUID NOT NULL,
     rule_code VARCHAR(40) NOT NULL,
@@ -224,7 +232,7 @@ CREATE TABLE public.precheck_finding (
     CONSTRAINT ck_precheck_finding_span_matches_quote CHECK (span_end - span_start = LENGTH(quoted_text))
 );
 
--- COMPLIANCE_RUN: One content check of a project against the active rule set. (owner M2; seed file 19_compliance_run.csv)
+-- COMPLIANCE_RUN: One content check of a project against the active rule set. (owner M2; seed file 20_compliance_run.csv)
 CREATE TABLE public.compliance_run (
     run_id UUID NOT NULL,
     project_id UUID NOT NULL,
@@ -233,7 +241,7 @@ CREATE TABLE public.compliance_run (
     CONSTRAINT pk_compliance_run PRIMARY KEY (run_id)
 );
 
--- COMPLIANCE_FINDING: One finding of a project content check that a member can mark as reviewed. (owner M2; seed file 20_compliance_finding.csv)
+-- COMPLIANCE_FINDING: One finding of a project content check that a member can mark as reviewed. (owner M2; seed file 21_compliance_finding.csv)
 CREATE TABLE public.compliance_finding (
     finding_id UUID NOT NULL,
     run_id UUID NOT NULL,
@@ -258,7 +266,7 @@ CREATE TABLE public.province (
     CONSTRAINT ck_province_region CHECK (region IN ('north', 'central', 'south'))
 );
 
--- LOCATION: A filming location in Vietnam described and published by VFDA staff. (owner M3; seed file 21_location.csv)
+-- LOCATION: A filming location in Vietnam described and published by VFDA staff. (owner M3; seed file 22_location.csv)
 CREATE TABLE public.location (
     location_id UUID NOT NULL,
     slug VARCHAR(160),
@@ -298,7 +306,7 @@ CREATE TABLE public.location (
     CONSTRAINT ck_location_in_vietnam CHECK (lat BETWEEN 8 AND 24 AND lng BETWEEN 102 AND 110)
 );
 
--- LOCATION_IMAGE: A photo of a location with its source and usage right. (owner M3; seed file 22_location_image.csv)
+-- LOCATION_IMAGE: A photo of a location with its source and usage right. (owner M3; seed file 23_location_image.csv)
 CREATE TABLE public.location_image (
     image_url TEXT NOT NULL,
     location_id UUID NOT NULL,
@@ -309,7 +317,7 @@ CREATE TABLE public.location_image (
     CONSTRAINT ck_location_image_status CHECK (status IN ('pending', 'approved', 'hidden'))
 );
 
--- AUTHORITY_CONTACT: The local authority office and person to contact about filming at a location, verified by VFDA. (owner M3; seed file 23_authority_contact.csv)
+-- AUTHORITY_CONTACT: The local authority office and person to contact about filming at a location, verified by VFDA. (owner M3; seed file 24_authority_contact.csv)
 CREATE TABLE public.authority_contact (
     location_id UUID NOT NULL,
     authority_name VARCHAR(200) NOT NULL,
@@ -322,7 +330,7 @@ CREATE TABLE public.authority_contact (
     CONSTRAINT pk_authority_contact PRIMARY KEY (location_id)
 );
 
--- LOCATION_QUERY: A scene description a user typed and the attributes extracted from it, stored without personal data. (owner M3; seed file 24_location_query.csv)
+-- LOCATION_QUERY: A scene description a user typed and the attributes extracted from it, stored without personal data. (owner M3; seed file 25_location_query.csv)
 CREATE TABLE public.location_query (
     query_id UUID NOT NULL,
     project_id UUID,
@@ -334,7 +342,7 @@ CREATE TABLE public.location_query (
     CONSTRAINT ck_location_query_length CHECK (LENGTH(scene_description) BETWEEN 10 AND 1000)
 );
 
--- PROJECT_SHORTLIST: A location a project has kept as its primary or backup choice. (owner M3; seed file 25_project_shortlist.csv)
+-- PROJECT_SHORTLIST: A location a project has kept as its primary or backup choice. (owner M3; seed file 26_project_shortlist.csv)
 CREATE TABLE public.project_shortlist (
     shortlist_id UUID NOT NULL,
     project_id UUID NOT NULL,
@@ -344,7 +352,7 @@ CREATE TABLE public.project_shortlist (
     CONSTRAINT ck_project_shortlist_role CHECK (role IN ('primary', 'backup'))
 );
 
--- ORGANISATION: A Vietnamese service company listed in the partner directory. (owner M4; seed file 26_organisation.csv)
+-- ORGANISATION: A Vietnamese service company listed in the partner directory. (owner M4; seed file 27_organisation.csv)
 CREATE TABLE public.organisation (
     org_id UUID NOT NULL,
     slug VARCHAR(160),
@@ -365,7 +373,7 @@ CREATE TABLE public.organisation (
     CONSTRAINT ck_organisation_badge_dates CHECK (verified_until IS NULL OR verified_until > verified_at)
 );
 
--- ORGANISATION_MEMBER_LAYER: The part of a partner profile visible to signed-in members. (owner M4; seed file 27_organisation_member_layer.csv)
+-- ORGANISATION_MEMBER_LAYER: The part of a partner profile visible to signed-in members. (owner M4; seed file 28_organisation_member_layer.csv)
 CREATE TABLE public.organisation_member_layer (
     org_id UUID NOT NULL,
     capability_desc_vi TEXT,
@@ -376,7 +384,7 @@ CREATE TABLE public.organisation_member_layer (
     CONSTRAINT pk_organisation_member_layer PRIMARY KEY (org_id)
 );
 
--- ORGANISATION_PRIVATE_LAYER: The part of a partner profile visible only after an accepted request and NDA. (owner M4; seed file 28_organisation_private_layer.csv)
+-- ORGANISATION_PRIVATE_LAYER: The part of a partner profile visible only after an accepted request and NDA. (owner M4; seed file 29_organisation_private_layer.csv)
 CREATE TABLE public.organisation_private_layer (
     org_id UUID NOT NULL,
     rate_card JSONB,
@@ -385,7 +393,7 @@ CREATE TABLE public.organisation_private_layer (
     CONSTRAINT pk_organisation_private_layer PRIMARY KEY (org_id)
 );
 
--- VERIFICATION_REQUEST: A partner's application for the VFDA Verified badge and VFDA's decision on it. (owner M4; seed file 29_verification_request.csv)
+-- VERIFICATION_REQUEST: A partner's application for the VFDA Verified badge and VFDA's decision on it. (owner M4; seed file 30_verification_request.csv)
 CREATE TABLE public.verification_request (
     request_id UUID NOT NULL,
     org_id UUID NOT NULL,
@@ -398,7 +406,7 @@ CREATE TABLE public.verification_request (
     CONSTRAINT ck_verification_request_status CHECK (status IN ('pending', 'approved', 'rejected'))
 );
 
--- COLLAB_REQUEST: A producer's request to a partner to work on one project, followed to confirmation. (owner M4; seed file 30_collab_request.csv)
+-- COLLAB_REQUEST: A producer's request to a partner to work on one project, followed to confirmation. (owner M4; seed file 31_collab_request.csv)
 CREATE TABLE public.collab_request (
     request_id UUID NOT NULL,
     project_id UUID NOT NULL,
@@ -416,7 +424,7 @@ CREATE TABLE public.collab_request (
     CONSTRAINT ck_collab_request_confirmed_at CHECK ((status = 'confirmed') = (confirmed_at IS NOT NULL))
 );
 
--- COLLAB_MESSAGE: A message written inside a collaboration request, including every response note; never edited once sent. (owner M4; seed file 31_collab_message.csv)
+-- COLLAB_MESSAGE: A message written inside a collaboration request, including every response note; never edited once sent. (owner M4; seed file 32_collab_message.csv)
 CREATE TABLE public.collab_message (
     message_id UUID NOT NULL,
     request_id UUID NOT NULL,
@@ -426,7 +434,7 @@ CREATE TABLE public.collab_message (
     CONSTRAINT pk_collab_message PRIMARY KEY (message_id)
 );
 
--- NDA_ACCEPTANCE: One party's acceptance of a given NDA version for one collaboration request. (owner M4; seed file 32_nda_acceptance.csv)
+-- NDA_ACCEPTANCE: One party's acceptance of a given NDA version for one collaboration request. (owner M4; seed file 33_nda_acceptance.csv)
 CREATE TABLE public.nda_acceptance (
     nda_acceptance_id UUID NOT NULL,
     request_id UUID NOT NULL,
@@ -438,7 +446,7 @@ CREATE TABLE public.nda_acceptance (
     CONSTRAINT ck_nda_acceptance_party CHECK (party IN ('producer', 'partner'))
 );
 
--- DOCUMENT_ACCESS_LOG: A record that one person viewed one shared document at one time. (owner M4; seed file 36_document_access_log.csv)
+-- DOCUMENT_ACCESS_LOG: A record that one person viewed one shared document at one time. (owner M4; seed file 37_document_access_log.csv)
 CREATE TABLE public.document_access_log (
     access_log_id UUID NOT NULL,
     document_id UUID NOT NULL,
@@ -447,7 +455,7 @@ CREATE TABLE public.document_access_log (
     CONSTRAINT pk_document_access_log PRIMARY KEY (access_log_id)
 );
 
--- DOCUMENT_TYPE: A kind of dossier document, with its legal basis and template. (owner M5; seed file 33_document_type.csv)
+-- DOCUMENT_TYPE: A kind of dossier document, with its legal basis and template. (owner M5; seed file 34_document_type.csv)
 CREATE TABLE public.document_type (
     doc_code VARCHAR(40) NOT NULL,
     name_vi TEXT,
@@ -459,7 +467,7 @@ CREATE TABLE public.document_type (
     CONSTRAINT ck_document_type_basis CHECK (basis IN ('law', 'common', 'location'))
 );
 
--- DOCUMENT_SLOT: The place for one document type in one project, with its status. (owner M5; seed file 34_document_slot.csv)
+-- DOCUMENT_SLOT: The place for one document type in one project, with its status. (owner M5; seed file 35_document_slot.csv)
 CREATE TABLE public.document_slot (
     project_id UUID NOT NULL,
     doc_code VARCHAR(40) NOT NULL,
@@ -468,7 +476,7 @@ CREATE TABLE public.document_slot (
     CONSTRAINT ck_document_slot_state CHECK (state IN ('present', 'needs_fix', 'pending', 'missing'))
 );
 
--- DOCUMENT: One uploaded file version in a project's document slot. (owner M5; seed file 35_document.csv)
+-- DOCUMENT: One uploaded file version in a project's document slot. (owner M5; seed file 36_document.csv)
 CREATE TABLE public.document (
     document_id UUID NOT NULL,
     project_id UUID NOT NULL,
@@ -482,7 +490,7 @@ CREATE TABLE public.document (
     CONSTRAINT ck_document_version_positive CHECK (version >= 1)
 );
 
--- BILINGUAL_DOCUMENT: A generated English–Vietnamese draft of one document of a project. (owner M5; seed file 37_bilingual_document.csv)
+-- BILINGUAL_DOCUMENT: A generated English–Vietnamese draft of one document of a project. (owner M5; seed file 38_bilingual_document.csv)
 CREATE TABLE public.bilingual_document (
     project_id UUID NOT NULL,
     doc_code VARCHAR(40) NOT NULL,
@@ -493,7 +501,7 @@ CREATE TABLE public.bilingual_document (
     CONSTRAINT pk_bilingual_document PRIMARY KEY (project_id, doc_code)
 );
 
--- BILINGUAL_PARAGRAPH: One aligned source/Vietnamese paragraph pair of a bilingual draft, with its proofreading status. (owner M5; seed file 38_bilingual_paragraph.csv)
+-- BILINGUAL_PARAGRAPH: One aligned source/Vietnamese paragraph pair of a bilingual draft, with its proofreading status. (owner M5; seed file 39_bilingual_paragraph.csv)
 CREATE TABLE public.bilingual_paragraph (
     project_id UUID NOT NULL,
     doc_code VARCHAR(40) NOT NULL,
@@ -510,7 +518,7 @@ CREATE TABLE public.bilingual_paragraph (
     CONSTRAINT ck_bilingual_paragraph_reviewer CHECK (status <> 'reviewed' OR reviewed_by IS NOT NULL)
 );
 
--- PROJECT_GLOSSARY: A project's agreed translation of one term, applied to every later draft of that project. (owner M5; seed file 39_project_glossary.csv)
+-- PROJECT_GLOSSARY: A project's agreed translation of one term, applied to every later draft of that project. (owner M5; seed file 40_project_glossary.csv)
 CREATE TABLE public.project_glossary (
     project_id UUID NOT NULL,
     term_en VARCHAR(120) NOT NULL,
@@ -518,7 +526,7 @@ CREATE TABLE public.project_glossary (
     CONSTRAINT pk_project_glossary PRIMARY KEY (project_id, term_en)
 );
 
--- PUBLIC_HOLIDAY: A public holiday period shown on the licensing timeline, official or expected. (owner M5; seed file 40_public_holiday.csv)
+-- PUBLIC_HOLIDAY: A public holiday period shown on the licensing timeline, official or expected. (owner M5; seed file 41_public_holiday.csv)
 CREATE TABLE public.public_holiday (
     name VARCHAR(120) NOT NULL,
     start_date DATE NOT NULL,
@@ -529,7 +537,7 @@ CREATE TABLE public.public_holiday (
     CONSTRAINT ck_public_holiday_dates CHECK (end_date >= start_date)
 );
 
--- LOCATION_INTEREST: A member's statement that a project is interested in a location. (owner M7; seed file 41_location_interest.csv)
+-- LOCATION_INTEREST: A member's statement that a project is interested in a location. (owner M7; seed file 42_location_interest.csv)
 CREATE TABLE public.location_interest (
     interest_id UUID NOT NULL,
     project_id UUID NOT NULL,
@@ -538,7 +546,7 @@ CREATE TABLE public.location_interest (
     CONSTRAINT pk_location_interest PRIMARY KEY (interest_id)
 );
 
--- PROVINCE_NOTICE: The notice VFDA sends a province about a project's interest, and the province's reply. (owner M7; seed file 42_province_notice.csv)
+-- PROVINCE_NOTICE: The notice VFDA sends a province about a project's interest, and the province's reply. (owner M7; seed file 43_province_notice.csv)
 CREATE TABLE public.province_notice (
     interest_id UUID NOT NULL,
     province_id INTEGER NOT NULL,
@@ -557,7 +565,7 @@ CREATE TABLE public.province_notice (
     CONSTRAINT ck_province_notice_response CHECK (response IN ('received', 'info_needed', 'cannot_support'))
 );
 
--- CONSULTATION_BOOKING: A member's booked consultation slot with a VFDA officer. (owner M7; seed file 43_consultation_booking.csv)
+-- CONSULTATION_BOOKING: A member's booked consultation slot with a VFDA officer. (owner M7; seed file 44_consultation_booking.csv)
 CREATE TABLE public.consultation_booking (
     booking_id UUID NOT NULL,
     member_id UUID NOT NULL,

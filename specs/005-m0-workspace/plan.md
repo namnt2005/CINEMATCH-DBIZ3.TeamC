@@ -20,6 +20,9 @@ A signed-in member creates a project from three fields (name, format, segment �
 | D2 | The project owner (FR-001 "creator is the owner", FR-004 "owner only") | Add `owner` to `project_member.permission` in the data model (`tools/dm_model2.py`, then the data and seed generators); the seed marks each project's creator. Invitations still offer only *view* or *edit* (FR-004 input). Resolves data-model-M0 open question *Add owner to PROJECT_MEMBER.permission*. |
 | D3 | How an invitation is accepted | The invitee signs in with the invited email; SC-10 shows *Invitations* with *Accept*; accepting sets `user_id` and `invite_status = accepted`. The invitation email is queued in `email_delivery` (the Resend sender is SYS T059, not built). |
 | D4 | Scope beyond the stories | FR-002 (edit details, archive on SC-13) and FR-008 (nightly snapshot) are in; FR-009, segment change and the M5 deadline strip are not. |
+| D5 (H1) | A module that fails to report (spec §3 edge case; analysis H1), decided 05/11/2026 | New table `readiness_source (gauge, reporting)` through the data generators (System only, like `segment_rule`); seed and `cinematch-dev`: all four counted gauges reporting. A counted gauge whose module is not reporting has no score (`—`, *not calculated yet*), the step `not_reported`, and leaves the overall score, which averages only the gauges that reported (`gauges_reported`, `gauges_not_reported`); with none reported the total is `—` and no snapshot is taken. Migration `20261105000100_m0_readiness_source.sql` for pushed databases. |
+| D6 (H2) | How a project moves from draft to preparing (analysis H2), decided 04/11/2026 | A stage select on SC-13 for the owner and *edit* members (Draft / Preparing); *archived* only through *Archive project*. SC-13 #9 changed at its source `tools/s5_en.py`. |
+| D7 (H3) | Output names of FR-005 / FR-007 (analysis H3), decided 05/11/2026 | The view keeps its flat columns; `GET /api/projects/:id/readiness` returns the spec names `gauge_scores` (object) and `next_actions` (array) — renaming only (contracts/readiness-view.contract.md §API shape). |
 
 ## Technical Context
 
@@ -96,6 +99,16 @@ tests/unit/, tests/contracts/
 
 **Structure Decision**: the existing single Next.js project; M0 logic in `lib/projects/`, `lib/readiness/`, `lib/db/`; screens under `app/projects/`.
 
+## Known limitations
+
+| # | Limitation | Why / what would remove it |
+|---|---|---|
+| 1 | `/projects`, `/projects/[id]` and `/projects/[id]/settings` work only with Supabase configured. | Offline, the mock session of `lib/auth/session.js` has no user id for the `member` role, so the pages redirect to sign-in. The node:sqlite data layer is complete and tested by `npm test`; a mock member id (like `MOCK_STAFF_USER_ID`) would make the pages usable offline. |
+| 2 | Turning a module's `readiness_source` flag off is a database change (System role). | No screen or function edits it (`data/02` anomaly kind 1, M10 has no such function yet). |
+| 3 | Invitation emails are queued in `email_delivery`, not sent. | The sender is SYS T049 / T059 (not built). |
+| 4 | The SC-13 mockup image still shows *Stage* as a label. | The image is redrawn only with `tools/build_docs.py --img` (Playwright); the element table (#9) is the source of truth. |
+| 5 | Next-step wording and order (research R4, Open question 2) are the agent's, pending VFDA review. | Recorded in build-log §3. |
+
 ## Complexity Tracking
 
 | Item | Why it is needed | Simpler alternative rejected because |
@@ -103,4 +116,5 @@ tests/unit/, tests/contracts/
 | One view body rendered for two databases | BR-001: the score exists in one place; offline tests run the same SQL as Supabase. | Two hand-written views drift; a JS formula would break BR-001. |
 | The public view runs with its owner's rights and filters on `app.is_project_member()` | The member must see the gauge results of M2–M5 tables that have no member SELECT policy (e.g. `compliance_run`), but only for their own projects. | `security_invoker` would hide those rows and show false 0 %; opening those tables to members widens RLS beyond the CRUD matrix. |
 | Postgres functions for create, invite, accept, update, archive | The creator must become owner in the same transaction as the project; invite is owner-only and update / archive need *edit*, which the 003 policies do not distinguish; the invitee is not yet a member when accepting. | Separate client inserts fail RLS (no member yet) or let any member invite; widening the generated policies would change the CRUD-matrix generator for one module. |
+| Table `readiness_source` (D5) | spec §3 needs a gauge that has not reported to show `—` and leave the total; "no data" cannot be the signal, because a new project must show 0 % (US-1 Scenario 2). | Treating missing data as *not reported* breaks US-1 Scenario 2; a flag in a config file would need a release to change. |
 | `GAUGE_*` rows inside `segment_requirement` (D1) | BR-004 asks for weights from this table; it has no weight column. | A weight column changes the logical model of M1; fixed weights in code break BR-004. |

@@ -7,7 +7,7 @@
 | Module | M4 — Vietnamese service partners |
 | Spec Document | `docs/spec/spec-M4.md` |
 | Schema | `data/schema/schema-M4.sql` |
-| Seed files | `26_organisation.csv`, `27_organisation_member_layer.csv`, `28_organisation_private_layer.csv`, `29_verification_request.csv`, `30_collab_request.csv`, `31_collab_message.csv`, `32_nda_acceptance.csv`, `36_document_access_log.csv` |
+| Seed files | `27_organisation.csv`, `28_organisation_member_layer.csv`, `29_organisation_private_layer.csv`, `30_verification_request.csv`, `31_collab_request.csv`, `32_collab_message.csv`, `33_nda_acceptance.csv`, `37_document_access_log.csv` |
 | Version / date | v1.0 — 01/10/2026 |
 | Prepared by | Group C (draft by an AI agent, see `docs/ai-use-log.md`) |
 | Status | Ready for the human gates in section 13 |
@@ -47,14 +47,14 @@ CITATION SCHEME = <MODULE> §<section> <ID>
 
 | Entity | Definition (one sentence) | Kind | Owner | Source | Table | Seed file (rows) |
 |---|---|---|---|---|---|---|
-| `ORGANISATION` | A Vietnamese service company listed in the partner directory. | THING | M4 | spec §6 — M4 §6; M4 §5.1 FR-001; M4 §5.2 BR-008 | `organisation` | `26_organisation.csv` (10) |
-| `ORGANISATION_MEMBER_LAYER` | The part of a partner profile visible to signed-in members. | THING | M4 | spec §6 — M4 §6; M4 §5.2 BR-001 | `organisation_member_layer` | `27_organisation_member_layer.csv` (8) |
-| `ORGANISATION_PRIVATE_LAYER` | The part of a partner profile visible only after an accepted request and NDA. | THING | M4 | spec §6 — M4 §6; M4 §5.2 BR-001 | `organisation_private_layer` | `28_organisation_private_layer.csv` (8) |
-| `VERIFICATION_REQUEST` | A partner's application for the VFDA Verified badge and VFDA's decision on it. | EVENT | M4 | spec §6 — M4 §6; M4 §5.1 FR-008 | `verification_request` | `29_verification_request.csv` (8) |
-| `COLLAB_REQUEST` | A producer's request to a partner to work on one project, followed to confirmation. | EVENT | M4 | spec §6 — M4 §6; M4 §5.1 FR-012 | `collab_request` | `30_collab_request.csv` (9) |
-| `COLLAB_MESSAGE` | A message written inside a collaboration request, including every response note; never edited once sent. | EVENT | M4 | spec §6 — M4 §6; M4 §5.1 FR-014; M4 §5.2 BR-009 | `collab_message` | `31_collab_message.csv` (4) |
-| `NDA_ACCEPTANCE` | One party's acceptance of a given NDA version for one collaboration request. | EVENT | M4 | spec §6 — M4 §6; M4 §5.1 FR-017 | `nda_acceptance` | `32_nda_acceptance.csv` (6) |
-| `DOCUMENT_ACCESS_LOG` | A record that one person viewed one shared document at one time. | EVENT | M4 | spec §6 — M4 §6; M4 §5.1 FR-018 | `document_access_log` | `36_document_access_log.csv` (5) |
+| `ORGANISATION` | A Vietnamese service company listed in the partner directory. | THING | M4 | spec §6 — M4 §6; M4 §5.1 FR-001; M4 §5.2 BR-008 | `organisation` | `27_organisation.csv` (10) |
+| `ORGANISATION_MEMBER_LAYER` | The part of a partner profile visible to signed-in members. | THING | M4 | spec §6 — M4 §6; M4 §5.2 BR-001 | `organisation_member_layer` | `28_organisation_member_layer.csv` (8) |
+| `ORGANISATION_PRIVATE_LAYER` | The part of a partner profile visible only after an accepted request and NDA. | THING | M4 | spec §6 — M4 §6; M4 §5.2 BR-001 | `organisation_private_layer` | `29_organisation_private_layer.csv` (8) |
+| `VERIFICATION_REQUEST` | A partner's application for the VFDA Verified badge and VFDA's decision on it. | EVENT | M4 | spec §6 — M4 §6; M4 §5.1 FR-008 | `verification_request` | `30_verification_request.csv` (8) |
+| `COLLAB_REQUEST` | A producer's request to a partner to work on one project, followed to confirmation. | EVENT | M4 | spec §6 — M4 §6; M4 §5.1 FR-012 | `collab_request` | `31_collab_request.csv` (9) |
+| `COLLAB_MESSAGE` | A message written inside a collaboration request, including every response note; never edited once sent. | EVENT | M4 | spec §6 — M4 §6; M4 §5.1 FR-014; M4 §5.2 BR-009 | `collab_message` | `32_collab_message.csv` (4) |
+| `NDA_ACCEPTANCE` | One party's acceptance of a given NDA version for one collaboration request. | EVENT | M4 | spec §6 — M4 §6; M4 §5.1 FR-017 | `nda_acceptance` | `33_nda_acceptance.csv` (6) |
+| `DOCUMENT_ACCESS_LOG` | A record that one person viewed one shared document at one time. | EVENT | M4 | spec §6 — M4 §6; M4 §5.1 FR-018 | `document_access_log` | `37_document_access_log.csv` (5) |
 
 **Entities of other modules referenced here** (drawn without attributes in §5): `BILINGUAL_PARAGRAPH` (M5), `DOCUMENT` (M5), `MODERATION_ITEM` (M10), `PROJECT` (M0), `PROVINCE` (M3), `USER_ACCOUNT` (SYS).
 
@@ -332,15 +332,15 @@ Kept as a JSON array (1NF exception): the whole list is what functions filter an
 
 | Rule | Statement | Enforced in | Named object | Seed rows that show it |
 |---|---|---|---|---|
-| BR-001 | The three visibility layers are three tables with separate Row Level Security policies, not hidden columns. | SCHEMA + RLS (Plan step) | three tables `organisation`, `organisation_member_layer`, `organisation_private_layer`; policies `rls_org_member_layer_members`, `rls_org_private_after_nda` | `28_organisation_private_layer.csv` — Office · +84 000 000 126; Huỳnh Minh Tuấn · +84 000 000 123 (+6) — rate cards and direct contacts live in their own table |
-| BR-002 | The 12 service groups are a fixed enum; organisations cannot invent groups. | SEED CHECK + APP | seed_rules: every service group in the declared set of 12 | `26_organisation.csv` — Công ty Cổ phần Dịch vụ Sản xuất Phim, · active · 2027-09-01 — boundary organisation with all 12 groups |
-| BR-003 | Supplier accounts are created only by VFDA invitation in the first phase. | RLS (Plan step) | partner accounts created by admin only (policy `rls_user_account_role_grant`) | `45_audit_log.csv` — role.grant · 2026-06-10T10:30:00+07:00 — Bến Xưa's account was granted by the admin |
-| BR-004 | A VFDA Verified badge is valid for 12 months and states what was checked and what was not (quality and prices are not). | SCHEMA + SEED CHECK | `ck_organisation_badge_dates`; seed_rules: verified_until = verified_at + 12 months | `26_organisation.csv` — Sông Hậu Film Services · active · 2026-08-15 — badge expired 15/08/2026 |
-| BR-005 | Only the producer can confirm a partnership; only the partner can accept or decline. Declined, withdrawn and confirmed are final. | SCHEMA + SEED CHECK | `ck_collab_request_status`, `ck_collab_request_confirmed_at` | `30_collab_request.csv` — confirmed · 2026-08-20T09:30:00+07:00 — confirmed by the producer<br>`30_collab_request.csv` — declined · 2026-09-10T09:30:00+07:00 — declined (final)<br>`30_collab_request.csv` — withdrawn · 2026-09-05T09:30:00+07:00; withdrawn · 2026-09-01T09:30:00+07:00 — withdrawn (final) |
-| BR-006 | Confirming a partnership does not by itself mark Article 13 component c as present; the signed service agreement must be uploaded. | SEED CHECK + VIEW | seed_rules: a slot is `present` only with an uploaded document | `34_document_slot.csv` — A13_SERVICE_AGREEMENT · pending — Bến Xưa accepted, agreement still *pending* |
-| BR-007 | Document access log entries are append-only. | TRIGGER (Plan step) | trigger `trg_document_access_log_append_only` refuses UPDATE and DELETE | `36_document_access_log.csv` — 2026-09-23T20:05:00+07:00; 2026-09-22T20:05:00+07:00 (+3) — 5 view records, never edited |
-| BR-008 | Organisations are deactivated, never deleted (`org_status = deactivated`); open collaboration requests to a deactivated organisation are closed as *withdrawn* and the producer is notified; its document access log is kept. | SCHEMA + SEED CHECK | `ck_organisation_org_status`; seed_rules: no open request to a deactivated organisation | `26_organisation.csv` — Cửu Long Drone Works · deactivated — Cửu Long Drone Works deactivated<br>`30_collab_request.csv` — withdrawn · 2026-09-05T09:30:00+07:00 — its request closed as withdrawn |
-| BR-009 | Every response note and every reply in a request thread is stored as a message of that request (`collab_message`); messages cannot be edited after they are sent. | TRIGGER (Plan step) | trigger `trg_collab_message_no_update` | `31_collab_message.csv` — 2026-09-22T15:10:00+07:00; 2026-09-22T18:05:00+07:00 (+2) — messages of the Bến Xưa request thread |
+| BR-001 | The three visibility layers are three tables with separate Row Level Security policies, not hidden columns. | SCHEMA + RLS (Plan step) | three tables `organisation`, `organisation_member_layer`, `organisation_private_layer`; policies `rls_org_member_layer_members`, `rls_org_private_after_nda` | `29_organisation_private_layer.csv` — Office · +84 000 000 126; Huỳnh Minh Tuấn · +84 000 000 123 (+6) — rate cards and direct contacts live in their own table |
+| BR-002 | The 12 service groups are a fixed enum; organisations cannot invent groups. | SEED CHECK + APP | seed_rules: every service group in the declared set of 12 | `27_organisation.csv` — Công ty Cổ phần Dịch vụ Sản xuất Phim, · active · 2027-09-01 — boundary organisation with all 12 groups |
+| BR-003 | Supplier accounts are created only by VFDA invitation in the first phase. | RLS (Plan step) | partner accounts created by admin only (policy `rls_user_account_role_grant`) | `46_audit_log.csv` — role.grant · 2026-06-10T10:30:00+07:00 — Bến Xưa's account was granted by the admin |
+| BR-004 | A VFDA Verified badge is valid for 12 months and states what was checked and what was not (quality and prices are not). | SCHEMA + SEED CHECK | `ck_organisation_badge_dates`; seed_rules: verified_until = verified_at + 12 months | `27_organisation.csv` — Sông Hậu Film Services · active · 2026-08-15 — badge expired 15/08/2026 |
+| BR-005 | Only the producer can confirm a partnership; only the partner can accept or decline. Declined, withdrawn and confirmed are final. | SCHEMA + SEED CHECK | `ck_collab_request_status`, `ck_collab_request_confirmed_at` | `31_collab_request.csv` — confirmed · 2026-08-20T09:30:00+07:00 — confirmed by the producer<br>`31_collab_request.csv` — declined · 2026-09-10T09:30:00+07:00 — declined (final)<br>`31_collab_request.csv` — withdrawn · 2026-09-05T09:30:00+07:00; withdrawn · 2026-09-01T09:30:00+07:00 — withdrawn (final) |
+| BR-006 | Confirming a partnership does not by itself mark Article 13 component c as present; the signed service agreement must be uploaded. | SEED CHECK + VIEW | seed_rules: a slot is `present` only with an uploaded document | `35_document_slot.csv` — A13_SERVICE_AGREEMENT · pending — Bến Xưa accepted, agreement still *pending* |
+| BR-007 | Document access log entries are append-only. | TRIGGER (Plan step) | trigger `trg_document_access_log_append_only` refuses UPDATE and DELETE | `37_document_access_log.csv` — 2026-09-23T20:05:00+07:00; 2026-09-22T20:05:00+07:00 (+3) — 5 view records, never edited |
+| BR-008 | Organisations are deactivated, never deleted (`org_status = deactivated`); open collaboration requests to a deactivated organisation are closed as *withdrawn* and the producer is notified; its document access log is kept. | SCHEMA + SEED CHECK | `ck_organisation_org_status`; seed_rules: no open request to a deactivated organisation | `27_organisation.csv` — Cửu Long Drone Works · deactivated — Cửu Long Drone Works deactivated<br>`31_collab_request.csv` — withdrawn · 2026-09-05T09:30:00+07:00 — its request closed as withdrawn |
+| BR-009 | Every response note and every reply in a request thread is stored as a message of that request (`collab_message`); messages cannot be edited after they are sent. | TRIGGER (Plan step) | trigger `trg_collab_message_no_update` | `32_collab_message.csv` — 2026-09-22T15:10:00+07:00; 2026-09-22T18:05:00+07:00 (+2) — messages of the Bến Xưa request thread |
 
 ## 8. Schema (mandatory)
 
@@ -356,20 +356,20 @@ Load test: `python3 data/schema/load_check.py` runs every schema file, then ever
 | Regenerate | `python3 data/seed/generate_seed.py && python3 data/seed/check_seed.py` (must print PASS; `git status` stays clean) |
 | Random seed | none — no randomness and no clock: keys are UUIDv5 of readable names (namespace `6f1c2a8e-3b4d-5e6f-8a9b-0c1d2e3f4a5b`), so every run is byte-identical |
 | Business-rule values | computed by the generator, never typed: attention level (M2 BR-004), quote span (M2 §6.1), latest readiness (M0 §9), is_active, published |
-| Files | 8 files of this module, 58 rows (product: 46 files, 444 rows) |
+| Files | 8 files of this module, 58 rows (product: 47 files, 448 rows) |
 
 **Rows per file and row kinds** (1 = ordinary rows in every file)
 
 | File | Rows | (2) Boundary | (3) Empty case | (4) Exceptional state |
 |---|---|---|---|---|
-| `26_organisation.csv` | 10 | 200-char name, all 12 groups, all 34 provinces, founded 1990 | Hanoi Grip & Light: no layers, no request, no badge | Sông Hậu: badge expired 2026-08-15; Cửu Long Drone Works: `deactivated` (M4 BR-008) |
-| `27_organisation_member_layer.csv` | 8 | 6 working languages | Hội An Casting House: 0 international projects | — (no status column) |
-| `28_organisation_private_layer.csv` | 8 | — | Hội An Casting House: no rate card | — (no status column) |
-| `29_verification_request.csv` | 8 | 3 references | — | `rejected` with reason; `pending` |
-| `30_collab_request.csv` | 9 | 1000-character note (the maximum) | Hanoi Grip & Light receives none | `declined`, `withdrawn`; `c9` withdrawn because its organisation was deactivated |
-| `31_collab_message.csv` | 4 | — | requests with no message | — (messages are never edited, M4 BR-009) |
-| `32_nda_acceptance.csv` | 6 | — | `c3`: request with no NDA | `n5`: NDA declined (`accepted = false`) |
-| `36_document_access_log.csv` | 5 | — | documents never viewed | view of an old, replaced version |
+| `27_organisation.csv` | 10 | 200-char name, all 12 groups, all 34 provinces, founded 1990 | Hanoi Grip & Light: no layers, no request, no badge | Sông Hậu: badge expired 2026-08-15; Cửu Long Drone Works: `deactivated` (M4 BR-008) |
+| `28_organisation_member_layer.csv` | 8 | 6 working languages | Hội An Casting House: 0 international projects | — (no status column) |
+| `29_organisation_private_layer.csv` | 8 | — | Hội An Casting House: no rate card | — (no status column) |
+| `30_verification_request.csv` | 8 | 3 references | — | `rejected` with reason; `pending` |
+| `31_collab_request.csv` | 9 | 1000-character note (the maximum) | Hanoi Grip & Light receives none | `declined`, `withdrawn`; `c9` withdrawn because its organisation was deactivated |
+| `32_collab_message.csv` | 4 | — | requests with no message | — (messages are never edited, M4 BR-009) |
+| `33_nda_acceptance.csv` | 6 | — | `c3`: request with no NDA | `n5`: NDA declined (`accepted = false`) |
+| `37_document_access_log.csv` | 5 | — | documents never viewed | view of an old, replaced version |
 
 ## 10. Edge case register (mandatory)
 
@@ -423,10 +423,10 @@ Computed from the seed files. (a) every enumerated value has a row; (b) empty st
 
 | Rule | Seed row |
 |---|---|
-| Badge valid 12 months (M4 BR-004) | `26_organisation.csv` — Sông Hậu Film Services · active · 2026-08-15 — expired 15/08/2026 |
-| At least 2 reference projects (M4 §5.1 FR-008) | `29_verification_request.csv` — rejected · Only one reference project; two are re — 1 reference → rejected with a reason |
-| Request note ≤ 1000 characters (M4 §5.1 FR-012) | `30_collab_request.csv` — pending · 2026-09-26T09:30:00+07:00 — 1000-character note |
-| Founded year (M4 §6.1) | `26_organisation.csv` — Công ty Cổ phần Dịch vụ Sản xuất Phim, · active · 2027-09-01 — founded 1990, all 34 provinces |
+| Badge valid 12 months (M4 BR-004) | `27_organisation.csv` — Sông Hậu Film Services · active · 2026-08-15 — expired 15/08/2026 |
+| At least 2 reference projects (M4 §5.1 FR-008) | `30_verification_request.csv` — rejected · Only one reference project; two are re — 1 reference → rejected with a reason |
+| Request note ≤ 1000 characters (M4 §5.1 FR-012) | `31_collab_request.csv` — pending · 2026-09-26T09:30:00+07:00 — 1000-character note |
+| Founded year (M4 §6.1) | `27_organisation.csv` — Công ty Cổ phần Dịch vụ Sản xuất Phim, · active · 2027-09-01 — founded 1990, all 34 provinces |
 
 **(d) Business rules** — 9 of 9 rules have their rows named in section 7.
 

@@ -14,7 +14,7 @@ Feature: `003-sys-core` · Contracts: [contracts/](contracts/) · Model: [data-m
 |---|---|---|
 | 1 | `npm test` (no network, no Supabase variables) | all green, including the static migration tests: 46 tables, RLS on every table, no DELETE, a policy or RPC or deferred entry for every human (entity, operation) of the CRUD matrix |
 | 2 | `python3 tools/build_supabase.py --check` | no difference with the committed migrations |
-| 3 | `npx supabase db push --db-url "$SUPABASE_DB_URL"` | 5 migrations applied |
+| 3 | `npx supabase db push --remote` | 5 migrations applied |
 | 4 | Dashboard → Authentication → *Add user* for some seed emails (e.g. `thuha.nguyen@vfda-demo.example.vn`) | each gets a `user_account` row with role `member` (trigger) |
 | 5 | `node scripts/seed-supabase.mjs --reset` | guard passes for `cinematch-dev`; rows loaded per table; the added accounts re-keyed and given their seed role (e.g. `vfda_staff`) |
 | 6 | same command with a URL of another project | refused unless `--force` |

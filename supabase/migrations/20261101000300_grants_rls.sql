@@ -53,6 +53,10 @@ GRANT SELECT ON public.readiness_snapshot TO authenticated;
 CREATE POLICY rls_readiness_snapshot_select_member ON public.readiness_snapshot FOR SELECT TO authenticated
   USING (app.is_project_member(project_id));
 
+-- readiness_source
+REVOKE ALL ON public.readiness_source FROM anon, authenticated;
+ALTER TABLE public.readiness_source ENABLE ROW LEVEL SECURITY;
+
 -- segment_rule
 REVOKE ALL ON public.segment_rule FROM anon, authenticated;
 ALTER TABLE public.segment_rule ENABLE ROW LEVEL SECURITY;

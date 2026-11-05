@@ -77,7 +77,7 @@ description: "Task list for the project workspace and readiness dashboard (M0): 
 - [X] T023 [US1] Change `confirmAction()` in app/start/router-view.js to link a member to `/projects?new=1&segment=<letter>` (verifies T017, M1 part)
 - [X] T024 [US1] Build SC-10 in app/projects/page.js, app/projects/projects-client.js and app/projects/projects-view.js in the order of docs/screens/screen-spec-SC-10.md (title + *New project*, stage tabs with counts, cards, *Create new project* panel, Empty / Loading / Error / Success) (FR-001, FR-003; verifies T017)
 - [X] T025 [US1] Build SC-12 for a new project in app/projects/[id]/page.js and app/projects/[id]/dashboard-client.js: header, overall readiness, one card per gauge in `gauges_shown` with its score and next step, Logistics `—` *Phase 2*, gauge buttons live only for built screens, sidebar Overview / Settings (FR-006, FR-007, US-1 Scenario 2)
-- [ ] T026 [US1] Run quickstart Slice 1 on `cinematch-dev` after `db push` and the reseed, and record the results in specs/005-m0-workspace/quickstart.md §Results (US-1, SC-002)
+- [X] T026 [US1] Run quickstart Slice 1 on `cinematch-dev` after `npx supabase db push --remote` and the reseed, and record the results in specs/005-m0-workspace/quickstart.md §Results (US-1, SC-002)
 
 **Checkpoint**: A member creates a project in three fields and sees its dashboard; MVP demonstrable.
 
@@ -102,7 +102,7 @@ description: "Task list for the project workspace and readiness dashboard (M0): 
 - [X] T032 [US2] Implement `GET` in app/api/projects/[id]/readiness/route.js (verifies T028)
 - [X] T033 [US2] Make the SC-10 cards and SC-12 read the same `listReadiness()` / `getReadiness()` rows in app/projects/page.js and app/projects/[id]/page.js (verifies T029)
 - [X] T034 [US2] Implement `snapshotReadiness(date)` in lib/db/readiness.js (both sources; Supabase: `app_snapshot_readiness`), scripts/snapshot-readiness.mjs and the `snapshot` script in package.json (verifies T030)
-- [ ] T035 [US2] Run quickstart Slice 2 on `cinematch-dev` (including `npm run snapshot` twice) and record the results in specs/005-m0-workspace/quickstart.md §Results (US-2, SC-001, SC-003)
+- [X] T035 [US2] Run quickstart Slice 2 on `cinematch-dev` (including `npm run snapshot` twice) and record the results in specs/005-m0-workspace/quickstart.md §Results (US-2, SC-001, SC-003)
 
 **Checkpoint**: Every gauge tells the next step; numbers agree everywhere; snapshots accumulate.
 
@@ -128,7 +128,7 @@ description: "Task list for the project workspace and readiness dashboard (M0): 
 - [X] T042 [US3] Implement `inviteMember()`, `listInvitations()`, `acceptInvitation()`, `updateProject()`, `archiveProject()` and `getProject()` in lib/db/projects.js and both sources (verifies T037, T038)
 - [X] T043 [US3] Implement the routes app/api/projects/[id]/route.js (GET, PATCH, DELETE → 405), app/api/projects/[id]/archive/route.js, app/api/projects/[id]/invitations/route.js, app/api/invitations/route.js and app/api/invitations/[member_id]/accept/route.js (verifies T039)
 - [X] T044 [US3] Build SC-13 in app/projects/[id]/settings/page.js, settings-client.js and settings-view.js in the order of docs/screens/screen-spec-SC-13.md (details, members and invitations, archive with confirmation; no segment card, no delete), and the *Invitations* block with *Accept* on SC-10 (FR-002, FR-004, BR-005; verifies T040)
-- [ ] T045 [US3] Run quickstart Slice 3 on `cinematch-dev` with two temporary accounts and record the results in specs/005-m0-workspace/quickstart.md §Results (US-3 Scenario 1)
+- [X] T045 [US3] Run quickstart Slice 3 on `cinematch-dev` with two temporary accounts and record the results in specs/005-m0-workspace/quickstart.md §Results (US-3 Scenario 1)
 
 **Checkpoint**: All three stories work offline and on Supabase.
 
@@ -136,8 +136,17 @@ description: "Task list for the project workspace and readiness dashboard (M0): 
 
 ## Phase 6: Polish & Cross-Cutting Concerns
 
-- [ ] T046 Run `npm test`, `npm run build`, `npm run test:rls`, `uv run tools/start_feature.py --check`, `python3 tools/build_supabase.py --check`, `python3 data/seed/check_seed.py`, `python3 data/schema/load_check.py` and record them in specs/005-m0-workspace/quickstart.md §Results
-- [ ] T047 Add the build-log entry and the AI-use-log row, and record the spec issues of research Open questions 1–7 in docs/build/build-log.md §3 and docs/ai-use-log.md
+- [X] T046 Run `npm test`, `npm run build`, `npm run test:rls`, `uv run tools/start_feature.py --check`, `python3 tools/build_supabase.py --check`, `python3 data/seed/check_seed.py`, `python3 data/schema/load_check.py` and record them in specs/005-m0-workspace/quickstart.md §Results
+- [X] T047 Add the build-log entry and the AI-use-log row, and record the spec issues of research Open questions 1–7 in docs/build/build-log.md §3 and docs/ai-use-log.md
+
+## Phase 7: Decisions H1–H3 and fixes from the online run (Nam Tran, 04–05/11/2026)
+
+- [X] T048 [US2] H1 test first: tests/unit/readiness-not-reported.test.js (flag off → score NULL, `not_reported`, total over the reported gauges, none reported → NULL and no snapshot), tests/unit/readiness-not-reported-view.test.js (SC-12 `—` *Not calculated yet*, partial note, API fields), tests/unit/m0-readiness-source-migration.test.js; then `READINESS_SOURCE` in tools/dm_model.py, tools/dm_model2.py, tools/dm_rules.py, tools/build_data.py, data/seed/generate_seed.py, data/seed/seed_rules.py (regenerated: 47 tables, 448 rows; seed files from 15 renumbered), lib/db/readiness-view.sql, lib/db/sqlite/readiness.js, app/projects/[id]/dashboard-view.js and dashboard-client.js, supabase/migrations/20261105000100_m0_readiness_source.sql; table count 46 → 47 in tests/unit/migrations-schema.test.js, tests/unit/rls-coverage.test.js (title), tools/build_supabase.py, AGENTS.md, README.md, tools/README.md (spec §3 edge case, plan D5)
+- [X] T049 [US3] H2: SC-13 #9 at its source tools/s5_en.py, then `python3 tools/build_docs.py --mermaid`, `build_index.py`, `start_feature.py --check` (plan D6)
+- [X] T050 [US2] H3 test first: tests/contracts/readiness-api.test.js (spec names), tests/unit/readiness-api-shape.test.js (round trip); then `toApiReadiness()` / `fromApiReadiness()` in lib/db/project-shape.js, app/api/projects/[id]/readiness/route.js, contracts/readiness-view.contract.md §API shape, contracts/projects-api.contract.md (FR-005, FR-007, plan D7)
+- [X] T051 Malformed project or member id → 404 before any database call, test first in tests/contracts/readiness-api.test.js and tests/contracts/project-members-api.test.js, then `isUuid()` in lib/api/projects.js and the five `:id` routes (found on `cinematch-dev`)
+- [X] T052 scripts/lib/supabase-check.mjs finds the location seed file by table name (the NN prefix moved with T048); tests/rls/rls.test.js removes its fixture organisations (build-log Entry 10)
+- [X] T053 Every `db push` command in specs/*/quickstart.md → `npx supabase db push --remote`; plan.md Known limitations
 
 ---
 
@@ -166,6 +175,8 @@ description: "Task list for the project workspace and readiness dashboard (M0): 
 | US-3 Scenario 1 — invite with *edit*, accept, see the project | T036, T037, T039 | T041, T042, T043, T044 |
 | FR-002 — edit details | T036, T038, T039, T040 | T041, T042, T043, T044 |
 | FR-008 — nightly snapshot | T006, T030 | T011, T034 |
+| Spec §3 edge case — a module fails to report (H1) | T048 | T048 |
+| FR-005 / FR-007 output names (H3) | T050 | T050 |
 
 ---
 

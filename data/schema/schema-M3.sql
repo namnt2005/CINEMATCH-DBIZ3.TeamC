@@ -18,7 +18,7 @@ CREATE TABLE province (
     CONSTRAINT ck_province_region CHECK (region IN ('north', 'central', 'south'))
 );
 
--- LOCATION: A filming location in Vietnam described and published by VFDA staff. (owner M3; seed file 21_location.csv)
+-- LOCATION: A filming location in Vietnam described and published by VFDA staff. (owner M3; seed file 22_location.csv)
 CREATE TABLE location (
     location_id UUID NOT NULL,
     slug VARCHAR(160),
@@ -59,7 +59,7 @@ CREATE TABLE location (
     CONSTRAINT ck_location_in_vietnam CHECK (lat BETWEEN 8 AND 24 AND lng BETWEEN 102 AND 110)
 );
 
--- LOCATION_IMAGE: A photo of a location with its source and usage right. (owner M3; seed file 22_location_image.csv)
+-- LOCATION_IMAGE: A photo of a location with its source and usage right. (owner M3; seed file 23_location_image.csv)
 CREATE TABLE location_image (
     image_url TEXT NOT NULL,
     location_id UUID NOT NULL,
@@ -71,7 +71,7 @@ CREATE TABLE location_image (
     CONSTRAINT fk_location_image_location_id FOREIGN KEY (location_id) REFERENCES location (location_id)
 );
 
--- AUTHORITY_CONTACT: The local authority office and person to contact about filming at a location, verified by VFDA. (owner M3; seed file 23_authority_contact.csv)
+-- AUTHORITY_CONTACT: The local authority office and person to contact about filming at a location, verified by VFDA. (owner M3; seed file 24_authority_contact.csv)
 CREATE TABLE authority_contact (
     location_id UUID NOT NULL,
     authority_name VARCHAR(200) NOT NULL,
@@ -86,7 +86,7 @@ CREATE TABLE authority_contact (
     CONSTRAINT fk_authority_contact_verified_by FOREIGN KEY (verified_by) REFERENCES user_account (user_id)
 );
 
--- LOCATION_QUERY: A scene description a user typed and the attributes extracted from it, stored without personal data. (owner M3; seed file 24_location_query.csv)
+-- LOCATION_QUERY: A scene description a user typed and the attributes extracted from it, stored without personal data. (owner M3; seed file 25_location_query.csv)
 CREATE TABLE location_query (
     query_id UUID NOT NULL,
     project_id UUID,
@@ -99,7 +99,7 @@ CREATE TABLE location_query (
     CONSTRAINT ck_location_query_length CHECK (LENGTH(scene_description) BETWEEN 10 AND 1000)
 );
 
--- PROJECT_SHORTLIST: A location a project has kept as its primary or backup choice. (owner M3; seed file 25_project_shortlist.csv)
+-- PROJECT_SHORTLIST: A location a project has kept as its primary or backup choice. (owner M3; seed file 26_project_shortlist.csv)
 CREATE TABLE project_shortlist (
     shortlist_id UUID NOT NULL,
     project_id UUID NOT NULL,

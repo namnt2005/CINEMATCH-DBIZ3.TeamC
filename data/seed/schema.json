@@ -547,6 +547,33 @@
   "file": "14_readiness_snapshot.csv",
   "owner": "M0"
  },
+ "READINESS_SOURCE": {
+  "table": "readiness_source",
+  "columns": [
+   "gauge",
+   "reporting"
+  ],
+  "pk": [
+   "gauge"
+  ],
+  "required": [
+   "gauge",
+   "reporting"
+  ],
+  "fk": [],
+  "enums": {
+   "gauge": [
+    "content",
+    "locations",
+    "partners",
+    "dossier"
+   ]
+  },
+  "array_enums": {},
+  "load_order": 15,
+  "file": "15_readiness_source.csv",
+  "owner": "M0"
+ },
  "RULE_SET_VERSION": {
   "table": "rule_set_version",
   "columns": [
@@ -570,8 +597,8 @@
   ],
   "enums": {},
   "array_enums": {},
-  "load_order": 15,
-  "file": "15_rule_set_version.csv",
+  "load_order": 16,
+  "file": "16_rule_set_version.csv",
   "owner": "M2"
  },
  "LEGAL_RULE": {
@@ -645,8 +672,8 @@
    ]
   },
   "array_enums": {},
-  "load_order": 16,
-  "file": "16_legal_rule.csv",
+  "load_order": 17,
+  "file": "17_legal_rule.csv",
   "owner": "M2"
  },
  "PRECHECK_RUN": {
@@ -694,8 +721,8 @@
    ]
   },
   "array_enums": {},
-  "load_order": 17,
-  "file": "17_precheck_run.csv",
+  "load_order": 18,
+  "file": "18_precheck_run.csv",
   "owner": "M2"
  },
  "PRECHECK_FINDING": {
@@ -733,8 +760,8 @@
   ],
   "enums": {},
   "array_enums": {},
-  "load_order": 18,
-  "file": "18_precheck_finding.csv",
+  "load_order": 19,
+  "file": "19_precheck_finding.csv",
   "owner": "M2"
  },
  "COMPLIANCE_RUN": {
@@ -767,8 +794,8 @@
   ],
   "enums": {},
   "array_enums": {},
-  "load_order": 19,
-  "file": "19_compliance_run.csv",
+  "load_order": 20,
+  "file": "20_compliance_run.csv",
   "owner": "M2"
  },
  "COMPLIANCE_FINDING": {
@@ -807,8 +834,8 @@
    ]
   },
   "array_enums": {},
-  "load_order": 20,
-  "file": "20_compliance_finding.csv",
+  "load_order": 21,
+  "file": "21_compliance_finding.csv",
   "owner": "M2"
  },
  "LOCATION": {
@@ -911,8 +938,8 @@
     "mangrove"
    ]
   },
-  "load_order": 21,
-  "file": "21_location.csv",
+  "load_order": 22,
+  "file": "22_location.csv",
   "owner": "M3"
  },
  "LOCATION_IMAGE": {
@@ -947,8 +974,8 @@
    ]
   },
   "array_enums": {},
-  "load_order": 22,
-  "file": "22_location_image.csv",
+  "load_order": 23,
+  "file": "23_location_image.csv",
   "owner": "M3"
  },
  "AUTHORITY_CONTACT": {
@@ -987,8 +1014,8 @@
   ],
   "enums": {},
   "array_enums": {},
-  "load_order": 23,
-  "file": "23_authority_contact.csv",
+  "load_order": 24,
+  "file": "24_authority_contact.csv",
   "owner": "M3"
  },
  "LOCATION_QUERY": {
@@ -1015,8 +1042,8 @@
   ],
   "enums": {},
   "array_enums": {},
-  "load_order": 24,
-  "file": "24_location_query.csv",
+  "load_order": 25,
+  "file": "25_location_query.csv",
   "owner": "M3"
  },
  "PROJECT_SHORTLIST": {
@@ -1054,8 +1081,8 @@
    ]
   },
   "array_enums": {},
-  "load_order": 25,
-  "file": "25_project_shortlist.csv",
+  "load_order": 26,
+  "file": "26_project_shortlist.csv",
   "owner": "M3"
  },
  "ORGANISATION": {
@@ -1113,8 +1140,8 @@
     "post_production"
    ]
   },
-  "load_order": 26,
-  "file": "26_organisation.csv",
+  "load_order": 27,
+  "file": "27_organisation.csv",
   "owner": "M4"
  },
  "ORGANISATION_MEMBER_LAYER": {
@@ -1143,8 +1170,8 @@
   ],
   "enums": {},
   "array_enums": {},
-  "load_order": 27,
-  "file": "27_organisation_member_layer.csv",
+  "load_order": 28,
+  "file": "28_organisation_member_layer.csv",
   "owner": "M4"
  },
  "ORGANISATION_PRIVATE_LAYER": {
@@ -1170,8 +1197,8 @@
   ],
   "enums": {},
   "array_enums": {},
-  "load_order": 28,
-  "file": "28_organisation_private_layer.csv",
+  "load_order": 29,
+  "file": "29_organisation_private_layer.csv",
   "owner": "M4"
  },
  "VERIFICATION_REQUEST": {
@@ -1213,8 +1240,8 @@
    ]
   },
   "array_enums": {},
-  "load_order": 29,
-  "file": "29_verification_request.csv",
+  "load_order": 30,
+  "file": "30_verification_request.csv",
   "owner": "M4"
  },
  "COLLAB_REQUEST": {
@@ -1264,8 +1291,8 @@
    ]
   },
   "array_enums": {},
-  "load_order": 30,
-  "file": "30_collab_request.csv",
+  "load_order": 31,
+  "file": "31_collab_request.csv",
   "owner": "M4"
  },
  "COLLAB_MESSAGE": {
@@ -1299,8 +1326,8 @@
   ],
   "enums": {},
   "array_enums": {},
-  "load_order": 31,
-  "file": "31_collab_message.csv",
+  "load_order": 32,
+  "file": "32_collab_message.csv",
   "owner": "M4"
  },
  "NDA_ACCEPTANCE": {
@@ -1336,8 +1363,8 @@
    ]
   },
   "array_enums": {},
-  "load_order": 32,
-  "file": "32_nda_acceptance.csv",
+  "load_order": 33,
+  "file": "33_nda_acceptance.csv",
   "owner": "M4"
  },
  "DOCUMENT_TYPE": {
@@ -1371,8 +1398,8 @@
     "C"
    ]
   },
-  "load_order": 33,
-  "file": "33_document_type.csv",
+  "load_order": 34,
+  "file": "34_document_type.csv",
   "owner": "M5"
  },
  "DOCUMENT_SLOT": {
@@ -1411,8 +1438,8 @@
    ]
   },
   "array_enums": {},
-  "load_order": 34,
-  "file": "34_document_slot.csv",
+  "load_order": 35,
+  "file": "35_document_slot.csv",
   "owner": "M5"
  },
  "DOCUMENT": {
@@ -1456,8 +1483,8 @@
   ],
   "enums": {},
   "array_enums": {},
-  "load_order": 35,
-  "file": "35_document.csv",
+  "load_order": 36,
+  "file": "36_document.csv",
   "owner": "M5"
  },
  "DOCUMENT_ACCESS_LOG": {
@@ -1489,8 +1516,8 @@
   ],
   "enums": {},
   "array_enums": {},
-  "load_order": 36,
-  "file": "36_document_access_log.csv",
+  "load_order": 37,
+  "file": "37_document_access_log.csv",
   "owner": "M4"
  },
  "BILINGUAL_DOCUMENT": {
@@ -1525,8 +1552,8 @@
   ],
   "enums": {},
   "array_enums": {},
-  "load_order": 37,
-  "file": "37_bilingual_document.csv",
+  "load_order": 38,
+  "file": "38_bilingual_document.csv",
   "owner": "M5"
  },
  "BILINGUAL_PARAGRAPH": {
@@ -1579,8 +1606,8 @@
    ]
   },
   "array_enums": {},
-  "load_order": 38,
-  "file": "38_bilingual_paragraph.csv",
+  "load_order": 39,
+  "file": "39_bilingual_paragraph.csv",
   "owner": "M5"
  },
  "PROJECT_GLOSSARY": {
@@ -1606,8 +1633,8 @@
   ],
   "enums": {},
   "array_enums": {},
-  "load_order": 39,
-  "file": "39_project_glossary.csv",
+  "load_order": 40,
+  "file": "40_project_glossary.csv",
   "owner": "M5"
  },
  "PUBLIC_HOLIDAY": {
@@ -1631,8 +1658,8 @@
   "fk": [],
   "enums": {},
   "array_enums": {},
-  "load_order": 40,
-  "file": "40_public_holiday.csv",
+  "load_order": 41,
+  "file": "41_public_holiday.csv",
   "owner": "M5"
  },
  "LOCATION_INTEREST": {
@@ -1665,8 +1692,8 @@
   ],
   "enums": {},
   "array_enums": {},
-  "load_order": 41,
-  "file": "41_location_interest.csv",
+  "load_order": 42,
+  "file": "42_location_interest.csv",
   "owner": "M7"
  },
  "PROVINCE_NOTICE": {
@@ -1727,8 +1754,8 @@
    ]
   },
   "array_enums": {},
-  "load_order": 42,
-  "file": "42_province_notice.csv",
+  "load_order": 43,
+  "file": "43_province_notice.csv",
   "owner": "M7"
  },
  "CONSULTATION_BOOKING": {
@@ -1778,8 +1805,8 @@
    ]
   },
   "array_enums": {},
-  "load_order": 43,
-  "file": "43_consultation_booking.csv",
+  "load_order": 44,
+  "file": "44_consultation_booking.csv",
   "owner": "M7"
  },
  "MODERATION_ITEM": {
@@ -1837,8 +1864,8 @@
    ]
   },
   "array_enums": {},
-  "load_order": 44,
-  "file": "44_moderation_item.csv",
+  "load_order": 45,
+  "file": "45_moderation_item.csv",
   "owner": "M10"
  },
  "AUDIT_LOG": {
@@ -1866,8 +1893,8 @@
   ],
   "enums": {},
   "array_enums": {},
-  "load_order": 45,
-  "file": "45_audit_log.csv",
+  "load_order": 46,
+  "file": "46_audit_log.csv",
   "owner": "M10"
  },
  "QUARTERLY_REPORT": {
@@ -1903,8 +1930,8 @@
   ],
   "enums": {},
   "array_enums": {},
-  "load_order": 46,
-  "file": "46_quarterly_report.csv",
+  "load_order": 47,
+  "file": "47_quarterly_report.csv",
   "owner": "M10"
  }
 }

@@ -140,6 +140,7 @@ R = [
 ]
 UNLINKED = {  # stored entities with no citable relationship (open questions, per S3 instruction)
  "SEGMENT_REQUIREMENT":"belongs to a segment (M1 §6) — segment is an enum, not an entity; link to DOCUMENT_TYPE (M5 BR-004) not declared",
+ "READINESS_SOURCE":"one row per counted gauge (M0 §3 edge case, decision H1) — a gauge is a fixed name, not an entity; read only by the readiness view",
  "PUBLIC_HOLIDAY":"\"used by the timeline\" (M5 §6) — the timeline is derived; no stored entity references it",
 }
 
@@ -260,6 +261,10 @@ C["READINESS_SNAPSHOT"] = [
  ("project_id","UUID","Req","FK","M0 §5.1 FR-008","PROJECT"),
  ("snapshot_date","DATE","Req","","M0 §5.1 FR-008",None),
  ("readiness_total","NUMERIC(5,2)","system-set","","M0 §6; M0 §5.1 FR-009 (OUT)",None),
+]
+C["READINESS_SOURCE"] = [
+ ("gauge","ENUM(content, locations, partners, dossier)","Req","PK","M0 §3 Edge cases (\"A module fails to report\"); specs/005-m0-workspace decision H1 (05/11/2026)",None),
+ ("reporting","BOOLEAN","Req","","M0 §3 Edge cases (a gauge that has not reported shows — and leaves the overall score)",None),
 ]
 C["RULE_SET_VERSION"] = [
  ("rule_version","VARCHAR(20)","system-set","PK","M2 §5.1 FR-004 (OUT) — see Type conflicts",None),
@@ -597,6 +602,7 @@ NATURAL_KEY = {
  "PROJECT_MEMBER":"project_id + invitee_email (the invited address); project_id + user_id once accepted.",
  "PROJECT_PROVINCE":"project_id + province_id.",
  "READINESS_SNAPSHOT":"project_id + snapshot_date (one per night, M0 FR-008).",
+ "READINESS_SOURCE":"gauge (one row per counted gauge).",
  "RULE_SET_VERSION":"rule_version.",
  "LEGAL_RULE":"rule_code today; rule_code + rule_version once one text per version is kept, as M2 BR-008 now requires (OQ-04-24).",
  "PRECHECK_RUN":"None — the same summary may be checked many times (synopsis_hash + created_at in practice).",

@@ -199,6 +199,10 @@ for proj, user, mail, perm, st in MEM:
 for proj, prov in [("ferry","ninh-binh"),("ferry","quang-ninh"),("rice","can-tho"),("rice","an-giang"),("sapa","lao-cai"),
                    ("lantern","da-nang"),("blues","quang-ninh"),("long","tuyen-quang"),("long","ca-mau")]:
     add("PROJECT_PROVINCE", project_id=PID[proj], province_id=P[prov])
+# M0 §3 edge case, decision H1 (05/11/2026): every module reports in the seed; a row set to false makes its
+# gauge show — (not calculated yet) and leaves the overall score
+for g in ("content", "locations", "partners", "dossier"):
+    add("READINESS_SOURCE", gauge=g, reporting="true")
 for d, v in [("2026-09-20","41.00"),("2026-09-21","44.50"),("2026-09-22","52.00"),("2026-09-23","55.00"),
              ("2026-09-24","58.00"),("2026-09-25","58.00"),("2026-09-26","58.00"),("2026-09-27","58.00")]:
     add("READINESS_SNAPSHOT", snapshot_id=U("snap:ferry:" + d), project_id=PID["ferry"], snapshot_date=d, readiness_total=v)

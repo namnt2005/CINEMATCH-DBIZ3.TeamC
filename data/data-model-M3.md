@@ -7,7 +7,7 @@
 | Module | M3 — Location discovery |
 | Spec Document | `docs/spec/spec-M3.md` |
 | Schema | `data/schema/schema-M3.sql` |
-| Seed files | `21_location.csv`, `22_location_image.csv`, `23_authority_contact.csv`, `12_province.csv`, `24_location_query.csv`, `25_project_shortlist.csv` |
+| Seed files | `22_location.csv`, `23_location_image.csv`, `24_authority_contact.csv`, `12_province.csv`, `25_location_query.csv`, `26_project_shortlist.csv` |
 | Version / date | v1.0 — 01/10/2026 |
 | Prepared by | Group C (draft by an AI agent, see `docs/ai-use-log.md`) |
 | Status | Ready for the human gates in section 13 |
@@ -47,12 +47,12 @@ CITATION SCHEME = <MODULE> §<section> <ID>
 
 | Entity | Definition (one sentence) | Kind | Owner | Source | Table | Seed file (rows) |
 |---|---|---|---|---|---|---|
-| `LOCATION` | A filming location in Vietnam described and published by VFDA staff. | THING | M3 | spec §6 — M3 §6; M3 §5.1 FR-002; M3 §5.2 BR-008 | `location` | `21_location.csv` (11) |
-| `LOCATION_IMAGE` | A photo of a location with its source and usage right. | THING | M3 | spec §6 — M3 §6; M3 §5.1 FR-003 | `location_image` | `22_location_image.csv` (10) |
-| `AUTHORITY_CONTACT` | The local authority office and person to contact about filming at a location, verified by VFDA. | THING | M3 | spec §6 — M3 §6; M3 §5.1 FR-004 | `authority_contact` | `23_authority_contact.csv` (11) |
+| `LOCATION` | A filming location in Vietnam described and published by VFDA staff. | THING | M3 | spec §6 — M3 §6; M3 §5.1 FR-002; M3 §5.2 BR-008 | `location` | `22_location.csv` (11) |
+| `LOCATION_IMAGE` | A photo of a location with its source and usage right. | THING | M3 | spec §6 — M3 §6; M3 §5.1 FR-003 | `location_image` | `23_location_image.csv` (10) |
+| `AUTHORITY_CONTACT` | The local authority office and person to contact about filming at a location, verified by VFDA. | THING | M3 | spec §6 — M3 §6; M3 §5.1 FR-004 | `authority_contact` | `24_authority_contact.csv` (11) |
 | `PROVINCE` | One of the 34 provincial-level units after the 2025 reorganisation. | THING | M3 | spec §6 — M3 §6; M3 §5.2 BR-006 | `province` | `12_province.csv` (34) |
-| `LOCATION_QUERY` | A scene description a user typed and the attributes extracted from it, stored without personal data. | EVENT | M3 | spec §6 — M3 §6; M3 §5.1 FR-010, FR-011; M3 §5.2 BR-009 | `location_query` | `24_location_query.csv` (6) |
-| `PROJECT_SHORTLIST` | A location a project has kept as its primary or backup choice. | THING | M3 | spec §6 — M3 §6; M3 §5.1 FR-018 | `project_shortlist` | `25_project_shortlist.csv` (9) |
+| `LOCATION_QUERY` | A scene description a user typed and the attributes extracted from it, stored without personal data. | EVENT | M3 | spec §6 — M3 §6; M3 §5.1 FR-010, FR-011; M3 §5.2 BR-009 | `location_query` | `25_location_query.csv` (6) |
+| `PROJECT_SHORTLIST` | A location a project has kept as its primary or backup choice. | THING | M3 | spec §6 — M3 §6; M3 §5.1 FR-018 | `project_shortlist` | `26_project_shortlist.csv` (9) |
 | `PROVINCE_READINESS` | A province's readiness index computed from platform data, with sample sizes. | DERIVED (computed on read, not stored) | M3 | spec §6 — M3 §6 ("derived from Locations, Organisations, Notices"); M3 §5.2 BR-007 | — | — |
 
 **Entities of other modules referenced here** (drawn without attributes in §5): `LOCATION_INTEREST` (M7), `MODERATION_ITEM` (M10), `ORGANISATION` (M4), `PROJECT` (M0), `PROJECT_PROVINCE` (M0), `PROVINCE_NOTICE` (M7), `USER_ACCOUNT` (SYS).
@@ -300,16 +300,16 @@ Kept as a JSON array (1NF exception): the whole list is what functions filter an
 
 | Rule | Statement | Enforced in | Named object | Seed rows that show it |
 |---|---|---|---|---|
-| BR-001 | The language model only extracts attributes; ranking is done by a deterministic server-side scoring function. The model never names or ranks a location. | APP (Plan step) | Edge Function returns attributes only; ranking in function `search_locations` | `24_location_query.csv` — An old wooden ferry crossing a calm ri · 3 — the query stores extracted attributes, never a ranking |
-| BR-002 | A result is shown only if its score is 40 or more and it has at least one *why it matches* reason. | VIEW (Plan step) | function `search_locations` filters score ≥ 40 and ≥ 1 reason | `21_location.csv` — ca-mau-cape · published · open; ha-long · published · survey_in_progress (+7) — only published locations are scored |
-| BR-003 | *Not a match* and *No data yet* are different; missing data never counts for or against a location. | APP (Plan step) | scoring treats an empty field as *No data yet* | `21_location.csv` — cai-rang · published · open — no month to avoid recorded |
-| BR-004 | A location cannot be published until its local authority contact is verified; contacts are re-verified every 12 months [NEEDS CLARIFICATION]. | SCHEMA + SEED CHECK + TRIGGER (Plan step) | `ck_location_published_matches_status`; seed_rules (contact verified); trigger `trg_location_publish_needs_contact` | `21_location.csv` — mui-ne · awaiting_contact · open — contact not verified → awaiting_contact, not published<br>`23_authority_contact.csv` — Ban Quản lý Vườn quốc gia Mũi Cà Mau · true · 2016-01-04T10:00:00+07:00 — contact verified in 2016 — older than the 12-month cycle |
-| BR-005 | Authority contacts are returned only to signed-in users, enforced by Row Level Security. | RLS (Plan step) | policy `rls_authority_contact_members` | `23_authority_contact.csv` — Ban Quản lý Vườn quốc gia Mũi Cà Mau · true · 2016-01-04T10:00:00+07:00; Ban Quản lý vịnh Hạ Long · true · 2026-04-12T10:00:00+07:00 (+2) — contacts with e-mail and phone that a guest must never receive |
+| BR-001 | The language model only extracts attributes; ranking is done by a deterministic server-side scoring function. The model never names or ranks a location. | APP (Plan step) | Edge Function returns attributes only; ranking in function `search_locations` | `25_location_query.csv` — An old wooden ferry crossing a calm ri · 3 — the query stores extracted attributes, never a ranking |
+| BR-002 | A result is shown only if its score is 40 or more and it has at least one *why it matches* reason. | VIEW (Plan step) | function `search_locations` filters score ≥ 40 and ≥ 1 reason | `22_location.csv` — ca-mau-cape · published · open; ha-long · published · survey_in_progress (+7) — only published locations are scored |
+| BR-003 | *Not a match* and *No data yet* are different; missing data never counts for or against a location. | APP (Plan step) | scoring treats an empty field as *No data yet* | `22_location.csv` — cai-rang · published · open — no month to avoid recorded |
+| BR-004 | A location cannot be published until its local authority contact is verified; contacts are re-verified every 12 months [NEEDS CLARIFICATION]. | SCHEMA + SEED CHECK + TRIGGER (Plan step) | `ck_location_published_matches_status`; seed_rules (contact verified); trigger `trg_location_publish_needs_contact` | `22_location.csv` — mui-ne · awaiting_contact · open — contact not verified → awaiting_contact, not published<br>`24_authority_contact.csv` — Ban Quản lý Vườn quốc gia Mũi Cà Mau · true · 2016-01-04T10:00:00+07:00 — contact verified in 2016 — older than the 12-month cycle |
+| BR-005 | Authority contacts are returned only to signed-in users, enforced by Row Level Security. | RLS (Plan step) | policy `rls_authority_contact_members` | `24_authority_contact.csv` — Ban Quản lý Vườn quốc gia Mũi Cà Mau · true · 2016-01-04T10:00:00+07:00; Ban Quản lý vịnh Hạ Long · true · 2026-04-12T10:00:00+07:00 (+2) — contacts with e-mail and phone that a guest must never receive |
 | BR-006 | Provinces use the 34 provincial-level units after the 2025 reorganisation; old names are accepted in search and mapped to the new unit. | SCHEMA | `pk_province` (34 rows) + `merged_from` | `12_province.csv` — Ninh Bình · north — Ninh Bình also answers to Hà Nam and Nam Định |
 | BR-007 | The provincial index uses only data generated on the platform and always shows its sample size. | VIEW (Plan step) | view `v_province_readiness` with sample sizes | `12_province.csv` — Hải Phòng · north — a province with no location: index shows *not enough data* |
-| BR-008 | Locations are unpublished, never deleted (`intake_status = unpublished`); shortlists and provincial notices that refer to an unpublished location keep it and show *No longer published*. | SCHEMA + SEED CHECK | `ck_location_intake_status`; seed_rules: an unpublished location is still shortlisted | `21_location.csv` — cua-van · unpublished · open — Cửa Vạn unpublished, never deleted<br>`25_project_shortlist.csv` — backup — still the backup of Quiet Harbour Blues |
-| BR-009 | Every confirmed scene search is stored as a location query without any personal data (description, attributes, month, and the project only when a member searches inside a project); it is used for the M10 demand index and never to train a model. | SCHEMA | LOCATION_QUERY has no user column; `project_id` optional | `24_location_query.csv` — Ruộng bậc thang mùa lúa chín, có sương · 9; Busy floating market at sunrise with d · 5 (+1) — guest queries with no project and no person |
-| BR-010 | Every published location carries an availability set by VFDA staff: `open`, `survey_in_progress` (another crew is scouting it) or `paused` (not receiving crews for now). A paused location stays published and visible with its label; availability is the sixth scoring criterion; every change is written to the audit log (M10 FR-008). | SCHEMA + TRIGGER (Plan step) | `ck_location_availability`; trigger `trg_location_availability_audit` | `21_location.csv` — phong-nha · published · paused — Phong Nha paused, still published<br>`45_audit_log.csv` — location.availability · 2026-09-25T15:05:00+07:00; location.availability · 2026-09-24T08:20:00+07:00 — every change audited |
+| BR-008 | Locations are unpublished, never deleted (`intake_status = unpublished`); shortlists and provincial notices that refer to an unpublished location keep it and show *No longer published*. | SCHEMA + SEED CHECK | `ck_location_intake_status`; seed_rules: an unpublished location is still shortlisted | `22_location.csv` — cua-van · unpublished · open — Cửa Vạn unpublished, never deleted<br>`26_project_shortlist.csv` — backup — still the backup of Quiet Harbour Blues |
+| BR-009 | Every confirmed scene search is stored as a location query without any personal data (description, attributes, month, and the project only when a member searches inside a project); it is used for the M10 demand index and never to train a model. | SCHEMA | LOCATION_QUERY has no user column; `project_id` optional | `25_location_query.csv` — Ruộng bậc thang mùa lúa chín, có sương · 9; Busy floating market at sunrise with d · 5 (+1) — guest queries with no project and no person |
+| BR-010 | Every published location carries an availability set by VFDA staff: `open`, `survey_in_progress` (another crew is scouting it) or `paused` (not receiving crews for now). A paused location stays published and visible with its label; availability is the sixth scoring criterion; every change is written to the audit log (M10 FR-008). | SCHEMA + TRIGGER (Plan step) | `ck_location_availability`; trigger `trg_location_availability_audit` | `22_location.csv` — phong-nha · published · paused — Phong Nha paused, still published<br>`46_audit_log.csv` — location.availability · 2026-09-25T15:05:00+07:00; location.availability · 2026-09-24T08:20:00+07:00 — every change audited |
 
 ## 8. Schema (mandatory)
 
@@ -325,18 +325,18 @@ Load test: `python3 data/schema/load_check.py` runs every schema file, then ever
 | Regenerate | `python3 data/seed/generate_seed.py && python3 data/seed/check_seed.py` (must print PASS; `git status` stays clean) |
 | Random seed | none — no randomness and no clock: keys are UUIDv5 of readable names (namespace `6f1c2a8e-3b4d-5e6f-8a9b-0c1d2e3f4a5b`), so every run is byte-identical |
 | Business-rule values | computed by the generator, never typed: attention level (M2 BR-004), quote span (M2 §6.1), latest readiness (M0 §9), is_active, published |
-| Files | 6 files of this module, 81 rows (product: 46 files, 444 rows) |
+| Files | 6 files of this module, 81 rows (product: 47 files, 448 rows) |
 
 **Rows per file and row kinds** (1 = ordinary rows in every file)
 
 | File | Rows | (2) Boundary | (3) Empty case | (4) Exceptional state |
 |---|---|---|---|---|
-| `21_location.csv` | 11 | 200-char names; Cà Mau, southernmost (8.615°) | Tam Cốc, Cà Mau Cape: no image | Mũi Né: contact unverified, publishing blocked; Cửa Vạn: `unpublished` (M3 BR-008); Hạ Long `survey_in_progress`, Phong Nha `paused` (M3 BR-010) |
-| `22_location_image.csv` | 10 | — | Tam Cốc, Cà Mau Cape: no image | `hidden`: usage right unclear; `pending`: partner photo of Cái Răng |
-| `23_authority_contact.csv` | 11 | verified in 2016 (older than the 12-month cycle) | contacts without e-mail | Mũi Né: not verified |
+| `22_location.csv` | 11 | 200-char names; Cà Mau, southernmost (8.615°) | Tam Cốc, Cà Mau Cape: no image | Mũi Né: contact unverified, publishing blocked; Cửa Vạn: `unpublished` (M3 BR-008); Hạ Long `survey_in_progress`, Phong Nha `paused` (M3 BR-010) |
+| `23_location_image.csv` | 10 | — | Tam Cốc, Cà Mau Cape: no image | `hidden`: usage right unclear; `pending`: partner photo of Cái Răng |
+| `24_authority_contact.csv` | 11 | verified in 2016 (older than the 12-month cycle) | contacts without e-mail | Mũi Né: not verified |
 | `12_province.csv` | 34 | *Thành phố Hồ Chí Minh* (longest) | 25 provinces with no location | merged units with `merged_from` (M3 BR-006) |
-| `24_location_query.csv` | 6 | 1000-character description (the maximum) and a 10-character one (the minimum) | guest queries with no project; `q5`: no shooting month | — (no status column) |
-| `25_project_shortlist.csv` | 9 | — | `Monsoon Signal`, `Harbour Lights`: none | Cửa Vạn, unpublished, kept as a backup of `Quiet Harbour Blues` |
+| `25_location_query.csv` | 6 | 1000-character description (the maximum) and a 10-character one (the minimum) | guest queries with no project; `q5`: no shooting month | — (no status column) |
+| `26_project_shortlist.csv` | 9 | — | `Monsoon Signal`, `Harbour Lights`: none | Cửa Vạn, unpublished, kept as a backup of `Quiet Harbour Blues` |
 
 ## 10. Edge case register (mandatory)
 
@@ -401,12 +401,12 @@ Computed from the seed files. (a) every enumerated value has a row; (b) empty st
 
 | Rule | Seed row |
 |---|---|
-| Contact re-verified every 12 months (M3 BR-004) | `23_authority_contact.csv` — Ban Quản lý Vườn quốc gia Mũi Cà Mau · true · 2016-01-04T10:00:00+07:00 — verified 04/01/2016 |
-| Scene description 10–1000 characters (M3 §5.1 FR-010) | `24_location_query.csv` — A long journey south along the coast:  · 12 — 1000 characters |
-| Scene description 10–1000 characters (M3 §5.1 FR-010) | `24_location_query.csv` — Cave river — 10 characters |
-| Shooting month 1–12 (M3 §5.1 FR-007) | `24_location_query.csv` — A long journey south along the coast:  · 12 — month 12 |
-| Coordinates inside Vietnam (ck_location_in_vietnam) | `21_location.csv` — ca-mau-cape · published · open — southernmost point, lat 8.615 |
-| Name ≤ 200 characters (M3 §5.1 FR-002) | `21_location.csv` — ca-mau-cape · published · open — 200-character name |
+| Contact re-verified every 12 months (M3 BR-004) | `24_authority_contact.csv` — Ban Quản lý Vườn quốc gia Mũi Cà Mau · true · 2016-01-04T10:00:00+07:00 — verified 04/01/2016 |
+| Scene description 10–1000 characters (M3 §5.1 FR-010) | `25_location_query.csv` — A long journey south along the coast:  · 12 — 1000 characters |
+| Scene description 10–1000 characters (M3 §5.1 FR-010) | `25_location_query.csv` — Cave river — 10 characters |
+| Shooting month 1–12 (M3 §5.1 FR-007) | `25_location_query.csv` — A long journey south along the coast:  · 12 — month 12 |
+| Coordinates inside Vietnam (ck_location_in_vietnam) | `22_location.csv` — ca-mau-cape · published · open — southernmost point, lat 8.615 |
+| Name ≤ 200 characters (M3 §5.1 FR-002) | `22_location.csv` — ca-mau-cape · published · open — 200-character name |
 
 **(d) Business rules** — 10 of 10 rules have their rows named in section 7.
 

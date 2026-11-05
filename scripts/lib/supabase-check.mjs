@@ -16,9 +16,11 @@ export function validateKeys({ publishableKey, secretKey }) {
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 
-/** Published locations in data/seed/21_location.csv: what anon must see on the public location table. */
+/** Published locations in data/seed/NN_location.csv: what anon must see on the public location table. */
 export function seedPublishedLocations(root = ROOT) {
-  const [header, ...rows] = parseCsv(fs.readFileSync(path.join(root, 'data/seed/21_location.csv'), 'utf8'));
+  // The NN prefix is the load order and moves when a table is added (M0 readiness_source, 05/11/2026)
+  const file = fs.readdirSync(path.join(root, 'data/seed')).find(f => /^\d{2}_location\.csv$/.test(f));
+  const [header, ...rows] = parseCsv(fs.readFileSync(path.join(root, 'data/seed', file), 'utf8'));
   const col = (name) => header.findIndex(h => h.trim() === name);
   const status = col('intake_status');
   const published = col('published');

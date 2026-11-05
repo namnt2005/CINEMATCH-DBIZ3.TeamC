@@ -104,6 +104,18 @@ describe('Project member routes (T039, FR-002, FR-004, BR-005)', () => {
     }
   });
 
+  test('a malformed id is 404 on every :id route, before any database call (found on cinematch-dev, 05/11/2026)', async () => {
+    const { userClient } = await use();
+    const bad = 'undefined';
+    const p = { params: { id: bad } };
+    assert.equal((await (await route('projects/[id]')).GET(new Request(`http://localhost:3000/api/projects/${bad}`), p)).status, 404);
+    assert.equal((await (await route('projects/[id]')).PATCH(new Request(`http://localhost:3000/api/projects/${bad}`, json('PATCH', { logline: 'x' })), p)).status, 404);
+    assert.equal((await (await route('projects/[id]/archive')).POST(new Request(`http://localhost:3000/api/projects/${bad}/archive`, json('POST')), p)).status, 404);
+    assert.equal((await (await route('projects/[id]/invitations')).POST(new Request(`http://localhost:3000/api/projects/${bad}/invitations`, json('POST', { invitee_email: 'a@b.vn', permission: 'view' })), p)).status, 404);
+    assert.equal((await accept(bad)).status, 404);
+    assert.ok(!userClient.calls.some(c => c.rpc || (c.table && c.table !== 'user_account')), 'no project query or function call');
+  });
+
   test('D3: GET /api/invitations lists the pending invitations of the caller\'s email; accept → 200, or 404', async () => {
     await use();
     const list = await (await invitations()).json();

@@ -722,5 +722,9 @@
   "settings.error.email_invalid": "This email is not valid.",
   "settings.error.permission_invalid": "Choose View or Edit.",
   "settings.error.already_invited": "This email is already a member or invited.",
-  "header.projects": "My projects"
+  "header.projects": "My projects",
+  "dashboard.not_reported": "Not calculated yet",
+  "dashboard.next.not_reported": "This module has not reported yet — check again later",
+  "dashboard.overall_partial": "Calculated from {reported} of {counted} gauges; the others are not calculated yet",
+  "dashboard.none_reported": "Not calculated yet: no module has reported"
 }

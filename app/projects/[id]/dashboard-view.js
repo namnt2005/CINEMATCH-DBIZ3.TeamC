@@ -39,16 +39,27 @@ export function gaugeCards(row, labels) {
       gauge, label, counted, score,
       display: score === null ? NOT_SCORED : String(Math.round(score)),
       action: row ? row[`${gauge}_action`] ?? null : null,
+      // M0 §3 edge case (H1): the module has not reported — — with "not calculated yet"
+      notReported: Boolean(row) && row[`${gauge}_action`] === 'not_reported',
       button: BUTTONS[gauge]
     };
   });
 }
 
-/** SC-12 #5: readiness_total as an integer; the error state when the view gave nothing. */
+/**
+ * SC-12 #5: readiness_total as an integer; the error state when the view gave nothing (US-2 Scenario 3).
+ * H1: when some counted gauges have not reported, the note says the total uses only the others.
+ */
 export function overall(row) {
-  if (!row || row.readiness_total === null || row.readiness_total === undefined) {
-    return { display: NOT_SCORED, value: null, error: 'dashboard.error', retry: 'dashboard.retry' };
+  if (!row) return { display: NOT_SCORED, value: null, error: 'dashboard.error', retry: 'dashboard.retry' };
+  const counted = Number(row.gauges_counted) || 0;
+  const reported = row.gauges_reported === undefined || row.gauges_reported === null ? counted : Number(row.gauges_reported);
+  if (row.readiness_total === null || row.readiness_total === undefined) {
+    return { display: NOT_SCORED, value: null, counted, note: { key: 'dashboard.none_reported' } };
   }
   const value = Math.round(Number(row.readiness_total));
-  return { display: String(value), value, counted: Number(row.gauges_counted) || 0 };
+  const note = reported < counted
+    ? { key: 'dashboard.overall_partial', vars: { reported, counted } }
+    : { key: 'dashboard.overall_note', vars: { count: counted } };
+  return { display: String(value), value, counted, note };
 }

@@ -7,7 +7,7 @@
 | Module | M5 — Dossier kit, bilingual drafts and countdown |
 | Spec Document | `docs/spec/spec-M5.md` |
 | Schema | `data/schema/schema-M5.sql` |
-| Seed files | `33_document_type.csv`, `34_document_slot.csv`, `35_document.csv`, `37_bilingual_document.csv`, `38_bilingual_paragraph.csv`, `39_project_glossary.csv`, `40_public_holiday.csv` |
+| Seed files | `34_document_type.csv`, `35_document_slot.csv`, `36_document.csv`, `38_bilingual_document.csv`, `39_bilingual_paragraph.csv`, `40_project_glossary.csv`, `41_public_holiday.csv` |
 | Version / date | v1.0 — 01/10/2026 |
 | Prepared by | Group C (draft by an AI agent, see `docs/ai-use-log.md`) |
 | Status | Ready for the human gates in section 13 |
@@ -47,13 +47,13 @@ CITATION SCHEME = <MODULE> §<section> <ID>
 
 | Entity | Definition (one sentence) | Kind | Owner | Source | Table | Seed file (rows) |
 |---|---|---|---|---|---|---|
-| `DOCUMENT_TYPE` | A kind of dossier document, with its legal basis and template. | THING | M5 | spec §6 — M5 §6; M5 §5.1 FR-001 | `document_type` | `33_document_type.csv` (8) |
-| `DOCUMENT_SLOT` | The place for one document type in one project, with its status. | THING | M5 | spec §6 — M5 §6; M5 §5.1 FR-003 | `document_slot` | `34_document_slot.csv` (19) |
-| `DOCUMENT` | One uploaded file version in a project's document slot. | THING | M5 | spec §6 — M5 §6; M5 §5.1 FR-002 | `document` | `35_document.csv` (9) |
-| `BILINGUAL_DOCUMENT` | A generated English–Vietnamese draft of one document of a project. | THING | M5 | spec §6 — M5 §6; M5 §5.1 FR-004 | `bilingual_document` | `37_bilingual_document.csv` (3) |
-| `BILINGUAL_PARAGRAPH` | One aligned source/Vietnamese paragraph pair of a bilingual draft, with its proofreading status. | THING | M5 | spec §6 — M5 §6; M5 §5.1 FR-004, FR-006 | `bilingual_paragraph` | `38_bilingual_paragraph.csv` (16) |
-| `PROJECT_GLOSSARY` | A project's agreed translation of one term, applied to every later draft of that project. | THING | M5 | spec §6 — M5 §6; M5 §5.1 FR-004; M5 §5.2 BR-006 | `project_glossary` | `39_project_glossary.csv` (4) |
-| `PUBLIC_HOLIDAY` | A public holiday period shown on the licensing timeline, official or expected. | THING | M5 | spec §6 — M5 §6; M5 §5.1 FR-008 | `public_holiday` | `40_public_holiday.csv` (7) |
+| `DOCUMENT_TYPE` | A kind of dossier document, with its legal basis and template. | THING | M5 | spec §6 — M5 §6; M5 §5.1 FR-001 | `document_type` | `34_document_type.csv` (8) |
+| `DOCUMENT_SLOT` | The place for one document type in one project, with its status. | THING | M5 | spec §6 — M5 §6; M5 §5.1 FR-003 | `document_slot` | `35_document_slot.csv` (19) |
+| `DOCUMENT` | One uploaded file version in a project's document slot. | THING | M5 | spec §6 — M5 §6; M5 §5.1 FR-002 | `document` | `36_document.csv` (9) |
+| `BILINGUAL_DOCUMENT` | A generated English–Vietnamese draft of one document of a project. | THING | M5 | spec §6 — M5 §6; M5 §5.1 FR-004 | `bilingual_document` | `38_bilingual_document.csv` (3) |
+| `BILINGUAL_PARAGRAPH` | One aligned source/Vietnamese paragraph pair of a bilingual draft, with its proofreading status. | THING | M5 | spec §6 — M5 §6; M5 §5.1 FR-004, FR-006 | `bilingual_paragraph` | `39_bilingual_paragraph.csv` (16) |
+| `PROJECT_GLOSSARY` | A project's agreed translation of one term, applied to every later draft of that project. | THING | M5 | spec §6 — M5 §6; M5 §5.1 FR-004; M5 §5.2 BR-006 | `project_glossary` | `40_project_glossary.csv` (4) |
+| `PUBLIC_HOLIDAY` | A public holiday period shown on the licensing timeline, official or expected. | THING | M5 | spec §6 — M5 §6; M5 §5.1 FR-008 | `public_holiday` | `41_public_holiday.csv` (7) |
 
 **Entities of other modules referenced here** (drawn without attributes in §5): `DOCUMENT_ACCESS_LOG` (M4), `ORGANISATION` (M4), `PROJECT` (M0), `USER_ACCOUNT` (SYS).
 
@@ -277,12 +277,12 @@ Kept as a JSON array (1NF exception): the whole list is what functions filter an
 
 | Rule | Statement | Enforced in | Named object | Seed rows that show it |
 |---|---|---|---|---|
-| BR-001 | Every generated document is a draft: the PDF carries *DRAFT — REQUIRES PROOFREADING* on every page; CINEMATCH never submits anything. | NOT DATA | the PDF renderer stamps every page (column `watermark` dropped, 04 minimality) | `37_bilingual_document.csv` — A13_SCRIPT_VI · https://storage.cinematch.example/priv; A13_SCRIPT_VI · https://storage.cinematch.example/priv — drafts with a PDF |
-| BR-002 | Article 13 component b counts as present only when every paragraph of the Vietnamese version has been proofread by a person. | SEED CHECK + VIEW | seed_rules: component b is `present` only when every paragraph is reviewed | `38_bilingual_paragraph.csv` — 7 · machine; 8 · machine (+6) — 8 of 14 paragraphs not proofread<br>`34_document_slot.csv` — A13_SCRIPT_VI · needs_fix — so the script is *needs_fix* |
-| BR-003 | Each document item carries its basis: *Required by law*, *Commonly requested* or *Location-specific*; nothing is presented as mandatory without a legal basis. | SCHEMA | `ck_document_type_basis` (law, common, location) | `33_document_type.csv` — HERITAGE_SITE_PERMIT · location — a location-specific document |
-| BR-004 | The document list is generated from `segment_requirements` plus shortlisted locations; it is never hard-coded. | VIEW (Plan step) | kit = `segment_requirement` + shortlisted locations | `34_document_slot.csv` — HERITAGE_SITE_PERMIT · missing — heritage consent added because Tràng An is shortlisted |
+| BR-001 | Every generated document is a draft: the PDF carries *DRAFT — REQUIRES PROOFREADING* on every page; CINEMATCH never submits anything. | NOT DATA | the PDF renderer stamps every page (column `watermark` dropped, 04 minimality) | `38_bilingual_document.csv` — A13_SCRIPT_VI · https://storage.cinematch.example/priv; A13_SCRIPT_VI · https://storage.cinematch.example/priv — drafts with a PDF |
+| BR-002 | Article 13 component b counts as present only when every paragraph of the Vietnamese version has been proofread by a person. | SEED CHECK + VIEW | seed_rules: component b is `present` only when every paragraph is reviewed | `39_bilingual_paragraph.csv` — 7 · machine; 8 · machine (+6) — 8 of 14 paragraphs not proofread<br>`35_document_slot.csv` — A13_SCRIPT_VI · needs_fix — so the script is *needs_fix* |
+| BR-003 | Each document item carries its basis: *Required by law*, *Commonly requested* or *Location-specific*; nothing is presented as mandatory without a legal basis. | SCHEMA | `ck_document_type_basis` (law, common, location) | `34_document_type.csv` — HERITAGE_SITE_PERMIT · location — a location-specific document |
+| BR-004 | The document list is generated from `segment_requirements` plus shortlisted locations; it is never hard-coded. | VIEW (Plan step) | kit = `segment_requirement` + shortlisted locations | `35_document_slot.csv` — HERITAGE_SITE_PERMIT · missing — heritage consent added because Tràng An is shortlisted |
 | BR-005 | The countdown uses the same calculation as M2 (F-M2-17) and the dashboard. | VIEW (Plan step) | one view `v_licensing_timeline` used by M2, M5 and M0 | `09_project.csv` — The Last Ferry · A · preparing — same dates on SC-12, SC-27, SC-29 |
-| BR-006 | Glossary terms a project adds (SC-28) are stored with the project (`project_glossary`) and applied to every later draft of that project. | SCHEMA | `pk_project_glossary` (project_id, term_en) | `39_project_glossary.csv` — ferry · đò — ferry → đò, kept for every later draft |
+| BR-006 | Glossary terms a project adds (SC-28) are stored with the project (`project_glossary`) and applied to every later draft of that project. | SCHEMA | `pk_project_glossary` (project_id, term_en) | `40_project_glossary.csv` — ferry · đò — ferry → đò, kept for every later draft |
 
 ## 8. Schema (mandatory)
 
@@ -298,19 +298,19 @@ Load test: `python3 data/schema/load_check.py` runs every schema file, then ever
 | Regenerate | `python3 data/seed/generate_seed.py && python3 data/seed/check_seed.py` (must print PASS; `git status` stays clean) |
 | Random seed | none — no randomness and no clock: keys are UUIDv5 of readable names (namespace `6f1c2a8e-3b4d-5e6f-8a9b-0c1d2e3f4a5b`), so every run is byte-identical |
 | Business-rule values | computed by the generator, never typed: attention level (M2 BR-004), quote span (M2 §6.1), latest readiness (M0 §9), is_active, published |
-| Files | 7 files of this module, 66 rows (product: 46 files, 444 rows) |
+| Files | 7 files of this module, 66 rows (product: 47 files, 448 rows) |
 
 **Rows per file and row kinds** (1 = ordinary rows in every file)
 
 | File | Rows | (2) Boundary | (3) Empty case | (4) Exceptional state |
 |---|---|---|---|---|
-| `33_document_type.csv` | 8 | 76-character Vietnamese name | `PROVINCIAL_NOTICE_COPY`: no slot | segment C only type |
-| `34_document_slot.csv` | 19 | — | slots with no document (`missing`) | `needs_fix`, `pending` |
-| `35_document.csv` | 9 | version 2 | — | version 1 replaced by version 2 |
-| `37_bilingual_document.csv` | 3 | — | `Rice and Salt`: no PDF yet | — (no status column) |
-| `38_bilingual_paragraph.csv` | 16 | 14 paragraphs in one draft | — | `Rice and Salt` paragraph: translation failed (empty target) |
-| `39_project_glossary.csv` | 4 | — | projects with no glossary | — (no status column) |
-| `40_public_holiday.csv` | 7 | 2023 (far past) | — | `is_expected = true` (Tết 2027, 05–10/02 as on SC-29) |
+| `34_document_type.csv` | 8 | 76-character Vietnamese name | `PROVINCIAL_NOTICE_COPY`: no slot | segment C only type |
+| `35_document_slot.csv` | 19 | — | slots with no document (`missing`) | `needs_fix`, `pending` |
+| `36_document.csv` | 9 | version 2 | — | version 1 replaced by version 2 |
+| `38_bilingual_document.csv` | 3 | — | `Rice and Salt`: no PDF yet | — (no status column) |
+| `39_bilingual_paragraph.csv` | 16 | 14 paragraphs in one draft | — | `Rice and Salt` paragraph: translation failed (empty target) |
+| `40_project_glossary.csv` | 4 | — | projects with no glossary | — (no status column) |
+| `41_public_holiday.csv` | 7 | 2023 (far past) | — | `is_expected = true` (Tết 2027, 05–10/02 as on SC-29) |
 
 ## 10. Edge case register (mandatory)
 
@@ -346,9 +346,9 @@ Computed from the seed files. (a) every enumerated value has a row; (b) empty st
 
 | Rule | Seed row |
 |---|---|
-| Document versions from 1 (M5 §6.1) | `35_document.csv` — private/projects/ferry/a13_application · 2 — version 2 replaces version 1, both kept |
-| Holiday far in the past (M5 §6.1) | `40_public_holiday.csv` — Tết Nguyên đán 2023 · false — Tết 2023 |
-| Expected, not yet official holiday (M5 §3 US-3) | `40_public_holiday.csv` — Giỗ Tổ Hùng Vương 2027 · true; Quốc khánh 2027 · true (+1) — expected dates |
+| Document versions from 1 (M5 §6.1) | `36_document.csv` — private/projects/ferry/a13_application · 2 — version 2 replaces version 1, both kept |
+| Holiday far in the past (M5 §6.1) | `41_public_holiday.csv` — Tết Nguyên đán 2023 · false — Tết 2023 |
+| Expected, not yet official holiday (M5 §3 US-3) | `41_public_holiday.csv` — Giỗ Tổ Hùng Vương 2027 · true; Quốc khánh 2027 · true (+1) — expected dates |
 
 **(d) Business rules** — 6 of 6 rules have their rows named in section 7.
 

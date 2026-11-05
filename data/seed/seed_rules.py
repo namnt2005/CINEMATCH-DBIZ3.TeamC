@@ -46,7 +46,10 @@ def readiness(T, project_id):
     if seg != "C":
         a13 = [r for r in T["DOCUMENT_SLOT"] if r["project_id"] == project_id and r["doc_code"].startswith("A13_")]
         g["dossier"] = 100 * sum(1 for r in a13 if r["state"] == "present") / 4
-    return g, round(sum(g.values()) / len(g), 2)
+    # M0 §3 edge case (decision H1): a gauge whose module has not reported is left out of the overall score
+    off = {r["gauge"] for r in T.get("READINESS_SOURCE", []) if r["reporting"] != "true"}
+    counted = [v for k, v in g.items() if k not in off]
+    return g, (round(sum(counted) / len(counted), 2) if counted else 0.0)
 
 
 def _months_later(d, months):

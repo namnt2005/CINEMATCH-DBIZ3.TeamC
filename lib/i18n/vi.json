@@ -722,5 +722,9 @@
   "settings.error.email_invalid": "Email không hợp lệ.",
   "settings.error.permission_invalid": "Chọn quyền Xem hoặc Chỉnh sửa.",
   "settings.error.already_invited": "Email này đã là thành viên hoặc đã được mời.",
-  "header.projects": "Dự án của tôi"
+  "header.projects": "Dự án của tôi",
+  "dashboard.not_reported": "Chưa tính",
+  "dashboard.next.not_reported": "Module này chưa báo kết quả — hãy quay lại sau",
+  "dashboard.overall_partial": "Tính từ {reported}/{counted} đồng hồ; các đồng hồ còn lại chưa tính",
+  "dashboard.none_reported": "Chưa tính: chưa module nào báo kết quả"
 }

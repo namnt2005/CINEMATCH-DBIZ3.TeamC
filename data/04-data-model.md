@@ -8,7 +8,7 @@ sources: FUNCTIONS, FIELDS, ENTITIES, RULES, SCENARIOS, FLOWS, SCREENS, BOUNDARY
 
 # Logical Data Model — CINEMATCH
 
-46 tables, 315 columns. Every column is **copied** from a FIELDS row (section 5.1) or an ENTITIES attribute (section 6), with its declared type and Req / Opt flag. *system-set* = an output field (the system fills it); *not declared* = no flag in the input.
+47 tables, 317 columns. Every column is **copied** from a FIELDS row (section 5.1) or an ENTITIES attribute (section 6), with its declared type and Req / Opt flag. *system-set* = an output field (the system fills it); *not declared* = no flag in the input.
 
 **Every column has a declared type** — the types of the section 6 attributes that no 5.1 field declares come from section 6.1 of the owning Spec Document (cited as `<MODULE> §6.1`). Technical columns (`created_at`, `updated_at`) appear only where the spec declares them. The physical schema built from this model is in `data/schema/schema-<MODULE>.sql`; one readable view per module is in `data/data-model-<MODULE>.md`.
 
@@ -208,6 +208,17 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 | `readiness_total` | `NUMERIC(5,2)` | system-set |  | M0 §6; M0 §5.1 FR-009 (OUT) |
 
 **Natural key:** project_id + snapshot_date (one per night, M0 FR-008).
+
+## READINESS_SOURCE
+
+*Whether the module behind one counted gauge currently reports to the readiness dashboard.* Owner: M0. THING.
+
+| Column | Type (as declared) | Required | Key | Citation |
+|---|---|---|---|---|
+| `gauge` | `ENUM(content, locations, partners, dossier)` | Req | PK | M0 §3 Edge cases ("A module fails to report"); specs/005-m0-workspace decision H1 (05/11/2026) |
+| `reporting` | `BOOLEAN` | Req |  | M0 §3 Edge cases (a gauge that has not reported shows — and leaves the overall score) |
+
+**Natural key:** gauge (one row per counted gauge).
 
 ## LEGAL_RULE
 
@@ -877,6 +888,7 @@ erDiagram
     USER_ACCOUNT ||..o{ AUDIT_LOG : "writes"
     USER_ACCOUNT |o..o{ QUARTERLY_REPORT : "rereads"
     SEGMENT_REQUIREMENT
+    READINESS_SOURCE
     PUBLIC_HOLIDAY
     USER_ACCOUNT {
         uuid user_id PK "SYS s5.1 FR-001 (OUT)"
@@ -981,6 +993,10 @@ erDiagram
         uuid project_id FK "M0 s5.1 FR-008"
         date snapshot_date "M0 s5.1 FR-008"
         decimal readiness_total "M0 s6; M0 s5.1 FR-009 (OUT)"
+    }
+    READINESS_SOURCE {
+        enum gauge PK "M0 s3 Edge cases ('A module fails to report'); specs/005-m0-workspace decision H1 (05/11/2026)"
+        boolean reporting "M0 s3 Edge cases (a gauge that has not reported shows - and leaves the overall score)"
     }
     LEGAL_RULE {
         uuid rule_id PK "M2 s5.1 FR-002 (OUT)"
