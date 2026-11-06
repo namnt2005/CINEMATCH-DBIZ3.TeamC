@@ -71,7 +71,7 @@
 | Rule ID | Rule | Source |
 |---|---|---|
 | SR-261 | Acceptance is recorded with the **version and timestamp** at sign-up; the terms box on `SC-04` must be ticked to create an account. | SYS BR-003; FR-001 |
-| SR-262 | The text states that partner and VFDA roles are granted only by an admin. | SYS BR-002 |
+| SR-262 | The text states that VFDA roles are granted only by an admin and that the partner role comes only from an accepted VFDA invitation. | SYS BR-002; M4 BR-003 |
 | SR-263 | The text never calls a check result *approved*, *accepted*, *legally compliant* or *safe*. | M2 BR-003 |
 | SR-264 | The text matches the decided behaviour for partner content and account deletion. | M10 BR-001; SYS BR-005 |
 | SR-265 | The text is a **draft** until approved by the VFDA Legal Board; shown in Vietnamese and English. | SYS FR-005; Group C decision 30/09/2026 |

@@ -18,11 +18,15 @@
 ### Session 2026-10-28 (Group C, provisional — the owner in §10 confirms before launch)
 
 - Q1: Must a producer company be verified (e.g. business registration, IMDbPro) before seeing local authority contacts? → A: No company verification is needed. Any signed-in member sees local authority contacts.
-- Q10: How long are pre-check texts kept, and may they be used to improve the rule base? (same question as spec-M2.md question 6) → A: Pre-check text is never stored; only its hash (`synopsis_hash`) is kept, and it is not used to improve the rule base. Same decision as M2 question 6.
+- Q11: How long are pre-check texts kept, and may they be used to improve the rule base? (same question as spec-M2.md question 6) → A: Pre-check text is never stored; only its hash (`synopsis_hash`) is kept, and it is not used to improve the rule base. Same decision as M2 question 6.
 
 ### Session 2026-11-02 (Group C, provisional — the owner in §10 confirms before launch)
 
 - Q5: Does the admin role also hold every permission of vfda_staff and vfda_legal, in addition to its own (reading the audit log, granting roles)? BR-002 says only what admin grants. → A: Yes. The admin role holds every permission of vfda_staff and vfda_legal, in addition to its own (reading the audit log, granting roles). Roles are still granted only by an admin, and every grant is written to the audit log (BR-002).
+
+### Session 2026-11-06 (Group C, provisional — the owner in §10 confirms before launch)
+
+- Q6: May `vfda_staff` invite a partner organisation (M4 BR-003), so that accepting the invitation grants the `partner` role without an admin? BR-002 said every role is granted only by an admin. → A: Yes. `vfda_staff` (and `admin`) may send partner invitations (M4 BR-003). When the invited organisation accepts, a database function grants the `partner` role and writes the grant to the audit log. Only an admin grants `vfda_staff`, `vfda_legal` and `admin` (BR-002).
 
 ## 1. Purpose and scope
 
@@ -205,7 +209,7 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 | Rule ID | Rule | Why it exists |
 |---|---|---|
 | BR-001 | Sensitive data (authority contacts, partner private layer, project documents) is filtered by Row Level Security in the database. Hiding it in the interface does not count. | A page's HTML source is public; only the database can guarantee a guest never receives the data. |
-| BR-002 | A new account is always `member`. The roles `partner`, `vfda_staff`, `vfda_legal` and `admin` are granted only by an admin, and every grant is written to the audit log. | Supplier accounts carry the VFDA Verified trust; they cannot be self-declared. |
+| BR-002 | A new account is always `member`. The roles `vfda_staff`, `vfda_legal` and `admin` are granted only by an admin. The role `partner` is granted only through a VFDA invitation (M4 BR-003): a `vfda_staff` or `admin` user invites the organisation, and accepting the invitation grants the role. Every grant is written to the audit log. | Supplier accounts carry the VFDA Verified trust; they cannot be self-declared. |
 | BR-003 | Acceptance of the terms is stored with the document version and timestamp. | To prove later which terms a user agreed to. |
 | BR-004 | Passwords, password hashing and tokens are handled only by Supabase Auth. | Home-made authentication is the most common source of security bugs. |
 | BR-005 | An account is never hard-deleted. When its owner deletes it (SC-08), it is deactivated at once, loses all access, and its name, email and phone are replaced by anonymous values within 30 days; projects, uploads, access logs and approvals it created stay and are shown as *Former member*. | Personal data must be removable on request, while projects, legal approvals and audit records must stay intact for the other people who rely on them. |
@@ -270,13 +274,14 @@ Types and required flags of the attributes above that no field in 5.1 declares (
 | 3 | [NEEDS CLARIFICATION: Which embedding model (and vector dimension) is used for F-SYS-11?] | No | Group C | Open |
 | 4 | [NEEDS CLARIFICATION: SEQ-01 has no error branch (email provider down, expired link). Confirm the behaviour written in the edge cases.] *(also raised in SC-07)* | No | Client (VFDA) | Open |
 | 5 | [NEEDS CLARIFICATION: Does the admin role also hold every permission of vfda_staff and vfda_legal, in addition to its own (reading the audit log, granting roles)? BR-002 says only what admin grants.] | Yes | Client (VFDA) | Decided (provisional, VFDA to confirm) — see Clarifications |
-| 6 | [NEEDS CLARIFICATION: How long is a password reset link valid before it expires (e.g. 1 hour)?] *(from SC-06)* | No | Group C | Open |
-| 7 | [NEEDS CLARIFICATION: SYS BR-005 anonymises name, email and phone, but SYS §5.1 has no phone field for an account — which phone field is meant?] *(from SC-08)* | No | Client (VFDA) | Open |
-| 8 | [NEEDS CLARIFICATION: May a member turn off email notifications (per event type or all), or is every notification always emailed?] *(from SC-08)* | No | Client (VFDA) | Open |
-| 9 | [NEEDS CLARIFICATION: Which `event_type` values exist in the MVP and what readable label does each get? SYS §5.1 declares the field but not its values.] *(from SC-09)* | No | Group C | Open |
-| 10 | [NEEDS CLARIFICATION: How long are pre-check texts kept, and may they be used to improve the rule base? (same question as spec-M2.md question 6)] *(from SC-42)* | Yes | Client (VFDA) | Decided (provisional, VFDA to confirm) — see Clarifications |
-| 11 | [NEEDS CLARIFICATION: Does one `consent_version` cover both the privacy policy and the terms of use, or does each document need its own version and acceptance record?] *(from SC-42)* | No | Client (VFDA Legal Board) | Open |
-| 12 | [NEEDS CLARIFICATION: When the terms get a new version, must existing members accept it again (e.g. at their next sign-in) before continuing?] *(from SC-43)* | No | Client (VFDA Legal Board) | Open |
+| 6 | [NEEDS CLARIFICATION: May `vfda_staff` invite a partner organisation (M4 BR-003), so that accepting the invitation grants the `partner` role without an admin? BR-002 said every role is granted only by an admin.] | Yes | Client (VFDA) | Decided (provisional, VFDA to confirm) — see Clarifications |
+| 7 | [NEEDS CLARIFICATION: How long is a password reset link valid before it expires (e.g. 1 hour)?] *(from SC-06)* | No | Group C | Open |
+| 8 | [NEEDS CLARIFICATION: SYS BR-005 anonymises name, email and phone, but SYS §5.1 has no phone field for an account — which phone field is meant?] *(from SC-08)* | No | Client (VFDA) | Open |
+| 9 | [NEEDS CLARIFICATION: May a member turn off email notifications (per event type or all), or is every notification always emailed?] *(from SC-08)* | No | Client (VFDA) | Open |
+| 10 | [NEEDS CLARIFICATION: Which `event_type` values exist in the MVP and what readable label does each get? SYS §5.1 declares the field but not its values.] *(from SC-09)* | No | Group C | Open |
+| 11 | [NEEDS CLARIFICATION: How long are pre-check texts kept, and may they be used to improve the rule base? (same question as spec-M2.md question 6)] *(from SC-42)* | Yes | Client (VFDA) | Decided (provisional, VFDA to confirm) — see Clarifications |
+| 12 | [NEEDS CLARIFICATION: Does one `consent_version` cover both the privacy policy and the terms of use, or does each document need its own version and acceptance record?] *(from SC-42)* | No | Client (VFDA Legal Board) | Open |
+| 13 | [NEEDS CLARIFICATION: When the terms get a new version, must existing members accept it again (e.g. at their next sign-in) before continuing?] *(from SC-43)* | No | Client (VFDA Legal Board) | Open |
 
 ## 11. Traceability to DBIZ2
 

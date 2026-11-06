@@ -134,7 +134,7 @@ All business rules, as written in §5.2 of each module file:
 | Module | Rule | Statement |
 |---|---|---|
 | SYS | BR-001 | Sensitive data (authority contacts, partner private layer, project documents) is filtered by Row Level Security in the database. Hiding it in the interface does not count. |
-| SYS | BR-002 | A new account is always `member`. The roles `partner`, `vfda_staff`, `vfda_legal` and `admin` are granted only by an admin, and every grant is written to the audit log. |
+| SYS | BR-002 | A new account is always `member`. The roles `vfda_staff`, `vfda_legal` and `admin` are granted only by an admin. The role `partner` is granted only through a VFDA invitation (M4 BR-003): a `vfda_staff` or `admin` user invites the organisation, and accepting the invitation grants the role. Every grant is written to the audit log. |
 | SYS | BR-003 | Acceptance of the terms is stored with the document version and timestamp. |
 | SYS | BR-004 | Passwords, password hashing and tokens are handled only by Supabase Auth. |
 | SYS | BR-005 | An account is never hard-deleted. When its owner deletes it (SC-08), it is deactivated at once, loses all access, and its name, email and phone are replaced by anonymous values within 30 days; projects, uploads, access logs and approvals it created stay and are shown as *Former member*. |
