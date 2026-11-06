@@ -7,7 +7,7 @@
 | Module | M7 — VFDA support — provincial notices and consultations |
 | Spec Document | `docs/spec/spec-M7.md` |
 | Schema | `data/schema/schema-M7.sql` |
-| Seed files | `42_location_interest.csv`, `43_province_notice.csv`, `44_consultation_booking.csv` |
+| Seed files | `44_location_interest.csv`, `45_province_notice.csv`, `46_consultation_booking.csv` |
 | Version / date | v1.0 — 01/10/2026 |
 | Prepared by | Group C (draft by an AI agent, see `docs/ai-use-log.md`) |
 | Status | Ready for the human gates in section 13 |
@@ -47,9 +47,9 @@ CITATION SCHEME = <MODULE> §<section> <ID>
 
 | Entity | Definition (one sentence) | Kind | Owner | Source | Table | Seed file (rows) |
 |---|---|---|---|---|---|---|
-| `LOCATION_INTEREST` | A member's statement that a project is interested in a location. | EVENT | M7 | spec §6 — M7 §6; M7 §5.1 FR-001 | `location_interest` | `42_location_interest.csv` (8) |
-| `PROVINCE_NOTICE` | The notice VFDA sends a province about a project's interest, and the province's reply. | EVENT | M7 | spec §6 — M7 §6; M7 §5.1 FR-002, FR-003 | `province_notice` | `43_province_notice.csv` (7) |
-| `CONSULTATION_BOOKING` | A member's booked consultation slot with a VFDA officer. | EVENT | M7 | spec §6 — M7 §6; M7 §5.1 FR-005 | `consultation_booking` | `44_consultation_booking.csv` (6) |
+| `LOCATION_INTEREST` | A member's statement that a project is interested in a location. | EVENT | M7 | spec §6 — M7 §6; M7 §5.1 FR-001 | `location_interest` | `44_location_interest.csv` (8) |
+| `PROVINCE_NOTICE` | The notice VFDA sends a province about a project's interest, and the province's reply. | EVENT | M7 | spec §6 — M7 §6; M7 §5.1 FR-002, FR-003 | `province_notice` | `45_province_notice.csv` (7) |
+| `CONSULTATION_BOOKING` | A member's booked consultation slot with a VFDA officer. | EVENT | M7 | spec §6 — M7 §6; M7 §5.1 FR-005 | `consultation_booking` | `46_consultation_booking.csv` (6) |
 
 **Entities of other modules referenced here** (drawn without attributes in §5): `LOCATION` (M3), `PROJECT` (M0), `PROVINCE` (M3), `USER_ACCOUNT` (SYS).
 
@@ -206,11 +206,11 @@ Renders with mermaid-cli: **yes**.
 
 | Rule | Statement | Enforced in | Named object | Seed rows that show it |
 |---|---|---|---|---|
-| BR-001 | The system never sends a notice. It drafts the notice; a VFDA staff member reviews it (SC-32); only the approved version can be downloaded, and the producer sends it to the recipient they choose (Clarifications Q1–Q3, 28/10/2026). | SCHEMA + APP | `review_status`, `reviewed_by` on PROVINCE_NOTICE; `app_review_notice` (staff, audit row) and `app_mark_notice_downloaded` (approved only); no sending path | `43_province_notice.csv` — downloaded · received; downloaded · cannot_support (+1) — approved by VFDA staff, then downloaded by the crew<br>`43_province_notice.csv` — 64f1fa54 — waiting in the VFDA review queue |
-| BR-002 | Every notice states that it does not replace the filming licence from the Ministry of Culture, Sports and Tourism. Draft wording, **pending approval by the VFDA Legal Board**: *Thư này không thay thế giấy phép quay phim do Bộ Văn hóa, Thể thao và Du lịch cấp.* / *This letter does not replace the filming licence issued by the Ministry of Culture, Sports and Tourism.* | NOT DATA | fixed sentence in the notice template (`lib/notices/letter.js`) | `43_province_notice.csv` — downloaded · received; downloaded · cannot_support (+1) — every downloaded letter carries the sentence |
-| BR-003 | The province's reply is one of three final values; the free-text note is kept as entered. | SCHEMA | `ck_province_notice_response` (received, info_needed, cannot_support) | `43_province_notice.csv` — downloaded · cannot_support — a *cannot support* reply |
-| BR-004 | Reply times feed the provincial readiness index (M3). | VIEW (Plan step) | `v_province_readiness` reads responded_at − sent_at | `43_province_notice.csv` — downloaded · received — a reply with its time |
-| BR-005 | In the MVP, SC-33 is a consultation request, not a slot calendar: the member sends topic and preferred times, and VFDA staff reply with a proposed time by email (Clarifications Q5, 28/10/2026). A slot calendar is offered only after VFDA declares its staffed hours. | APP | SC-33 request form (`app_request_consultation`, email to VFDA); no slot calendar | `44_consultation_booking.csv` — general · confirmed · Europe/London; locations · rescheduled · Europe/Paris (+4) — requests with 1–3 preferred times; VFDA replies by email |
+| BR-001 | The system never sends a notice. It drafts the notice; a VFDA staff member reviews it (SC-32); only the approved version can be downloaded, and the producer sends it to the recipient they choose (Clarifications Q1–Q3, 28/10/2026). | SCHEMA + APP | `review_status`, `reviewed_by` on PROVINCE_NOTICE; `app_review_notice` (staff, audit row) and `app_mark_notice_downloaded` (approved only); no sending path | `45_province_notice.csv` — downloaded · received; downloaded · cannot_support (+1) — approved by VFDA staff, then downloaded by the crew<br>`45_province_notice.csv` — 64f1fa54 — waiting in the VFDA review queue |
+| BR-002 | Every notice states that it does not replace the filming licence from the Ministry of Culture, Sports and Tourism. Draft wording, **pending approval by the VFDA Legal Board**: *Thư này không thay thế giấy phép quay phim do Bộ Văn hóa, Thể thao và Du lịch cấp.* / *This letter does not replace the filming licence issued by the Ministry of Culture, Sports and Tourism.* | NOT DATA | fixed sentence in the notice template (`lib/notices/letter.js`) | `45_province_notice.csv` — downloaded · received; downloaded · cannot_support (+1) — every downloaded letter carries the sentence |
+| BR-003 | The province's reply is one of three final values; the free-text note is kept as entered. | SCHEMA | `ck_province_notice_response` (received, info_needed, cannot_support) | `45_province_notice.csv` — downloaded · cannot_support — a *cannot support* reply |
+| BR-004 | Reply times feed the provincial readiness index (M3). | VIEW (Plan step) | `v_province_readiness` reads responded_at − sent_at | `45_province_notice.csv` — downloaded · received — a reply with its time |
+| BR-005 | In the MVP, SC-33 is a consultation request, not a slot calendar: the member sends topic and preferred times, and VFDA staff reply with a proposed time by email (Clarifications Q5, 28/10/2026). A slot calendar is offered only after VFDA declares its staffed hours. | APP | SC-33 request form (`app_request_consultation`, email to VFDA); no slot calendar | `46_consultation_booking.csv` — general · confirmed · Europe/London; locations · rescheduled · Europe/Paris (+4) — requests with 1–3 preferred times; VFDA replies by email |
 
 ## 8. Schema (mandatory)
 
@@ -226,15 +226,15 @@ Load test: `python3 data/schema/load_check.py` runs every schema file, then ever
 | Regenerate | `python3 data/seed/generate_seed.py && python3 data/seed/check_seed.py` (must print PASS; `git status` stays clean) |
 | Random seed | none — no randomness and no clock: keys are UUIDv5 of readable names (namespace `6f1c2a8e-3b4d-5e6f-8a9b-0c1d2e3f4a5b`), so every run is byte-identical |
 | Business-rule values | computed by the generator, never typed: attention level (M2 BR-004), quote span (M2 §6.1), latest readiness (M0 §9), is_active, published |
-| Files | 3 files of this module, 21 rows (product: 47 files, 447 rows) |
+| Files | 3 files of this module, 21 rows (product: 49 files, 457 rows) |
 
 **Rows per file and row kinds** (1 = ordinary rows in every file)
 
 | File | Rows | (2) Boundary | (3) Empty case | (4) Exceptional state |
 |---|---|---|---|---|
-| `42_location_interest.csv` | 8 | — | `Monsoon Signal`: no first shooting day | — (see notices) |
-| `43_province_notice.csv` | 7 | — | `i5`, `i7`: drafted, not reviewed | `bounced`; `cannot_support`; `i8`: reviewed, `queued` |
-| `44_consultation_booking.csv` | 6 | time zone `America/Argentina/ComodRivadavia` | `b4`: no officer yet | `rescheduled` |
+| `44_location_interest.csv` | 8 | — | `Monsoon Signal`: no first shooting day | — (see notices) |
+| `45_province_notice.csv` | 7 | — | `i5`, `i7`: drafted, not reviewed | `bounced`; `cannot_support`; `i8`: reviewed, `queued` |
+| `46_consultation_booking.csv` | 6 | time zone `America/Argentina/ComodRivadavia` | `b4`: no officer yet | `rescheduled` |
 
 ## 10. Edge case register (mandatory)
 
@@ -273,7 +273,7 @@ No optional child relationship starts in this module.
 
 | Rule | Seed row |
 |---|---|
-| Unusual time zone (M7 §5.1 FR-005, IANA) | `44_consultation_booking.csv` — dossier · confirmed · America/Argentina/ComodRivadavia — America/Argentina/ComodRivadavia |
+| Unusual time zone (M7 §5.1 FR-005, IANA) | `46_consultation_booking.csv` — dossier · confirmed · America/Argentina/ComodRivadavia — America/Argentina/ComodRivadavia |
 
 **(d) Business rules** — 5 of 5 rules have their rows named in section 7.
 

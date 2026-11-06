@@ -112,7 +112,7 @@ CREATE TABLE public.segment_decision (
     CONSTRAINT ck_segment_decision_one_owner CHECK ((project_id IS NULL) <> (session_key IS NULL))
 );
 
--- MODERATION_ITEM: A partner's published content (profile text or location photo) waiting for, or carrying, VFDA staff's approve-or-hide decision. (owner M10; seed file 45_moderation_item.csv)
+-- MODERATION_ITEM: A partner's published content (profile text or location photo) waiting for, or carrying, VFDA staff's approve-or-hide decision. (owner M10; seed file 47_moderation_item.csv)
 CREATE TABLE public.moderation_item (
     content_id UUID NOT NULL,
     content_type VARCHAR(20),
@@ -135,7 +135,7 @@ CREATE TABLE public.moderation_item (
     CONSTRAINT ck_moderation_item_hidden_needs_reason CHECK (content_status <> 'hidden' OR reason IS NOT NULL)
 );
 
--- AUDIT_LOG: A permanent record of one administrative action: who did what to which record, and when. (owner M10; seed file 46_audit_log.csv)
+-- AUDIT_LOG: A permanent record of one administrative action: who did what to which record, and when. (owner M10; seed file 48_audit_log.csv)
 CREATE TABLE public.audit_log (
     audit_log_id UUID NOT NULL,
     action VARCHAR(60) NOT NULL,
@@ -145,7 +145,7 @@ CREATE TABLE public.audit_log (
     CONSTRAINT pk_audit_log PRIMARY KEY (audit_log_id)
 );
 
--- QUARTERLY_REPORT: A quarterly demand report with its bilingual commentary, reread by a staff member before it is exported. (owner M10; seed file 47_quarterly_report.csv)
+-- QUARTERLY_REPORT: A quarterly demand report with its bilingual commentary, reread by a staff member before it is exported. (owner M10; seed file 49_quarterly_report.csv)
 CREATE TABLE public.quarterly_report (
     report_id UUID NOT NULL,
     period_start DATE NOT NULL,
@@ -402,8 +402,14 @@ CREATE TABLE public.verification_request (
     status VARCHAR(20),
     decided_by UUID,
     reason TEXT,
+    submitted_at TIMESTAMPTZ NOT NULL,
+    decided_at TIMESTAMPTZ,
     CONSTRAINT pk_verification_request PRIMARY KEY (request_id),
-    CONSTRAINT ck_verification_request_status CHECK (status IN ('pending', 'approved', 'rejected'))
+    CONSTRAINT ck_verification_request_status CHECK (status IN ('pending', 'approved', 'rejected')),
+    -- M4 FR-010 — a decision has a time (D6)
+    CONSTRAINT ck_verification_request_decided CHECK ((status = 'pending') = (decided_at IS NULL)),
+    -- M4 FR-010 — decided after it was submitted (D6)
+    CONSTRAINT ck_verification_request_order CHECK (decided_at IS NULL OR decided_at > submitted_at)
 );
 
 -- COLLAB_REQUEST: A producer's request to a partner to work on one project, followed to confirmation. (owner M4; seed file 31_collab_request.csv)
@@ -455,6 +461,33 @@ CREATE TABLE public.document_access_log (
     CONSTRAINT pk_document_access_log PRIMARY KEY (access_log_id)
 );
 
+-- ORGANISATION_USER: A partner account that acts for one organisation. (owner M4; seed file 38_organisation_user.csv)
+CREATE TABLE public.organisation_user (
+    org_id UUID NOT NULL,
+    user_id UUID NOT NULL,
+    added_at TIMESTAMPTZ NOT NULL,
+    CONSTRAINT pk_organisation_user PRIMARY KEY (org_id, user_id)
+);
+
+-- PARTNER_INVITATION: VFDA's one-time invitation for a person to become the partner account of an organisation. (owner M4; seed file 39_partner_invitation.csv)
+CREATE TABLE public.partner_invitation (
+    invitation_id UUID NOT NULL,
+    org_id UUID NOT NULL,
+    email VARCHAR(254) NOT NULL,
+    code_hash CHAR(64) NOT NULL,
+    invited_by UUID NOT NULL,
+    invited_at TIMESTAMPTZ NOT NULL,
+    expires_at TIMESTAMPTZ NOT NULL,
+    accepted_at TIMESTAMPTZ,
+    accepted_by UUID,
+    CONSTRAINT pk_partner_invitation PRIMARY KEY (invitation_id),
+    CONSTRAINT uq_partner_invitation_code_hash UNIQUE (code_hash),
+    -- M4 BR-003 — an invitation ends after it is sent (D2)
+    CONSTRAINT ck_partner_invitation_expiry CHECK (expires_at > invited_at),
+    -- M4 BR-003 — an acceptance names its account (D2)
+    CONSTRAINT ck_partner_invitation_accepted CHECK ((accepted_at IS NULL) = (accepted_by IS NULL))
+);
+
 -- DOCUMENT_TYPE: A kind of dossier document, with its legal basis and template. (owner M5; seed file 34_document_type.csv)
 CREATE TABLE public.document_type (
     doc_code VARCHAR(40) NOT NULL,
@@ -490,7 +523,7 @@ CREATE TABLE public.document (
     CONSTRAINT ck_document_version_positive CHECK (version >= 1)
 );
 
--- BILINGUAL_DOCUMENT: A generated English–Vietnamese draft of one document of a project. (owner M5; seed file 38_bilingual_document.csv)
+-- BILINGUAL_DOCUMENT: A generated English–Vietnamese draft of one document of a project. (owner M5; seed file 40_bilingual_document.csv)
 CREATE TABLE public.bilingual_document (
     project_id UUID NOT NULL,
     doc_code VARCHAR(40) NOT NULL,
@@ -501,7 +534,7 @@ CREATE TABLE public.bilingual_document (
     CONSTRAINT pk_bilingual_document PRIMARY KEY (project_id, doc_code)
 );
 
--- BILINGUAL_PARAGRAPH: One aligned source/Vietnamese paragraph pair of a bilingual draft, with its proofreading status. (owner M5; seed file 39_bilingual_paragraph.csv)
+-- BILINGUAL_PARAGRAPH: One aligned source/Vietnamese paragraph pair of a bilingual draft, with its proofreading status. (owner M5; seed file 41_bilingual_paragraph.csv)
 CREATE TABLE public.bilingual_paragraph (
     project_id UUID NOT NULL,
     doc_code VARCHAR(40) NOT NULL,
@@ -518,7 +551,7 @@ CREATE TABLE public.bilingual_paragraph (
     CONSTRAINT ck_bilingual_paragraph_reviewer CHECK (status <> 'reviewed' OR reviewed_by IS NOT NULL)
 );
 
--- PROJECT_GLOSSARY: A project's agreed translation of one term, applied to every later draft of that project. (owner M5; seed file 40_project_glossary.csv)
+-- PROJECT_GLOSSARY: A project's agreed translation of one term, applied to every later draft of that project. (owner M5; seed file 42_project_glossary.csv)
 CREATE TABLE public.project_glossary (
     project_id UUID NOT NULL,
     term_en VARCHAR(120) NOT NULL,
@@ -526,7 +559,7 @@ CREATE TABLE public.project_glossary (
     CONSTRAINT pk_project_glossary PRIMARY KEY (project_id, term_en)
 );
 
--- PUBLIC_HOLIDAY: A public holiday period shown on the licensing timeline, official or expected. (owner M5; seed file 41_public_holiday.csv)
+-- PUBLIC_HOLIDAY: A public holiday period shown on the licensing timeline, official or expected. (owner M5; seed file 43_public_holiday.csv)
 CREATE TABLE public.public_holiday (
     name VARCHAR(120) NOT NULL,
     start_date DATE NOT NULL,
@@ -537,7 +570,7 @@ CREATE TABLE public.public_holiday (
     CONSTRAINT ck_public_holiday_dates CHECK (end_date >= start_date)
 );
 
--- LOCATION_INTEREST: A member's statement that a project is interested in a location. (owner M7; seed file 42_location_interest.csv)
+-- LOCATION_INTEREST: A member's statement that a project is interested in a location. (owner M7; seed file 44_location_interest.csv)
 CREATE TABLE public.location_interest (
     interest_id UUID NOT NULL,
     project_id UUID NOT NULL,
@@ -546,7 +579,7 @@ CREATE TABLE public.location_interest (
     CONSTRAINT pk_location_interest PRIMARY KEY (interest_id)
 );
 
--- PROVINCE_NOTICE: The notice VFDA sends a province about a project's interest, and the province's reply. (owner M7; seed file 43_province_notice.csv)
+-- PROVINCE_NOTICE: The notice VFDA sends a province about a project's interest, and the province's reply. (owner M7; seed file 45_province_notice.csv)
 CREATE TABLE public.province_notice (
     interest_id UUID NOT NULL,
     province_id INTEGER NOT NULL,
@@ -571,7 +604,7 @@ CREATE TABLE public.province_notice (
     CONSTRAINT ck_province_notice_response CHECK (response IN ('received', 'info_needed', 'cannot_support'))
 );
 
--- CONSULTATION_BOOKING: A member's booked consultation slot with a VFDA officer. (owner M7; seed file 44_consultation_booking.csv)
+-- CONSULTATION_BOOKING: A member's booked consultation slot with a VFDA officer. (owner M7; seed file 46_consultation_booking.csv)
 CREATE TABLE public.consultation_booking (
     booking_id UUID NOT NULL,
     member_id UUID NOT NULL,
@@ -699,6 +732,11 @@ ALTER TABLE public.collab_message ADD CONSTRAINT fk_collab_message_author_id FOR
 ALTER TABLE public.nda_acceptance ADD CONSTRAINT fk_nda_acceptance_request_id FOREIGN KEY (request_id) REFERENCES public.collab_request (request_id);
 ALTER TABLE public.document_access_log ADD CONSTRAINT fk_document_access_log_document_id FOREIGN KEY (document_id) REFERENCES public.document (document_id);
 ALTER TABLE public.document_access_log ADD CONSTRAINT fk_document_access_log_viewer_id FOREIGN KEY (viewer_id) REFERENCES public.user_account (user_id);
+ALTER TABLE public.organisation_user ADD CONSTRAINT fk_organisation_user_org_id FOREIGN KEY (org_id) REFERENCES public.organisation (org_id);
+ALTER TABLE public.organisation_user ADD CONSTRAINT fk_organisation_user_user_id FOREIGN KEY (user_id) REFERENCES public.user_account (user_id);
+ALTER TABLE public.partner_invitation ADD CONSTRAINT fk_partner_invitation_org_id FOREIGN KEY (org_id) REFERENCES public.organisation (org_id);
+ALTER TABLE public.partner_invitation ADD CONSTRAINT fk_partner_invitation_invited_by FOREIGN KEY (invited_by) REFERENCES public.user_account (user_id);
+ALTER TABLE public.partner_invitation ADD CONSTRAINT fk_partner_invitation_accepted_by FOREIGN KEY (accepted_by) REFERENCES public.user_account (user_id);
 ALTER TABLE public.document_slot ADD CONSTRAINT fk_document_slot_project_id FOREIGN KEY (project_id) REFERENCES public.project (project_id);
 ALTER TABLE public.document_slot ADD CONSTRAINT fk_document_slot_doc_code FOREIGN KEY (doc_code) REFERENCES public.document_type (doc_code);
 ALTER TABLE public.document ADD CONSTRAINT fk_document_project_id_doc_code FOREIGN KEY (project_id, doc_code) REFERENCES public.document_slot (project_id, doc_code);

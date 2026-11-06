@@ -267,7 +267,7 @@ add(dict(
  ],
  sr=[
   ("The email is the sign-in identity and one account per email; it is **shown read-only** here.", "SYS §3 US-1"),
-  ("The role is **not shown as editable**; it is set in the database and changed only by an admin.", "SYS BR-002; FR-004"),
+  ("The role is **not shown as editable**; it is set in the database: VFDA roles are granted only by an admin, and the partner role only by accepting a VFDA invitation.", "SYS BR-002; FR-004"),
   ("*Delete my account* deactivates at once and removes all access; name, email and phone are anonymised within 30 days; projects, uploads, access logs and approvals stay and show *Former member*. **No hard delete.**", "SYS BR-005"),
   ("Deletion requires typing *DELETE* exactly; the button stays disabled until it matches.", "SYS BR-005 (irreversible action)"),
   ("Consent records are read-only; the table lists each accepted document version with its timestamp.", "SYS BR-003"),
@@ -461,7 +461,7 @@ html = page("SC-43", "Terms of use", "SYS · Guest · Added 30/09/2026", "/terms
   <div style="flex:1;min-width:0">
     <div data-n="6">
       {sec(1, "Who may use CINEMATCH", "Film professionals preparing or supporting a shoot in Vietnam. You must give true details about yourself and your company.")}
-      {sec(2, "Accounts and roles", "A new account is a member account. Partner, VFDA staff, Legal Board and admin roles are granted only by a VFDA admin; every grant is recorded.")}
+      {sec(2, "Accounts and roles", "A new account is a member account. VFDA staff, Legal Board and admin roles are granted only by a VFDA admin; a partner account exists only once its organisation accepts a VFDA invitation. Every grant is recorded.")}
       {sec(3, "Information, not legal approval", "Checks and checklists help you prepare. They cite rules written by the VFDA Legal Board, but only the competent authority approves a permit.")}
       {sec(4, "Partner content", "Profile text and photos published by partners are reviewed by VFDA before they are shown; the last approved version stays public meanwhile.")}
       {sec(5, "Ending your account", "You may delete your account at any time in <span class='lnk'>My account</span>. VFDA may deactivate an account that breaks these terms. Accounts are deactivated, never erased; see the <span class='lnk'>Privacy policy</span>.")}
@@ -508,7 +508,7 @@ add(dict(
  ],
  sr=[
   ("Acceptance is recorded with the **version and timestamp** at sign-up; the terms box on `SC-04` must be ticked to create an account.", "SYS BR-003; FR-001"),
-  ("The text states that partner and VFDA roles are granted only by an admin.", "SYS BR-002"),
+  ("The text states that VFDA roles are granted only by an admin and that the partner role comes only from an accepted VFDA invitation.", "SYS BR-002; M4 BR-003"),
   ("The text never calls a check result *approved*, *accepted*, *legally compliant* or *safe*.", "M2 BR-003"),
   ("The text matches the decided behaviour for partner content and account deletion.", "M10 BR-001; SYS BR-005"),
   ("The text is a **draft** until approved by the VFDA Legal Board; shown in Vietnamese and English.", "SYS FR-005; Group C decision 30/09/2026"),

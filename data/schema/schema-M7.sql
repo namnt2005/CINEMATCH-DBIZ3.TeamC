@@ -5,7 +5,7 @@
 -- (python3 data/schema/load_check.py does both and reports any error).
 -- Rules that span tables are not here: see data/data-model-M7.md, section 7.
 
--- LOCATION_INTEREST: A member's statement that a project is interested in a location. (owner M7; seed file 42_location_interest.csv)
+-- LOCATION_INTEREST: A member's statement that a project is interested in a location. (owner M7; seed file 44_location_interest.csv)
 CREATE TABLE location_interest (
     interest_id UUID NOT NULL,
     project_id UUID NOT NULL,
@@ -16,7 +16,7 @@ CREATE TABLE location_interest (
     CONSTRAINT fk_location_interest_location_id FOREIGN KEY (location_id) REFERENCES location (location_id)
 );
 
--- PROVINCE_NOTICE: The notice VFDA sends a province about a project's interest, and the province's reply. (owner M7; seed file 43_province_notice.csv)
+-- PROVINCE_NOTICE: The notice VFDA sends a province about a project's interest, and the province's reply. (owner M7; seed file 45_province_notice.csv)
 CREATE TABLE province_notice (
     interest_id UUID NOT NULL,
     province_id INTEGER NOT NULL,
@@ -45,7 +45,7 @@ CREATE TABLE province_notice (
     CONSTRAINT fk_province_notice_response_recorded_by FOREIGN KEY (response_recorded_by) REFERENCES user_account (user_id)
 );
 
--- CONSULTATION_BOOKING: A member's booked consultation slot with a VFDA officer. (owner M7; seed file 44_consultation_booking.csv)
+-- CONSULTATION_BOOKING: A member's booked consultation slot with a VFDA officer. (owner M7; seed file 46_consultation_booking.csv)
 CREATE TABLE consultation_booking (
     booking_id UUID NOT NULL,
     member_id UUID NOT NULL,

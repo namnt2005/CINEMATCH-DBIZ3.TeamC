@@ -38,6 +38,11 @@
 %% ORGANISATION ORGANISATION_PRIVATE_LAYER | Each organisation shows confirmed partners zero or one private layer | Each private layer belongs to exactly one organisation | ORGANISATION_PRIVATE_LAYER side | M4 §6; M4 §5.1 FR-001 (rate_card, past_clients Opt)
 %% PROVINCE ORGANISATION | Each province hosts the headquarters of zero or more organisations | Each organisation has its headquarters in zero or one province | both sides | M4 §6 (hq_province); M4 §6.1 hq_province INTEGER No
 %% ORGANISATION VERIFICATION_REQUEST | Each organisation applies through zero or more verification requests | Each verification request is made by exactly one organisation | VERIFICATION_REQUEST side | M4 §6; M4 §5.1 FR-008
+%% USER_ACCOUNT ORGANISATION_USER | Each user account acts for zero or more organisations through organisation-user rows | Each organisation-user row names exactly one user account | ORGANISATION_USER side | specs/007-m4-partners decision D1 (06/11/2026)
+%% ORGANISATION ORGANISATION_USER | Each organisation is run by zero or more partner accounts | Each organisation-user row belongs to exactly one organisation | ORGANISATION_USER side | specs/007-m4-partners decision D1 (06/11/2026)
+%% ORGANISATION PARTNER_INVITATION | Each organisation is invited through zero or more partner invitations | Each partner invitation is for exactly one organisation | PARTNER_INVITATION side | specs/007-m4-partners decision D2 (06/11/2026); M4 §5.2 BR-003; SYS BR-002
+%% USER_ACCOUNT PARTNER_INVITATION | Each user account sends zero or more partner invitations | Each partner invitation is sent by exactly one user account | PARTNER_INVITATION side | specs/007-m4-partners decision D2 (06/11/2026); M4 §5.2 BR-003; SYS BR-002 (invited_by: vfda_staff or admin)
+%% USER_ACCOUNT PARTNER_INVITATION | Each user account accepts zero or more partner invitations | Each partner invitation is accepted by zero or one user account | both sides | specs/007-m4-partners decision D2 (06/11/2026); M4 §5.2 BR-003; SYS BR-002 (accepted_by)
 %% USER_ACCOUNT VERIFICATION_REQUEST | Each user account decides zero or more verification requests | Each verification request is decided by zero or one user account | both sides | M4 §6 (decided_by); M4 §5.1 FR-009 (status pending)
 %% PROJECT COLLAB_REQUEST | Each project sends zero or more collaboration requests | Each collaboration request is sent for exactly one project | COLLAB_REQUEST side | M4 §6; M4 §5.1 FR-012 project_id Req
 %% ORGANISATION COLLAB_REQUEST | Each organisation receives zero or more collaboration requests | Each collaboration request goes to exactly one organisation | COLLAB_REQUEST side | M4 §6; M4 §5.1 FR-012 org_id Req
@@ -114,6 +119,11 @@ erDiagram
     ORGANISATION ||--o| ORGANISATION_PRIVATE_LAYER : "shows confirmed partners"
     PROVINCE |o..o{ ORGANISATION : "hosts the headquarters of"
     ORGANISATION ||--o{ VERIFICATION_REQUEST : "applies through"
+    USER_ACCOUNT ||--o{ ORGANISATION_USER : "acts for organisations through"
+    ORGANISATION ||--o{ ORGANISATION_USER : "is run by"
+    ORGANISATION ||..o{ PARTNER_INVITATION : "is invited through"
+    USER_ACCOUNT ||..o{ PARTNER_INVITATION : "sends"
+    USER_ACCOUNT |o..o{ PARTNER_INVITATION : "accepts"
     USER_ACCOUNT |o..o{ VERIFICATION_REQUEST : "decides"
     PROJECT ||--o{ COLLAB_REQUEST : "sends"
     ORGANISATION ||..o{ COLLAB_REQUEST : "receives"

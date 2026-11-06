@@ -309,7 +309,7 @@ Kept as a JSON array (1NF exception): the whole list is what functions filter an
 | BR-007 | The provincial index uses only data generated on the platform and always shows its sample size. | VIEW (Plan step) | view `v_province_readiness` with sample sizes | `12_province.csv` — Hải Phòng · north — a province with no location: index shows *not enough data* |
 | BR-008 | Locations are unpublished, never deleted (`intake_status = unpublished`); shortlists and provincial notices that refer to an unpublished location keep it and show *No longer published*. | SCHEMA + SEED CHECK | `ck_location_intake_status`; seed_rules: an unpublished location is still shortlisted | `22_location.csv` — cua-van · unpublished · open — Cửa Vạn unpublished, never deleted<br>`26_project_shortlist.csv` — backup — still the backup of Quiet Harbour Blues |
 | BR-009 | Every confirmed scene search is stored as a location query without any personal data (description, attributes, month, and the project only when a member searches inside a project); it is used for the M10 demand index and never to train a model. | SCHEMA | LOCATION_QUERY has no user column; `project_id` optional | `25_location_query.csv` — Ruộng bậc thang mùa lúa chín, có sương · 9; Busy floating market at sunrise with d · 5 (+1) — guest queries with no project and no person |
-| BR-010 | Every published location carries an availability set by VFDA staff: `open`, `survey_in_progress` (another crew is scouting it) or `paused` (not receiving crews for now). A paused location stays published and visible with its label; availability is the sixth scoring criterion; every change is written to the audit log (M10 FR-008). | SCHEMA + TRIGGER (Plan step) | `ck_location_availability`; trigger `trg_location_availability_audit` | `22_location.csv` — phong-nha · published · paused — Phong Nha paused, still published<br>`46_audit_log.csv` — location.availability · 2026-09-25T15:05:00+07:00; location.availability · 2026-09-24T08:20:00+07:00 — every change audited |
+| BR-010 | Every published location carries an availability set by VFDA staff: `open`, `survey_in_progress` (another crew is scouting it) or `paused` (not receiving crews for now). A paused location stays published and visible with its label; availability is the sixth scoring criterion; every change is written to the audit log (M10 FR-008). | SCHEMA + TRIGGER (Plan step) | `ck_location_availability`; trigger `trg_location_availability_audit` | `22_location.csv` — phong-nha · published · paused — Phong Nha paused, still published<br>`48_audit_log.csv` — location.availability · 2026-09-25T15:05:00+07:00; location.availability · 2026-09-24T08:20:00+07:00 — every change audited |
 
 ## 8. Schema (mandatory)
 
@@ -325,7 +325,7 @@ Load test: `python3 data/schema/load_check.py` runs every schema file, then ever
 | Regenerate | `python3 data/seed/generate_seed.py && python3 data/seed/check_seed.py` (must print PASS; `git status` stays clean) |
 | Random seed | none — no randomness and no clock: keys are UUIDv5 of readable names (namespace `6f1c2a8e-3b4d-5e6f-8a9b-0c1d2e3f4a5b`), so every run is byte-identical |
 | Business-rule values | computed by the generator, never typed: attention level (M2 BR-004), quote span (M2 §6.1), latest readiness (M0 §9), is_active, published |
-| Files | 6 files of this module, 81 rows (product: 47 files, 447 rows) |
+| Files | 6 files of this module, 81 rows (product: 49 files, 457 rows) |
 
 **Rows per file and row kinds** (1 = ordinary rows in every file)
 

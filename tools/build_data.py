@@ -88,6 +88,8 @@ HYP = {
  ("1","DOCUMENT_SLOT"):"Missing function — slots must be created when the kit opens (02 OQ 5).",
  ("1","PROJECT_GLOSSARY"):"Surplus entity for this release.",
  ("1","READINESS_SOURCE"):"Missing function — VFDA or the team sets a module's flag to false when it fails to report (M0 §3 edge case, decision H1 of 05/11/2026); belongs to M10, whose Spec Document has no such function yet.",
+ ("1","ORGANISATION_USER"):"Missing function — the row is written when an invited partner accepts the VFDA invitation (M4 BR-003; specs/007-m4-partners decisions D1, D2 of 06/11/2026); the Function List has no subfunction for it.",
+ ("1","PARTNER_INVITATION"):"Missing function — VFDA staff or an admin invite a supplier (M4 BR-003, SR-125; SYS BR-002 as changed 06/11/2026; specs/007-m4-partners decision D2); the Function List has no subfunction for it.",
  ("1","PUBLIC_HOLIDAY"):"Missing function — someone must enter official and expected holiday dates (M5 §10).",
  ("2","PROFILE"):"Missing function — an account page (SC-08, *My account*) shows the profile, but no FR reads it.",
  ("2","PRODUCER_ORGANISATION"):"Missing function — the company is shown nowhere by a specified function (SC-08, partner view of the requester).",

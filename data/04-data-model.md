@@ -8,7 +8,7 @@ sources: FUNCTIONS, FIELDS, ENTITIES, RULES, SCENARIOS, FLOWS, SCREENS, BOUNDARY
 
 # Logical Data Model — CINEMATCH
 
-47 tables, 322 columns. Every column is **copied** from a FIELDS row (section 5.1) or an ENTITIES attribute (section 6), with its declared type and Req / Opt flag. *system-set* = an output field (the system fills it); *not declared* = no flag in the input.
+49 tables, 336 columns. Every column is **copied** from a FIELDS row (section 5.1) or an ENTITIES attribute (section 6), with its declared type and Req / Opt flag. *system-set* = an output field (the system fills it); *not declared* = no flag in the input.
 
 **Every column has a declared type** — the types of the section 6 attributes that no 5.1 field declares come from section 6.1 of the owning Spec Document (cited as `<MODULE> §6.1`). Technical columns (`created_at`, `updated_at`) appear only where the spec declares them. The physical schema built from this model is in `data/schema/schema-<MODULE>.sql`; one readable view per module is in `data/data-model-<MODULE>.md`.
 
@@ -488,8 +488,10 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 | `status` | `ENUM(pending, approved, rejected)` | Opt |  | M4 §5.1 FR-009, FR-010 |
 | `decided_by` | `UUID` | Opt | FK → `USER_ACCOUNT` | M4 §6; M4 §6.1 |
 | `reason` | `TEXT` | Opt |  | M4 §5.1 FR-010 (required when rejected) |
+| `submitted_at` | `TIMESTAMPTZ` | Req |  | specs/007-m4-partners decision D6 (06/11/2026); M4 §5.1 FR-010 ("record who and when"); SC-36 #3, #5; SC-22 #12 |
+| `decided_at` | `TIMESTAMPTZ` | Opt |  | specs/007-m4-partners decision D6 (06/11/2026); M4 §5.1 FR-010 ("record who and when"); empty while pending |
 
-**Natural key:** org_id + submission time (not declared).
+**Natural key:** org_id + submitted_at (D6).
 
 ## COLLAB_REQUEST
 
@@ -551,6 +553,36 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 | `viewed_at` | `TIMESTAMPTZ` | system-set |  | M4 §5.1 FR-018 (OUT); M4 §5.2 BR-007 (append-only) |
 
 **Natural key:** None (append-only event, M4 BR-007).
+
+## ORGANISATION_USER
+
+*A partner account that acts for one organisation.* Owner: M4. THING.
+
+| Column | Type (as declared) | Required | Key | Citation |
+|---|---|---|---|---|
+| `org_id` | `UUID` | Req | PK, FK → `ORGANISATION` | specs/007-m4-partners decision D1 (06/11/2026) |
+| `user_id` | `UUID` | Req | PK, FK → `USER_ACCOUNT` | specs/007-m4-partners decision D1 (06/11/2026) (an account with role partner) |
+| `added_at` | `TIMESTAMPTZ` | Req |  | specs/007-m4-partners decision D1 (06/11/2026) (when the invitation was accepted) |
+
+**Natural key:** org_id + user_id.
+
+## PARTNER_INVITATION
+
+*VFDA's one-time invitation for a person to become the partner account of an organisation.* Owner: M4. EVENT.
+
+| Column | Type (as declared) | Required | Key | Citation |
+|---|---|---|---|---|
+| `invitation_id` | `UUID` | system-set | PK | specs/007-m4-partners decision D2 (06/11/2026); M4 §5.2 BR-003; SYS BR-002 |
+| `org_id` | `UUID` | Req | FK → `ORGANISATION` | specs/007-m4-partners decision D2 (06/11/2026); M4 §5.2 BR-003; SYS BR-002 |
+| `email` | `VARCHAR(254)` | Req |  | specs/007-m4-partners decision D2 (06/11/2026); M4 §5.2 BR-003; SYS BR-002 (the invited address, lower-case) |
+| `code_hash` | `CHAR(64)` | Req | UK | specs/007-m4-partners decision D2 (06/11/2026); M4 §5.2 BR-003; SYS BR-002 (SHA-256 of the one-time code; the code is never stored) |
+| `invited_by` | `UUID` | Req | FK → `USER_ACCOUNT` | specs/007-m4-partners decision D2 (06/11/2026); M4 §5.2 BR-003; SYS BR-002 |
+| `invited_at` | `TIMESTAMPTZ` | Req |  | specs/007-m4-partners decision D2 (06/11/2026); M4 §5.2 BR-003; SYS BR-002 |
+| `expires_at` | `TIMESTAMPTZ` | Req |  | specs/007-m4-partners decision D2 (06/11/2026); M4 §5.2 BR-003; SYS BR-002 (7 days, specs/007-m4-partners research Open question 2) |
+| `accepted_at` | `TIMESTAMPTZ` | Opt |  | specs/007-m4-partners decision D2 (06/11/2026); M4 §5.2 BR-003; SYS BR-002 |
+| `accepted_by` | `UUID` | Opt | FK → `USER_ACCOUNT` | specs/007-m4-partners decision D2 (06/11/2026); M4 §5.2 BR-003; SYS BR-002 |
+
+**Natural key:** code_hash (one per code); org_id + email while the invitation is open.
 
 ## DOCUMENT_TYPE
 
@@ -794,7 +826,7 @@ Reported only — nothing was fixed in the model.
 | (i) freeze | QUARTERLY_REPORT.demand_index ← DEMAND_INDEX | Settled: the report keeps the indicators it was drafted from (M10 FR-007), so a reread report does not change when platform data changes. | — |
 | (i) freeze | MODERATION_ITEM → submitted content | The last approved text stays public while the new one waits (M10 BR-001), but no column holds the waiting version. | OQ-04-20 |
 | (i) freeze | COLLAB_REQUEST → ORGANISATION verified badge | Settled: the request continues if the badge expires (M4 §3 Edge cases). | — |
-| (ii) delete | USER_ACCOUNT (in 20 relationships) | Settled by SYS BR-005: never hard-deleted. Deleting an account sets `account_status = deactivated` at once and replaces name and email with anonymous values within 30 days; projects, uploads, access logs and approvals stay and show *Former member*. | OQ-04-6 (resolved) |
+| (ii) delete | USER_ACCOUNT (in 23 relationships) | Settled by SYS BR-005: never hard-deleted. Deleting an account sets `account_status = deactivated` at once and replaces name and email with anonymous values within 30 days; projects, uploads, access logs and approvals stay and show *Former member*. | OQ-04-6 (resolved) |
 | (ii) delete | PROJECT (in 14 relationships) | Settled by M0 BR-005: archived, never deleted (`stage = archived`); read-only, leaves the project list, keeps documents, requests and notices. | OQ-04-7 (resolved) |
 | (ii) delete | LOCATION (shortlists, interests, notices) | Settled by M3 BR-008: unpublished, never deleted (`intake_status = unpublished`); shortlists and notices keep it and show *No longer published*. | OQ-04-8 (resolved) |
 | (ii) delete | ORGANISATION (requests, proofread paragraphs, moderation items) | Settled by M4 BR-008: deactivated, never deleted (`org_status = deactivated`); open requests are closed as `withdrawn` and the producer is notified; the access log is kept. | OQ-04-9 (resolved) |
@@ -861,6 +893,11 @@ erDiagram
     ORGANISATION ||--o| ORGANISATION_PRIVATE_LAYER : "shows confirmed partners"
     PROVINCE |o..o{ ORGANISATION : "hosts the headquarters of"
     ORGANISATION ||--o{ VERIFICATION_REQUEST : "applies through"
+    USER_ACCOUNT ||--o{ ORGANISATION_USER : "acts for organisations through"
+    ORGANISATION ||--o{ ORGANISATION_USER : "is run by"
+    ORGANISATION ||..o{ PARTNER_INVITATION : "is invited through"
+    USER_ACCOUNT ||..o{ PARTNER_INVITATION : "sends"
+    USER_ACCOUNT |o..o{ PARTNER_INVITATION : "accepts"
     USER_ACCOUNT |o..o{ VERIFICATION_REQUEST : "decides"
     PROJECT ||--o{ COLLAB_REQUEST : "sends"
     ORGANISATION ||..o{ COLLAB_REQUEST : "receives"
@@ -1162,6 +1199,8 @@ erDiagram
         enum status "M4 s5.1 FR-009, FR-010"
         uuid decided_by FK "M4 s6; M4 s6.1"
         string reason "M4 s5.1 FR-010 (required when rejected)"
+        datetime submitted_at "specs/007-m4-partners decision D6 (06/11/2026); M4 s5.1 FR-010 ('record who and when'); SC-36 #3, #5; SC-22 #12"
+        datetime decided_at "specs/007-m4-partners decision D6 (06/11/2026); M4 s5.1 FR-010 ('record who and when'); empty while pending"
     }
     COLLAB_REQUEST {
         uuid request_id PK "M4 s5.1 FR-012 (OUT)"
@@ -1195,6 +1234,22 @@ erDiagram
         uuid document_id FK "M4 s5.1 FR-018"
         uuid viewer_id FK "M4 s5.1 FR-018"
         datetime viewed_at "M4 s5.1 FR-018 (OUT); M4 s5.2 BR-007 (append-only)"
+    }
+    ORGANISATION_USER {
+        uuid org_id PK,FK "specs/007-m4-partners decision D1 (06/11/2026)"
+        uuid user_id PK,FK "specs/007-m4-partners decision D1 (06/11/2026) (an account with role partner)"
+        datetime added_at "specs/007-m4-partners decision D1 (06/11/2026) (when the invitation was accepted)"
+    }
+    PARTNER_INVITATION {
+        uuid invitation_id PK "specs/007-m4-partners decision D2 (06/11/2026); M4 s5.2 BR-003; SYS BR-002"
+        uuid org_id FK "specs/007-m4-partners decision D2 (06/11/2026); M4 s5.2 BR-003; SYS BR-002"
+        string email "specs/007-m4-partners decision D2 (06/11/2026); M4 s5.2 BR-003; SYS BR-002 (the invited address, lower-case)"
+        string code_hash UK "specs/007-m4-partners decision D2 (06/11/2026); M4 s5.2 BR-003; SYS BR-002 (SHA-256 of the one-time code; the code is never stored)"
+        uuid invited_by FK "specs/007-m4-partners decision D2 (06/11/2026); M4 s5.2 BR-003; SYS BR-002"
+        datetime invited_at "specs/007-m4-partners decision D2 (06/11/2026); M4 s5.2 BR-003; SYS BR-002"
+        datetime expires_at "specs/007-m4-partners decision D2 (06/11/2026); M4 s5.2 BR-003; SYS BR-002 (7 days, specs/007-m4-partners research Open question 2)"
+        datetime accepted_at "specs/007-m4-partners decision D2 (06/11/2026); M4 s5.2 BR-003; SYS BR-002"
+        uuid accepted_by FK "specs/007-m4-partners decision D2 (06/11/2026); M4 s5.2 BR-003; SYS BR-002"
     }
     DOCUMENT_TYPE {
         string doc_code PK "M5 s5.1 FR-001 (OUT)"

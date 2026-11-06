@@ -51,13 +51,18 @@ describe('Seed loader plan (T017, research R7, D3, Constitution IV)', () => {
     }
   });
 
-  test('D3: the 21 user-id columns (user_account.user_id and its 20 foreign keys) are found in data/schema', async () => {
+  test('D3: the 24 user-id columns (user_account.user_id and its 23 foreign keys) are found in data/schema', async () => {
     const { userReferenceColumns } = await loadPlan();
     const columns = userReferenceColumns(schemaSql());
     // 20 → 21 on 06/11/2026 (approved by Nam Tran): M7 D1 added province_notice.response_recorded_by → user_account,
     // who recorded the province's reply (specs/006-m7-support/plan.md D1, D3); the loader must re-key it too
-    assert.equal(columns.length, 21);
+    // 21 → 24 on 06/11/2026 (approved by Nam Tran): M4 D1, D2 added organisation_user.user_id,
+    // partner_invitation.invited_by and partner_invitation.accepted_by (specs/007-m4-partners/plan.md)
+    assert.equal(columns.length, 24);
     assert.ok(columns.some(c => c.table === 'province_notice' && c.column === 'response_recorded_by'));
+    for (const [table, column] of [['organisation_user', 'user_id'], ['partner_invitation', 'invited_by'], ['partner_invitation', 'accepted_by']]) {
+      assert.ok(columns.some(c => c.table === table && c.column === column), `${table}.${column}`);
+    }
     assert.ok(columns.some(c => c.table === 'audit_log' && c.column === 'admin_id'));
     assert.ok(columns.some(c => c.table === 'authority_contact' && c.column === 'verified_by'));
     assert.ok(columns.some(c => c.table === 'profile' && c.column === 'user_id'));

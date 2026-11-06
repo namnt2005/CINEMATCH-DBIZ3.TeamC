@@ -37,7 +37,7 @@ CITATION SCHEME = <MODULE> §<section> <ID>
   e.g. "M3 §5.1 FR-008" (field row of F-M3-08) | "M3 §5.2 BR-004" | "M3 §3 US-2" | "M3 §6"
 ```
 
-**Count:** 52 declared in the specs' section 6 — 47 stored (26 THING, 21 EVENT) and 5 that the specs themselves define as *derived* (computed, not stored). Derived entities stay in this dictionary so that nothing declared disappears, but they are not drawn in the ERD (open question 2).
+**Count:** 54 declared in the specs' section 6 — 49 stored (27 THING, 22 EVENT) and 5 that the specs themselves define as *derived* (computed, not stored). Derived entities stay in this dictionary so that nothing declared disappears, but they are not drawn in the ERD (open question 2).
 
 ## Entities
 
@@ -81,6 +81,8 @@ CITATION SCHEME = <MODULE> §<section> <ID>
 | `COLLAB_MESSAGE` | A message written inside a collaboration request, including every response note; never edited once sent. | EVENT | M4 | CollabMessage; collab_message; message_id | M4 §6; M4 §5.1 FR-014; M4 §5.2 BR-009 |
 | `NDA_ACCEPTANCE` | One party's acceptance of a given NDA version for one collaboration request. | EVENT | M4 | NdaAcceptance; nda_acceptance_id | M4 §6; M4 §5.1 FR-017 |
 | `DOCUMENT_ACCESS_LOG` | A record that one person viewed one shared document at one time. | EVENT | M4 | DocumentAccessLog; access_log | M4 §6; M4 §5.1 FR-018 |
+| `ORGANISATION_USER` | A partner account that acts for one organisation. | THING | M4 | OrganisationUser; organisation_user; partner account of an organisation | specs/007-m4-partners decision D1 (06/11/2026); M4 §5.1 FR-001 ("a partner … edit its organisation profile") |
+| `PARTNER_INVITATION` | VFDA's one-time invitation for a person to become the partner account of an organisation. | EVENT | M4 | PartnerInvitation; partner_invitation; invitation | specs/007-m4-partners decision D2 (06/11/2026); M4 §5.2 BR-003; SYS BR-002 |
 | `DOCUMENT_TYPE` | A kind of dossier document, with its legal basis and template. | THING | M5 | DocumentType; doc_code; required_documents | M5 §6; M5 §5.1 FR-001 |
 | `DOCUMENT_SLOT` | The place for one document type in one project, with its status. | THING | M5 | DocumentSlot; doc_status; missing_documents | M5 §6; M5 §5.1 FR-003 |
 | `DOCUMENT` | One uploaded file version in a project's document slot. | THING | M5 | Document; file | M5 §6; M5 §5.1 FR-002 |
@@ -149,7 +151,7 @@ Nouns the FIELDS or RULES need the system to remember, with no declared entity. 
 | 1 | [NEEDS CLARIFICATION: Keep PRODUCER_ORGANISATION and ORGANISATION as two entities, or merge with an organisation type?] | Yes | Nam + VFDA | Two entities | Merging later rewrites Profile, Project, COLLAB_REQUEST foreign keys and RLS policies. | Open |
 | 2 | [NEEDS CLARIFICATION: Are READINESS_VIEW, DOSSIER_CHECK, LICENSING_TIMELINE and PROVINCE_READINESS computed on read, never stored?] | No | Group C (M0/M2/M3 owners) | Computed on read (database views); excluded from the ERD | If any must be stored (e.g. for audit), a table and its refresh rule must be added. | Open |
 | 3 | [NEEDS CLARIFICATION: Declare ORGANISATION_SERVICE and ORGANISATION_PROVINCE, or keep arrays on ORGANISATION?] | No | M4 owner | Arrays as declared in FR-001 | Arrays break 1NF: filtering by province and counting per service group (M3 index) becomes slower and harder to constrain. | Open |
-| 4 | [NEEDS CLARIFICATION: Which entity records that a partner account may edit an organisation?] | Yes | M4 owner | None modelled; flagged | Without it RLS cannot decide who edits an organisation profile (F-M4-01). | Open |
+| 4 | [NEEDS CLARIFICATION: Which entity records that a partner account may edit an organisation?] | Yes | M4 owner | None modelled; flagged | Without it RLS cannot decide who edits an organisation profile (F-M4-01). | Resolved 06/11/2026 — ORGANISATION_USER (specs/007-m4-partners decision D1); partner accounts come only from PARTNER_INVITATION (D2, M4 BR-003). |
 | 5 | [NEEDS CLARIFICATION: How is an invitation to an email without an account stored until accepted?] | Yes | M0 owner | invitee_email kept on PROJECT_MEMBER with user_id empty | A member row without a user breaks the "belongs to UserAccount" relationship. | Open |
 | 6 | [NEEDS CLARIFICATION: Where does the audit log live before M10 has a Spec Document?] | Yes | Nam (M10) | Not modelled in this package | SYS BR-002 and M4 depend on it; RLS for grants cannot be audited. | Resolved 30/09/2026 — M10 now has a Spec Document: AUDIT_LOG is modelled from M10 §6 and §5.1 FR-008, append-only (M10 §5.2 BR-005). |
 

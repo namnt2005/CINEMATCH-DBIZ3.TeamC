@@ -80,7 +80,7 @@
 | Rule ID | Rule | Source |
 |---|---|---|
 | SR-231 | The email is the sign-in identity and one account per email; it is **shown read-only** here. | SYS §3 US-1 |
-| SR-232 | The role is **not shown as editable**; it is set in the database and changed only by an admin. | SYS BR-002; FR-004 |
+| SR-232 | The role is **not shown as editable**; it is set in the database: VFDA roles are granted only by an admin, and the partner role only by accepting a VFDA invitation. | SYS BR-002; FR-004 |
 | SR-233 | *Delete my account* deactivates at once and removes all access; name, email and phone are anonymised within 30 days; projects, uploads, access logs and approvals stay and show *Former member*. **No hard delete.** | SYS BR-005 |
 | SR-234 | Deletion requires typing *DELETE* exactly; the button stays disabled until it matches. | SYS BR-005 (irreversible action) |
 | SR-235 | Consent records are read-only; the table lists each accepted document version with its timestamp. | SYS BR-003 |

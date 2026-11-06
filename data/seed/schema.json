@@ -1210,7 +1210,9 @@
    "reference_projects",
    "status",
    "decided_by",
-   "reason"
+   "reason",
+   "submitted_at",
+   "decided_at"
   ],
   "pk": [
    "request_id"
@@ -1218,7 +1220,8 @@
   "required": [
    "org_id",
    "business_license",
-   "reference_projects"
+   "reference_projects",
+   "submitted_at"
   ],
   "fk": [
    {
@@ -1520,6 +1523,87 @@
   "file": "37_document_access_log.csv",
   "owner": "M4"
  },
+ "ORGANISATION_USER": {
+  "table": "organisation_user",
+  "columns": [
+   "org_id",
+   "user_id",
+   "added_at"
+  ],
+  "pk": [
+   "org_id",
+   "user_id"
+  ],
+  "required": [
+   "org_id",
+   "user_id",
+   "added_at"
+  ],
+  "fk": [
+   {
+    "column": "org_id",
+    "references": "ORGANISATION",
+    "ref_column": "org_id"
+   },
+   {
+    "column": "user_id",
+    "references": "USER_ACCOUNT",
+    "ref_column": "user_id"
+   }
+  ],
+  "enums": {},
+  "array_enums": {},
+  "load_order": 38,
+  "file": "38_organisation_user.csv",
+  "owner": "M4"
+ },
+ "PARTNER_INVITATION": {
+  "table": "partner_invitation",
+  "columns": [
+   "invitation_id",
+   "org_id",
+   "email",
+   "code_hash",
+   "invited_by",
+   "invited_at",
+   "expires_at",
+   "accepted_at",
+   "accepted_by"
+  ],
+  "pk": [
+   "invitation_id"
+  ],
+  "required": [
+   "org_id",
+   "email",
+   "code_hash",
+   "invited_by",
+   "invited_at",
+   "expires_at"
+  ],
+  "fk": [
+   {
+    "column": "org_id",
+    "references": "ORGANISATION",
+    "ref_column": "org_id"
+   },
+   {
+    "column": "invited_by",
+    "references": "USER_ACCOUNT",
+    "ref_column": null
+   },
+   {
+    "column": "accepted_by",
+    "references": "USER_ACCOUNT",
+    "ref_column": null
+   }
+  ],
+  "enums": {},
+  "array_enums": {},
+  "load_order": 39,
+  "file": "39_partner_invitation.csv",
+  "owner": "M4"
+ },
  "BILINGUAL_DOCUMENT": {
   "table": "bilingual_document",
   "columns": [
@@ -1552,8 +1636,8 @@
   ],
   "enums": {},
   "array_enums": {},
-  "load_order": 38,
-  "file": "38_bilingual_document.csv",
+  "load_order": 40,
+  "file": "40_bilingual_document.csv",
   "owner": "M5"
  },
  "BILINGUAL_PARAGRAPH": {
@@ -1606,8 +1690,8 @@
    ]
   },
   "array_enums": {},
-  "load_order": 39,
-  "file": "39_bilingual_paragraph.csv",
+  "load_order": 41,
+  "file": "41_bilingual_paragraph.csv",
   "owner": "M5"
  },
  "PROJECT_GLOSSARY": {
@@ -1633,8 +1717,8 @@
   ],
   "enums": {},
   "array_enums": {},
-  "load_order": 40,
-  "file": "40_project_glossary.csv",
+  "load_order": 42,
+  "file": "42_project_glossary.csv",
   "owner": "M5"
  },
  "PUBLIC_HOLIDAY": {
@@ -1658,8 +1742,8 @@
   "fk": [],
   "enums": {},
   "array_enums": {},
-  "load_order": 41,
-  "file": "41_public_holiday.csv",
+  "load_order": 43,
+  "file": "43_public_holiday.csv",
   "owner": "M5"
  },
  "LOCATION_INTEREST": {
@@ -1692,8 +1776,8 @@
   ],
   "enums": {},
   "array_enums": {},
-  "load_order": 42,
-  "file": "42_location_interest.csv",
+  "load_order": 44,
+  "file": "44_location_interest.csv",
   "owner": "M7"
  },
  "PROVINCE_NOTICE": {
@@ -1773,8 +1857,8 @@
    ]
   },
   "array_enums": {},
-  "load_order": 43,
-  "file": "43_province_notice.csv",
+  "load_order": 45,
+  "file": "45_province_notice.csv",
   "owner": "M7"
  },
  "CONSULTATION_BOOKING": {
@@ -1826,8 +1910,8 @@
    ]
   },
   "array_enums": {},
-  "load_order": 44,
-  "file": "44_consultation_booking.csv",
+  "load_order": 46,
+  "file": "46_consultation_booking.csv",
   "owner": "M7"
  },
  "MODERATION_ITEM": {
@@ -1885,8 +1969,8 @@
    ]
   },
   "array_enums": {},
-  "load_order": 45,
-  "file": "45_moderation_item.csv",
+  "load_order": 47,
+  "file": "47_moderation_item.csv",
   "owner": "M10"
  },
  "AUDIT_LOG": {
@@ -1914,8 +1998,8 @@
   ],
   "enums": {},
   "array_enums": {},
-  "load_order": 46,
-  "file": "46_audit_log.csv",
+  "load_order": 48,
+  "file": "48_audit_log.csv",
   "owner": "M10"
  },
  "QUARTERLY_REPORT": {
@@ -1951,8 +2035,8 @@
   ],
   "enums": {},
   "array_enums": {},
-  "load_order": 47,
-  "file": "47_quarterly_report.csv",
+  "load_order": 49,
+  "file": "49_quarterly_report.csv",
   "owner": "M10"
  }
 }

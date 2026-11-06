@@ -54,7 +54,7 @@ CITATION SCHEME = <MODULE> §<section> <ID>
 | `NOTIFICATION` | An in-app message addressed to one account about one event. | EVENT | SYS | spec §6 — SYS §6; SYS §5.1 FR-007 | `notification` | `05_notification.csv` (9) |
 | `EMAIL_DELIVERY` | One transactional email handed to the email provider, with its delivery outcome. | EVENT | SYS | spec §6 — SYS §6; SYS §5.1 FR-008 | `email_delivery` | `06_email_delivery.csv` (7) |
 
-**Entities of other modules referenced here** (drawn without attributes in §5): `AUDIT_LOG` (M10), `AUTHORITY_CONTACT` (M3), `BILINGUAL_PARAGRAPH` (M5), `COLLAB_MESSAGE` (M4), `CONSULTATION_BOOKING` (M7), `DOCUMENT` (M5), `DOCUMENT_ACCESS_LOG` (M4), `LEGAL_RULE` (M2), `MODERATION_ITEM` (M10), `PROJECT` (M0), `PROJECT_MEMBER` (M0), `PROVINCE_NOTICE` (M7), `QUARTERLY_REPORT` (M10), `RULE_SET_VERSION` (M2), `VERIFICATION_REQUEST` (M4).
+**Entities of other modules referenced here** (drawn without attributes in §5): `AUDIT_LOG` (M10), `AUTHORITY_CONTACT` (M3), `BILINGUAL_PARAGRAPH` (M5), `COLLAB_MESSAGE` (M4), `CONSULTATION_BOOKING` (M7), `DOCUMENT` (M5), `DOCUMENT_ACCESS_LOG` (M4), `LEGAL_RULE` (M2), `MODERATION_ITEM` (M10), `ORGANISATION_USER` (M4), `PARTNER_INVITATION` (M4), `PROJECT` (M0), `PROJECT_MEMBER` (M0), `PROVINCE_NOTICE` (M7), `QUARTERLY_REPORT` (M10), `RULE_SET_VERSION` (M2), `VERIFICATION_REQUEST` (M4).
 
 ## 3. Attributes (mandatory)
 
@@ -149,6 +149,9 @@ Each relationship is read in both directions; the citation is the spec line it c
 | `USER_ACCOUNT` \|\|..o{ `RULE_SET_VERSION` | Each user account publishes zero or more rule set versions | Each rule set version is published by exactly one user account | RULE_SET_VERSION side | non-identifying (`..`) | M2 §6 (created_by); M2 §5.1 FR-004 (version created on each activation) |
 | `USER_ACCOUNT` \|o..o{ `LEGAL_RULE` | Each user account approves zero or more legal rules | Each legal rule is approved by zero or one user account | both sides | non-identifying (`..`) | M2 §6 (approved_by); M2 §3 US-3 (draft rule has no approver) |
 | `USER_ACCOUNT` \|\|..o{ `AUTHORITY_CONTACT` | Each user account verifies zero or more authority contacts | Each authority contact is verified by exactly one user account | AUTHORITY_CONTACT side | non-identifying (`..`) | M3 §5.1 FR-004 verified_by Req |
+| `USER_ACCOUNT` \|\|--o{ `ORGANISATION_USER` | Each user account acts for zero or more organisations through organisation-user rows | Each organisation-user row names exactly one user account | ORGANISATION_USER side | identifying (`--`) | specs/007-m4-partners decision D1 (06/11/2026) |
+| `USER_ACCOUNT` \|\|..o{ `PARTNER_INVITATION` | Each user account sends zero or more partner invitations | Each partner invitation is sent by exactly one user account | PARTNER_INVITATION side | non-identifying (`..`) | specs/007-m4-partners decision D2 (06/11/2026); M4 §5.2 BR-003; SYS BR-002 (invited_by: vfda_staff or admin) |
+| `USER_ACCOUNT` \|o..o{ `PARTNER_INVITATION` | Each user account accepts zero or more partner invitations | Each partner invitation is accepted by zero or one user account | both sides | non-identifying (`..`) | specs/007-m4-partners decision D2 (06/11/2026); M4 §5.2 BR-003; SYS BR-002 (accepted_by) |
 | `USER_ACCOUNT` \|o..o{ `VERIFICATION_REQUEST` | Each user account decides zero or more verification requests | Each verification request is decided by zero or one user account | both sides | non-identifying (`..`) | M4 §6 (decided_by); M4 §5.1 FR-009 (status pending) |
 | `USER_ACCOUNT` \|\|..o{ `COLLAB_MESSAGE` | Each user account writes zero or more messages | Each message is written by exactly one user account | COLLAB_MESSAGE side | non-identifying (`..`) | M4 §6 (author_id) |
 | `USER_ACCOUNT` \|\|..o{ `DOCUMENT_ACCESS_LOG` | Each user account views documents in zero or more access-log entries | Each access-log entry records exactly one viewer | DOCUMENT_ACCESS_LOG side | non-identifying (`..`) | M4 §5.1 FR-018 viewer_id Req |
@@ -179,6 +182,9 @@ erDiagram
     USER_ACCOUNT ||..o{ RULE_SET_VERSION : "publishes"
     USER_ACCOUNT |o..o{ LEGAL_RULE : "approves"
     USER_ACCOUNT ||..o{ AUTHORITY_CONTACT : "verifies"
+    USER_ACCOUNT ||--o{ ORGANISATION_USER : "acts for organisations through"
+    USER_ACCOUNT ||..o{ PARTNER_INVITATION : "sends"
+    USER_ACCOUNT |o..o{ PARTNER_INVITATION : "accepts"
     USER_ACCOUNT |o..o{ VERIFICATION_REQUEST : "decides"
     USER_ACCOUNT ||..o{ COLLAB_MESSAGE : "writes"
     USER_ACCOUNT ||..o{ DOCUMENT_ACCESS_LOG : "views"
@@ -247,7 +253,7 @@ Renders with mermaid-cli: **yes**.
 | Entities owned and stored (catalogue §2) | 6 | tables in `schema-SYS.sql` | 6 | ✓ |
 | Attributes (§3) | 31 | columns in `schema-SYS.sql` | 31 | ✓ |
 | Relationships with the child in this module (§4) | 5 | FOREIGN KEY constraints in `schema-SYS.sql` | 5 | ✓ |
-| Relationships touching this module (§4) | 23 | relationship lines in the ERD (§5) | 23 | ✓ |
+| Relationships touching this module (§4) | 26 | relationship lines in the ERD (§5) | 26 | ✓ |
 | Seed files of this module (§9) | 6 | tables in `schema-SYS.sql` | 6 | ✓ |
 
 ## 6. Normalization check (mandatory)
@@ -273,7 +279,7 @@ None in this module.
 | Rule | Statement | Enforced in | Named object | Seed rows that show it |
 |---|---|---|---|---|
 | BR-001 | Sensitive data (authority contacts, partner private layer, project documents) is filtered by Row Level Security in the database. Hiding it in the interface does not count. | RLS (Plan step) | policies `rls_authority_contact_members`, `rls_org_private_after_nda`, `rls_document_project_members` | `24_authority_contact.csv` — Ban Quản lý Vườn quốc gia Mũi Cà Mau · true · 2016-01-04T10:00:00+07:00; Ban Quản lý vịnh Hạ Long · true · 2026-04-12T10:00:00+07:00 (+9) — contacts exist for 11 locations; a guest session must read 0 of them (SYS US-2) |
-| BR-002 | A new account is always `member`. The roles `partner`, `vfda_staff`, `vfda_legal` and `admin` are granted only by an admin, and every grant is written to the audit log. | SEED CHECK + TRIGGER (Plan step) | seed_rules: staff, Legal Board, admin and partner profiles have no producer organisation; trigger `trg_role_grant_audit` writes `role.grant` | `01_user_account.csv` — lan.pham@benxua.example.vn · partner · active — a partner account granted by the admin<br>`46_audit_log.csv` — role.grant · 2026-06-10T10:30:00+07:00 — the grant is in the audit log |
+| BR-002 | A new account is always `member`. The roles `vfda_staff`, `vfda_legal` and `admin` are granted only by an admin. The role `partner` is granted only through a VFDA invitation (M4 BR-003): a `vfda_staff` or `admin` user invites the organisation, and accepting the invitation grants the role. Every grant is written to the audit log. | SEED CHECK + TRIGGER (Plan step) | seed_rules: staff, Legal Board, admin and partner profiles have no producer organisation; `role.grant` written for every grant; a partner role only through an accepted invitation (M4 BR-003) | `01_user_account.csv` — lan.pham@benxua.example.vn · partner · active — a partner account, granted by accepting a VFDA invitation<br>`48_audit_log.csv` — role.grant · 2026-09-10T10:00:00+07:00; role.grant · 2026-06-10T10:30:00+07:00 (+1) — the grant is in the audit log |
 | BR-003 | Acceptance of the terms is stored with the document version and timestamp. | SCHEMA | primary key `pk_consent` (user_id, consent_version) + `accepted_at NOT NULL` | `04_consent.csv` — 2026.2 — Lena Park re-consents to a new terms version: a second row, the first is kept |
 | BR-004 | Passwords, password hashing and tokens are handled only by Supabase Auth. | NOT DATA | no password, hash or token column exists in any table (Supabase Auth keeps them) | `01_user_account.csv` — yui.tanaka@sakuralane.example.jp · member · active; tuan.huynh@mekongframe.example.vn · partner · active (+14) — USER_ACCOUNT has no password column |
 | BR-005 | An account is never hard-deleted. When its owner deletes it (SC-08), it is deactivated at once, loses all access, and its name, email and phone are replaced by anonymous values within 30 days; projects, uploads, access logs and approvals it created stay and are shown as *Former member*. | SCHEMA + SEED CHECK | `ck_user_account_account_status`; seed_rules: a deactivated account is anonymised | `01_user_account.csv` — former-member-2e513ee3@anonymised.exam · member · deactivated — deactivated, e-mail anonymised<br>`11_project_member.csv` — former-member-2e513ee3@anonymised.exam · view · accepted — its project membership is kept |
@@ -292,7 +298,7 @@ Load test: `python3 data/schema/load_check.py` runs every schema file, then ever
 | Regenerate | `python3 data/seed/generate_seed.py && python3 data/seed/check_seed.py` (must print PASS; `git status` stays clean) |
 | Random seed | none — no randomness and no clock: keys are UUIDv5 of readable names (namespace `6f1c2a8e-3b4d-5e6f-8a9b-0c1d2e3f4a5b`), so every run is byte-identical |
 | Business-rule values | computed by the generator, never typed: attention level (M2 BR-004), quote span (M2 §6.1), latest readiness (M0 §9), is_active, published |
-| Files | 6 files of this module, 73 rows (product: 47 files, 447 rows) |
+| Files | 6 files of this module, 73 rows (product: 49 files, 457 rows) |
 
 **Rows per file and row kinds** (1 = ordinary rows in every file)
 
@@ -344,6 +350,9 @@ Computed from the seed files. (a) every enumerated value has a row; (b) empty st
 | `USER_ACCOUNT` with no `RULE_SET_VERSION` (publishes) | 15 row(s), e.g. yui.tanaka@sakuralane.example. · member · active |
 | `USER_ACCOUNT` with no `LEGAL_RULE` (approves) | 15 row(s), e.g. yui.tanaka@sakuralane.example. · member · active |
 | `USER_ACCOUNT` with no `AUTHORITY_CONTACT` (verifies) | 14 row(s), e.g. yui.tanaka@sakuralane.example. · member · active |
+| `USER_ACCOUNT` with no `ORGANISATION_USER` (acts for organisations through) | 13 row(s), e.g. yui.tanaka@sakuralane.example. · member · active |
+| `USER_ACCOUNT` with no `PARTNER_INVITATION` (sends) | 13 row(s), e.g. yui.tanaka@sakuralane.example. · member · active |
+| `USER_ACCOUNT` with no `PARTNER_INVITATION` (accepts) | 13 row(s), e.g. yui.tanaka@sakuralane.example. · member · active |
 | `USER_ACCOUNT` with no `VERIFICATION_REQUEST` (decides) | 13 row(s), e.g. yui.tanaka@sakuralane.example. · member · active |
 | `USER_ACCOUNT` with no `COLLAB_MESSAGE` (writes) | 13 row(s), e.g. yui.tanaka@sakuralane.example. · member · active |
 | `USER_ACCOUNT` with no `DOCUMENT_ACCESS_LOG` (views) | 14 row(s), e.g. yui.tanaka@sakuralane.example. · member · active |

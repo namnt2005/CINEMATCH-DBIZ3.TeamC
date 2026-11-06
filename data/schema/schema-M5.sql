@@ -44,7 +44,7 @@ CREATE TABLE document (
     CONSTRAINT ck_document_version_positive CHECK (version >= 1)
 );
 
--- BILINGUAL_DOCUMENT: A generated English–Vietnamese draft of one document of a project. (owner M5; seed file 38_bilingual_document.csv)
+-- BILINGUAL_DOCUMENT: A generated English–Vietnamese draft of one document of a project. (owner M5; seed file 40_bilingual_document.csv)
 CREATE TABLE bilingual_document (
     project_id UUID NOT NULL,
     doc_code VARCHAR(40) NOT NULL,
@@ -57,7 +57,7 @@ CREATE TABLE bilingual_document (
     CONSTRAINT fk_bilingual_document_doc_code FOREIGN KEY (doc_code) REFERENCES document_type (doc_code)
 );
 
--- BILINGUAL_PARAGRAPH: One aligned source/Vietnamese paragraph pair of a bilingual draft, with its proofreading status. (owner M5; seed file 39_bilingual_paragraph.csv)
+-- BILINGUAL_PARAGRAPH: One aligned source/Vietnamese paragraph pair of a bilingual draft, with its proofreading status. (owner M5; seed file 41_bilingual_paragraph.csv)
 CREATE TABLE bilingual_paragraph (
     project_id UUID NOT NULL,
     doc_code VARCHAR(40) NOT NULL,
@@ -77,7 +77,7 @@ CREATE TABLE bilingual_paragraph (
     CONSTRAINT ck_bilingual_paragraph_reviewer CHECK (status <> 'reviewed' OR reviewed_by IS NOT NULL)
 );
 
--- PROJECT_GLOSSARY: A project's agreed translation of one term, applied to every later draft of that project. (owner M5; seed file 40_project_glossary.csv)
+-- PROJECT_GLOSSARY: A project's agreed translation of one term, applied to every later draft of that project. (owner M5; seed file 42_project_glossary.csv)
 CREATE TABLE project_glossary (
     project_id UUID NOT NULL,
     term_en VARCHAR(120) NOT NULL,
@@ -86,7 +86,7 @@ CREATE TABLE project_glossary (
     CONSTRAINT fk_project_glossary_project_id FOREIGN KEY (project_id) REFERENCES project (project_id)
 );
 
--- PUBLIC_HOLIDAY: A public holiday period shown on the licensing timeline, official or expected. (owner M5; seed file 41_public_holiday.csv)
+-- PUBLIC_HOLIDAY: A public holiday period shown on the licensing timeline, official or expected. (owner M5; seed file 43_public_holiday.csv)
 CREATE TABLE public_holiday (
     name VARCHAR(120) NOT NULL,
     start_date DATE NOT NULL,
