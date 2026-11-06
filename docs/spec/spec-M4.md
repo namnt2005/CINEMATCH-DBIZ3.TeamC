@@ -74,9 +74,9 @@ This module connects foreign producers with Vietnamese companies that can legall
 
 **Acceptance scenarios**
 
-1. **Given** a member with a project, **When** they send a request to Bến Xưa, **Then** the request is *Sent*, the partner is notified in-app and by email, and the tracker shows step 1 of 3.
-2. **Given** the partner accepts, **When** the member opens the request, **Then** the tracker shows step 2 *Partner responded* and *Confirm partnership* is enabled once the NDA box is ticked.
-3. **Given** the member confirms, **When** it is saved, **Then** the tracker shows *Confirmed*, both sides are notified, the Partners gauge reaches 100%, and component c of the Article 13 check becomes *Pending* until the signed agreement is uploaded.
+1. **Given** a member with a project, **When** they send a request to Bến Xưa, **Then** the request is *Sent*, the partner is notified in-app and by email, and the tracker shows step 1 of 5.
+2. **Given** the partner accepts, **When** the member opens the request, **Then** the tracker shows step 3 *Accepted*, and once the member ticks the NDA box it shows step 4 *NDA agreed* and *Confirm partnership* is enabled.
+3. **Given** the member confirms, **When** it is saved, **Then** the tracker shows step 5 *Confirmed*, both sides are notified, the Partners gauge reaches 100%, and component c of the Article 13 check becomes *Pending* until the signed agreement is uploaded.
 
 ### US-3 (P1): Get VFDA Verified
 
@@ -378,7 +378,7 @@ Where the 20-screen design or this spec differs from the DBIZ2 Function List, th
 
 | Topic | DBIZ2 / System Design v2.0 | This spec | Status |
 |---|---|---|---|
-| Request lifecycle | Five statuses ending at accepted / declined | Producer confirms after acceptance (*Sent → Partner responded → Confirmed*, screen list note #14) | Changed — Confirmed by the Client |
+| Request lifecycle | Five statuses ending at accepted / declined | Producer confirms after acceptance; the tracker has five steps *Sent → Viewed → Accepted → NDA agreed → Confirmed* (decided 06/11/2026; screen list note #14 had three) | Changed — Confirmed by the Client |
 | Partners gauge | 100% on accepted (F-M4-16) | 100% on confirmed — the request is only final when the producer confirms (BR-005) | Resolved — screen rule adopted by Group C |
 | NDA direction | Partner accepts before viewing project documents | Both parties accept; the producer's acceptance opens the partner's private layer | Changed — Confirmed by the Client |
 | F-M4-07, F-M4-19 priority | Must | Could | Changed — Confirmed by the Client |

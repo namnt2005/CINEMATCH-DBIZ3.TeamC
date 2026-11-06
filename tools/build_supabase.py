@@ -1,6 +1,6 @@
 """Generate the Supabase migrations that come from data/ (specs/003-sys-core research R1, R3).
 
-  supabase/migrations/20261101000100_schema.sql     the 47 tables of data/schema/schema-*.sql, unchanged,
+  supabase/migrations/20261101000100_schema.sql     the 49 tables of data/schema/schema-*.sql, unchanged,
                                                     then every foreign key as ALTER TABLE … ADD CONSTRAINT
   supabase/migrations/20261101000300_grants_rls.sql grants, RLS on every table, policies (tools/rls_policies.py)
 
@@ -118,8 +118,8 @@ def rls_sql(tables):
 
 def main():
     tables = read_tables()
-    if len(tables) != 47:
-        raise SystemExit(f'Expected 47 tables in data/schema, found {len(tables)}')
+    if len(tables) != 49:
+        raise SystemExit(f'Expected 49 tables in data/schema, found {len(tables)}')
     files = {SCHEMA_FILE: schema_sql(tables), RLS_FILE: rls_sql(tables)}
     if '--check' in sys.argv:
         stale = [p.name for p, text in files.items() if not p.exists() or p.read_text(encoding='utf-8') != text]

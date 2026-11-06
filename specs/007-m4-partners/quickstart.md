@@ -36,10 +36,10 @@ Partner: the seed partner account of Bến Xưa in Auth (Prerequisites). Member:
 
 | # | Step | Expected |
 |---|---|---|
-| 1 | Member (owner of *Lantern Street*) → Bến Xưa → *Send request* with a service and a note | *Sent*, step 1 of 3; one notification for each party (US-2 Scenario 1, FR-015); the emails go to seed addresses on `example` domains, which receive nothing: expect `bounced` on their `email_delivery` rows while the in-app notifications show (§3 edge case, C1). A real email to a test inbox is checked in slice 4 step 1 |
+| 1 | Member (owner of *Lantern Street*) → Bến Xưa → *Send request* with a service and a note | *Sent*, step 1 of 5; one notification for each party (US-2 Scenario 1, FR-015); the emails go to seed addresses on `example` domains, which receive nothing: expect `bounced` on their `email_delivery` rows while the in-app notifications show (§3 edge case, C1). A real email to a test inbox is checked in slice 4 step 1 |
 | 2 | Send again to the same partner from the same project | refused: *You already have an open request with this partner* |
-| 3 | Partner: *Accept* without the NDA box, then with it | refused, then *Partner responded*, step 2; the note is a message |
-| 4 | Member on Bến Xưa's profile and on the request, **before** ticking the producer NDA, then **after** ticking it (analysis G2) | before: private layer locked, *Confirm partnership* disabled; after: rate card, past clients and direct contact visible to *Lantern Street*'s members (US-4 Scenario 1); a guest still never sees them |
+| 3 | Partner: *Under review*, then *Accept* without the NDA box, then with it | step 2 *Viewed*; then refused; then step 3 *Accepted*; each note is a message |
+| 4 | Member on Bến Xưa's profile and on the request, **before** ticking the producer NDA, then **after** ticking it (analysis G2) | before: step 3, private layer locked, *Confirm partnership* disabled; after: step 4 *NDA agreed*, rate card, past clients and direct contact visible to *Lantern Street*'s members (US-4 Scenario 1); a guest still never sees them |
 | 5 | Member: *Confirm partnership* | enabled now that the NDA is ticked (US-2 Scenario 2) |
 | 6 | Confirm | *Confirmed*, one notification per party, Partners gauge 100 % on SC-12; component c *Pending*, `document_slot` unchanged (US-2 Scenario 3, BR-006) |
 | 7 | Try to decline, withdraw or reconfirm the confirmed request (API) | 409 `INVALID_STATE` (BR-005) |
@@ -73,3 +73,19 @@ US-4 Scenario 2 (document views logged) is not in this slice (D4): only the appe
 ## Results
 
 *(filled in by the person who runs it)*
+
+**06/11/2026 — offline, run by Claude Code for Nam Tran (not yet reviewed by a person)**
+
+| Check | Result |
+|---|---|
+| Baseline before the change (T001) | Not recorded — the change was started without it (build-log Entry 15) |
+| `npm test` | 822 tests, 822 passed, 0 failed |
+| `npm run build` | OK (new pages `/partners`, `/partners/[slug]`, `/partners/[slug]/request`, `/requests`, `/requests/[id]`, `/partners/me`, `/partners/me/verify`, `/admin/verification`, `/admin/partners/invite`, `/invitations/partner/[code]`, `/legal/nda`) |
+| `node scripts/check-i18n.mjs` | vi.json and en.json complete |
+| `uv run tools/start_feature.py --check` | OK |
+| `python3 tools/build_supabase.py --check` | OK |
+| `python3 data/seed/check_seed.py` | PASS (49 tables, 457 rows) |
+| `python3 data/schema/load_check.py` | SQLite PASS — 49 tables, 49 seed files, 457 rows |
+| Migration `20261106000200_m4_partners.sql` on PGlite (scratch folder) | Layers, NDA gating, final states, triggers, invitation hash and acceptance with the inviter's `role.grant`, admin refused for `partner`, reminder once, deactivation withdraws open requests, Partners gauge 100 |
+
+**Not run yet (Nam Tran, online):** `npx supabase db push --remote` of `20261106000200_m4_partners.sql` and `node scripts/seed-supabase.mjs --reset`; slices 1–4 in the browser (T023, T034, T046, T054, T060) with the seed accounts — Bến Xưa's partner account (`lan.pham@…`) must first be added to Auth; `npm run test:rls` (T057) **before** the deactivation step, then `--reset`; `npm run check:supabase`; the 360 px check (T061) and the timing of `GET /api/partners` (T062). `npm run verification:remind` loads `.env` and writes to the database it points at — run it only on purpose.

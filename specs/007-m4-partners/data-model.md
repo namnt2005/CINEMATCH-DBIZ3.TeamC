@@ -77,9 +77,10 @@ declined                                                                       (
 | Status | Shown on SC-25 | Step | Who can change it next |
 |---|---|---|---|
 | `pending` | Sent | 1 | partner (respond), producer (withdraw) |
-| `under_review`, `info_requested` | Partner responded | 2 | partner (respond), producer (withdraw) |
-| `accepted` | Partner responded | 2 | producer (NDA, confirm, withdraw) |
-| `confirmed` | Confirmed | 3 | nobody |
+| `under_review`, `info_requested` | Viewed | 2 | partner (respond), producer (withdraw) |
+| `accepted` (partner NDA only) | Accepted | 3 | producer (NDA, withdraw) |
+| `accepted` + producer NDA | NDA agreed | 4 | producer (confirm, withdraw) |
+| `confirmed` | Confirmed | 5 | nobody |
 | `declined`, `withdrawn` | end state | — | nobody |
 
 *Open* = `pending`, `under_review`, `info_requested`, `accepted`: at most one open request per `(project_id, org_id)`.
@@ -133,7 +134,7 @@ Limits from the spec, the schema types or the Screen Specs, except those marked 
 | `app_save_org_profile(org_id, fields jsonb)` | partner of the org | updates layers 1–3 (not badge, art13, status) |
 | `app_deactivate_org(org_id, typed_name)` | partner of the org, staff | BR-008 (R12); audit `organisation.deactivate` |
 | `app_submit_verification(org_id, license_path, references jsonb)` | partner of the org | one pending per org; audit none; notifies staff |
-| `app_decide_verification(request_id, decision, reason)` | `vfda_staff`, `admin` | R8; audit `verification.approve` / `.reject` |
+| `app_decide_verification(request_id, decision, reason)` | `vfda_staff`, `admin` | R8; audit `org.verify.approve` / `.reject` |
 | `app_set_art13(org_id, on, business_line_confirmed)` | `vfda_staff`, `admin` | R9; audit `organisation.art13_on` / `_off` |
 | `app_remind_expiring_verifications()` | System (cron, script) | R8 reminder, once per badge |
 | `app_send_collab_request(project_id, org_id, services jsonb, note)` | project owner / edit | R6 send |

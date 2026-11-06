@@ -273,7 +273,10 @@ ALTER TABLE public.organisation_private_layer ENABLE ROW LEVEL SECURITY;
 GRANT SELECT ON public.organisation_private_layer TO authenticated;
 -- policy: organisation_private_layer select member
 CREATE POLICY rls_org_private_after_nda ON public.organisation_private_layer FOR SELECT TO authenticated
-  USING (EXISTS (SELECT 1 FROM public.collab_request r JOIN public.nda_acceptance n ON n.request_id = r.request_id WHERE r.org_id = organisation_private_layer.org_id AND r.status IN ('accepted', 'confirmed') AND n.accepted AND app.is_project_member(r.project_id)));
+  USING (EXISTS (SELECT 1 FROM public.collab_request r WHERE r.org_id = organisation_private_layer.org_id AND r.status IN ('accepted', 'confirmed') AND app.is_project_member(r.project_id) AND EXISTS (SELECT 1 FROM public.nda_acceptance n WHERE n.request_id = r.request_id AND n.party = 'producer' AND n.accepted) AND EXISTS (SELECT 1 FROM public.nda_acceptance n WHERE n.request_id = r.request_id AND n.party = 'partner' AND n.accepted)));
+-- policy: organisation_private_layer select partner
+CREATE POLICY rls_org_private_own ON public.organisation_private_layer FOR SELECT TO authenticated
+  USING (EXISTS (SELECT 1 FROM public.organisation_user ou WHERE ou.org_id = organisation_private_layer.org_id AND ou.user_id = auth.uid()) AND app.has_role('partner'));
 -- deferred: organisation_private_layer insert Partner OQ13
 -- deferred: organisation_private_layer update Partner OQ13
 
@@ -282,6 +285,9 @@ REVOKE ALL ON public.verification_request FROM anon, authenticated;
 ALTER TABLE public.verification_request ENABLE ROW LEVEL SECURITY;
 GRANT SELECT ON public.verification_request TO authenticated;
 GRANT UPDATE ON public.verification_request TO authenticated;
+-- policy: verification_request select partner
+CREATE POLICY rls_verification_request_select_partner ON public.verification_request FOR SELECT TO authenticated
+  USING (EXISTS (SELECT 1 FROM public.organisation_user ou WHERE ou.org_id = verification_request.org_id AND ou.user_id = auth.uid()) AND app.has_role('partner'));
 -- policy: verification_request select vfda_staff
 CREATE POLICY rls_verification_request_select_vfda_staff ON public.verification_request FOR SELECT TO authenticated
   USING (app.has_role('vfda_staff'));
@@ -296,24 +302,33 @@ REVOKE ALL ON public.collab_request FROM anon, authenticated;
 ALTER TABLE public.collab_request ENABLE ROW LEVEL SECURITY;
 GRANT SELECT ON public.collab_request TO authenticated;
 GRANT INSERT ON public.collab_request TO authenticated;
+-- policy: collab_request select partner
+CREATE POLICY rls_collab_request_select_partner ON public.collab_request FOR SELECT TO authenticated
+  USING (EXISTS (SELECT 1 FROM public.organisation_user ou WHERE ou.org_id = collab_request.org_id AND ou.user_id = auth.uid()) AND app.has_role('partner'));
 -- policy: collab_request select member
 CREATE POLICY rls_collab_request_select_member ON public.collab_request FOR SELECT TO authenticated
   USING (app.is_project_member(project_id));
 -- policy: collab_request insert member
 CREATE POLICY rls_collab_request_insert_member ON public.collab_request FOR INSERT TO authenticated
   WITH CHECK (app.has_role('member') AND app.is_project_member(project_id));
--- deferred: collab_request select Partner OQ13
 -- deferred: collab_request update Partner OQ13
 
 -- collab_message
 REVOKE ALL ON public.collab_message FROM anon, authenticated;
 ALTER TABLE public.collab_message ENABLE ROW LEVEL SECURITY;
+GRANT SELECT ON public.collab_message TO authenticated;
+-- policy: collab_message select member,partner
+CREATE POLICY rls_collab_message_select_member_partner ON public.collab_message FOR SELECT TO authenticated
+  USING (EXISTS (SELECT 1 FROM public.collab_request r WHERE r.request_id = collab_message.request_id AND (app.is_project_member(r.project_id) OR (EXISTS (SELECT 1 FROM public.organisation_user ou WHERE ou.org_id = r.org_id AND ou.user_id = auth.uid()) AND app.has_role('partner')))));
 -- deferred: collab_message insert Partner OQ13
 
 -- nda_acceptance
 REVOKE ALL ON public.nda_acceptance FROM anon, authenticated;
 ALTER TABLE public.nda_acceptance ENABLE ROW LEVEL SECURITY;
 GRANT SELECT ON public.nda_acceptance TO authenticated;
+-- policy: nda_acceptance select partner
+CREATE POLICY rls_nda_acceptance_select_partner ON public.nda_acceptance FOR SELECT TO authenticated
+  USING (EXISTS (SELECT 1 FROM public.collab_request r WHERE r.request_id = nda_acceptance.request_id AND EXISTS (SELECT 1 FROM public.organisation_user ou WHERE ou.org_id = r.org_id AND ou.user_id = auth.uid()) AND app.has_role('partner')));
 -- policy: nda_acceptance select member
 CREATE POLICY rls_nda_acceptance_select_member ON public.nda_acceptance FOR SELECT TO authenticated
   USING (EXISTS (SELECT 1 FROM public.collab_request r WHERE r.request_id = nda_acceptance.request_id AND app.is_project_member(r.project_id)));
@@ -326,6 +341,25 @@ GRANT SELECT ON public.document_access_log TO authenticated;
 -- policy: document_access_log select member
 CREATE POLICY rls_document_access_log_select_member ON public.document_access_log FOR SELECT TO authenticated
   USING (EXISTS (SELECT 1 FROM public.document d WHERE d.document_id = document_access_log.document_id AND app.is_project_member(d.project_id)));
+
+-- organisation_user
+REVOKE ALL ON public.organisation_user FROM anon, authenticated;
+ALTER TABLE public.organisation_user ENABLE ROW LEVEL SECURITY;
+GRANT SELECT ON public.organisation_user TO authenticated;
+-- policy: organisation_user select signed_in
+CREATE POLICY rls_organisation_user_select_signed_in ON public.organisation_user FOR SELECT TO authenticated
+  USING (user_id = auth.uid());
+-- policy: organisation_user select vfda_staff
+CREATE POLICY rls_organisation_user_select_vfda_staff ON public.organisation_user FOR SELECT TO authenticated
+  USING (app.has_role('vfda_staff'));
+
+-- partner_invitation
+REVOKE ALL ON public.partner_invitation FROM anon, authenticated;
+ALTER TABLE public.partner_invitation ENABLE ROW LEVEL SECURITY;
+GRANT SELECT ON public.partner_invitation TO authenticated;
+-- policy: partner_invitation select vfda_staff
+CREATE POLICY rls_partner_invitation_select_vfda_staff ON public.partner_invitation FOR SELECT TO authenticated
+  USING (app.has_role('vfda_staff'));
 
 -- document_type
 REVOKE ALL ON public.document_type FROM anon, authenticated;

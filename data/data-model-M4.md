@@ -7,7 +7,7 @@
 | Module | M4 — Vietnamese service partners |
 | Spec Document | `docs/spec/spec-M4.md` |
 | Schema | `data/schema/schema-M4.sql` |
-| Seed files | `27_organisation.csv`, `28_organisation_member_layer.csv`, `29_organisation_private_layer.csv`, `30_verification_request.csv`, `31_collab_request.csv`, `32_collab_message.csv`, `33_nda_acceptance.csv`, `37_document_access_log.csv` |
+| Seed files | `27_organisation.csv`, `28_organisation_member_layer.csv`, `29_organisation_private_layer.csv`, `30_verification_request.csv`, `31_collab_request.csv`, `32_collab_message.csv`, `33_nda_acceptance.csv`, `37_document_access_log.csv`, `38_organisation_user.csv`, `39_partner_invitation.csv` |
 | Version / date | v1.0 — 01/10/2026 |
 | Prepared by | Group C (draft by an AI agent, see `docs/ai-use-log.md`) |
 | Status | Ready for the human gates in section 13 |
@@ -43,7 +43,7 @@ CITATION SCHEME = <MODULE> §<section> <ID>
 
 ## 2. Entity catalogue (mandatory)
 
-8 entities owned by M4: 8 stored, 0 derived. Every entity is declared in §6 of the Spec Document (*discovered here* would mark one that is not). Each entity has exactly one owner module.
+10 entities owned by M4: 10 stored, 0 derived. Every entity is declared in §6 of the Spec Document (*discovered here* would mark one that is not). Each entity has exactly one owner module.
 
 | Entity | Definition (one sentence) | Kind | Owner | Source | Table | Seed file (rows) |
 |---|---|---|---|---|---|---|
@@ -55,6 +55,8 @@ CITATION SCHEME = <MODULE> §<section> <ID>
 | `COLLAB_MESSAGE` | A message written inside a collaboration request, including every response note; never edited once sent. | EVENT | M4 | spec §6 — M4 §6; M4 §5.1 FR-014; M4 §5.2 BR-009 | `collab_message` | `32_collab_message.csv` (4) |
 | `NDA_ACCEPTANCE` | One party's acceptance of a given NDA version for one collaboration request. | EVENT | M4 | spec §6 — M4 §6; M4 §5.1 FR-017 | `nda_acceptance` | `33_nda_acceptance.csv` (6) |
 | `DOCUMENT_ACCESS_LOG` | A record that one person viewed one shared document at one time. | EVENT | M4 | spec §6 — M4 §6; M4 §5.1 FR-018 | `document_access_log` | `37_document_access_log.csv` (5) |
+| `ORGANISATION_USER` | A partner account that acts for one organisation. | THING | M4 | discovered here — specs/007-m4-partners decision D1 (06/11/2026); M4 §5.1 FR-001 ("a partner … edit its organisation profile") | `organisation_user` | `38_organisation_user.csv` (3) |
+| `PARTNER_INVITATION` | VFDA's one-time invitation for a person to become the partner account of an organisation. | EVENT | M4 | discovered here — specs/007-m4-partners decision D2 (06/11/2026); M4 §5.2 BR-003; SYS BR-002 | `partner_invitation` | `39_partner_invitation.csv` (5) |
 
 **Entities of other modules referenced here** (drawn without attributes in §5): `BILINGUAL_PARAGRAPH` (M5), `DOCUMENT` (M5), `MODERATION_ITEM` (M10), `PROJECT` (M0), `PROVINCE` (M3), `USER_ACCOUNT` (SYS).
 
@@ -116,8 +118,10 @@ Every attribute traces to a §5.1 field, a §6.1 declared type, a key, or a deli
 | `status` | `ENUM(pending, approved, rejected)` | Opt |  | §5.1 field | M4 §5.1 FR-009, FR-010 |
 | `decided_by` | `UUID` | Opt | FK → `USER_ACCOUNT` | §6.1 declared type | M4 §6; M4 §6.1 |
 | `reason` | `TEXT` | Opt |  | §5.1 field | M4 §5.1 FR-010 (required when rejected) |
+| `submitted_at` | `TIMESTAMPTZ` | Req |  | §5.1 field | specs/007-m4-partners decision D6 (06/11/2026); M4 §5.1 FR-010 ("record who and when"); SC-36 #3, #5; SC-22 #12 |
+| `decided_at` | `TIMESTAMPTZ` | Opt |  | §5.1 field | specs/007-m4-partners decision D6 (06/11/2026); M4 §5.1 FR-010 ("record who and when"); empty while pending |
 
-**Natural key:** org_id + submission time (not declared).
+**Natural key:** org_id + submitted_at (D6).
 
 ### COLLAB_REQUEST
 
@@ -172,6 +176,32 @@ Every attribute traces to a §5.1 field, a §6.1 declared type, a key, or a deli
 
 **Natural key:** None (append-only event, M4 BR-007).
 
+### ORGANISATION_USER
+
+| Column | Type | Required | Key | Source kind | Citation |
+|---|---|---|---|---|---|
+| `org_id` | `UUID` | Req | PK, FK → `ORGANISATION` | key | specs/007-m4-partners decision D1 (06/11/2026) |
+| `user_id` | `UUID` | Req | PK, FK → `USER_ACCOUNT` | key | specs/007-m4-partners decision D1 (06/11/2026) (an account with role partner) |
+| `added_at` | `TIMESTAMPTZ` | Req |  | audit column | specs/007-m4-partners decision D1 (06/11/2026) (when the invitation was accepted) |
+
+**Natural key:** org_id + user_id.
+
+### PARTNER_INVITATION
+
+| Column | Type | Required | Key | Source kind | Citation |
+|---|---|---|---|---|---|
+| `invitation_id` | `UUID` | system-set | PK | key | specs/007-m4-partners decision D2 (06/11/2026); M4 §5.2 BR-003; SYS BR-002 |
+| `org_id` | `UUID` | Req | FK → `ORGANISATION` | key | specs/007-m4-partners decision D2 (06/11/2026); M4 §5.2 BR-003; SYS BR-002 |
+| `email` | `VARCHAR(254)` | Req |  | audit column | specs/007-m4-partners decision D2 (06/11/2026); M4 §5.2 BR-003; SYS BR-002 (the invited address, lower-case) |
+| `code_hash` | `CHAR(64)` | Req | UK | audit column | specs/007-m4-partners decision D2 (06/11/2026); M4 §5.2 BR-003; SYS BR-002 (SHA-256 of the one-time code; the code is never stored) |
+| `invited_by` | `UUID` | Req | FK → `USER_ACCOUNT` | key | specs/007-m4-partners decision D2 (06/11/2026); M4 §5.2 BR-003; SYS BR-002 |
+| `invited_at` | `TIMESTAMPTZ` | Req |  | audit column | specs/007-m4-partners decision D2 (06/11/2026); M4 §5.2 BR-003; SYS BR-002 |
+| `expires_at` | `TIMESTAMPTZ` | Req |  | audit column | specs/007-m4-partners decision D2 (06/11/2026); M4 §5.2 BR-003; SYS BR-002 (7 days, specs/007-m4-partners research Open question 2) |
+| `accepted_at` | `TIMESTAMPTZ` | Opt |  | audit column | specs/007-m4-partners decision D2 (06/11/2026); M4 §5.2 BR-003; SYS BR-002 |
+| `accepted_by` | `UUID` | Opt | FK → `USER_ACCOUNT` | key | specs/007-m4-partners decision D2 (06/11/2026); M4 §5.2 BR-003; SYS BR-002 |
+
+**Natural key:** code_hash (one per code); org_id + email while the invitation is open.
+
 ## 4. Relationships (mandatory)
 
 Each relationship is read in both directions; the citation is the spec line it comes from. **No many-to-many relationship is left unresolved**: every many-to-many need of this module is an associative entity (e.g. PROJECT_SHORTLIST, PROJECT_PROVINCE, PROJECT_MEMBER).
@@ -182,6 +212,11 @@ Each relationship is read in both directions; the citation is the spec line it c
 | `ORGANISATION` \|\|--o\| `ORGANISATION_PRIVATE_LAYER` | Each organisation shows confirmed partners zero or one private layer | Each private layer belongs to exactly one organisation | ORGANISATION_PRIVATE_LAYER side | identifying (`--`) | M4 §6; M4 §5.1 FR-001 (rate_card, past_clients Opt) |
 | `PROVINCE` \|o..o{ `ORGANISATION` | Each province hosts the headquarters of zero or more organisations | Each organisation has its headquarters in zero or one province | both sides | non-identifying (`..`) | M4 §6 (hq_province); M4 §6.1 hq_province INTEGER No |
 | `ORGANISATION` \|\|--o{ `VERIFICATION_REQUEST` | Each organisation applies through zero or more verification requests | Each verification request is made by exactly one organisation | VERIFICATION_REQUEST side | identifying (`--`) | M4 §6; M4 §5.1 FR-008 |
+| `USER_ACCOUNT` \|\|--o{ `ORGANISATION_USER` | Each user account acts for zero or more organisations through organisation-user rows | Each organisation-user row names exactly one user account | ORGANISATION_USER side | identifying (`--`) | specs/007-m4-partners decision D1 (06/11/2026) |
+| `ORGANISATION` \|\|--o{ `ORGANISATION_USER` | Each organisation is run by zero or more partner accounts | Each organisation-user row belongs to exactly one organisation | ORGANISATION_USER side | identifying (`--`) | specs/007-m4-partners decision D1 (06/11/2026) |
+| `ORGANISATION` \|\|..o{ `PARTNER_INVITATION` | Each organisation is invited through zero or more partner invitations | Each partner invitation is for exactly one organisation | PARTNER_INVITATION side | non-identifying (`..`) | specs/007-m4-partners decision D2 (06/11/2026); M4 §5.2 BR-003; SYS BR-002 |
+| `USER_ACCOUNT` \|\|..o{ `PARTNER_INVITATION` | Each user account sends zero or more partner invitations | Each partner invitation is sent by exactly one user account | PARTNER_INVITATION side | non-identifying (`..`) | specs/007-m4-partners decision D2 (06/11/2026); M4 §5.2 BR-003; SYS BR-002 (invited_by: vfda_staff or admin) |
+| `USER_ACCOUNT` \|o..o{ `PARTNER_INVITATION` | Each user account accepts zero or more partner invitations | Each partner invitation is accepted by zero or one user account | both sides | non-identifying (`..`) | specs/007-m4-partners decision D2 (06/11/2026); M4 §5.2 BR-003; SYS BR-002 (accepted_by) |
 | `USER_ACCOUNT` \|o..o{ `VERIFICATION_REQUEST` | Each user account decides zero or more verification requests | Each verification request is decided by zero or one user account | both sides | non-identifying (`..`) | M4 §6 (decided_by); M4 §5.1 FR-009 (status pending) |
 | `PROJECT` \|\|--o{ `COLLAB_REQUEST` | Each project sends zero or more collaboration requests | Each collaboration request is sent for exactly one project | COLLAB_REQUEST side | identifying (`--`) | M4 §6; M4 §5.1 FR-012 project_id Req |
 | `ORGANISATION` \|\|..o{ `COLLAB_REQUEST` | Each organisation receives zero or more collaboration requests | Each collaboration request goes to exactly one organisation | COLLAB_REQUEST side | non-identifying (`..`) | M4 §6; M4 §5.1 FR-012 org_id Req |
@@ -203,6 +238,11 @@ erDiagram
     ORGANISATION ||--o| ORGANISATION_PRIVATE_LAYER : "shows confirmed partners"
     PROVINCE |o..o{ ORGANISATION : "hosts the headquarters of"
     ORGANISATION ||--o{ VERIFICATION_REQUEST : "applies through"
+    USER_ACCOUNT ||--o{ ORGANISATION_USER : "acts for organisations through"
+    ORGANISATION ||--o{ ORGANISATION_USER : "is run by"
+    ORGANISATION ||..o{ PARTNER_INVITATION : "is invited through"
+    USER_ACCOUNT ||..o{ PARTNER_INVITATION : "sends"
+    USER_ACCOUNT |o..o{ PARTNER_INVITATION : "accepts"
     USER_ACCOUNT |o..o{ VERIFICATION_REQUEST : "decides"
     PROJECT ||--o{ COLLAB_REQUEST : "sends"
     ORGANISATION ||..o{ COLLAB_REQUEST : "receives"
@@ -249,6 +289,8 @@ erDiagram
         enum status
         uuid decided_by FK
         string reason
+        datetime submitted_at
+        datetime decided_at
     }
     COLLAB_REQUEST {
         uuid request_id PK
@@ -283,6 +325,22 @@ erDiagram
         uuid viewer_id FK
         datetime viewed_at
     }
+    ORGANISATION_USER {
+        uuid org_id PK,FK
+        uuid user_id PK,FK
+        datetime added_at
+    }
+    PARTNER_INVITATION {
+        uuid invitation_id PK
+        uuid org_id FK
+        string email
+        string code_hash UK
+        uuid invited_by FK
+        datetime invited_at
+        datetime expires_at
+        datetime accepted_at
+        uuid accepted_by FK
+    }
 ```
 
 Renders with mermaid-cli: **yes**.
@@ -291,12 +349,12 @@ Renders with mermaid-cli: **yes**.
 
 | Count | Value | Compared with | Value | Agree |
 |---|---|---|---|---|
-| Entities owned and stored (catalogue §2) | 8 | entity blocks in the ERD (§5) | 8 | ✓ |
-| Entities owned and stored (catalogue §2) | 8 | tables in `schema-M4.sql` | 8 | ✓ |
-| Attributes (§3) | 54 | columns in `schema-M4.sql` | 54 | ✓ |
-| Relationships with the child in this module (§4) | 12 | FOREIGN KEY constraints in `schema-M4.sql` | 12 | ✓ |
-| Relationships touching this module (§4) | 14 | relationship lines in the ERD (§5) | 14 | ✓ |
-| Seed files of this module (§9) | 8 | tables in `schema-M4.sql` | 8 | ✓ |
+| Entities owned and stored (catalogue §2) | 10 | entity blocks in the ERD (§5) | 10 | ✓ |
+| Entities owned and stored (catalogue §2) | 10 | tables in `schema-M4.sql` | 10 | ✓ |
+| Attributes (§3) | 68 | columns in `schema-M4.sql` | 68 | ✓ |
+| Relationships with the child in this module (§4) | 17 | FOREIGN KEY constraints in `schema-M4.sql` | 17 | ✓ |
+| Relationships touching this module (§4) | 19 | relationship lines in the ERD (§5) | 19 | ✓ |
+| Seed files of this module (§9) | 10 | tables in `schema-M4.sql` | 10 | ✓ |
 
 ## 6. Normalization check (mandatory)
 
@@ -310,6 +368,8 @@ Renders with mermaid-cli: **yes**.
 | `COLLAB_MESSAGE` | ✓ | ✓ single-column key | ✓ |
 | `NDA_ACCEPTANCE` | ✓ | ✓ single-column key | ✓ |
 | `DOCUMENT_ACCESS_LOG` | ✓ | ✓ single-column key | ✓ |
+| `ORGANISATION_USER` | ✓ | ✓ composite key (org_id, user_id): every non-key column describes the whole key | ✓ |
+| `PARTNER_INVITATION` | ✓ | ✓ single-column key | ✓ |
 
 **Deliberate exceptions and their upkeep rules**
 
@@ -334,7 +394,7 @@ Kept as a JSON array (1NF exception): the whole list is what functions filter an
 |---|---|---|---|---|
 | BR-001 | The three visibility layers are three tables with separate Row Level Security policies, not hidden columns. | SCHEMA + RLS (Plan step) | three tables `organisation`, `organisation_member_layer`, `organisation_private_layer`; policies `rls_org_member_layer_members`, `rls_org_private_after_nda` | `29_organisation_private_layer.csv` — Office · +84 000 000 126; Huỳnh Minh Tuấn · +84 000 000 123 (+6) — rate cards and direct contacts live in their own table |
 | BR-002 | The 12 service groups are a fixed enum; organisations cannot invent groups. | SEED CHECK + APP | seed_rules: every service group in the declared set of 12 | `27_organisation.csv` — Công ty Cổ phần Dịch vụ Sản xuất Phim, · active · 2027-09-01 — boundary organisation with all 12 groups |
-| BR-003 | Supplier accounts are created only by VFDA invitation in the first phase. | RLS (Plan step) | partner accounts created by admin only (policy `rls_user_account_role_grant`) | `46_audit_log.csv` — role.grant · 2026-06-10T10:30:00+07:00 — Bến Xưa's account was granted by the admin |
+| BR-003 | Supplier accounts are created only by VFDA invitation in the first phase. | RPC (Plan step) | the partner role only by accepting a VFDA invitation sent by `vfda_staff` or `admin` (`app_accept_partner_invitation`, specs/007-m4-partners D2); `app_grant_role` refuses `partner` | `39_partner_invitation.csv` — lan.pham@benxua.example.vn · 2026-06-10T10:30:00+07:00 — Bến Xưa's account accepted its invitation<br>`48_audit_log.csv` — role.grant · 2026-09-10T10:00:00+07:00; role.grant · 2026-06-10T10:30:00+07:00 (+1) — the grant is in the audit log |
 | BR-004 | A VFDA Verified badge is valid for 12 months and states what was checked and what was not (quality and prices are not). | SCHEMA + SEED CHECK | `ck_organisation_badge_dates`; seed_rules: verified_until = verified_at + 12 months | `27_organisation.csv` — Sông Hậu Film Services · active · 2026-08-15 — badge expired 15/08/2026 |
 | BR-005 | Only the producer can confirm a partnership; only the partner can accept or decline. Declined, withdrawn and confirmed are final. | SCHEMA + SEED CHECK | `ck_collab_request_status`, `ck_collab_request_confirmed_at` | `31_collab_request.csv` — confirmed · 2026-08-20T09:30:00+07:00 — confirmed by the producer<br>`31_collab_request.csv` — declined · 2026-09-10T09:30:00+07:00 — declined (final)<br>`31_collab_request.csv` — withdrawn · 2026-09-05T09:30:00+07:00; withdrawn · 2026-09-01T09:30:00+07:00 — withdrawn (final) |
 | BR-006 | Confirming a partnership does not by itself mark Article 13 component c as present; the signed service agreement must be uploaded. | SEED CHECK + VIEW | seed_rules: a slot is `present` only with an uploaded document | `35_document_slot.csv` — A13_SERVICE_AGREEMENT · pending — Bến Xưa accepted, agreement still *pending* |
@@ -344,7 +404,7 @@ Kept as a JSON array (1NF exception): the whole list is what functions filter an
 
 ## 8. Schema (mandatory)
 
-`data/schema/schema-M4.sql` — 8 tables in load order: `organisation`, `organisation_member_layer`, `organisation_private_layer`, `verification_request`, `collab_request`, `collab_message`, `nda_acceptance`, `document_access_log`; 12 foreign keys; 6 CHECK constraints. Portable SQL (SQLite 3 and PostgreSQL 14+).
+`data/schema/schema-M4.sql` — 10 tables in load order: `organisation`, `organisation_member_layer`, `organisation_private_layer`, `verification_request`, `collab_request`, `collab_message`, `nda_acceptance`, `document_access_log`, `organisation_user`, `partner_invitation`; 17 foreign keys; 10 CHECK constraints. Portable SQL (SQLite 3 and PostgreSQL 14+).
 
 Load test: `python3 data/schema/load_check.py` runs every schema file, then every seed file in filename order with foreign keys on — **PASS** (also on PostgreSQL 16 with `--postgres`).
 
@@ -356,7 +416,7 @@ Load test: `python3 data/schema/load_check.py` runs every schema file, then ever
 | Regenerate | `python3 data/seed/generate_seed.py && python3 data/seed/check_seed.py` (must print PASS; `git status` stays clean) |
 | Random seed | none — no randomness and no clock: keys are UUIDv5 of readable names (namespace `6f1c2a8e-3b4d-5e6f-8a9b-0c1d2e3f4a5b`), so every run is byte-identical |
 | Business-rule values | computed by the generator, never typed: attention level (M2 BR-004), quote span (M2 §6.1), latest readiness (M0 §9), is_active, published |
-| Files | 8 files of this module, 58 rows (product: 47 files, 447 rows) |
+| Files | 10 files of this module, 66 rows (product: 49 files, 457 rows) |
 
 **Rows per file and row kinds** (1 = ordinary rows in every file)
 
@@ -370,6 +430,8 @@ Load test: `python3 data/schema/load_check.py` runs every schema file, then ever
 | `32_collab_message.csv` | 4 | — | requests with no message | — (messages are never edited, M4 BR-009) |
 | `33_nda_acceptance.csv` | 6 | — | `c3`: request with no NDA | `n5`: NDA declined (`accepted = false`) |
 | `37_document_access_log.csv` | 5 | — | documents never viewed | view of an old, replaced version |
+| `38_organisation_user.csv` | 3 | — | — | — |
+| `39_partner_invitation.csv` | 5 | — | — | — |
 
 ## 10. Edge case register (mandatory)
 
@@ -413,6 +475,8 @@ Computed from the seed files. (a) every enumerated value has a row; (b) empty st
 | `ORGANISATION` with no `ORGANISATION_MEMBER_LAYER` (shows members) | 2 row(s), e.g. Hanoi Grip & Light · active |
 | `ORGANISATION` with no `ORGANISATION_PRIVATE_LAYER` (shows confirmed partners) | 2 row(s), e.g. Hanoi Grip & Light · active |
 | `ORGANISATION` with no `VERIFICATION_REQUEST` (applies through) | 2 row(s), e.g. Hanoi Grip & Light · active |
+| `ORGANISATION` with no `ORGANISATION_USER` (is run by) | 7 row(s), e.g. Hội An Casting House · active |
+| `ORGANISATION` with no `PARTNER_INVITATION` (is invited through) | 5 row(s), e.g. Hội An Casting House · active |
 | `ORGANISATION` with no `COLLAB_REQUEST` (receives) | 2 row(s), e.g. Mekong Frame Co. · active |
 | `COLLAB_REQUEST` with no `COLLAB_MESSAGE` (carries) | 7 row(s), e.g. declined · 2026-09-10T09:30:00+07:00 |
 | `COLLAB_REQUEST` with no `NDA_ACCEPTANCE` (is protected by) | 5 row(s), e.g. declined · 2026-09-10T09:30:00+07:00 |
@@ -441,7 +505,7 @@ Computed from the seed files. (a) every enumerated value has a row; (b) empty st
 - [x] Sensitive columns (authority contacts, partner private layer, project documents) are protected by Row Level Security (SYS BR-001) — listed in section 7.
 - [x] Nobody in the team knows of a real value in the seed files.
 
-Personal or sensitive columns in this module: `ORGANISATION_PRIVATE_LAYER.direct_contact`, `ORGANISATION_PRIVATE_LAYER.past_clients`, `ORGANISATION_PRIVATE_LAYER.rate_card`.
+Personal or sensitive columns in this module: `ORGANISATION_PRIVATE_LAYER.direct_contact`, `ORGANISATION_PRIVATE_LAYER.past_clients`, `ORGANISATION_PRIVATE_LAYER.rate_card`, `PARTNER_INVITATION.email`.
 
 ## 12. Open questions (mandatory)
 
@@ -450,7 +514,7 @@ Data questions raised in `data/01`–`04` whose owner includes M4. All other ope
 | Question | Blocking? | Owner | Status |
 |---|---|---|---|
 | [NEEDS CLARIFICATION: Declare ORGANISATION_SERVICE and ORGANISATION_PROVINCE, or keep arrays on ORGANISATION?] | No | M4 owner | Open |
-| [NEEDS CLARIFICATION: Which entity records that a partner account may edit an organisation?] | Yes | M4 owner | Open |
+| [NEEDS CLARIFICATION: Which entity records that a partner account may edit an organisation?] | Yes | M4 owner | Resolved 06/11/2026 — ORGANISATION_USER (specs/007-m4-partners decision D1); partner accounts come only from PARTNER_INVITATION (D2, M4 BR-003). |
 | [NEEDS CLARIFICATION: Is COLLAB_MESSAGE in scope? No function writes or reads messages (SC-25 shows none).] | No | M4 owner | Resolved 30/09/2026 — in scope: F-M4-14 stores every response note and reply as a message (M4 §5.1 FR-014 message_id; M4 §5.2 BR-009). No function reads messages yet (02 anomaly kind 2). |
 | [NEEDS CLARIFICATION: Can an organisation be removed from the directory, and what happens to its open requests?] | No | M4 owner | Resolved 30/09/2026 — M4 §5.2 BR-008: deactivated, never deleted (`org_status = deactivated`, M4 §5.1 FR-001); open requests closed as `withdrawn`, producer notified, access log kept. |
 | [NEEDS CLARIFICATION: After how many days does an unanswered collaboration request expire, and is `expired` a status?] | No | M4 owner | Open |

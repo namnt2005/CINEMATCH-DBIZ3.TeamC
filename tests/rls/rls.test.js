@@ -51,6 +51,9 @@ describe('Row Level Security on cinematch-dev (npm run test:rls)', () => {
   after(async () => {
     // Test fixtures only: the app never deletes a project (M0 BR-005); the secret key removes what this run made
     for (const id of createdProjects) {
+      // M4: the fixture's requests carry no note, so no message; a final request or a message would be kept by its trigger
+      const { error: requestError } = await admin.from('collab_request').delete().eq('project_id', id);
+      if (requestError) console.log(`kept: collab_request of fixture project ${id} (${requestError.message}); the next --reset clears it`);
       // M7: the notices hang off the interests (province_notice.interest_id)
       const { data: interests } = await admin.from('location_interest').select('interest_id').eq('project_id', id);
       for (const { interest_id } of interests || []) await admin.from('province_notice').delete().eq('interest_id', interest_id);
@@ -265,5 +268,66 @@ describe('Row Level Security on cinematch-dev (npm run test:rls)', () => {
     assert.deepEqual(notice, { review_status: 'submitted', reviewed_by: null }, direct?.message);
     const { data: audit } = await admin.from('audit_log').select('action').eq('target_id', noticeId);
     assert.deepEqual(audit, []);
+  });
+
+  // M4 (specs/007-m4-partners T017, research R3): three layers, three tables, three read policies (BR-001, SC-003).
+  test('M4 BR-001 / US-1 Scenario 2: a guest reads the public layer, and 0 rows of the member and private layers', async () => {
+    const { data: orgs, error } = await anon.from('organisation').select('org_id, org_name');
+    assert.equal(error, null, error?.message);
+    assert.ok(orgs.length > 0, 'the public layer is readable');
+    for (const table of ['organisation_member_layer', 'organisation_private_layer']) await assertAnonReadsNothing(table);
+    const { count } = await admin.from('organisation_private_layer').select('org_id', { count: 'exact', head: true });
+    assert.ok(count > 0, 'the private layer has rows, so 0 rows above is access control');
+  });
+
+  test('M4 BR-001: a signed-in member reads the member layer, and 0 private-layer rows without an accepted request and both NDA rows', async () => {
+    const member = await signedInClient(await createTestAccount(SIGNUP_METADATA));
+    const { data: layer2, error } = await member.from('organisation_member_layer').select('org_id, intl_project_count');
+    assert.equal(error, null, error?.message);
+    assert.ok(layer2.length > 0, 'member layer readable when signed in');
+    const { data: layer3, error: privateError } = await member.from('organisation_private_layer').select('org_id, rate_card, direct_contact');
+    assert.ok(privateError === null || privateError.code === '42501', privateError?.message);
+    assert.equal((layer3 || []).length, 0, 'no request, no NDA: no rate card, past clients or direct contact');
+  });
+
+  test('M4 R4: nobody writes an organisation or its layers directly', async () => {
+    const member = await signedInClient(await createTestAccount(SIGNUP_METADATA));
+    const { error } = await member.from('organisation').insert({ org_id: randomUUID(), org_name: 'RLS direct insert', legal_form: 'Công ty TNHH',
+      service_groups: ['crew'], provinces: [1], art13_eligible: true });
+    assert.ok(error, 'a direct insert is refused');
+    const { data } = await admin.from('organisation').select('org_id').eq('org_name', 'RLS direct insert');
+    assert.equal(data.length, 0);
+  });
+
+  // M4 US-4 (T057, analysis I3): member fixtures only; the positive case (rows after both NDA rows) is checked offline
+  // by tests/unit/private-layer-data.test.js and in the browser (quickstart slice 2 step 4).
+  const BEN_XUA = '67fc4355-67c0-55f3-a64b-1ad3381c6fdf';
+  const FERRY_TO_BEN_XUA = '0bf889da-e22c-5f2d-964f-50993f13e6c7';
+
+  test('M4 BR-001 / FR-004: a member not on The Last Ferry reads 0 rows of Bến Xưa\'s private layer, though that request is accepted with both NDA rows', async () => {
+    const { data: request } = await admin.from('collab_request').select('status').eq('request_id', FERRY_TO_BEN_XUA).single();
+    assert.equal(request.status, 'accepted');
+    const { data: nda } = await admin.from('nda_acceptance').select('party, accepted').eq('request_id', FERRY_TO_BEN_XUA);
+    assert.deepEqual(nda.filter(n => n.accepted).map(n => n.party).sort(), ['partner', 'producer']);
+    const outsider = await signedInClient(await createTestAccount(SIGNUP_METADATA));
+    const { data, error } = await outsider.from('organisation_private_layer').select('org_id').eq('org_id', BEN_XUA);
+    assert.ok(error === null || error.code === '42501', error?.message);
+    assert.equal((data || []).length, 0);
+  });
+
+  test('M4 BR-001 / BR-005: the fixture\'s own pending request opens nothing; it cannot accept the NDA yet nor insert an NDA row', async () => {
+    const { ownerClient, projectId } = await createTestProject();
+    const { data: sent, error } = await ownerClient.rpc('app_send_collab_request', { p_project_id: projectId, p_org_id: BEN_XUA, p_services: ['crew'], p_note: null });
+    assert.equal(error, null, error?.message);
+    assert.equal(sent.status, 'pending');
+    const { data: layer3 } = await ownerClient.from('organisation_private_layer').select('org_id').eq('org_id', BEN_XUA);
+    assert.equal((layer3 || []).length, 0);
+    const { error: ndaError } = await ownerClient.rpc('app_accept_nda', { p_request_id: sent.request_id, p_nda_version: 'NDA-2026.1' });
+    assert.ok(ndaError, 'the producer NDA waits for the partner to accept');
+    const { error: direct } = await ownerClient.from('nda_acceptance').insert({ nda_acceptance_id: randomUUID(), request_id: sent.request_id, party: 'producer',
+      nda_version: 'NDA-2026.1', accepted: true, accepted_at: new Date().toISOString() });
+    assert.ok(direct, 'a direct insert is refused');
+    const { data: rows } = await admin.from('nda_acceptance').select('nda_acceptance_id').eq('request_id', sent.request_id);
+    assert.deepEqual(rows, []);
   });
 });

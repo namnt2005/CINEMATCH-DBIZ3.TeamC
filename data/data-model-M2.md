@@ -289,7 +289,7 @@ Renders with mermaid-cli: **yes**.
 | BR-005 | The dossier completeness check uses fixed rules, not a language model. | VIEW (Plan step) | view `v_dossier_check` counts slots in state `present` — no language model | `35_document_slot.csv` — A13_APPLICATION · present — 1 of 4 components present for The Last Ferry |
 | BR-006 | Safe deadline = first shooting day − buffer − 20 − 20 working days; latest deadline = first shooting day − buffer − 20 working days. Working days exclude Saturdays, Sundays and dates of type PUBLIC_HOLIDAY (Clarifications Q1). | VIEW (Plan step) | view `v_licensing_timeline` (shoot_date − buffer − 20 [− 20]) | `09_project.csv` — The Last Ferry · A · preparing — 15/03/2027, buffer 7 → 27/01/2027 and 16/02/2027<br>`09_project.csv` — Quiet Harbour Blues · A · preparing — safe deadline already passed |
 | BR-007 | Every check stores the rule-set version it used. | SCHEMA | `fk_precheck_run_rule_version`, `fk_compliance_run_rule_version` (NOT NULL on compliance runs) | `20_compliance_run.csv` — 2026.07 · 2026-08-10T14:00:00+07:00 — older run kept with its older version |
-| BR-008 | Legal rules are retired, never deleted (`status = retired`); a finding keeps showing the text of the rule version it cited. | SCHEMA + SEED CHECK | `ck_legal_rule_status`, `ck_legal_rule_active_matches_status`; no DELETE in any function | `17_legal_rule.csv` — A9-MAP · retired · action — A9-MAP retired, not active, not deleted<br>`46_audit_log.csv` — rule.retire · 2026-08-28T15:35:00+07:00 — the retirement is audited |
+| BR-008 | Legal rules are retired, never deleted (`status = retired`); a finding keeps showing the text of the rule version it cited. | SCHEMA + SEED CHECK | `ck_legal_rule_status`, `ck_legal_rule_active_matches_status`; no DELETE in any function | `17_legal_rule.csv` — A9-MAP · retired · action — A9-MAP retired, not active, not deleted<br>`48_audit_log.csv` — rule.retire · 2026-08-28T15:35:00+07:00 — the retirement is audited |
 
 ## 8. Schema (mandatory)
 
@@ -305,7 +305,7 @@ Load test: `python3 data/schema/load_check.py` runs every schema file, then ever
 | Regenerate | `python3 data/seed/generate_seed.py && python3 data/seed/check_seed.py` (must print PASS; `git status` stays clean) |
 | Random seed | none — no randomness and no clock: keys are UUIDv5 of readable names (namespace `6f1c2a8e-3b4d-5e6f-8a9b-0c1d2e3f4a5b`), so every run is byte-identical |
 | Business-rule values | computed by the generator, never typed: attention level (M2 BR-004), quote span (M2 §6.1), latest readiness (M0 §9), is_active, published |
-| Files | 6 files of this module, 37 rows (product: 47 files, 447 rows) |
+| Files | 6 files of this module, 37 rows (product: 49 files, 457 rows) |
 
 **Rows per file and row kinds** (1 = ordinary rows in every file)
 

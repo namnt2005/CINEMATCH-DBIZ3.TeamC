@@ -44,9 +44,14 @@ export default function SiteHeader({ state }) {
         <a href="/locations" style={{ ...link, color: C.navy, fontWeight: 800, fontSize: '1.375rem', letterSpacing: '0.05em' }}>{t('frame.brand')}</a>
         <a href="/locations" style={link}>{t('frame.nav.locations')}</a>
         <a href="/locations/match" style={link}>{t('header.match')}</a>
-        {state.signedIn ? <a href="/projects" style={link}>{t('header.projects')}</a> : null}
+        <a href="/partners" style={link}>{t('partners.nav')}</a>
+        {state.signedIn && state.role !== 'partner' ? <a href="/projects" style={link}>{t('header.projects')}</a> : null}
+        {state.role === 'partner' ? <a href="/partners/me" style={link}>{t('partners.header.my_organisation')}</a> : null}
+        {state.role === 'partner' ? <a href="/requests" style={link}>{t('partners.header.requests')}</a> : null}
         {['vfda_staff', 'admin'].includes(state.role) ? <a href="/admin/locations" style={link}>{t('header.admin')}</a> : null}
         {['vfda_staff', 'admin'].includes(state.role) ? <a href="/admin/notices" style={link}>{t('notices.staff.header_link')}</a> : null}
+        {['vfda_staff', 'admin'].includes(state.role) ? <a href="/admin/verification" style={link}>{t('partners.header.verification')}</a> : null}
+        {['vfda_staff', 'admin'].includes(state.role) ? <a href="/admin/partners/invite" style={link}>{t('partners.header.invite')}</a> : null}
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
           <LanguageSwitch />
           {state.signedIn ? (

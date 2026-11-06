@@ -16,7 +16,8 @@
     "seed:supabase": "node scripts/seed-supabase.mjs",
     "snapshot": "node --env-file-if-exists=.env scripts/snapshot-readiness.mjs",
     "check:i18n": "node scripts/check-i18n.mjs",
-    "prebuild": "node scripts/check-i18n.mjs"
+    "prebuild": "node scripts/check-i18n.mjs",
+    "verification:remind": "node --env-file-if-exists=.env scripts/remind-verification.mjs"
   },
   "dependencies": {
     "@google/genai": "^2.32.0",

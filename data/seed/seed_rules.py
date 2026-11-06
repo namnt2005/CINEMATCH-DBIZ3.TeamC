@@ -233,6 +233,44 @@ def validate(S, T):
             err.append(f"COLLAB_REQUEST {r['request_id']}: confirmed_at and status disagree (M4 BR-005)")
         if r["status"] in ("accepted", "confirmed", "declined", "info_requested") and not r["responded_at"]:
             err.append(f"COLLAB_REQUEST {r['request_id']}: {r['status']} without a response time (M4 BR-005)")
+    # M4 BR-003 / SYS BR-002 (specs/007-m4-partners D1, D2): a partner acts for an organisation only through an accepted invitation
+    roles = {r["user_id"]: r for r in T["USER_ACCOUNT"]}
+    links = {(r["org_id"], r["user_id"]) for r in T.get("ORGANISATION_USER", [])}
+    for org_id, user_id in links:
+        if roles.get(user_id, {}).get("role") != "partner":
+            err.append(f"ORGANISATION_USER {user_id}: not a partner account (D1)")
+    for u in T["USER_ACCOUNT"]:
+        if u["role"] == "partner" and not any(l[1] == u["user_id"] for l in links):
+            err.append(f"USER_ACCOUNT {u['email']}: partner acting for no organisation (D1)")
+    hashes = [r["code_hash"] for r in T.get("PARTNER_INVITATION", [])]
+    if len(hashes) != len(set(hashes)): err.append("PARTNER_INVITATION: duplicate code_hash (D2)")
+    grants = {(r["admin_id"], r["target_id"]) for r in T["AUDIT_LOG"] if r["action"] == "role.grant"}
+    for r in T.get("PARTNER_INVITATION", []):
+        if not re.fullmatch(r"[0-9a-f]{64}", r["code_hash"]): err.append(f"PARTNER_INVITATION {r['email']}: code_hash is not a SHA-256 (D2)")
+        if r["expires_at"] <= r["invited_at"]: err.append(f"PARTNER_INVITATION {r['email']}: expires before it is sent (D2)")
+        if roles.get(r["invited_by"], {}).get("role") not in ("vfda_staff", "admin"):
+            err.append(f"PARTNER_INVITATION {r['email']}: invited by a role that may not invite (SYS BR-002)")
+        if (r["accepted_at"] == "") != (r["accepted_by"] == ""):
+            err.append(f"PARTNER_INVITATION {r['email']}: accepted_at and accepted_by disagree (D2)")
+        if r["accepted_by"]:
+            if roles.get(r["accepted_by"], {}).get("email") != r["email"]:
+                err.append(f"PARTNER_INVITATION {r['email']}: accepted by another address (D2)")
+            if (r["org_id"], r["accepted_by"]) not in links:
+                err.append(f"PARTNER_INVITATION {r['email']}: accepted but no ORGANISATION_USER row (D1)")
+            if (r["invited_by"], r["accepted_by"]) not in grants:
+                err.append(f"PARTNER_INVITATION {r['email']}: no role.grant audit row by its inviter (SYS BR-002)")
+    # M4 FR-010 (D6): verification requests carry when they were submitted and decided
+    latest = {}
+    for r in T["VERIFICATION_REQUEST"]:
+        if (r["status"] == "pending") != (r["decided_at"] == ""):
+            err.append(f"VERIFICATION_REQUEST {r['request_id']}: decided_at and status disagree (D6)")
+        if r["decided_at"] and r["decided_at"] <= r["submitted_at"]:
+            err.append(f"VERIFICATION_REQUEST {r['request_id']}: decided before it was submitted (D6)")
+        if r["status"] == "approved" and r["decided_at"] > latest.get(r["org_id"], ""):
+            latest[r["org_id"]] = r["decided_at"]
+    for r in T["ORGANISATION"]:
+        if r["org_id"] in latest and r["verified_at"] != latest[r["org_id"]]:
+            err.append(f"ORGANISATION {r['org_name']}: verified_at is not the latest approval (D6)")
     # M4 BR-008: no request stays open with a deactivated organisation
     gone = {r["org_id"] for r in T["ORGANISATION"] if r["org_status"] == "deactivated"}
     for r in T["COLLAB_REQUEST"]:

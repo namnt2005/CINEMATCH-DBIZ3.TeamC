@@ -45,7 +45,7 @@
 | 6 | Requested service groups | Toggle (multi-select chips) | `services` — ENUM[] from the 12 service groups | Yes | at least one; the organisation's own groups listed first |
 | 7 | Note to the partner | Input (text area) | `note` — TEXT | No | max 1000 characters, live counter |
 | 8 | Article 13 eligibility notice | Text | `art13_eligible` of the organisation + open requests of the project | — | shown only when the organisation is not eligible |
-| 9 | *What happens next* block | List + Text | static: 3 steps, NDA and unlock explanation, expiry note | Yes | — |
+| 9 | *What happens next* block | List + Text | static: the 5 steps of `SC-25` (Sent → Viewed → Accepted → NDA agreed → Confirmed), NDA and unlock explanation, expiry note | Yes | — |
 | 10 | *Send request* button | Button | creates the request; returns `request_id`, `status` = pending | — | disabled until 4 and 6 are valid |
 | 11 | *Cancel* link | Link | static | — | — |
 

@@ -25,7 +25,7 @@ Send refusals: `ARCHIVED` (archived project, SR-343), `ORG_DEACTIVATED` (SR-346)
 
 ```json
 {
-  "request_id": "…", "status": "accepted", "step": 2, "final": false,
+  "request_id": "…", "status": "accepted", "step": 4, "final": false,
   "project": { "project_id": "…", "project_name": "…", "format": "…", "shoot_date": "…", "crew_size_band": "…" },
   "organisation": { "slug": "…", "org_name": "…", "verified": true, "art13_eligible": true },
   "services": ["full_production"], "note": "…",
@@ -37,7 +37,7 @@ Send refusals: `ARCHIVED` (archived project, SR-343), `ORG_DEACTIVATED` (SR-346)
   "quiet_days": 3
 }
 ```
-- `step`: 1 `pending`; 2 `under_review`, `info_requested`, `accepted`; 3 `confirmed`; `null` for `declined` / `withdrawn` (SR-141).
+- `step` (D7, five steps): 1 `pending`; 2 `under_review`, `info_requested`; 3 `accepted`; 4 `accepted` with the producer NDA; 5 `confirmed`; `null` for `declined` / `withdrawn` (SR-141).
 - `can` is computed from the caller's side and the state machine; the server enforces the same rules again on each action.
 - `component_c` per R14; `quiet_days` = days since `sent_at` without a partner response (SC-25 shows the withdraw hint from 14, research Open question 4).
 

@@ -21,6 +21,12 @@ def member_of(col='project_id'):
     return f"app.is_project_member({col})"
 
 
+def org_user(org_col):
+    """M4 D1: the caller acts for the organisation (inline, so it needs no function from a later migration)."""
+    return (f"EXISTS (SELECT 1 FROM public.organisation_user ou WHERE ou.org_id = {org_col} AND ou.user_id = auth.uid()) "
+            f"AND app.has_role('partner')")
+
+
 def published(location_col):
     return (f"EXISTS (SELECT 1 FROM public.location l WHERE l.location_id = {location_col} "
             f"AND l.intake_status = 'published' AND l.published)")
@@ -94,10 +100,24 @@ POLICIES = [
     dict(table='organisation_member_layer', op='select', roles=['signed_in'], using=SIGNED_IN,
          name='rls_org_member_layer_members'),
     dict(table='organisation_member_layer', op='update', roles=['vfda_staff'], using=has('vfda_staff')),
+    # M4 BR-001: layer 3 needs an accepted or confirmed request and the NDA of both parties (specs/007-m4-partners R3)
     dict(table='organisation_private_layer', op='select', roles=['member'], name='rls_org_private_after_nda',
-         using="EXISTS (SELECT 1 FROM public.collab_request r JOIN public.nda_acceptance n ON n.request_id = r.request_id "
-               "WHERE r.org_id = organisation_private_layer.org_id AND r.status IN ('accepted', 'confirmed') "
-               "AND n.accepted AND app.is_project_member(r.project_id))"),
+         using="EXISTS (SELECT 1 FROM public.collab_request r WHERE r.org_id = organisation_private_layer.org_id "
+               "AND r.status IN ('accepted', 'confirmed') AND app.is_project_member(r.project_id) "
+               "AND EXISTS (SELECT 1 FROM public.nda_acceptance n WHERE n.request_id = r.request_id AND n.party = 'producer' AND n.accepted) "
+               "AND EXISTS (SELECT 1 FROM public.nda_acceptance n WHERE n.request_id = r.request_id AND n.party = 'partner' AND n.accepted))"),
+    dict(table='organisation_private_layer', op='select', roles=['partner'], name='rls_org_private_own',
+         using=org_user('organisation_private_layer.org_id')),
+    dict(table='organisation_user', op='select', roles=['signed_in'], using='user_id = auth.uid()'),
+    dict(table='organisation_user', op='select', roles=['vfda_staff'], using=has('vfda_staff')),
+    dict(table='partner_invitation', op='select', roles=['vfda_staff'], using=has('vfda_staff')),
+    dict(table='verification_request', op='select', roles=['partner'], using=org_user('verification_request.org_id')),
+    dict(table='collab_request', op='select', roles=['partner'], using=org_user('collab_request.org_id')),
+    dict(table='collab_message', op='select', roles=['member', 'partner'],
+         using="EXISTS (SELECT 1 FROM public.collab_request r WHERE r.request_id = collab_message.request_id "
+               f"AND (app.is_project_member(r.project_id) OR ({org_user('r.org_id')})))"),
+    dict(table='nda_acceptance', op='select', roles=['partner'],
+         using=f"EXISTS (SELECT 1 FROM public.collab_request r WHERE r.request_id = nda_acceptance.request_id AND {org_user('r.org_id')})"),
     dict(table='verification_request', op='select', roles=['vfda_staff'], using=has('vfda_staff')),
     dict(table='verification_request', op='update', roles=['vfda_staff'], using=has('vfda_staff')),
     dict(table='collab_request', op='select', roles=['member'], using=member_of()),
@@ -136,10 +156,11 @@ POLICIES = [
 ]
 
 # Human (table, operation, actor) of data/02-crud-matrix.md with no policy yet, and why (research open questions).
+# M4 partner writes stay here on purpose: since specs/007-m4-partners they go only through the SECURITY DEFINER
+# functions of supabase/migrations/20261106000200_m4_partners.sql (no direct write policy, research R4).
 DEFERRED = [
     ('bilingual_paragraph', 'update', 'Partner', 13),
     ('collab_message', 'insert', 'Partner', 13),
-    ('collab_request', 'select', 'Partner', 13),
     ('collab_request', 'update', 'Partner', 13),
     ('moderation_item', 'insert', 'Partner', 13),
     ('nda_acceptance', 'insert', 'Partner', 13),

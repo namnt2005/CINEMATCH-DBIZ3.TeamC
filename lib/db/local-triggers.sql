@@ -36,3 +36,37 @@ BEFORE DELETE ON audit_log
 BEGIN
   SELECT RAISE(ABORT, 'Audit records are append-only (M10 BR-005).');
 END;
+
+-- M4 BR-005: a declined, withdrawn or confirmed request never changes (DELETE is not watched: no client may delete).
+CREATE TRIGGER trg_collab_request_final
+BEFORE UPDATE ON collab_request
+WHEN OLD.status IN ('declined', 'withdrawn', 'confirmed')
+BEGIN
+  SELECT RAISE(ABORT, 'A declined, withdrawn or confirmed request cannot change (M4 BR-005).');
+END;
+
+-- M4 BR-009: messages cannot be edited or deleted once sent.
+CREATE TRIGGER trg_collab_message_no_update
+BEFORE UPDATE ON collab_message
+BEGIN
+  SELECT RAISE(ABORT, 'Messages cannot be edited or deleted once sent (M4 BR-009).');
+END;
+
+CREATE TRIGGER trg_collab_message_no_delete
+BEFORE DELETE ON collab_message
+BEGIN
+  SELECT RAISE(ABORT, 'Messages cannot be edited or deleted once sent (M4 BR-009).');
+END;
+
+-- M4 BR-007: document access-log entries are append-only.
+CREATE TRIGGER trg_document_access_log_append_only
+BEFORE UPDATE ON document_access_log
+BEGIN
+  SELECT RAISE(ABORT, 'Document access-log entries are append-only (M4 BR-007).');
+END;
+
+CREATE TRIGGER trg_document_access_log_append_only_delete
+BEFORE DELETE ON document_access_log
+BEGIN
+  SELECT RAISE(ABORT, 'Document access-log entries are append-only (M4 BR-007).');
+END;

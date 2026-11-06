@@ -19,7 +19,7 @@ Bến Xưa Production Services has accepted the request and waits for confirmati
 All companies, people, phone numbers and e-mail addresses are fictional; every phone number has the
 form +84 000 000 1xx, which cannot be a real Vietnamese number.
 """
-import csv, glob, json, os, sys, uuid
+import csv, glob, hashlib, json, os, sys, uuid
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from seed_rules import validate, attention_level, readiness
 
@@ -413,18 +413,21 @@ for n, (k, cap_vi, cap_en, n_intl, langs) in enumerate(LAYERS, 21):
         rate_card=J({"line_producer_day_vnd": 6500000, "fixer_day_vnd": 3000000}) if k != "hoiancasting" else "",
         past_clients=J(["Kestrel Pictures","Northwind Documentary"]) if n_intl else "",
         direct_contact={"benxua":"Phạm Ngọc Lan","dongang":"Đỗ Văn Khải","mekong":"Huỳnh Minh Tuấn"}.get(k, "Office") + " · " + PHONE(n))
-for k, org, refs, st, by, reason in [
-    ("v1","benxua",["Seoul Night (KR, 2024)","Blue River (FR, 2025)"],"approved","thuha",""),
-    ("v2","dongang",["Imperial City (JP, 2023)","The Pass (AU, 2025)"],"approved","thuha",""),
-    ("v3","saigonline",["Neon Delta (US, 2024)","Commercial for a Korean airline (2025)"],"approved","phuc",""),
-    ("v4","halongmarine",["Bay of Dragons (CN, 2023)","Travel series (UK, 2024)"],"approved","phuc",""),
-    ("v5","hoiancasting",["Student short film (2025)"],"rejected","thuha","Only one reference project; two are required (M4 FR-008)."),
-    ("v6","songhau",["River Voices (FR, 2024)","Delta Life (DE, 2025)"],"approved","phuc",""),
-    ("v7","mekong",["Mangrove Song (VN, 2025)","Floating Market (KR, 2026)"],"pending","",""),
-    ("v8","long",["Ref 1","Ref 2","Ref 3"],"approved","ducanh","")]:
+# submitted_at, decided_at (specs/007-m4-partners D6): an approval is decided when the badge starts (verified_at)
+VERIFIED_AT = {k: va for k, _, _, _, _, _, _, va, _, _ in ORG}
+for k, org, refs, st, by, reason, sub, dec in [
+    ("v1","benxua",["Seoul Night (KR, 2024)","Blue River (FR, 2025)"],"approved","thuha","","2026-06-08T14:00",""),
+    ("v2","dongang",["Imperial City (JP, 2023)","The Pass (AU, 2025)"],"approved","thuha","","2026-03-12T10:20",""),
+    ("v3","saigonline",["Neon Delta (US, 2024)","Commercial for a Korean airline (2025)"],"approved","phuc","","2026-02-03T16:45",""),
+    ("v4","halongmarine",["Bay of Dragons (CN, 2023)","Travel series (UK, 2024)"],"approved","phuc","","2026-03-27T09:10",""),
+    ("v5","hoiancasting",["Student short film (2025)"],"rejected","thuha","Only one reference project; two are required (M4 FR-008).","2026-06-15T11:30","2026-06-20T14:30"),
+    ("v6","songhau",["River Voices (FR, 2024)","Delta Life (DE, 2025)"],"approved","phuc","","2025-08-08T15:00",""),
+    ("v7","mekong",["Mangrove Song (VN, 2025)","Floating Market (KR, 2026)"],"pending","","","2026-09-27T17:05",""),
+    ("v8","long",["Ref 1","Ref 2","Ref 3"],"approved","ducanh","","2026-08-25T08:40","")]:
+    decided = (dec + ":00+07:00") if dec else (TS(VERIFIED_AT[org], "11:00") if st == "approved" else "")
     add("VERIFICATION_REQUEST", request_id=U("verif:" + k), org_id=OID[org],
         business_license=f"private/verification/{k}/business-registration.pdf", reference_projects=J(refs),
-        status=st, decided_by=UID[by] if by else "", reason=reason)
+        status=st, decided_by=UID[by] if by else "", reason=reason, submitted_at=sub + ":00+07:00", decided_at=decided)
 CR = [  # key, project, org, services, note, status, response, sent, responded, confirmed
  ("c1","ferry","benxua",["full_production","permits_paperwork"],"We need a Vietnamese entity for the Article 13 dossier and a line producer in Ninh Bình.",
   "accepted","Happy to support. Proposal attached; rates available after the NDA.","2026-09-18","2026-09-22",""),
@@ -446,6 +449,22 @@ for k, req, party, ver, acc, d in [("n1","c1","partner","NDA-2026.1",True,"2026-
                                    ("n5","c4","producer","NDA-2026.1",False,"2026-09-14"),("n6","c2","producer","NDA-2026.1",True,"2026-09-21")]:
     add("NDA_ACCEPTANCE", nda_acceptance_id=U("nda:" + k), request_id=U("collab:" + req), party=party, nda_version=ver,
         accepted=str(acc).lower(), accepted_at=TS(d, "16:00") if acc else "")
+# Partner accounts and VFDA invitations (specs/007-m4-partners D1, D2; M4 BR-003, SYS BR-002). Only a hash of each
+# invented code is kept; an accepted invitation is the partner's role grant (audit rows a01, a15, a16).
+CODE_HASH = lambda k: hashlib.sha256(f"seed-invitation-{k}".encode()).hexdigest()
+INV = [  # key, org, email, invited_by, invited, expires, accepted_by, accepted
+ ("i-benxua","benxua","lan.pham@benxua.example.vn","ducanh","2026-06-08T09:00","2026-06-15T09:00","lan","2026-06-10T10:30"),
+ ("i-dongang","dongang","khai.do@dongang.example.vn","thuha","2026-06-02T09:00","2026-06-09T09:00","khai","2026-06-05T10:00"),  # signed up 05/03 as a member; partner from 05/06
+ ("i-mekong","mekong","tuan.huynh@mekongframe.example.vn","thuha","2026-09-08T09:00","2026-09-15T09:00","tuan","2026-09-10T10:00"),
+ ("i-hanoigrip","hanoigrip","contact@hanoigrip.example.vn","phuc","2026-11-04T09:00","2026-11-11T09:00","",""),      # open: no partner account yet
+ ("i-saigonline","saigonline","office@saigonline.example.vn","phuc","2026-06-20T09:00","2026-06-27T09:00","",""),  # expired, never accepted
+]
+for k, org, email, by, inv, exp, acc_by, acc in INV:
+    add("PARTNER_INVITATION", invitation_id=U("invitation:" + k), org_id=OID[org], email=email, code_hash=CODE_HASH(k),
+        invited_by=UID[by], invited_at=inv + ":00+07:00", expires_at=exp + ":00+07:00",
+        accepted_at=(acc + ":00+07:00") if acc else "", accepted_by=UID[acc_by] if acc_by else "")
+    if acc_by:
+        add("ORGANISATION_USER", org_id=OID[org], user_id=UID[acc_by], added_at=acc + ":00+07:00")
 
 # ------------------------------------------------------------------ M5 dossier kit
 DT = [("A13_APPLICATION","Văn bản đề nghị cấp giấy phép theo mẫu","Application form (prescribed template)","law","A,B"),
@@ -648,6 +667,8 @@ AUD = [  # key, action, admin, target, logged
  ("a12","report.export","thuha",REPORT,"2026-09-30T16:01"),                   # M10 US-3
  ("a13","location.availability","phuc",LID["ha-long"],"2026-09-24T08:20"),    # M3 BR-010: open -> survey_in_progress
  ("a14","location.availability","phuc",LID["phong-nha"],"2026-09-25T15:05"),  # M3 BR-010: open -> paused (rainy season)
+ ("a15","role.grant","thuha",UID["khai"],"2026-06-05T10:00"),                 # M4 BR-003: Đò Ngang accepted its invitation
+ ("a16","role.grant","thuha",UID["tuan"],"2026-09-10T10:00"),                 # M4 BR-003: Mekong Frame accepted its invitation
 ]
 for k, act, by, target, at in AUD:
     add("AUDIT_LOG", audit_log_id=U("audit:" + k), action=act, admin_id=UID[by], target_id=target, logged_at=at + ":00+07:00")

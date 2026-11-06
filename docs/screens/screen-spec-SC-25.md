@@ -14,7 +14,7 @@
 | Mockup image | `img/SC-25.png` |
 | Status | Draft |
 
-*Route:* `/requests/[id]` · *Screen list file:* M4, item #14 (Tier 1 — Must) · *Design note from the screen list file:* Statuses: Sent → Partner responded → Confirmed.
+*Route:* `/requests/[id]` · *Screen list file:* M4, item #14 (Tier 1 — Must) · *Design note from the screen list file:* Statuses: Sent → Viewed → Accepted → NDA agreed → Confirmed (five steps, decided 06/11/2026; the screen list file note #14 had three: Sent → Partner responded → Confirmed). The mockup image still shows the three-step bar until it is redrawn.
 
 **Notes against Screen List v2.0**
 
@@ -40,8 +40,8 @@
 | 1 | Navigation bar | Header | static | — | — |
 | 2 | Project sidebar | List | static; *Partners* item selected | — | — |
 | 3 | Project request list | List | `collab_request` by `project_id` | — | sorted by most recently updated |
-| 4 | Status on each request | Text | `collab_request.status` — `pending` / `under_review` / `info_requested` / `accepted` / `declined` / `confirmed` / `withdrawn`, shown as *Sent*, *Partner responded* or *Confirmed* (M4 §5.1 FR-014) | Yes | always with text |
-| 5 | 3-step bar | Chart (stepper) | timestamps `collab_request.sent_at`, `responded_at`, `confirmed_at` | Yes | exactly 3 steps: Sent → Partner responded → Confirmed |
+| 4 | Status on each request | Text | `collab_request.status` — `pending` / `under_review` / `info_requested` / `accepted` / `declined` / `confirmed` / `withdrawn`, shown as *Sent*, *Viewed*, *Accepted*, *NDA agreed* or *Confirmed*, or as the end state *Declined* / *Withdrawn* (M4 §5.1 FR-014) | Yes | always with text |
+| 5 | 5-step bar | Chart (stepper) | `collab_request.status`, `sent_at`, `responded_at`, `confirmed_at` and the two `nda_acceptance` rows: 1 *Sent* (`pending`), 2 *Viewed* (`under_review` / `info_requested`), 3 *Accepted* (`accepted`, partner NDA), 4 *NDA agreed* (`accepted` with the producer NDA too), 5 *Confirmed* (`confirmed`) | Yes | exactly 5 steps; a partner who accepts at once fills steps 2 and 3 together |
 | 6 | Request summary | Text | `collab_request.services[]`, project, dates, locations, crew size | Yes | — |
 | 7 | Message thread | List | `collab_message` | — | shown in the author's original language |
 | 8 | Partner response card | Container | `collab_request.response_note` — accepted / counter-proposal / declined + message | — | shown from step 2 onwards |
@@ -55,11 +55,11 @@
 
 | State | What the user sees | Trigger |
 |---|---|---|
-| Default | The mockup shows step 2 (*Partner responded*, accepted). At step 1: the response card is replaced by *Waiting for Bến Xưa to respond — usually within 72 hours*, confirm button hidden. | Open a request |
+| Default | The mockup shows the accepted request (step 3 *Accepted*). At step 1: the response card is replaced by *Waiting for Bến Xưa to respond — usually within 72 hours*, confirm button hidden. | Open a request |
 | Empty (no data) | The project has sent no requests: left column shows *No requests yet*; the detail area is replaced by a *Find a partner in the directory* link (`SC-19`). | 0 requests |
-| Loading | Grey placeholders for the message thread; the 3-step bar shows immediately. | Loading |
+| Loading | Grey placeholders for the message thread; the 5-step bar shows immediately. | Loading |
 | Error | Message failed to send: the message is greyed out with *Not sent — Try again*. Confirmation failed: *Couldn't confirm; the request keeps its previous status*. | Write error |
-| Success / confirmation | Clicking *Confirm partnership* → step 3 fills in, green banner *Confirmed with Bến Xưa. Upload the signed service agreement to the document kit to complete item c under Article 13.* The *Partners* gauge goes to 100%. | Confirmed successfully |
+| Success / confirmation | Clicking *Confirm partnership* → step 5 fills in, green banner *Confirmed with Bến Xưa. Upload the signed service agreement to the document kit to complete item c under Article 13.* The *Partners* gauge goes to 100%. | Confirmed successfully |
 
 ## 5. Interactions and navigation
 
@@ -77,7 +77,7 @@
 
 | Rule ID | Rule | Source |
 |---|---|---|
-| SR-141 | Exactly **3 steps** are shown: *Sent → Partner responded → Confirmed*. Declined / withdrawn are end states, not steps. | Screen list file — note #14 |
+| SR-141 | Exactly **5 steps** are shown: *Sent → Viewed → Accepted → NDA agreed → Confirmed*. Declined / withdrawn are end states, not steps. | Decision of 06/11/2026 (Group C); screen list file note #14 had three steps |
 | SR-142 | Only the **sender** (the production) can click *Confirm*; the partner only responds. Every status change notifies the other side. | TL5 §M4 |
 | SR-143 | Confirming **requires** NDA consent; only after the NDA is agreed is layer 3 of the partner profile unlocked (RLS). | F-M4-17 |
 | SR-144 | Confirming a partnership does **not** automatically mark Article 13 item c as *Present* — the signed agreement must still be uploaded. | No-guessing principle |

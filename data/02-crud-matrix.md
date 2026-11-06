@@ -8,7 +8,7 @@ sources: FUNCTIONS, FIELDS, ENTITIES, RULES, SCENARIOS, FLOWS, SCREENS, BOUNDARY
 
 # CRUD Matrix — CINEMATCH
 
-Long form: one row per (function, entity) pair that interacts — 168 rows over 96 of the 104 functions. Function IDs are the DBIZ2 Subfunction IDs; `F-M3-08` is `FR-008` in `docs/spec/spec-M3.md`. Each row was decided from the function description and its I/O row, not from the entity name.
+Long form: one row per (function, entity) pair that interacts — 169 rows over 96 of the 104 functions. Function IDs are the DBIZ2 Subfunction IDs; `F-M3-08` is `FR-008` in `docs/spec/spec-M3.md`. Each row was decided from the function description and its I/O row, not from the entity name.
 
 ## Interactions
 
@@ -109,6 +109,7 @@ Long form: one row per (function, entity) pair that interacts — 168 rows over 
 | F-M4-01 | `ORGANISATION_PRIVATE_LAYER` | CU | M4 §5.1 FR-001 (rate card, past clients) |
 | F-M4-01 | `COLLAB_REQUEST` | U | M4 §5.2 BR-008 (open requests to a deactivated organisation closed as withdrawn) |
 | F-M4-01 | `MODERATION_ITEM` | C | M10 §3 US-1 ("the change appears in the moderation queue"); M10 §5.2 BR-001 |
+| F-M4-01 | `ORGANISATION_USER` | R | M4 §5.1 FR-001 (the partner edits its own organisation); specs/007-m4-partners decision D1 (06/11/2026) |
 | F-M4-02 | `ORGANISATION` | R | M4 §5.1 FR-002 |
 | F-M4-03 | `ORGANISATION_MEMBER_LAYER` | R | M4 §5.1 FR-003 |
 | F-M4-04 | `ORGANISATION_PRIVATE_LAYER` | R | M4 §5.1 FR-004 |
@@ -225,6 +226,8 @@ Long form: one row per (function, entity) pair that interacts — 168 rows over 
 | `COLLAB_MESSAGE` | F-M4-14 | — | — | — |
 | `NDA_ACCEPTANCE` | F-M4-17 | F-M4-04 | — | — |
 | `DOCUMENT_ACCESS_LOG` | F-M4-18 | F-M4-19 | — | — |
+| `ORGANISATION_USER` | — | F-M4-01 | — | — |
+| `PARTNER_INVITATION` | — | — | — | — |
 | `DOCUMENT_TYPE` | — | F-M5-01 | — | — |
 | `DOCUMENT_SLOT` | — | F-M2-08, F-M2-09, F-M5-03 | — | — |
 | `DOCUMENT` | F-M5-02 | F-M4-18 | — | — |
@@ -259,6 +262,9 @@ Reported only — no function or entity was added to make the matrix look comple
 | 5 — no function touches it | `COMPLIANCE_RUN` | Missing function — the project content check is described (M2 §6, SC-48) but no FR runs it. | |
 | 1 — no C | `PROVINCE` | Missing function is acceptable: fixed reference list of 34 units, loaded once (M3 BR-006). | |
 | 2 — C but no R | `COLLAB_MESSAGE` | Missing function — messages are "the written record of the partnership" (M4 BR-009), but no function lists a request's thread (SC-25 shows none). | |
+| 1 — no C | `ORGANISATION_USER` | Missing function — the row is written when an invited partner accepts the VFDA invitation (M4 BR-003; specs/007-m4-partners decisions D1, D2 of 06/11/2026); the Function List has no subfunction for it. | |
+| 1 — no C | `PARTNER_INVITATION` | Missing function — VFDA staff or an admin invite a supplier (M4 BR-003, SR-125; SYS BR-002 as changed 06/11/2026; specs/007-m4-partners decision D2); the Function List has no subfunction for it. | |
+| 5 — no function touches it | `PARTNER_INVITATION` | Missing function — VFDA staff or an admin invite a supplier (M4 BR-003, SR-125; SYS BR-002 as changed 06/11/2026; specs/007-m4-partners decision D2); the Function List has no subfunction for it. | |
 | 1 — no C | `DOCUMENT_TYPE` | Missing function — VFDA maintains the document catalogue; belongs to M10, whose Spec Document has no such function yet. | |
 | 1 — no C | `DOCUMENT_SLOT` | Missing function — slots must be created when the kit opens (02 OQ 5). | |
 | 2 — C but no R | `BILINGUAL_DOCUMENT` | Missing function — SC-28 opens a draft; only its paragraphs are read. | |
