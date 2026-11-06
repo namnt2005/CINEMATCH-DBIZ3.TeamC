@@ -88,4 +88,6 @@ US-4 Scenario 2 (document views logged) is not in this slice (D4): only the appe
 | `python3 data/schema/load_check.py` | SQLite PASS — 49 tables, 49 seed files, 457 rows |
 | Migration `20261106000200_m4_partners.sql` on PGlite (scratch folder) | Layers, NDA gating, final states, triggers, invitation hash and acceptance with the inviter's `role.grant`, admin refused for `partner`, reminder once, deactivation withdraws open requests, Partners gauge 100 |
 
+**07/11/2026 — close-out re-run, by Claude Code for Nam Tran:** `npm test` 822 tests, 822 passed, 0 failed; `npm run build` OK (54 pages); `uv run tools/start_feature.py --check` OK.
+
 **Not run yet (Nam Tran, online):** `npx supabase db push --remote` of `20261106000200_m4_partners.sql` and `node scripts/seed-supabase.mjs --reset`; slices 1–4 in the browser (T023, T034, T046, T054, T060) with the seed accounts — Bến Xưa's partner account (`lan.pham@…`) must first be added to Auth; `npm run test:rls` (T057) **before** the deactivation step, then `--reset`; `npm run check:supabase`; the 360 px check (T061) and the timing of `GET /api/partners` (T062). `npm run verification:remind` loads `.env` and writes to the database it points at — run it only on purpose.
