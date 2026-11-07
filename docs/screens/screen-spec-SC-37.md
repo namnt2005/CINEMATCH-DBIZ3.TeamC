@@ -92,7 +92,7 @@
 | SR-301 | A rule becomes active only when it has a **citation and an approver**; enforced by a database CHECK constraint, not only by the disabled button. | M2 BR-002, M2 FR-003 (F-M2-03) |
 | SR-302 | Every activation creates a **new rule-set version**; every later check records the version it used. | M2 FR-004 (F-M2-04), M2 BR-007 |
 | SR-303 | Rules are **retired, never deleted** (`status = retired`); findings keep showing the text of the rule version they cited. There is no *Delete* action. | M2 BR-008 |
-| SR-304 | Only the VFDA Legal Board writes and signs rules; developers and the language model never change rule text. | M2 US-3, M2 BR-001 |
+| SR-304 | Only the VFDA Legal Board (`vfda_legal`) writes, signs and retires rules; `admin` may read the rule base but not sign or retire (exception to SYS question 5, 07/11/2026). Developers and the language model never change rule text. | M2 US-3, M2 BR-001 |
 | SR-305 | Every save, signature and retirement writes one audit record in the same transaction. | M10 BR-005 (F-M10-08) |
 
 ## 7. Linked requirements

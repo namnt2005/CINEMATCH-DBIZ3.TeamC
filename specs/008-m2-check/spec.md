@@ -1,4 +1,4 @@
-<!-- DBIZ3-SNAPSHOT source=docs/spec/spec-M2.md sha256=3285cde38ff2cddbefe2b886fa72d6b0ad45947a50d4653313ed3eedfa5009d2 taken=2026-11-06T21:19Z -->
+<!-- DBIZ3-SNAPSHOT source=docs/spec/spec-M2.md sha256=eff3c5c77eab871598e16ec2d0b60a266679c0528f6ef9fba4b8a752e07f386e taken=2026-11-07T16:25Z -->
 <!-- Read-only copy for Spec Kit. Do not edit here. Edit docs/spec/spec-M2.md, then run:
      uv run tools/start_feature.py --refresh -->
 
@@ -63,7 +63,7 @@ This module tells a producer, before they commit, which parts of their story are
 |---|---|---|
 | Guest | Primary — runs the 200-word pre-check | Function List (F-M2-05, 15, 16) |
 | Member | Primary — runs checks on a project, marks findings reviewed | Function List (F-M2-09, 13, 14, 18) |
-| VFDA Legal Board (`vfda_legal`) | Primary — writes, signs and versions rules | Function List (F-M2-01..03) |
+| VFDA Legal Board (`vfda_legal`) | Primary — writes, signs and versions rules. Only this role signs and retires a rule; `admin` may read the rule base but not sign (exception to SYS question 5, 07/11/2026) | Function List (F-M2-01..03) |
 | System | Runs the checks, verifies citations, computes timelines | Function List (F-M2-04, 06–08, 10–12, 17) |
 
 ## 3. User scenarios and acceptance criteria
@@ -98,11 +98,11 @@ This module tells a producer, before they commit, which parts of their story are
 
 ### US-4 (P2): See my licensing timeline
 
-**Journey.** As a producer, I want to know the latest safe date to file, so that a resubmission does not push my shoot.
+**Journey.** As a producer, I want to know the recommended date to file, so that a resubmission does not push my shoot.
 
 **Acceptance scenarios**
 
-1. **Given** a first shooting day of 15/03/2027 and a 7-day buffer, **When** the timeline is computed, **Then** the safe submission deadline is 27/01/2027 and the latest deadline is 16/02/2027.
+1. **Given** a first shooting day of 15/03/2027 and a 7-day buffer, **When** the timeline is computed, **Then** the recommended submission date is 05/01/2027 and the latest deadline is 02/02/2027 (the buffer counts calendar days, the two 20-day periods working days, Tết 2027 excluded).
 
 ### US-5 (P3): Read requirements without an account
 
@@ -248,7 +248,7 @@ sequenceDiagram
 | FR-014 | F-M2-14 | The system MUST let a member mark each finding as reviewed, with an optional note. | Member | Must |
 | FR-015 | F-M2-15 | The system SHOULD publish the approved rules as a public library filterable by topic and segment. | Guest | Should |
 | FR-016 | F-M2-16 | The system SHOULD publish one page per rule with its bilingual description and citation. | Guest | Should |
-| FR-017 | F-M2-17 | The system MUST compute the safe and latest submission deadlines from the first shooting day, the safety buffer and Article 13 clause 4 (20 + 20 days). | System | Must |
+| FR-017 | F-M2-17 | The system MUST compute the recommended submission date and the latest submission deadline from the first shooting day, the buffer and Article 13 clause 4 (20 + 20 days). | System | Must |
 | FR-018 | F-M2-18 | The system MUST always show both scenarios: smooth path and one resubmission. | Member | Must |
 
 ### 5.1 Input / Output contract
@@ -308,7 +308,7 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 | BR-003 | The words *approved*, *accepted*, *legally compliant* and *safe* never appear in results, including when nothing is found. | Only the competent authority decides. |
 | BR-004 | The attention level is derived deterministically from the number and severity of verified findings, never from a model score. | A precise-looking number from a model gives false certainty. |
 | BR-005 | The dossier completeness check uses fixed rules, not a language model. | A missing document is a fact, not a judgement. |
-| BR-006 | Safe deadline = first shooting day − buffer − 20 − 20 working days; latest deadline = first shooting day − buffer − 20 working days. Working days exclude Saturdays, Sundays and dates of type PUBLIC_HOLIDAY (Clarifications Q1). | Article 13 clause 4: 20 days, plus up to 20 more if the script must be revised. |
+| BR-006 | Recommended submission date = first shooting day − buffer − 20 − 20 working days; latest deadline = first shooting day − buffer − 20 working days. The buffer counts calendar days (decision of 07/11/2026); the words *safe* / *an toàn* are not used for a deadline. Working days exclude Saturdays, Sundays and dates of type PUBLIC_HOLIDAY (Clarifications Q1). | Article 13 clause 4: 20 days, plus up to 20 more if the script must be revised. |
 | BR-007 | Every check stores the rule-set version it used. | An old result must remain explainable after rules change. |
 | BR-008 | Legal rules are retired, never deleted (`status = retired`); a finding keeps showing the text of the rule version it cited. | An old result must remain explainable after a rule changes (see BR-007). |
 

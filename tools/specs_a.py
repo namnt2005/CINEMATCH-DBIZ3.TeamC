@@ -265,7 +265,7 @@ MODULES.append(dict(
  ],
  edge=["A module fails to report: its gauge shows `—` with *not calculated yet*; the overall score is computed only from gauges that reported, and says so.",
        "Two members edit the project name at the same time: last write wins; the other sees a toast *updated by …*.",
-       "The first shooting day is moved earlier than today + safe deadline: the countdown turns red (M5)."],
+       "The first shooting day is moved so early that the recommended submission date has passed: the countdown turns red (M5)."],
  flows=[("4.1 Usage flow — main producer journey (segments A and B)",
 """flowchart TD
     S([Open the landing page]) --> Q1{M1 · What do you want to do in Vietnam?}
@@ -377,7 +377,7 @@ MODULES.append(dict(
  depends=["SYS (roles, notifications)", "M0 (compliance gauge)", "M5 (uploaded documents, countdown screen)", "M4 (service agreement status for component c)", "External: language model API"],
  actors=[("Guest", "Primary — runs the 200-word pre-check", "Function List (F-M2-05, 15, 16)"),
          ("Member", "Primary — runs checks on a project, marks findings reviewed", "Function List (F-M2-09, 13, 14, 18)"),
-         ("VFDA Legal Board (`vfda_legal`)", "Primary — writes, signs and versions rules", "Function List (F-M2-01..03)"),
+         ("VFDA Legal Board (`vfda_legal`)", "Primary — writes, signs and versions rules. Only this role signs and retires a rule; `admin` may read the rule base but not sign (exception to SYS question 5, 07/11/2026)", "Function List (F-M2-01..03)"),
          ("System", "Runs the checks, verifies citations, computes timelines", "Function List (F-M2-04, 06–08, 10–12, 17)")],
  stories=[
   dict(id="US-1", p="P1", title="Pre-check my story without signing up",
@@ -394,8 +394,8 @@ MODULES.append(dict(
        acc=["**Given** a draft rule without a citation, **When** the officer clicks *Approve and sign*, **Then** the database rejects activation and the citation field is highlighted.",
             "**Given** a rule with a citation, **When** it is approved, **Then** a new rule-set version is created and every later check records that version."]),
   dict(id="US-4", p="P2", title="See my licensing timeline",
-       journey="As a producer, I want to know the latest safe date to file, so that a resubmission does not push my shoot.",
-       acc=["**Given** a first shooting day of 15/03/2027 and a 7-day buffer, **When** the timeline is computed, **Then** the safe submission deadline is 27/01/2027 and the latest deadline is 16/02/2027."]),
+       journey="As a producer, I want to know the recommended date to file, so that a resubmission does not push my shoot.",
+       acc=["**Given** a first shooting day of 15/03/2027 and a 7-day buffer, **When** the timeline is computed, **Then** the recommended submission date is 05/01/2027 and the latest deadline is 02/02/2027 (the buffer counts calendar days, the two 20-day periods working days, Tết 2027 excluded)."]),
   dict(id="US-5", p="P3", title="Read requirements without an account",
        journey="As a visitor, I want to browse the requirements by topic, so that I understand the rules before using the tools.",
        acc=["**Given** the requirements library, **When** a visitor filters by segment A, **Then** only approved rules for segment A are listed, each with its bilingual description and citation."]),
@@ -502,7 +502,7 @@ MODULES.append(dict(
      ("F-M2-14", "The system MUST let a member mark each finding as reviewed, with an optional note.", "Member", "Must"),
      ("F-M2-15", "The system SHOULD publish the approved rules as a public library filterable by topic and segment.", "Guest", "Should"),
      ("F-M2-16", "The system SHOULD publish one page per rule with its bilingual description and citation.", "Guest", "Should"),
-     ("F-M2-17", "The system MUST compute the safe and latest submission deadlines from the first shooting day, the safety buffer and Article 13 clause 4 (20 + 20 days).", "System", "Must"),
+     ("F-M2-17", "The system MUST compute the recommended submission date and the latest submission deadline from the first shooting day, the buffer and Article 13 clause 4 (20 + 20 days).", "System", "Must"),
      ("F-M2-18", "The system MUST always show both scenarios: smooth path and one resubmission.", "Member", "Must")],
  io={
   "F-M2-01": ("filter_topic ENUM(security, history, religion, privacy, dossier, public_order, heritage) Opt; filter_status ENUM(draft, approved, retired) Opt", "rules ARRAY<legal_rule>", "vfda_legal only (RLS)"),
@@ -530,7 +530,7 @@ MODULES.append(dict(
      ("BR-003", "The words *approved*, *accepted*, *legally compliant* and *safe* never appear in results, including when nothing is found.", "Only the competent authority decides."),
      ("BR-004", "The attention level is derived deterministically from the number and severity of verified findings, never from a model score.", "A precise-looking number from a model gives false certainty."),
      ("BR-005", "The dossier completeness check uses fixed rules, not a language model.", "A missing document is a fact, not a judgement."),
-     ("BR-006", "Safe deadline = first shooting day − buffer − 20 − 20 working days; latest deadline = first shooting day − buffer − 20 working days. Working days exclude Saturdays, Sundays and dates of type PUBLIC_HOLIDAY (Clarifications Q1).", "Article 13 clause 4: 20 days, plus up to 20 more if the script must be revised."),
+     ("BR-006", "Recommended submission date = first shooting day − buffer − 20 − 20 working days; latest deadline = first shooting day − buffer − 20 working days. The buffer counts calendar days (decision of 07/11/2026); the words *safe* / *an toàn* are not used for a deadline. Working days exclude Saturdays, Sundays and dates of type PUBLIC_HOLIDAY (Clarifications Q1).", "Article 13 clause 4: 20 days, plus up to 20 more if the script must be revised."),
      ("BR-007", "Every check stores the rule-set version it used.", "An old result must remain explainable after rules change."),
      ("BR-008", "Legal rules are retired, never deleted (`status = retired`); a finding keeps showing the text of the rule version it cited.", "An old result must remain explainable after a rule changes (see BR-007).")],
  entities=[("LegalRule", "rule_id, rule_code, title_vi/en, description_vi/en, guidance_vi/en, citation, severity, status, approved_by, approved_at", "belongs to RuleSetVersion"),

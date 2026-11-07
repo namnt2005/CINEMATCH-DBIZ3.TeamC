@@ -12,14 +12,14 @@ It adds no requirement of its own. If this index and a module file ever disagree
 |---|---|---|---|---|---|---|---|
 | SYS | [`spec-SYS.md`](spec-SYS.md) | Platform foundation — accounts, roles, bilingual UI, notifications, search | 11 | 5 | 4 | SC-04, SC-06, SC-07, SC-08, SC-09, SC-42, SC-43 | 9 (0 blocking) |
 | M1 | [`spec-M1.md`](spec-M1.md) | Segment router | 3 | 4 | 3 | SC-01, SC-02, SC-13 | 1 (0 blocking) |
-| M0 | [`spec-M0.md`](spec-M0.md) | Project workspace and readiness dashboard | 9 | 5 | 3 | SC-10, SC-12, SC-13 | 5 (0 blocking) |
+| M0 | [`spec-M0.md`](spec-M0.md) | Project workspace and readiness dashboard | 9 | 5 | 3 | SC-10, SC-12, SC-13 | 4 (0 blocking) |
 | M2 | [`spec-M2.md`](spec-M2.md) | Content pre-check and Article 13 dossier check | 18 | 8 | 5 | SC-03, SC-27, SC-29, SC-30, SC-31, SC-37, SC-48 | 7 (0 blocking) |
 | M3 | [`spec-M3.md`](spec-M3.md) | Location discovery | 20 | 10 | 5 | SC-14, SC-15, SC-16, SC-17, SC-18, SC-35 | 6 (0 blocking) |
 | M4 | [`spec-M4.md`](spec-M4.md) | Vietnamese service partners | 19 | 9 | 4 | SC-19, SC-20, SC-21, SC-22, SC-23, SC-25, SC-36 | 4 (0 blocking) |
 | M5 | [`spec-M5.md`](spec-M5.md) | Dossier kit, bilingual drafts and countdown | 8 | 6 | 3 | SC-26, SC-28, SC-29 | 4 (0 blocking) |
 | M7 | [`spec-M7.md`](spec-M7.md) | VFDA support — provincial notices and consultations | 7 | 5 | 3 | SC-32, SC-33 | 2 (0 blocking) |
 | M10 | [`spec-M10.md`](spec-M10.md) | VFDA back office — moderation, demand index, quarterly report, audit log | 9 | 5 | 4 | SC-34, SC-38, SC-39, SC-40, SC-41 | 7 (0 blocking) |
-| **Total** |  |  | **104** | **57** | **34** | 41 screens | **45 (0 blocking)** |
+| **Total** |  |  | **104** | **57** | **34** | 41 screens | **44 (0 blocking)** |
 
 Modules `M6`, `M8` and `M9` are *Won't* for this release (see `docs/prd.md` section 4.4) and have no Spec Document.
 
@@ -66,7 +66,7 @@ The 104 functional requirements are in §5 of the module files (table in section
 
 ### 5.1 Entities
 
-The entities of CINEMATCH, with the canonical names used by the Session 5 data model (`data/01-entity-dictionary.md`). 52 entities: 47 are stored as tables (one CSV each in `data/seed/`) and 5 are *derived* — computed on read, never stored.
+The entities of CINEMATCH, with the canonical names used by the Session 5 data model (`data/01-entity-dictionary.md`). 54 entities: 49 are stored as tables (one CSV each in `data/seed/`) and 5 are *derived* — computed on read, never stored.
 
 | # | Entity | Definition | Kind | Owner module |
 |---|---|---|---|---|
@@ -108,20 +108,22 @@ The entities of CINEMATCH, with the canonical names used by the Session 5 data m
 | 36 | `COLLAB_MESSAGE` | A message written inside a collaboration request, including every response note; never edited once sent. | EVENT | M4 |
 | 37 | `NDA_ACCEPTANCE` | One party's acceptance of a given NDA version for one collaboration request. | EVENT | M4 |
 | 38 | `DOCUMENT_ACCESS_LOG` | A record that one person viewed one shared document at one time. | EVENT | M4 |
-| 39 | `DOCUMENT_TYPE` | A kind of dossier document, with its legal basis and template. | THING | M5 |
-| 40 | `DOCUMENT_SLOT` | The place for one document type in one project, with its status. | THING | M5 |
-| 41 | `DOCUMENT` | One uploaded file version in a project's document slot. | THING | M5 |
-| 42 | `BILINGUAL_DOCUMENT` | A generated English–Vietnamese draft of one document of a project. | THING | M5 |
-| 43 | `BILINGUAL_PARAGRAPH` | One aligned source/Vietnamese paragraph pair of a bilingual draft, with its proofreading status. | THING | M5 |
-| 44 | `PROJECT_GLOSSARY` | A project's agreed translation of one term, applied to every later draft of that project. | THING | M5 |
-| 45 | `PUBLIC_HOLIDAY` | A public holiday period shown on the licensing timeline, official or expected. | THING | M5 |
-| 46 | `LOCATION_INTEREST` | A member's statement that a project is interested in a location. | EVENT | M7 |
-| 47 | `PROVINCE_NOTICE` | The notice VFDA sends a province about a project's interest, and the province's reply. | EVENT | M7 |
-| 48 | `CONSULTATION_BOOKING` | A member's booked consultation slot with a VFDA officer. | EVENT | M7 |
-| 49 | `MODERATION_ITEM` | A partner's published content (profile text or location photo) waiting for, or carrying, VFDA staff's approve-or-hide decision. | EVENT | M10 |
-| 50 | `AUDIT_LOG` | A permanent record of one administrative action: who did what to which record, and when. | EVENT | M10 |
-| 51 | `DEMAND_INDEX` | The six demand indicators of a reporting period, each with its sample size, computed from platform data. | DERIVED (computed on read) | M10 |
-| 52 | `QUARTERLY_REPORT` | A quarterly demand report with its bilingual commentary, reread by a staff member before it is exported. | THING | M10 |
+| 39 | `ORGANISATION_USER` | A partner account that acts for one organisation. | THING | M4 |
+| 40 | `PARTNER_INVITATION` | VFDA's one-time invitation for a person to become the partner account of an organisation. | EVENT | M4 |
+| 41 | `DOCUMENT_TYPE` | A kind of dossier document, with its legal basis and template. | THING | M5 |
+| 42 | `DOCUMENT_SLOT` | The place for one document type in one project, with its status. | THING | M5 |
+| 43 | `DOCUMENT` | One uploaded file version in a project's document slot. | THING | M5 |
+| 44 | `BILINGUAL_DOCUMENT` | A generated English–Vietnamese draft of one document of a project. | THING | M5 |
+| 45 | `BILINGUAL_PARAGRAPH` | One aligned source/Vietnamese paragraph pair of a bilingual draft, with its proofreading status. | THING | M5 |
+| 46 | `PROJECT_GLOSSARY` | A project's agreed translation of one term, applied to every later draft of that project. | THING | M5 |
+| 47 | `PUBLIC_HOLIDAY` | A public holiday period shown on the licensing timeline, official or expected. | THING | M5 |
+| 48 | `LOCATION_INTEREST` | A member's statement that a project is interested in a location. | EVENT | M7 |
+| 49 | `PROVINCE_NOTICE` | The notice VFDA sends a province about a project's interest, and the province's reply. | EVENT | M7 |
+| 50 | `CONSULTATION_BOOKING` | A member's booked consultation slot with a VFDA officer. | EVENT | M7 |
+| 51 | `MODERATION_ITEM` | A partner's published content (profile text or location photo) waiting for, or carrying, VFDA staff's approve-or-hide decision. | EVENT | M10 |
+| 52 | `AUDIT_LOG` | A permanent record of one administrative action: who did what to which record, and when. | EVENT | M10 |
+| 53 | `DEMAND_INDEX` | The six demand indicators of a reporting period, each with its sample size, computed from platform data. | DERIVED (computed on read) | M10 |
+| 54 | `QUARTERLY_REPORT` | A quarterly demand report with its bilingual commentary, reread by a staff member before it is exported. | THING | M10 |
 
 Columns, keys and relationships: `data/04-data-model.md`. Diagram: `data/03-erd.mmd`.
 
@@ -152,7 +154,7 @@ All business rules, as written in §5.2 of each module file:
 | M2 | BR-003 | The words *approved*, *accepted*, *legally compliant* and *safe* never appear in results, including when nothing is found. |
 | M2 | BR-004 | The attention level is derived deterministically from the number and severity of verified findings, never from a model score. |
 | M2 | BR-005 | The dossier completeness check uses fixed rules, not a language model. |
-| M2 | BR-006 | Safe deadline = first shooting day − buffer − 20 − 20 working days; latest deadline = first shooting day − buffer − 20 working days. Working days exclude Saturdays, Sundays and dates of type PUBLIC_HOLIDAY (Clarifications Q1). |
+| M2 | BR-006 | Recommended submission date = first shooting day − buffer − 20 − 20 working days; latest deadline = first shooting day − buffer − 20 working days. The buffer counts calendar days (decision of 07/11/2026); the words *safe* / *an toàn* are not used for a deadline. Working days exclude Saturdays, Sundays and dates of type PUBLIC_HOLIDAY (Clarifications Q1). |
 | M2 | BR-007 | Every check stores the rule-set version it used. |
 | M2 | BR-008 | Legal rules are retired, never deleted (`status = retired`); a finding keeps showing the text of the rule version it cited. |
 | M3 | BR-001 | The language model only extracts attributes; ranking is done by a deterministic server-side scoring function. The model never names or ranks a location. |

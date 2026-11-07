@@ -60,7 +60,7 @@ Natural key: `rule_code + revision` (OQ-04-24 closed).
 
 - Every existing rule becomes revision 1; findings get the `rule_id` of the revision they cite; precheck findings lose their text columns.
 - New rows so that each new rule has data: an **approved rule with a draft revision 2** (the signed text still in force, Q13); `A9-MAP` gets `retired_version` = the version that retired it; one more `rule_set_version` for that retirement if the seed's `2026.08` is not it (the `rule.retire` audit row of 28/08/2026 says it is); keywords on the approved rules in both languages, none on one approved rule (boundary: never matched in fallback).
-- `dm_rules.py` evidence: BR-006 becomes *15/03/2027, buffer 7 → latest 02/02/2027, safe 05/01/2027* and *Quiet Harbour Blues — safe 08/09/2026 passed* (D1); BR-008 names the revision rows.
+- `dm_rules.py` evidence: BR-006 becomes *15/03/2027, buffer 7 → recommended 05/01/2027, latest 02/02/2027* and *Quiet Harbour Blues — recommended 08/09/2026 passed* (D1, D8); BR-008 names the revision rows.
 
 ## 3. States
 
@@ -117,7 +117,7 @@ Stored `document_slot.state` (or `missing`), lowered for b (`present → needs_f
 | `keywords_*` | ≤ 30 items, each 1–60 characters* | `legal.error.keywords` |
 | `rule_slug` | from `rule_code` lower-case (`a9-long`), not editable | — |
 | `reviewer_note` | ≤ 1 000 characters* | `content.error.note` |
-| `shoot_date`, `buffer_days` | through M0 (`buffer_days` 0, 7, 14, 21 on SC-29) | M0 keys |
+| `shoot_date`, `buffer_days` | through M0 (`buffer_days` 0, 7, 14, 21 on SC-29, M0 question 2 — D10) | M0 keys, `projects.error.buffer_days` |
 
 \* limits the spec does not give; interim (research Open question 10 style).
 
@@ -127,8 +127,8 @@ Stored `document_slot.state` (or `missing`), lowered for b (`present → needs_f
 |---|---|---|
 | `app_save_rule_draft(p_rule_id uuid, p_fields jsonb)` | `vfda_legal` | creates revision 1 (`p_rule_id` null) or edits a draft; audit `rule.save` |
 | `app_revise_rule(p_rule_code text)` | `vfda_legal` | copies the approved revision to a new draft n+1; `DRAFT_EXISTS`, `NOT_FOUND`; audit `rule.revise` |
-| `app_sign_rule(p_rule_id uuid)` | `vfda_legal` (exactly) | required texts checked; update meets the BR-002 CHECK (`CITATION_REQUIRED`); new version; previous approved revision retired; audit `rule.sign`; returns `{ rule_version, retired_rule_id }` |
-| `app_retire_rule(p_rule_id uuid)` | `vfda_legal` (exactly) | approved → retired; new version; audit `rule.retire` |
+| `app_sign_rule(p_rule_id uuid)` | `vfda_legal` exactly — `admin` refused (D9) | required texts checked; update meets the BR-002 CHECK (`CITATION_REQUIRED`); new version; previous approved revision retired; audit `rule.sign`; returns `{ rule_version, retired_rule_id }` |
+| `app_retire_rule(p_rule_id uuid)` | `vfda_legal` exactly — `admin` refused (D9) | approved → retired; new version; audit `rule.retire` |
 | `app_record_precheck(p_hash text, p_lang text, p_flags jsonb, p_country text, p_rule_version text, p_project_id uuid, p_findings jsonb)` | System (`service_role` only) | checks every `rule_id` is approved in `p_rule_version`'s set, recomputes the level, writes run and findings |
 | `app_save_content_check(p_project_id uuid, p_rule_version text, p_findings jsonb)` | owner or edit, project not archived | `RULE_SET_CHANGED` if not the current version; writes `compliance_run` + findings (`open`) |
 | `app_review_finding(p_finding_id uuid, p_note text)` | owner or edit | `open → reviewed`, note |

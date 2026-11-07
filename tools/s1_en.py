@@ -395,7 +395,7 @@ html = page("SC-12", "Readiness dashboard", "M0 · Member · Tier 1 · #5", "/pr
   {dial('data-n="9"', "Logistics", 0, "Coming in phase 2: equipment, visas, drones", '<span class="btn sm dis" style="margin-top:8px">Coming soon</span>', off=True)}
 </div>
 <div class="row" style="gap:14px;margin-top:14px;align-items:stretch">
-  <div class="banner b-warn" data-n="10" style="flex:1.2"><b>Safe submission deadline: 27/01/2027 — 127 days left.</b><br>Counted back from the first shooting day, allowing for one dossier resubmission (20 + 20 days) and a 7-day buffer. <span class="lnk">View countdown →</span></div>
+  <div class="banner b-warn" data-n="10" style="flex:1.2"><b>Recommended submission date: 27/01/2027 — 127 days left.</b><br>Counted back from the first shooting day, allowing for one dossier resubmission (20 + 20 days) and a 7-day buffer. <span class="lnk">View countdown →</span></div>
   <div class="card" data-n="11" style="flex:1"><h3>Recent activity</h3>
     <div class="small col" style="gap:4px"><div>· Bến Xưa Production Services replied to the collaboration request — 2 hours ago</div><div>· Ninh Bình Provincial People's Committee acknowledged the notification — 18/09</div><div>· Tràng An added to the shortlist — 15/09</div></div></div>
 </div>
@@ -418,7 +418,7 @@ add(dict(
   (7, "*Next step* sentence", "Text", "`F-M0-07` — rule-generated, no language model", "Yes", "always present; when done, shows *Complete*"),
   (8, "Gauge action button", "Button", "static; target per gauge", "—", "—"),
   (9, "*Logistics* gauge (not yet available)", "Chart (gauge)", "static", "—", "shows `—`, not 0%"),
-  (10, "Safe submission deadline strip", "Text", "`F-M5-08` — safe submission date and days remaining", "No", "hidden when there is no first shooting day or for segment C"),
+  (10, "Recommended submission date strip", "Text", "`F-M5-08` — recommended submission date and days remaining", "No", "hidden when there is no first shooting day or for segment C"),
   (11, "Recent activity", "List", "project `notification` rows (`event_type`), 3 latest items", "No", "—"),
   (12, "*Book a consultation with VFDA* button", "Button", "static", "—", "—"),
  ],

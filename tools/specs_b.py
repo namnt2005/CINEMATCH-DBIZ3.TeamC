@@ -419,7 +419,7 @@ MODULES.append(dict(
 MODULES.append(dict(
  id="M5", name="Dossier kit, bilingual drafts and countdown",
  source="Function List rows 81–88 (F-M5-01 .. F-M5-08); Use Case UC-18, UC-20, UC-21; Screens SC-26, SC-28, SC-29",
- purpose="This module gives each project the list of documents its segment needs, stores them, helps turn the English script summary into a Vietnamese draft that a person proofreads, and counts back from the first shooting day to the latest safe date to file. "
+ purpose="This module gives each project the list of documents its segment needs, stores them, helps turn the English script summary into a Vietnamese draft that a person proofreads, and counts back from the first shooting day to the recommended date to file. "
          "Nothing it produces is presented as final: every generated document is a draft for a human.",
  in_scope=["Document list per segment with the basis for each item (required by law / commonly requested / location-specific).",
            "Uploading and replacing documents; status per document.",
@@ -442,14 +442,14 @@ MODULES.append(dict(
        acc=["**Given** an English synopsis of 14 paragraphs, **When** the user clicks *Create Vietnamese draft*, **Then** 14 Vietnamese paragraphs appear, each marked *Machine translation · not proofread*.",
             "**Given** a paragraph marked proofread, **When** anyone edits it, **Then** it returns to *not proofread*.",
             "**Given** 14 of 14 paragraphs proofread, **When** the page updates, **Then** Article 13 component b can become *Present*."]),
-  dict(id="US-3", p="P1", title="See my latest safe filing date",
-       journey="As a producer, I want the safe submission deadline counted back from my first shooting day, so that one resubmission cannot push my shoot.",
-       acc=["**Given** first shooting day 15/03/2027 and a 7-day buffer, **When** the countdown loads, **Then** it shows the safe deadline 27/01/2027 and warns that filing on 16/02/2027 with one resubmission gives a result on 28/03/2027, after the first shooting day.",
+  dict(id="US-3", p="P1", title="See my recommended filing date",
+       journey="As a producer, I want the recommended submission date counted back from my first shooting day, so that one resubmission cannot push my shoot.",
+       acc=["**Given** first shooting day 15/03/2027 and a 7-day buffer, **When** the countdown loads, **Then** it shows the recommended submission date 05/01/2027 and warns that filing on the latest deadline 02/02/2027 with one resubmission gives a result on 02/04/2027, after the first shooting day (buffer in calendar days, 20-day periods in working days — M2 BR-006).",
             "**Given** a public holiday period inside the processing window, **When** the countdown loads, **Then** it is shown as a band marked *expected* until official dates are published."]),
  ],
  edge=["A file larger than 25 MB or of another type: refused at the upload area with the limit stated.",
        "A document is replaced: the old version is kept in history; the check reruns.",
-       "The first shooting day is so close that the safe deadline has passed: the countdown says by how many days, in red, and offers *Book a VFDA consultation*.",
+       "The first shooting day is so close that the recommended submission date has passed: the countdown says by how many days, in red, and offers *Book a VFDA consultation*.",
        "The translation call fails for one paragraph: only that paragraph shows *Could not translate — retry*."],
  flows=[("4.1 Usage flow — dossier loop (excerpt of the producer journey)",
 """flowchart TD
@@ -488,7 +488,7 @@ MODULES.append(dict(
      ("F-M5-04", "The system MUST generate a Vietnamese draft of the synopsis and Vietnam-scene script, aligned paragraph by paragraph with the source.", "System", "Must"),
      ("F-M5-05", "The system MUST export a two-column English–Vietnamese PDF with *DRAFT — REQUIRES PROOFREADING* on every page.", "System", "Must"),
      ("F-M5-06", "The system MUST record who proofread each paragraph and when, and let the project's Vietnamese partner confirm the whole document as proofread (who may proofread: §10 question 2).", "Partner / Member", "Must"),
-     ("F-M5-07", "The system MUST store the project's first shooting day and safety buffer.", "Member", "Must"),
+     ("F-M5-07", "The system MUST store the project's first shooting day and buffer before shooting.", "Member", "Must"),
      ("F-M5-08", "The system MUST show the reverse timeline with both scenarios and flag milestones that are late.", "Member", "Must")],
  io={
   "F-M5-01": ("segment ENUM(A, B, C) Req; project_id UUID Req", "required_documents ARRAY<(doc_code VARCHAR(40), name_vi TEXT, name_en TEXT, basis ENUM(law, common, location), template_url TEXT)>", "basis added (SC-26)"),
@@ -518,7 +518,7 @@ MODULES.append(dict(
           ("SC-29", "20-day countdown", "Must", "docs/screens/screen-spec-SC-29.md")],
  sc=[("A producer sees the full list of documents for their segment, with the reason for each, on the first visit.", "Walkthrough with 5 producers: ask *why do you need item X?*"),
      ("A Vietnamese partner proofreads a 14-paragraph draft in under 45 minutes.", "Timed session with 2 partners."),
-     ("Every producer in testing can state their safe submission deadline after opening the countdown.", "Task check with 5 producers.")],
+     ("Every producer in testing can state their recommended submission date after opening the countdown.", "Task check with 5 producers.")],
  assumptions=["The Vietnamese partner (or a Vietnamese-speaking team member) does the proofreading.",
               "Public holidays are loaded manually by VFDA each year.",
               "Test value used until VFDA answers §10 question 2: a project member, or a partner whose request for the project is accepted or confirmed, may proofread a paragraph; only a partner whose request is confirmed may confirm the whole document."],

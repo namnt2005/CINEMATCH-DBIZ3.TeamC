@@ -195,12 +195,12 @@ T0, T1 = date(2026, 9, 22), date(2027, 3, 22)
 pos = lambda d: round((d - T0).days / (T1 - T0).days * 100, 2)
 MON = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 M = [(date(2026, 11, 15), "Partner confirmed", "15/11"), (date(2026, 12, 20), "Vietnamese version done", "20/12"),
-     (date(2027, 1, 27), "SAFE DEADLINE", "27/01"), (date(2027, 2, 16), "Latest deadline", "16/02"),
+     (date(2027, 1, 27), "RECOMMENDED DATE", "27/01"), (date(2027, 2, 16), "Latest deadline", "16/02"),
      (date(2027, 3, 15), "SHOOT DAY 1", "15/03")]
 marks = ""
 for i, (d, t, s) in enumerate(M):
-    strong = t in ("SAFE DEADLINE", "SHOOT DAY 1")
-    col = "#a52a1f" if t == "SAFE DEADLINE" else ("#0d366b" if strong else "#5b626c")
+    strong = t in ("RECOMMENDED DATE", "SHOOT DAY 1")
+    col = "#a52a1f" if t == "RECOMMENDED DATE" else ("#0d366b" if strong else "#5b626c")
     dn = ' data-n="7"' if i == 0 else ""
     marks += f'''<div style="position:absolute;left:{pos(d)}%;top:0;transform:translateX(-50%);text-align:center;width:100px"{dn}>
 <div style="width:{16 if strong else 12}px;height:{16 if strong else 12}px;border-radius:50%;background:{col};margin:{0 if strong else 2}px auto 6px;border:2px solid #fff;box-shadow:0 0 0 1px {col}"></div>
@@ -214,8 +214,8 @@ tet_a, tet_b = pos(date(2027, 2, 5)), pos(date(2027, 2, 10))
 html = page("SC-29", "20-day countdown", "M5 · Member · Tier 1 · #17", "/projects/the-last-ferry/timeline", f"""
 <div class="row" style="gap:14px;align-items:stretch">
   <div class="card" data-n="3" style="width:200px"><div class="small muted">First shooting day</div><div style="font-weight:800;font-size:18px">15/03/2027 ✎</div></div>
-  <div class="card" data-n="4" style="width:200px"><div class="small muted">Safety buffer before shooting</div><div style="font-weight:800;font-size:18px">7 days ▾</div></div>
-  <div class="card" data-n="5" style="flex:1;border:2px solid #a52a1f;background:#fdf6f5"><div class="row" style="justify-content:space-between;align-items:center"><div><div class="small" style="color:#a52a1f;font-weight:700;letter-spacing:.05em">SAFE SUBMISSION DEADLINE</div><div style="font-weight:800;font-size:26px;color:#7d1f16">27/01/2027</div></div><div style="text-align:right"><div style="font-size:30px;font-weight:800;color:#7d1f16">127</div><div class="small">days left</div></div></div>
+  <div class="card" data-n="4" style="width:200px"><div class="small muted">Buffer before shooting</div><div style="font-weight:800;font-size:18px">7 days ▾</div></div>
+  <div class="card" data-n="5" style="flex:1;border:2px solid #a52a1f;background:#fdf6f5"><div class="row" style="justify-content:space-between;align-items:center"><div><div class="small" style="color:#a52a1f;font-weight:700;letter-spacing:.05em">RECOMMENDED SUBMISSION DATE</div><div style="font-weight:800;font-size:26px;color:#7d1f16">27/01/2027</div></div><div style="text-align:right"><div style="font-size:30px;font-weight:800;color:#7d1f16">127</div><div class="small">days left</div></div></div>
   <div class="small">Submit by this date and, even with one resubmission (20 + 20 days), you still get a result by 08/03.</div></div>
 </div>
 <div class="card" style="margin-top:16px;padding:34px 30px 22px">
@@ -231,7 +231,7 @@ html = page("SC-29", "20-day countdown", "M5 · Member · Tier 1 · #17", "/proj
     <div data-n="9" style="position:absolute;left:{fav_a}%;width:{rev_b-fav_a}%;top:176px;height:22px;background:#6f86a8;border-radius:4px"></div>
   </div>
   <div class="row" style="gap:14px;margin-top:8px;align-items:flex-start">
-    <div class="banner b-warn small" style="flex:1"><b>Lunar New Year (Tết) 2027 (expected 05–10/02) falls within the processing period.</b> Office closures may delay the result — which is why you should submit by the safe deadline.</div>
+    <div class="banner b-warn small" style="flex:1"><b>Lunar New Year (Tết) 2027 (expected 05–10/02) falls within the processing period.</b> Office closures may delay the result — which is why you should submit by the recommended date.</div>
     <div class="banner b-bad small" style="flex:1">Submit on the <b>latest deadline, 16/02,</b> and need a resubmission → expected result <b>28/03 — after the first shooting day</b>.</div>
   </div>
 </div>
@@ -246,15 +246,15 @@ add(dict(
  module="M5", actor="Member", prio="Must", route="/projects/[id]/timeline",
  design_note="Timeline counting back from the shoot, emphasising the submission deadline.",
  shown="Member clicks the deadline strip on `SC-12`, *Countdown* in the sidebar, or the deadline link on `SC-27`.",
- leave="Member changes the first shooting day / safety buffer, turns on reminders, or moves to the document kit.",
+ leave="Member changes the first shooting day / buffer, turns on reminders, or moves to the document kit.",
  el=[
   (1, "Navigation bar", "Header", "static", "—", "—"),
   (2, "Project sidebar", "List", "static; *Countdown* selected", "—", "—"),
   (3, "First shooting day (editable)", "Input (date)", "`project.shoot_date`", "Yes", "after today"),
-  (4, "Safety buffer", "Toggle (dropdown)", "`project.buffer_days` — 0 / 7 / 14 / 21", "Yes", "default 7"),
-  (5, "*Safe submission deadline* card", "Text", "`F-M2-17`: first shooting day − buffer − 20 − 20; days remaining", "Yes", "most prominent element on screen"),
+  (4, "Buffer before shooting", "Toggle (dropdown)", "`project.buffer_days` — 0 / 7 / 14 / 21", "Yes", "default 7"),
+  (5, "*Recommended submission date* card (Vietnamese label *Hạn nộp khuyến nghị (có dự phòng)*)", "Text", "`F-M2-17`: first shooting day − buffer (calendar days) − 20 − 20 working days; days remaining", "Yes", "most prominent element on screen"),
   (6, "Timeline axis", "Chart (timeline)", "from today to after the first shooting day, monthly ticks", "Yes", "—"),
-  (7, "Milestone", "Chart marker", "milestones computed by F-M2-17 from `project.shoot_date`, `project.buffer_days` and `public_holiday` — partner confirmed, Vietnamese version done, safe deadline, latest deadline, first shooting day", "Yes", "overdue milestones turn red"),
+  (7, "Milestone", "Chart marker", "milestones computed by F-M2-17 from `project.shoot_date`, `project.buffer_days` and `public_holiday` — partner confirmed, Vietnamese version done, recommended submission date, latest deadline, first shooting day", "Yes", "overdue milestones turn red"),
   (8, "Smooth-path bar", "Chart bar", "submission date → +20 days", "Yes", "—"),
   (9, "One-resubmission bar", "Chart bar", "submission date → +40 days", "Yes", "—"),
   (10, "Today line", "Chart marker", "current date", "—", "—"),
@@ -263,28 +263,28 @@ add(dict(
   (13, "*Remind me by email · Add to calendar* button", "Button", "Resend + `.ics` file", "—", "—"),
  ],
  st=[
-  ("Default", "Three top cards (first shooting day, buffer, safe submission deadline), timeline with milestones, two path bars, Tết band, two warnings.", "First shooting day set"),
+  ("Default", "Three top cards (first shooting day, buffer, recommended submission date), timeline with milestones, two path bars, Tết band, two warnings.", "First shooting day set"),
   ("Empty (no data)", "No first shooting day: the axis is replaced by *Enter your first shooting day to calculate the deadline* + date field. Segment C: *Segment C projects don't need an Article 13 filming permit — no countdown*.", "No date / segment C"),
   ("Loading", "**Not applicable** — calculated instantly from the first shooting day; changing the date redraws the axis immediately.", "—"),
-  ("Error", "First shooting day too close (safe deadline has passed): card 5 changes to *Safe submission deadline passed 12 days ago* + red warning and a *Book a VFDA consultation* button. Bad news is never hidden.", "Safe deadline < today"),
+  ("Error", "First shooting day too close (recommended submission date has passed): card 5 changes to *Recommended submission date passed 12 days ago* + red warning and a *Book a VFDA consultation* button. Bad news is never hidden.", "Recommended submission date < today"),
   ("Success / confirmation", "Reminders on → green strip *We'll remind you 30, 14 and 3 days before 27/01/2027* and the `.ics` file downloads.", "Reminders turned on"),
  ],
  ix=[
   ("First shooting day", "tap", "Edit date; all milestones recalculated; deadline strip on `SC-12` updated", "stays"),
-  ("Safety buffer", "tap", "Change buffer days; recalculate", "stays"),
+  ("Buffer before shooting", "tap", "Change buffer days; recalculate", "stays"),
   ("A milestone", "tap", "Opens the related screen (partner confirmed → `SC-25`, Vietnamese version → `SC-28`)", "SC-25 / SC-28"),
   ("*Remind me by email* button", "tap", "Creates email reminders, downloads `.ics`", "stays"),
  ],
  sr=[
-  ("**Safe submission deadline** = first shooting day − buffer − 20 − 20 days: room for **one resubmission** under Article 13 cl.4. This is the most emphasised figure.", "Function list — note #17; Article 13 cl.4"),
+  ("**Recommended submission date** = first shooting day − buffer (calendar days) − 20 − 20 working days: room for **one resubmission** under Article 13 cl.4. This is the most emphasised figure. The words *safe* / *an toàn* are not used for any deadline (decision of 07/11/2026).", "Function list — note #17; Article 13 cl.4"),
   ("Always show the consequence of submitting late (e.g. *result after the first shooting day*). Never soften bad news.", "Honesty principle"),
   ("The **same calculation function** is used by `SC-12`, `SC-27` and this screen.", "Consistency principle"),
   ("Public holidays are read from the `public_holiday` table; dates without an official calendar are clearly marked *expected*.", "No-guessing principle"),
   ("Calculated in **working days** (weekends and public holidays excluded) — Group C decision 28/10/2026, VFDA Legal Board to confirm.", "spec-M2.md Clarifications Q1"),
  ],
  fr=[("F-M2-17", "Calculate the 20-day milestone and countdown milestones"), ("F-M2-18", "Show both paths"), ("F-M5-07", "Enter planned shooting date"), ("F-M5-08", "Two-path timeline"), ("F-SYS-08", "Deadline reminder emails")],
- resp=["Minimum supported width: **360px**.", "Narrow screens: the horizontal axis becomes a vertical list of milestones; the safe submission deadline card stays on top.", "The timeline has a table alternative (milestone – date – days remaining) for screen readers.", "The safe deadline stands out through font size and border, not red alone."],
- oq=[("[NEEDS CLARIFICATION: are the \"20 days\" calendar days or working days — if working days, the safe deadline moves about 3 weeks earlier]", True),
+ resp=["Minimum supported width: **360px**.", "Narrow screens: the horizontal axis becomes a vertical list of milestones; the recommended submission date card stays on top.", "The timeline has a table alternative (milestone – date – days remaining) for screen readers.", "The recommended submission date stands out through font size and border, not red alone."],
+ oq=[("[NEEDS CLARIFICATION: are the \"20 days\" calendar days or working days — if working days, the recommended submission date moves about 3 weeks earlier]", True),
      ("[NEEDS CLARIFICATION: official Lunar New Year (Tết) 2027 holiday dates — update once announced]", False)],
 ), html)
 

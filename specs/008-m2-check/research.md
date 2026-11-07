@@ -10,7 +10,7 @@ Every *NEEDS CLARIFICATION* of the Technical Context is resolved below or carrie
 - **The database refuses** — not only the button: signing does not pre-check the citation; the update meets `ck_legal_rule_approved_needs_signature` (BR-002) and the error `23514` on that constraint becomes `CITATION_REQUIRED` with `fields.citation` (US-3 Sc1). The other required fields (both titles, descriptions, *Points to consider*) are checked by the function before the update (SC-37 #21) and answer `VALIDATION_ERROR`.
 - **One signer is enough** (Q2): the author may sign; the audit log keeps who saved and who signed (`rule.save`, `rule.sign`, `rule.revise`, `rule.retire`, one row per action in the same transaction, SC-37 SR-305).
 - **Version label** (D6, spec OQ14): Vietnam date `YYYY.MM` for the first version of a month (the seed's `2026.06`…`2026.08`), then `YYYY.MM.02`, `.03`… Text order equals time order (`'2026.11' < '2026.11.02' < '2026.11.10' < '2026.12'`), so M0's `MAX(rule_version)` keeps naming the current set; one shared `nextRuleVersion()` and its SQL twin.
-- **Who**: reading the full rule base and writing — `vfda_legal`; `admin` may read (SYS Clarifications Q5) but not sign (Open question 6); everyone reads approved, active revisions (existing policy `legal_rule` select for `anon`, `signed_in`).
+- **Who**: reading the full rule base and writing — `vfda_legal`; `admin` may read (SYS Clarifications Q5) but not sign or retire (D9, 403); everyone reads approved, active revisions (existing policy `legal_rule` select for `anon`, `signed_in`).
 - **Alternatives considered**: a separate revision table (rejected by Nam Tran: two places hold rule text); editing the approved row in place (breaks BR-008 and Q13).
 
 ## R2 — Content pre-check pipeline (US-1, FR-005, FR-006, FR-011, FR-012, BR-001, BR-004)
@@ -39,30 +39,30 @@ Every *NEEDS CLARIFICATION* of the Technical Context is resolved below or carrie
   - `holidaySet(rows)` — every date from `start_date` to `end_date` of `public_holiday`, with `is_expected`;
   - `isWorkingDay(date, holidays)` — not Saturday, not Sunday, not in the set;
   - `workingDaysBefore(date, n, holidays)` — step back one calendar day at a time from `date` (not counted) and return the day on which the n-th working day is reached;
-  - `workingDaysAfter(date, n, holidays)` — the same forward.
+  - `workingDaysAfter(date, n, holidays)` — the n-th working day counting `date` as day 1 when it is a working day (so a period of n working days that starts on the submission day ends on the returned day).
   Pure functions on `YYYY-MM-DD` strings (no time zone), shared with M0 and M5 (SR-173).
 - `lib/licensing/timeline.js` — `licensingTimeline({ shoot_date, buffer_days, segment }, holidays, today)`:
   - `buffer_start = shoot_date − buffer_days` (calendar, D1);
   - `latest = workingDaysBefore(buffer_start, 20)`;
-  - `safe = workingDaysBefore(latest, 20)`;
-  - the two paths of FR-018 from a submission date (by default `safe`): smooth `result_by = workingDaysAfter(submit, 20)`, one resubmission `result_by_worst = workingDaysAfter(submit, 40)`;
+  - `recommended = workingDaysBefore(latest, 20)` (the *recommended submission date*, D8);
+  - the two paths of FR-018 from a submission date (by default `recommended`): smooth `result_by = workingDaysAfter(submit, 20)`, one resubmission `result_by_worst = workingDaysAfter(submit, 40)`;
   - the holidays that fall in the processing window, with *expected*;
-  - days remaining to `safe` and `latest`; `safe < today` → *passed N days ago* (SC-29 Error state); segment C → no countdown (SC-29 Empty state); no `shoot_date` → empty state.
+  - days remaining to `recommended` and `latest`; `recommended < today` → *passed N days ago* (SC-29 Error state); segment C → no countdown (SC-29 Empty state); no `shoot_date` → empty state.
 - **Counting rule (interim)**: the submission day counts as day 1 when it is a working day, i.e. [latest, buffer_start) holds exactly 20 working days (Open question 5).
-- **US-4 Scenario 1 (D1)**: 15/03/2027, buffer 7 → `buffer_start` 08/03/2027, `latest` **02/02/2027** (Tết 05–10/02/2027 skipped), `safe` **05/01/2027**. Seed boundary *Quiet Harbour Blues* (10/11/2026, buffer 7): latest 06/10/2026, safe 08/09/2026 — both passed on 07/11/2026.
+- **US-4 Scenario 1 (D1)**: 15/03/2027, buffer 7 → `buffer_start` 08/03/2027, `latest` **02/02/2027** (Tết 05–10/02/2027 skipped), `recommended` **05/01/2027**; from 05/01 the one-resubmission result is 05/03/2027 (before 08/03), from 02/02 it is 02/04/2027 (after the shooting day — the M5 US-3 warning). Seed boundary *Quiet Harbour Blues* (10/11/2026, buffer 7): latest 06/10/2026, recommended 08/09/2026 — both passed on 07/11/2026.
 - **Dates outside the table** (e.g. a holiday year not yet loaded) count as working days; SC-29 marks `is_expected` holidays *expected* (SR-174).
 - **Alternatives considered**: calendar days (the spec's old numbers; against Q1); buffer in working days (not chosen, D1).
 
 ## R5 — SC-29 contents
 
-- Shows: first shooting day and buffer, editable by owner and edit members, read only for view members. M0 cannot change `buffer_days` today (`lib/projects/input.js` and `app_update_project` accept `shoot_date` but not the buffer): the feature adds `buffer_days` ∈ {0, 7, 14, 21} (SC-29 #4) to both, in a new `CREATE OR REPLACE` of `app_update_project` with the same signature, with its node:sqlite twin; the safe and latest deadline cards, both path bars, today line, holiday band, the Article 13 clause 4 basis line.
+- Shows: first shooting day and buffer, editable by owner and edit members, read only for view members. M0 cannot change `buffer_days` today (`lib/projects/input.js` and `app_update_project` accept `shoot_date` but not the buffer): per M0 question 2 (D10, 07/11/2026) the feature adds `buffer_days` ∈ {0, 7, 14, 21} (SC-29 #4) to both, in a new `CREATE OR REPLACE` of `app_update_project` with the same signature, with its node:sqlite twin; the recommended submission date and latest deadline cards, both path bars, today line, holiday band, the Article 13 clause 4 basis line.
 - Milestones *partner confirmed* (M4 `collab_request.confirmed_at`) and *Vietnamese version done* (M5 paragraphs all reviewed) show their **current state** (done on date / not yet), not a target date: the spec gives no rule for target dates (Open question 7).
 - Not built: *Remind me by email · Add to calendar* (SC-29 #13, SYS F-SYS-08).
 
 ## R6 — Roles and Row Level Security
 
 - `legal_rule`: existing read policies kept (public: approved and active; `vfda_legal`: all). The generated insert/update policies for `vfda_legal` stay, but direct `INSERT`, `UPDATE`, `DELETE` are revoked from `anon` and `authenticated` on every M2 table — writes only through the functions (as M0 and M4; narrower than the generated matrix).
-- Signing: `app.current_role() = 'vfda_legal'` exactly — not the admin hierarchy of `app.has_role` — because BR-002 makes signing the Legal Board's act (Open question 6).
+- Signing and retiring: `app.current_role() = 'vfda_legal'` exactly — not the admin hierarchy of `app.has_role` — because BR-002 makes signing the Legal Board's act (D9, exception to SYS question 5); the API answers 403 to `admin`.
 - `precheck_run`, `precheck_finding`: written by the System actor only (a guest has no account). Today nobody may read `precheck_run`, `compliance_run` or `rule_set_version` (no grant): the feature adds, at the source `tools/rls_policies.py`, select for members of the linked project (`precheck_run`, `compliance_run`) and a public select on `rule_set_version` (the version label is shown to guests, SC-03 #10) — data-model §7.
 - `compliance_run`, `compliance_finding`: written through `app_save_content_check` (owner or edit of a non-archived project) and `app_review_finding` (owner or edit); the existing member update grant on `compliance_finding` is revoked.
 
@@ -96,11 +96,11 @@ Every *NEEDS CLARIFICATION* of the Technical Context is resolved below or carrie
 ## R11 — Banned words (BR-003, SC-48 SR-074, SC-27 #5)
 
 - `lib/content-check/wording.js` lists the banned words in English (*approved, accepted, legally compliant, safe, passed, permitted*) and Vietnamese (*được duyệt, được phê duyệt, được chấp thuận, chấp nhận, hợp pháp, an toàn, đạt, được phép*). A test reads every dictionary key used by SC-48 and SC-27 and every result message of the APIs, in both languages, including the no-finding and all-dropped texts, and fails on any banned word.
-- SC-37 (the rule status *Approved*) and SC-29 are not results; the SC-29 card *Safe submission deadline* is Open question 2.
+- SC-37 (the rule status *Approved*) is not a result. Deadlines (D8): *Recommended submission date* / *Hạn nộp khuyến nghị (có dự phòng)*; the same test fails if an SC-29, SC-27 or SC-12 deadline text in either language contains *safe* / *an toàn*.
 
 ## R12 — Rate limit (FR-005, edge case, D7)
 
-- `lib/content-check/rate-limit.js`: a sliding 24 h window per IP (from `x-forwarded-for`, first address), 10 for guests, 50 for signed-in users; 429 `RATE_LIMITED` with *You have used today's checks — create a free account to continue* (guests) or *…try again tomorrow* (signed in). In memory per server instance; the IP is never stored (D7, Known limitation 2).
+- `lib/content-check/rate-limit.js`: a sliding 24 h window per IP (from `x-forwarded-for`, first address), 10 for guests, 50 for signed-in users; 429 `RATE_LIMITED` with *You have used today's checks — create a free account to continue* (guests) or *…try again tomorrow* (signed in). In memory per server instance — on Vercel every instance counts on its own and counts are lost on restart; the IP is never stored (D7, Known limitation 2).
 
 ## R13 — Screens and routes
 
@@ -124,11 +124,11 @@ Project sidebar items *Content check*, *Article 13 dossier*, *Countdown*; the M0
 | # | Question | Interim choice | Owner |
 |---|---|---|---|
 | 1 | The request said *36 FR*; the spec has 18 FR (§5.1 has 37 field rows). | Plan built on the 18 FR. | Group C |
-| 2 | SC-29 #5 *Safe submission deadline* uses *safe*, which BR-003 bans in results and the request bans everywhere. | Not a result; label kept until Nam Tran decides — to change, at the SC-29 source (`tools/s*_en.py`). | Nam Tran / screens owner |
+| 2 | ~~SC-29 #5 label with *safe*~~ | Resolved 07/11/2026 (D8): *Recommended submission date*, changed at the sources. | — |
 | 3 | US-5 (SC-30, SC-31, FR-015, FR-016) is outside this request; SC-48 and SC-37 link to SC-31. | Not built; codes are plain text. | Group C |
 | 4 | SC-48 for a project run has no route in the Screen Spec. | `/projects/[id]/content`. | Screens owner |
 | 5 | Does the filing day count in the 20 working days (Article 13 clause 4)? | Yes. | VFDA Legal Board |
-| 6 | May `admin` sign rules (SYS Q5 gives admin the staff permissions)? | No; only `vfda_legal`. | VFDA |
+| 6 | ~~May `admin` sign rules?~~ | Decided 07/11/2026 (D9, provisional): no — 403; exception written to SYS question 5. | VFDA to confirm |
 | 7 | SC-29 milestones *partner confirmed*, *Vietnamese version done*: target dates or state? | Current state. | Group C |
 | 8 | The official forms (Q9) and the unofficial English reading aid. | Names and basis on SC-27; texts from VFDA / the gazette, not written by the agent. | VFDA, Group C |
 | 9 | Spec OQ5 (error branches) and OQ7 (daily limit). | R2 step 7; D7 (10 guest, 50 signed in). | VFDA, Group C |

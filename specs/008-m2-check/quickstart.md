@@ -29,7 +29,7 @@ Expected from `npm test` (each written and seen failing first): BR-001..BR-008, 
 3. Enter a citation, sign → *A9-HERIT signed — rule set 2026.11 is now in force*; the history shows `2026.11` (US-3 Sc2, D6). The owners of projects whose latest content check used `2026.08` get *New rule set* in Notifications; their Content gauge loses 30 points (Q3).
 4. On an approved rule, *Create revision* → revision 2 as draft; `/pre-check` still uses revision 1 until revision 2 is signed (Q13).
 5. *Retire* `A9-HERIT` → a new version `2026.11.02` (Q13); the rule leaves future checks; the audit log has one row per save, revision, signature and retirement.
-6. As the seed member: `/admin/legal-rules` refused.
+6. As the seed member: `/admin/legal-rules` refused. As the seed admin (`ducanh.vu@…`): the rule base is readable, *Approve and sign* and *Retire* answer 403 (D9).
 
 ## Slice 2 — pre-check without an account (US-1, FR-005..FR-007, FR-011..FR-014)
 
@@ -50,9 +50,9 @@ Expected from `npm test` (each written and seen failing first): BR-001..BR-008, 
 
 ## Slice 4 — timeline (US-4, FR-017, FR-018)
 
-1. `/projects/<The Last Ferry>/timeline` (15/03/2027, buffer 7) → latest **02/02/2027**, safe **05/01/2027**; the Tết 2027 band (05–10/02, *expected*) inside the window; both paths shown (US-4 Sc1, D1).
+1. `/projects/<The Last Ferry>/timeline` (15/03/2027, buffer 7) → *Recommended submission date* **05/01/2027**, latest **02/02/2027**; the Tết 2027 band (05–10/02, *expected*) inside the window; both paths shown (US-4 Sc1, D1).
 2. Change the buffer to 14 → both dates move earlier; SC-12 shows the same dates (SR-173).
-3. *Quiet Harbour Blues* (10/11/2026) → *Safe submission deadline passed … days ago* and the consultation button.
+3. *Quiet Harbour Blues* (10/11/2026) → *Recommended submission date passed … days ago* and the consultation button; no deadline text says *safe* / *an toàn* (D8).
 4. Segment C → *no countdown*; no shooting day → the date field.
 5. Phone width 360 px on all five screens (in an iframe of that width, build-log Entry 10).
 
