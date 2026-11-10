@@ -6,6 +6,8 @@ import { getRequest } from '../../../lib/db/collab.js';
 import { isUuidLike } from '../../../lib/api/partners.js';
 import RequestClient from './request-client.js';
 
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata() {
   const { t } = await getI18n();
   return { title: `${t('requests.meta.title')} · CINEMATCH` };

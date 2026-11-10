@@ -5,6 +5,8 @@ import { getRequirement } from '../../../lib/db/requirements.js';
 import { severityKey, topicKey, filterHref } from '../../../lib/requirements/view.js';
 import { vnDate } from '../../../lib/licensing/view.js';
 
+export const dynamic = 'force-dynamic';
+
 const C = { navy: '#0f2d52', blue: '#2563eb', muted: '#6b7280', border: '#e5e7eb', amber: '#92400e', grey: '#f3f4f6' };
 const box = { border: `1px solid ${C.border}`, borderRadius: '0.75rem', padding: '1rem', background: '#fff' };
 const action = { display: 'block', border: `1px solid ${C.border}`, borderRadius: '0.75rem', padding: '0.75rem 1rem', color: C.navy, fontWeight: 600, textDecoration: 'none', background: '#fff' };

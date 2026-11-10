@@ -4,6 +4,8 @@ import { validateProjectInput } from '../../../lib/projects/input.js';
 import { STAGES } from '../../../lib/db/project-shape.js';
 import { projectError, fromProjectError, memberSession, readBody } from '../../../lib/api/projects.js';
 
+export const dynamic = 'force-dynamic';
+
 /** POST /api/projects — FR-001: name, format, segment (+ optional details); the creator becomes the owner. */
 export async function POST(req) {
   const session = await memberSession(req);

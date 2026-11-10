@@ -1,6 +1,8 @@
 import { checkPassword } from '../../../../lib/auth/signup-input.js';
 import { authError, authUnavailable, readJson, userClient, accountStatus } from '../../../../lib/api/auth.js';
 
+export const dynamic = 'force-dynamic';
+
 /**
  * POST /api/auth/reset-password — SC-07 (FR-003).
  * Needs the recovery session that the link from the email opened (the middleware exchanged its code).

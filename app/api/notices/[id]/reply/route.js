@@ -2,6 +2,8 @@ import { recordReply } from '../../../../../lib/db/notices.js';
 import { validateReply } from '../../../../../lib/notices/input.js';
 import { projectError, fromProjectError, memberSession, readBody, isUuid } from '../../../../../lib/api/projects.js';
 
+export const dynamic = 'force-dynamic';
+
 /** POST /api/notices/:id/reply — M7 FR-003, BR-003: the member (owner / edit) or VFDA staff record the reply. */
 export async function POST(req, { params }) {
   const session = await memberSession(req);

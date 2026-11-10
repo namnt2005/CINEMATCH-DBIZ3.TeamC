@@ -2,6 +2,8 @@ import { reviewFinding } from '../../../../../lib/db/content-checks.js';
 import { memberSession, isUuid, readBody } from '../../../../../lib/api/projects.js';
 import { checkError, fromCheckError } from '../../../../../lib/api/checks.js';
 
+export const dynamic = 'force-dynamic';
+
 /** POST /api/content-findings/:id/review — FR-014: owner or edit marks a finding reviewed, with an optional note. */
 export async function POST(req, { params }) {
   const session = await memberSession(req);

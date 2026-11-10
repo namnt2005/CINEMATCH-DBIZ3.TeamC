@@ -2,6 +2,8 @@ import { acceptInvitation } from '../../../../../lib/db/partner-invitations.js';
 import { memberSession } from '../../../../../lib/api/projects.js';
 import { partnerError, fromPartnerError } from '../../../../../lib/api/partners.js';
 
+export const dynamic = 'force-dynamic';
+
 /** POST /api/partner-invitations/:code/accept — the invited, signed-in account becomes partner (BR-003, SYS BR-002). */
 export async function POST(req, { params }) {
   const session = await memberSession(req);

@@ -1,6 +1,8 @@
 import { submitNotice } from '../../../../../lib/db/notices.js';
 import { projectError, fromProjectError, memberSession, isUuid } from '../../../../../lib/api/projects.js';
 
+export const dynamic = 'force-dynamic';
+
 /** POST /api/notices/:id/submit — M7 R1: ask VFDA to review (needs a first shooting day, US-1 Scenario 2). */
 export async function POST(req, { params }) {
   const session = await memberSession(req);

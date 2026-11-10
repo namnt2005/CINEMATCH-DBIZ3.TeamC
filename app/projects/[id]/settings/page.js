@@ -6,6 +6,8 @@ import { getI18n } from '../../../../lib/i18n/server.js';
 import { todayInVietnam } from '../../../../lib/projects/input.js';
 import SettingsClient from './settings-client.js';
 
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata() {
   const { t } = await getI18n();
   return { title: `${t('settings.title')} · CINEMATCH` };

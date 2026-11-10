@@ -1,5 +1,7 @@
 import { extractScene } from '../../../../lib/extraction/index.js';
 
+export const dynamic = 'force-dynamic';
+
 /**
  * Route Handler for scene attribute extraction (F-M3-10, F-M3-11, F-M3-12).
  * The extractor is chosen by LLM_PROVIDER (mock | gemini) on the server; the Gemini key

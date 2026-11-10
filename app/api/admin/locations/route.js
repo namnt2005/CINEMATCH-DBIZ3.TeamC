@@ -2,6 +2,8 @@ import { adminRoute, readBody } from '../../../../lib/api/admin.js';
 import { ValidationError } from '../../../../lib/admin/errors.js';
 import { listAdminLocations, countLocationsByStatus, createLocation, STATUSES } from '../../../../lib/db/admin-locations.js';
 
+export const dynamic = 'force-dynamic';
+
 /**
  * GET: every location in every status, with counts for the whole catalogue (FR-001, SC-35 #3–#11).
  * Query: status, q (name, with or without diacritics, ≤ 200), province_id.

@@ -6,6 +6,8 @@ import { isUuid } from '../../../../lib/api/projects.js';
 import { getI18n } from '../../../../lib/i18n/server.js';
 import ResultView from './result-view.js';
 
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata() {
   const { t } = await getI18n();
   return { title: `${t('precheck.result.meta.title')} · CINEMATCH` };

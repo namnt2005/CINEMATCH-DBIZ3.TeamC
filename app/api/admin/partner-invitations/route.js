@@ -5,6 +5,8 @@ import { siteOrigin } from '../../../../lib/api/auth.js';
 import { partnerError, fromPartnerError, isUuidLike } from '../../../../lib/api/partners.js';
 import { validateInvitationEmail, validateOrganisationFields } from '../../../../lib/partners/input.js';
 
+export const dynamic = 'force-dynamic';
+
 const EMAIL = { sent: 'sent', queued: 'queued', bounced: 'failed' };
 
 /**

@@ -2,6 +2,8 @@ import { markDownloaded } from '../../../../../lib/db/notices.js';
 import { validateRecipient } from '../../../../../lib/notices/input.js';
 import { projectError, fromProjectError, memberSession, readBody, isUuid } from '../../../../../lib/api/projects.js';
 
+export const dynamic = 'force-dynamic';
+
 /** POST /api/notices/:id/download — M7 D7: owner / edit record the first download and the recipient. */
 export async function POST(req, { params }) {
   const session = await memberSession(req);

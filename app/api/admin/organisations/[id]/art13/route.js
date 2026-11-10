@@ -3,6 +3,8 @@ import { validateArt13 } from '../../../../../../lib/partners/input.js';
 import { memberSession, isStaffSession, readBody } from '../../../../../../lib/api/projects.js';
 import { partnerError, fromPartnerError, isUuidLike } from '../../../../../../lib/api/partners.js';
 
+export const dynamic = 'force-dynamic';
+
 /** POST /api/admin/organisations/:id/art13 — Q3: VFDA only; switching on needs the film-service business line confirmed. */
 export async function POST(req, { params }) {
   const session = await memberSession(req);

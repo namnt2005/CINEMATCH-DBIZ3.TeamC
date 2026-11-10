@@ -4,6 +4,8 @@ import { getI18n } from '../../../lib/i18n/server.js';
 import { listStaffNotices } from '../../../lib/db/notices.js';
 import NoticesQueue from './notices-queue.js';
 
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata() {
   const { t } = await getI18n();
   return { title: `${t('notices.staff.title')} · CINEMATCH` };

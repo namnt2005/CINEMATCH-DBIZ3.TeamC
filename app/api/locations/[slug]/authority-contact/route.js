@@ -3,6 +3,8 @@ import { getPublishedLocationBySlug } from '../../../../../lib/db/locations.js';
 import { canSeeAuthorityContact, getAuthorityContact, isContactAccessDenied } from '../../../../../lib/db/contacts.js';
 import { locationNotFound } from '../../../../../lib/api/errors.js';
 
+export const dynamic = 'force-dynamic';
+
 /**
  * Route Handler for the gated local authority contact (F-M3-15, BR-004, BR-005).
  * A guest is refused before anything is read, so the 401 carries no location or contact data.

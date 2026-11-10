@@ -4,6 +4,8 @@ import { NDA_VERSION } from '../../../../../lib/partners/nda.js';
 import { memberSession, readBody } from '../../../../../lib/api/projects.js';
 import { partnerError, fromPartnerError, isUuidLike } from '../../../../../lib/api/partners.js';
 
+export const dynamic = 'force-dynamic';
+
 /** POST /api/requests/:id/nda — the producer's NDA on an accepted request (FR-017); it opens the private layer (R7). */
 export async function POST(req, { params }) {
   const session = await memberSession(req);

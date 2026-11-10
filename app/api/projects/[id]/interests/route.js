@@ -1,6 +1,8 @@
 import { expressInterest } from '../../../../../lib/db/notices.js';
 import { projectError, fromProjectError, memberSession, readBody, isUuid } from '../../../../../lib/api/projects.js';
 
+export const dynamic = 'force-dynamic';
+
 /** POST /api/projects/:id/interests — M7 FR-001: the interest and the province's notice draft (D5). The summary is never read from the body. */
 export async function POST(req, { params }) {
   const session = await memberSession(req);

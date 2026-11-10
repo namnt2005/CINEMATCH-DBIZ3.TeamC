@@ -3,6 +3,8 @@ import { validateMessage } from '../../../../../lib/partners/input.js';
 import { memberSession, readBody } from '../../../../../lib/api/projects.js';
 import { partnerError, fromPartnerError, isUuidLike } from '../../../../../lib/api/partners.js';
 
+export const dynamic = 'force-dynamic';
+
 /** POST /api/requests/:id/messages — either side, 1–2000 characters; never edited (BR-009). */
 export async function POST(req, { params }) {
   const session = await memberSession(req);

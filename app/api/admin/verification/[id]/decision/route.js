@@ -3,6 +3,8 @@ import { validateDecision } from '../../../../../../lib/partners/input.js';
 import { memberSession, isStaffSession, readBody } from '../../../../../../lib/api/projects.js';
 import { partnerError, fromPartnerError, isUuidLike } from '../../../../../../lib/api/partners.js';
 
+export const dynamic = 'force-dynamic';
+
 /** POST /api/admin/verification/:id/decision — FR-010, BR-004: approve, or reject with a reason; one audit row. */
 export async function POST(req, { params }) {
   const session = await memberSession(req);

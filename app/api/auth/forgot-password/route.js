@@ -1,6 +1,8 @@
 import { checkEmail } from '../../../../lib/auth/signup-input.js';
 import { authUnavailable, readJson, siteOrigin, userClient, systemClient, accountStatus } from '../../../../lib/api/auth.js';
 
+export const dynamic = 'force-dynamic';
+
 /**
  * POST /api/auth/forgot-password — SC-06 (FR-003).
  * The same answer whether or not the account exists (SR-211); a deactivated account gets no email (SR-213).

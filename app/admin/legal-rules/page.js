@@ -4,6 +4,8 @@ import { getI18n } from '../../../lib/i18n/server.js';
 import { listRules, listVersions } from '../../../lib/db/legal-rules.js';
 import RulesClient from './rules-client.js';
 
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata() {
   const { t } = await getI18n();
   return { title: `${t('rules.meta.title')} · CINEMATCH` };

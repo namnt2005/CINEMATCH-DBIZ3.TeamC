@@ -1,6 +1,8 @@
 import { safeNext } from '../../../../lib/auth/next.js';
 import { authError, authUnavailable, readJson, userClient, accountStatus } from '../../../../lib/api/auth.js';
 
+export const dynamic = 'force-dynamic';
+
 /**
  * POST /api/auth/sign-in — SC-05 Log in (FR-002).
  * One answer for an unknown email and a wrong password, never Supabase's wording (SC-04 Error state).

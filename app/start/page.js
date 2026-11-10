@@ -1,6 +1,8 @@
 import { getRouterData } from '../../lib/db/router.js';
 import RouterForm from './router-form.js';
 
+export const dynamic = 'force-dynamic';
+
 /**
  * SC-02 Segment router (/start), no sign-in (M1 FR-001, FR-002). The current decision table and the
  * requirement list are read on the server and handed to the page, which computes the result instantly

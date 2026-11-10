@@ -11,6 +11,8 @@ import LocationPhoto from './location-photo.js';
 import InterestButton from './interest-button.js';
 import { listProjects } from '../../../lib/db/projects.js';
 
+export const dynamic = 'force-dynamic';
+
 // SC-16 #4 badge colours (M3 BR-010); the labels come from the dictionary
 const AVAILABILITY = {
   open: { bg: '#e0f2fe', color: '#0369a1' },

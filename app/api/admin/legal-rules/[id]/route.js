@@ -3,6 +3,8 @@ import { memberSession, readBody, isUuid } from '../../../../../lib/api/projects
 import { checkError, fromCheckError } from '../../../../../lib/api/checks.js';
 import { validateRule } from '../../../../../lib/legal/input.js';
 
+export const dynamic = 'force-dynamic';
+
 /** GET /api/admin/legal-rules/:id — one revision with the code's other revisions (vfda_legal, admin). */
 export async function GET(req, { params }) {
   const session = await memberSession(req);

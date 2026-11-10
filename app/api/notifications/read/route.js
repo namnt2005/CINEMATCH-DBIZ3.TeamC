@@ -2,6 +2,8 @@ import { getSession } from '../../../../lib/auth/session.js';
 import { markRead, readTarget } from '../../../../lib/db/notifications.js';
 import { authError, readJson } from '../../../../lib/api/auth.js';
 
+export const dynamic = 'force-dynamic';
+
 /** POST /api/notifications/read — { ids: [...] } or { all: true }; only read_at of the user's own rows (FR-009). */
 export async function POST(req) {
   const session = await getSession({ headers: req.headers });

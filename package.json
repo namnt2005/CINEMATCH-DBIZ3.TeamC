@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:ci-check": "node scripts/build-ci-check.mjs",
     "start": "next start",
     "test": "node --import ./scripts/test-env.mjs --test tests/foundational/*.test.js tests/unit/*.test.js tests/contracts/*.test.js",
     "test:foundational": "node --test tests/foundational/*.test.js",
@@ -32,6 +33,6 @@
     "resend": "^6.37.0"
   },
   "engines": {
-    "node": ">=22"
+    "node": "22.x"
   }
 }
