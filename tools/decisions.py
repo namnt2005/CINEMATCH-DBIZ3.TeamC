@@ -18,11 +18,12 @@ STATUS = "Decided (provisional, VFDA to confirm)"
 DECISIONS = {
     # ---------------------------------------------------------------- SYS
     ("SYS", 1): ("verified", "No company verification is needed. Any signed-in member sees local authority contacts."),
-    ("SYS", 5): ("admin", "Yes. The admin role holds every permission of vfda_staff and vfda_legal, in addition to its own (reading the audit log, granting roles). Roles are still granted only by an admin, and every grant is written to the audit log (BR-002).", "2026-11-02"),
+    ("SYS", 5): ("admin", "Yes. The admin role holds every permission of vfda_staff and vfda_legal, in addition to its own (reading the audit log, granting roles). Roles are still granted only by an admin, and every grant is written to the audit log (BR-002). Exception decided 07/11/2026: signing and retiring M2 legal rules is the VFDA Legal Board's act (M2 BR-002), so only `vfda_legal` signs or retires a rule; `admin` may read the rule base but not sign (a signing request by `admin` is refused with 403).", "2026-11-02"),
     ("SYS", 6): ("invite", "Yes. `vfda_staff` (and `admin`) may send partner invitations (M4 BR-003). When the invited organisation accepts, a database function grants the `partner` role and writes the grant to the audit log. Only an admin grants `vfda_staff`, `vfda_legal` and `admin` (BR-002).", "2026-11-06"),
     ("SYS", 11): ("pre-check", "Pre-check text is never stored; only its hash (`synopsis_hash`) is kept, and it is not used to improve the rule base. Same decision as M2 question 6."),
     # ---------------------------------------------------------------- M0
     ("M0", 1): ("Weights", "Equal weights. Segments A and B: four gauges at 25% each. Segment C: three gauges at 33.3% each. The Logistics gauge has weight 0 in the overall score in every segment (it is shown but not counted)."),
+    ("M0", 2): ("editable", "Yes. The owner and the members with edit permission change the buffer on SC-29 (0, 7, 14 or 21 days; default 7); members with view permission only read it. The buffer counts calendar days (M2 BR-006).", "2026-11-07"),
     # ---------------------------------------------------------------- M1
     ("M1", 1): ("Co-production", "Co-production is classified as segment A (full licence path)."),
     ("M1", 2): ("segment C", "Segment C needs no shooting licence, but the result shows a checklist of the usual commercial documents (service contract, crew visas) with the caveat *not legal advice — confirm with VFDA*."),
@@ -34,7 +35,9 @@ DECISIONS = {
     ("M2", 4): ("Thresholds", "Keep the test thresholds: High = 2 or more *action* findings; Medium = 1 *action* finding or 3 or more *notice* findings; otherwise Low."),
     ("M2", 6): ("pre-check", "Pre-check text is not stored (hash only) and is not used to improve the rule base. Same decision as SYS question 11."),
     ("M2", 9): ("application form", "Use *Mẫu số 01, Phụ lục I* of Circular 17/2022/TT-BVHTTDL (in force from 15/02/2023, amended by Circular 11/2023/TT-BVHTTDL) — application for a licence to provide film shooting services using Vietnamese locations — plus the *Phụ lục IV* commitment on Article 9. The team prepares an unofficial English reading aid; VFDA confirms the version before launch."),
+    ("M2", 10): ("segment", "Add `legal_rule.segments` (a list of A / B / C). The VFDA Legal Board chooses the segments of each rule on SC-37; the public library (SC-30) filters on it.", "2026-11-09"),
     ("M2", 13): ("correction", "Correcting an approved rule creates a new draft revision; the signed text stays in force until the revision is signed. Retiring a rule creates a new rule-set version."),
+    ("M2", 14): ("format", "`YYYY.MM` for the first rule-set version of a month (Vietnam time), then `YYYY.MM.02`, `YYYY.MM.03`…, so that text order equals time order and the newest version is the greatest string.", "2026-11-07"),
     # ---------------------------------------------------------------- M3
     ("M3", 1): ("Weights", "Scene fit first: scene fit 35%, season 15%, crew 15%, logistics 15%, permit 10%, availability 10%."),
     ("M3", 2): ("catalogue", "The team keeps `config/scene-catalog.json` (with a `version` number) and changes it only through a reviewed pull request approved by the M3 owner; VFDA confirms the content before launch."),

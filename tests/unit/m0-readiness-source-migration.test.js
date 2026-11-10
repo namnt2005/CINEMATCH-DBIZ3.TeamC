@@ -27,9 +27,12 @@ describe('Migration 20261105000100_m0_readiness_source.sql (H1, BR-001, RLS)', (
 
   test('BR-001: drops and re-creates both views from the rendering, and grants SELECT on the member view again', async () => {
     const sql = read();
-    const { renderView } = await import('../../lib/readiness/render-view.js');
     assert.match(sql, /DROP VIEW IF EXISTS public\.v_project_readiness;[\s\S]*DROP VIEW IF EXISTS app\.project_readiness;/);
-    assert.ok(sql.includes(renderView('postgres').trim()));
+    // Changed 09/11/2026 with Nam Tran's approval (M2 plan D18): the M2 migration re-creates the view from a newer template
+    // (the Dossier gauge reads v_dossier_check), so this older migration can no longer hold the current rendering. That the
+    // newest migration holds it is checked by tests/unit/readiness-render.test.js; here: H1 re-creates both views.
+    assert.match(sql, /CREATE VIEW app\.project_readiness AS\s+SELECT\b/);
+    assert.match(sql, /CREATE VIEW public\.v_project_readiness AS\s+SELECT \* FROM app\.project_readiness WHERE app\.is_project_member\(project_id\);/);
     assert.match(sql, /GRANT SELECT ON public\.v_project_readiness TO authenticated;/);
     assert.doesNotMatch(sql, /\bDELETE\b/i);
   });

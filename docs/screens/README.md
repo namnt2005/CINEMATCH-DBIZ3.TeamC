@@ -4,7 +4,7 @@ Every screen in the MVP scope of `docs/screen-list.md` has a mockup `img/<SCREEN
 Word copies are in `../word/screens/`.
 
 **Reading the mockups:** each orange numbered badge on an image is the row with the same number in section 3 (*Element inventory*) of that screen's spec.
-Badges and rows are machine-checked to match one-to-one on all 41 screens (545 elements, 206 screen-level rules).
+Badges and rows are machine-checked to match one-to-one on all 41 screens (545 elements, 207 screen-level rules).
 
 | # | Screen ID | Screen | Module spec | Priority | Tier / batch | Mockup | Spec |
 |---|---|---|---|---|---|---|---|

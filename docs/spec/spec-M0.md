@@ -19,6 +19,10 @@
 
 - Q1: Weights of the five gauges in the overall score, per segment. → A: Equal weights. Segments A and B: four gauges at 25% each. Segment C: three gauges at 33.3% each. The Logistics gauge has weight 0 in the overall score in every segment (it is shown but not counted).
 
+### Session 2026-11-07 (Group C, provisional — the owner in §10 confirms before launch)
+
+- Q2: Is the 7-day safety buffer before the first shooting day editable by the producer? → A: Yes. The owner and the members with edit permission change the buffer on SC-29 (0, 7, 14 or 21 days; default 7); members with view permission only read it. The buffer counts calendar days (M2 BR-006).
+
 ## 1. Purpose and scope
 
 This module gives each production one place to prepare its shoot in Vietnam and shows, on five gauges, how ready it is and what to do next. Every other module reports its progress here.
@@ -85,7 +89,7 @@ This module gives each production one place to prepare its shoot in Vietnam and 
 
 - A module fails to report: its gauge shows `—` with *not calculated yet*; the overall score is computed only from gauges that reported, and says so.
 - Two members edit the project name at the same time: last write wins; the other sees a toast *updated by …*.
-- The first shooting day is moved earlier than today + safe deadline: the countdown turns red (M5).
+- The first shooting day is moved so early that the recommended submission date has passed: the countdown turns red (M5).
 
 ## 4. Flows
 
@@ -242,7 +246,7 @@ Types and required flags of the attributes above that no field in 5.1 declares (
 | # | Question | Blocking? | Owner | Status |
 |---|---|---|---|---|
 | 1 | [NEEDS CLARIFICATION: Weights of the five gauges in the overall score, per segment.] *(also raised in SC-12)* | Yes | Client (VFDA) | Decided (provisional, VFDA to confirm) — see Clarifications |
-| 2 | [NEEDS CLARIFICATION: Is the 7-day safety buffer before the first shooting day editable by the producer?] *(also raised in SC-12)* | No | Client (VFDA) | Open |
+| 2 | [NEEDS CLARIFICATION: Is the 7-day safety buffer before the first shooting day editable by the producer?] *(also raised in SC-12)* | No | Client (VFDA) | Decided (provisional, VFDA to confirm) — see Clarifications |
 | 3 | [NEEDS CLARIFICATION: Can people outside the producer organisation (a lawyer, a freelance line producer) be invited to a project?] *(also raised in SC-10, SC-13)* | No | Client (VFDA) | Open |
 | 4 | [NEEDS CLARIFICATION: can a project change segment after dossier data exists, and how is the old data handled] *(from SC-10)* | No | Client (VFDA) | Open |
 | 5 | [NEEDS CLARIFICATION: can the owner change a member's permission, remove a member or cancel a pending invitation? F-M0-04 only covers inviting] *(from SC-13)* | No | Group C | Open |

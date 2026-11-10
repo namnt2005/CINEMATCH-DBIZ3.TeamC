@@ -606,6 +606,7 @@
   "columns": [
    "rule_id",
    "rule_code",
+   "revision",
    "rule_version",
    "title_vi",
    "title_en",
@@ -615,18 +616,24 @@
    "guidance_en",
    "citation",
    "severity",
+   "keywords_vi",
+   "keywords_en",
+   "segments",
    "topic",
    "rule_slug",
    "status",
    "approved_by",
    "approved_at",
-   "is_active"
+   "is_active",
+   "retired_version",
+   "is_sample"
   ],
   "pk": [
    "rule_id"
   ],
   "required": [
    "rule_code",
+   "revision",
    "title_vi",
    "title_en",
    "description_vi",
@@ -635,9 +642,11 @@
    "guidance_en",
    "citation",
    "severity",
+   "segments",
    "topic",
    "rule_slug",
-   "approved_by"
+   "approved_by",
+   "is_sample"
   ],
   "fk": [
    {
@@ -648,6 +657,11 @@
    {
     "column": "approved_by",
     "references": "USER_ACCOUNT",
+    "ref_column": null
+   },
+   {
+    "column": "retired_version",
+    "references": "RULE_SET_VERSION",
     "ref_column": null
    }
   ],
@@ -687,6 +701,8 @@
    "flags",
    "country_guess",
    "attention_level",
+   "dropped_count",
+   "dropped_rule_codes",
    "created_at"
   ],
   "pk": [
@@ -695,6 +711,7 @@
   "required": [
    "synopsis_hash",
    "lang",
+   "dropped_rule_codes",
    "created_at"
   ],
   "fk": [
@@ -729,20 +746,18 @@
   "table": "precheck_finding",
   "columns": [
    "brief_id",
-   "rule_code",
+   "rule_id",
    "span_start",
-   "span_end",
-   "quoted_text",
-   "explanation_vi",
-   "explanation_en"
+   "span_end"
   ],
   "pk": [
    "brief_id",
-   "rule_code",
+   "rule_id",
    "span_start"
   ],
   "required": [
    "brief_id",
+   "rule_id",
    "span_start",
    "span_end"
   ],
@@ -753,9 +768,9 @@
     "ref_column": "brief_id"
    },
    {
-    "column": "rule_code",
+    "column": "rule_id",
     "references": "LEGAL_RULE",
-    "ref_column": "rule_code"
+    "ref_column": "rule_id"
    }
   ],
   "enums": {},
@@ -803,7 +818,7 @@
   "columns": [
    "finding_id",
    "run_id",
-   "rule_code",
+   "rule_id",
    "quoted_text",
    "finding_status",
    "reviewer_note"
@@ -813,7 +828,8 @@
   ],
   "required": [
    "finding_id",
-   "run_id"
+   "run_id",
+   "rule_id"
   ],
   "fk": [
    {
@@ -822,9 +838,9 @@
     "ref_column": "run_id"
    },
    {
-    "column": "rule_code",
+    "column": "rule_id",
     "references": "LEGAL_RULE",
-    "ref_column": "rule_code"
+    "ref_column": "rule_id"
    }
   ],
   "enums": {

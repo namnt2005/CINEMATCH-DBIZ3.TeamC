@@ -115,6 +115,10 @@ CREATE POLICY rls_quarterly_report_update_vfda_staff ON public.quarterly_report 
 -- rule_set_version
 REVOKE ALL ON public.rule_set_version FROM anon, authenticated;
 ALTER TABLE public.rule_set_version ENABLE ROW LEVEL SECURITY;
+GRANT SELECT ON public.rule_set_version TO authenticated;
+-- policy: rule_set_version select signed_in
+CREATE POLICY rls_rule_set_version_select_signed_in ON public.rule_set_version FOR SELECT TO authenticated
+  USING (app.current_role() <> 'guest');
 
 -- legal_rule
 REVOKE ALL ON public.legal_rule FROM anon, authenticated;
@@ -140,6 +144,10 @@ CREATE POLICY rls_legal_rule_update_vfda_legal ON public.legal_rule FOR UPDATE T
 -- precheck_run
 REVOKE ALL ON public.precheck_run FROM anon, authenticated;
 ALTER TABLE public.precheck_run ENABLE ROW LEVEL SECURITY;
+GRANT SELECT ON public.precheck_run TO authenticated;
+-- policy: precheck_run select member
+CREATE POLICY rls_precheck_run_select_member ON public.precheck_run FOR SELECT TO authenticated
+  USING (project_id IS NOT NULL AND app.is_project_member(project_id));
 
 -- precheck_finding
 REVOKE ALL ON public.precheck_finding FROM anon, authenticated;
@@ -152,6 +160,10 @@ CREATE POLICY rls_precheck_finding_select_member ON public.precheck_finding FOR 
 -- compliance_run
 REVOKE ALL ON public.compliance_run FROM anon, authenticated;
 ALTER TABLE public.compliance_run ENABLE ROW LEVEL SECURITY;
+GRANT SELECT ON public.compliance_run TO authenticated;
+-- policy: compliance_run select member
+CREATE POLICY rls_compliance_run_select_member ON public.compliance_run FOR SELECT TO authenticated
+  USING (app.is_project_member(project_id));
 
 -- compliance_finding
 REVOKE ALL ON public.compliance_finding FROM anon, authenticated;

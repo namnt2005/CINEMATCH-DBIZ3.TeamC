@@ -68,6 +68,12 @@ POLICIES = [
     dict(table='legal_rule', op='select', roles=['vfda_legal'], using=has('vfda_legal')),
     dict(table='legal_rule', op='insert', roles=['vfda_legal'], check=has('vfda_legal')),
     dict(table='legal_rule', op='update', roles=['vfda_legal'], using=has('vfda_legal')),
+    # M2 plan data-model §7 (09/11/2026): the version label for signed-in users (guests read it through the API);
+    # pre-check and content-check runs for the members of their project
+    dict(table='rule_set_version', op='select', roles=['signed_in'], using=SIGNED_IN),
+    dict(table='precheck_run', op='select', roles=['member'],
+         using="project_id IS NOT NULL AND app.is_project_member(project_id)"),
+    dict(table='compliance_run', op='select', roles=['member'], using=member_of()),
     dict(table='precheck_finding', op='select', roles=['member'],
          using="EXISTS (SELECT 1 FROM public.precheck_run r WHERE r.brief_id = precheck_finding.brief_id "
                "AND r.project_id IS NOT NULL AND app.is_project_member(r.project_id))"),

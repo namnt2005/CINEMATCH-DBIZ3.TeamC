@@ -86,7 +86,8 @@ export function buildSeedSql({ tables, reset, databaseHasData }) {
     throw new Error('The database already has data. Run again with --reset to truncate the application tables first.');
   }
   const out = ['BEGIN;'];
-  if (reset) out.push(`TRUNCATE ${tables.map(t => `public.${t.table}`).join(', ')};`);
+  // a table may appear twice (main seed + its sample file, M2 plan D14): truncate it once
+  if (reset) out.push(`TRUNCATE ${[...new Set(tables.map(t => t.table))].map(t => `public.${t}`).join(', ')};`);
   out.push('ALTER TABLE public.location DISABLE TRIGGER trg_location_publish_needs_contact;');
   for (const t of tables) {
     if (t.rows.length === 0) continue;

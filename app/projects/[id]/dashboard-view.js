@@ -3,13 +3,14 @@
 import { GAUGES } from '../../../lib/readiness/next-steps.js';
 
 const NOT_SCORED = '—';
-// SC-12 #8: only screens that exist are links; the others say *coming soon* (SC-48, SC-25, SC-27 not built)
+// SC-12 #8: only screens that exist are links. SC-48 (project), SC-25 and SC-27 exist since M4 and M2 (M2 plan D19,
+// 09/11/2026); without a project id they still say *coming soon*.
 const BUTTONS = {
-  content: { soon: true, label: 'dashboard.action.content' },
-  locations: { href: '/locations/match', label: 'dashboard.action.locations' },
-  partners: { soon: true, label: 'dashboard.action.partners' },
-  dossier: { soon: true, label: 'dashboard.action.dossier' },
-  logistics: { phase2: true, label: 'dashboard.phase2' }
+  content: (id) => (id ? { href: `/projects/${id}/content`, label: 'dashboard.action.content' } : { soon: true, label: 'dashboard.action.content' }),
+  locations: () => ({ href: '/locations/match', label: 'dashboard.action.locations' }),
+  partners: (id) => (id ? { href: `/requests?project=${id}`, label: 'dashboard.action.partners' } : { soon: true, label: 'dashboard.action.partners' }),
+  dossier: (id) => (id ? { href: `/projects/${id}/dossier`, label: 'dashboard.action.dossier' } : { soon: true, label: 'dashboard.action.dossier' }),
+  logistics: () => ({ phase2: true, label: 'dashboard.phase2' })
 };
 
 /** BR-004: the segment's gauges, their labels and whether they count, from the GAUGE_* rows. */
@@ -31,7 +32,7 @@ const scoreOf = (row, gauge) => {
  * One card per gauge shown for the segment (BR-002). Without a view row (US-2 Scenario 3) every card
  * shows — and no next step, never a fake 0 % (SR-054).
  */
-export function gaugeCards(row, labels) {
+export function gaugeCards(row, labels, projectId = null) {
   const list = row ? labels.filter(l => shown(row).includes(l.gauge)) : labels;
   return list.map(({ gauge, label, counted }) => {
     const score = row ? scoreOf(row, gauge) : null;
@@ -41,7 +42,7 @@ export function gaugeCards(row, labels) {
       action: row ? row[`${gauge}_action`] ?? null : null,
       // M0 §3 edge case (H1): the module has not reported — — with "not calculated yet"
       notReported: Boolean(row) && row[`${gauge}_action`] === 'not_reported',
-      button: BUTTONS[gauge]
+      button: BUTTONS[gauge](projectId)
     };
   });
 }

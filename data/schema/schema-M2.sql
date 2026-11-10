@@ -18,6 +18,7 @@ CREATE TABLE rule_set_version (
 CREATE TABLE legal_rule (
     rule_id UUID NOT NULL,
     rule_code VARCHAR(40) NOT NULL,
+    revision INTEGER NOT NULL,
     rule_version VARCHAR(20),
     title_vi VARCHAR(200) NOT NULL,
     title_en VARCHAR(200) NOT NULL,
@@ -27,24 +28,34 @@ CREATE TABLE legal_rule (
     guidance_en TEXT NOT NULL,
     citation VARCHAR(200),
     severity VARCHAR(20) NOT NULL,
+    keywords_vi JSONB,
+    keywords_en JSONB,
+    segments JSONB NOT NULL,
     topic VARCHAR(20) NOT NULL,
     rule_slug VARCHAR(120) NOT NULL,
     status VARCHAR(20),
     approved_by UUID,
     approved_at TIMESTAMPTZ,
     is_active BOOLEAN,
+    retired_version VARCHAR(20),
+    is_sample BOOLEAN NOT NULL,
     CONSTRAINT pk_legal_rule PRIMARY KEY (rule_id),
-    CONSTRAINT uq_legal_rule_rule_code UNIQUE (rule_code),
-    CONSTRAINT uq_legal_rule_rule_slug UNIQUE (rule_slug),
+    CONSTRAINT uq_legal_rule_rule_code_revision UNIQUE (rule_code, revision),
+    CONSTRAINT uq_legal_rule_rule_slug_revision UNIQUE (rule_slug, revision),
     CONSTRAINT ck_legal_rule_severity CHECK (severity IN ('notice', 'action')),
     CONSTRAINT ck_legal_rule_topic CHECK (topic IN ('security', 'history', 'religion', 'privacy', 'dossier', 'public_order', 'heritage')),
     CONSTRAINT ck_legal_rule_status CHECK (status IN ('draft', 'approved', 'retired')),
     CONSTRAINT fk_legal_rule_rule_version FOREIGN KEY (rule_version) REFERENCES rule_set_version (rule_version),
+    CONSTRAINT fk_legal_rule_retired_version FOREIGN KEY (retired_version) REFERENCES rule_set_version (rule_version),
     CONSTRAINT fk_legal_rule_approved_by FOREIGN KEY (approved_by) REFERENCES user_account (user_id),
     -- M2 BR-002 — active only with a citation and an approver
     CONSTRAINT ck_legal_rule_approved_needs_signature CHECK (status <> 'approved' OR (citation IS NOT NULL AND approved_by IS NOT NULL)),
     -- 04 minimality — upkeep rule of is_active
-    CONSTRAINT ck_legal_rule_active_matches_status CHECK ((CAST(is_active AS TEXT) = 'true') = (status = 'approved'))
+    CONSTRAINT ck_legal_rule_active_matches_status CHECK ((CAST(is_active AS TEXT) = 'true') = (status = 'approved')),
+    -- M2 Clarifications Q13 — revisions count from 1
+    CONSTRAINT ck_legal_rule_revision CHECK (revision >= 1),
+    -- M2 BR-008, Q13 — a retired revision names the version that retired it
+    CONSTRAINT ck_legal_rule_retired_version CHECK ((status = 'retired') = (retired_version IS NOT NULL))
 );
 
 -- PRECHECK_RUN: One 200-word content pre-check, kept as a demand data point. (owner M2; seed file 18_precheck_run.csv)
@@ -57,28 +68,29 @@ CREATE TABLE precheck_run (
     flags JSONB,
     country_guess VARCHAR(2),
     attention_level VARCHAR(20),
+    dropped_count INTEGER,
+    dropped_rule_codes JSONB NOT NULL,
     created_at TIMESTAMPTZ NOT NULL,
     CONSTRAINT pk_precheck_run PRIMARY KEY (brief_id),
     CONSTRAINT ck_precheck_run_lang CHECK (lang IN ('en', 'vi')),
     CONSTRAINT ck_precheck_run_attention_level CHECK (attention_level IN ('low', 'medium', 'high')),
     CONSTRAINT fk_precheck_run_project_id FOREIGN KEY (project_id) REFERENCES project (project_id),
-    CONSTRAINT fk_precheck_run_rule_version FOREIGN KEY (rule_version) REFERENCES rule_set_version (rule_version)
+    CONSTRAINT fk_precheck_run_rule_version FOREIGN KEY (rule_version) REFERENCES rule_set_version (rule_version),
+    -- M2 FR-012 — dropped findings are counted (decided 08/11/2026)
+    CONSTRAINT ck_precheck_run_dropped_count CHECK (dropped_count >= 0)
 );
 
 -- PRECHECK_FINDING: One passage of a pre-checked summary that matches an approved rule. (owner M2; seed file 19_precheck_finding.csv)
 CREATE TABLE precheck_finding (
     brief_id UUID NOT NULL,
-    rule_code VARCHAR(40) NOT NULL,
+    rule_id UUID NOT NULL,
     span_start INTEGER NOT NULL,
     span_end INTEGER NOT NULL,
-    quoted_text TEXT,
-    explanation_vi TEXT,
-    explanation_en TEXT,
-    CONSTRAINT pk_precheck_finding PRIMARY KEY (brief_id, rule_code, span_start),
+    CONSTRAINT pk_precheck_finding PRIMARY KEY (brief_id, rule_id, span_start),
     CONSTRAINT fk_precheck_finding_brief_id FOREIGN KEY (brief_id) REFERENCES precheck_run (brief_id),
-    CONSTRAINT fk_precheck_finding_rule_code FOREIGN KEY (rule_code) REFERENCES legal_rule (rule_code),
-    -- M2 §6.1 — the span is the quoted passage
-    CONSTRAINT ck_precheck_finding_span_matches_quote CHECK (span_end - span_start = LENGTH(quoted_text))
+    CONSTRAINT fk_precheck_finding_rule_id FOREIGN KEY (rule_id) REFERENCES legal_rule (rule_id),
+    -- M2 §6.1 — the span of the matched passage (the passage itself is not stored, Q6)
+    CONSTRAINT ck_precheck_finding_span CHECK (span_start >= 0 AND span_end > span_start)
 );
 
 -- COMPLIANCE_RUN: One content check of a project against the active rule set. (owner M2; seed file 20_compliance_run.csv)
@@ -96,12 +108,12 @@ CREATE TABLE compliance_run (
 CREATE TABLE compliance_finding (
     finding_id UUID NOT NULL,
     run_id UUID NOT NULL,
-    rule_code VARCHAR(40),
+    rule_id UUID NOT NULL,
     quoted_text TEXT,
     finding_status VARCHAR(20),
     reviewer_note TEXT,
     CONSTRAINT pk_compliance_finding PRIMARY KEY (finding_id),
     CONSTRAINT ck_compliance_finding_finding_status CHECK (finding_status IN ('open', 'reviewed')),
     CONSTRAINT fk_compliance_finding_run_id FOREIGN KEY (run_id) REFERENCES compliance_run (run_id),
-    CONSTRAINT fk_compliance_finding_rule_code FOREIGN KEY (rule_code) REFERENCES legal_rule (rule_code)
+    CONSTRAINT fk_compliance_finding_rule_id FOREIGN KEY (rule_id) REFERENCES legal_rule (rule_id)
 );

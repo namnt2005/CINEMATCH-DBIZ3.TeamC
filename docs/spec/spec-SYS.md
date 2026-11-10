@@ -22,7 +22,7 @@
 
 ### Session 2026-11-02 (Group C, provisional — the owner in §10 confirms before launch)
 
-- Q5: Does the admin role also hold every permission of vfda_staff and vfda_legal, in addition to its own (reading the audit log, granting roles)? BR-002 says only what admin grants. → A: Yes. The admin role holds every permission of vfda_staff and vfda_legal, in addition to its own (reading the audit log, granting roles). Roles are still granted only by an admin, and every grant is written to the audit log (BR-002).
+- Q5: Does the admin role also hold every permission of vfda_staff and vfda_legal, in addition to its own (reading the audit log, granting roles)? BR-002 says only what admin grants. → A: Yes. The admin role holds every permission of vfda_staff and vfda_legal, in addition to its own (reading the audit log, granting roles). Roles are still granted only by an admin, and every grant is written to the audit log (BR-002). Exception decided 07/11/2026: signing and retiring M2 legal rules is the VFDA Legal Board's act (M2 BR-002), so only `vfda_legal` signs or retires a rule; `admin` may read the rule base but not sign (a signing request by `admin` is refused with 403).
 
 ### Session 2026-11-06 (Group C, provisional — the owner in §10 confirms before launch)
 

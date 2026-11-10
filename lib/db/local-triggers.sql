@@ -70,3 +70,6 @@ BEFORE DELETE ON document_access_log
 BEGIN
   SELECT RAISE(ABORT, 'Document access-log entries are append-only (M4 BR-007).');
 END;
+
+-- M2 plan D2 (Clarifications Q13): at most one approved revision per rule code (twin of uq_legal_rule_one_approved)
+CREATE UNIQUE INDEX uq_legal_rule_one_approved ON legal_rule (rule_code) WHERE status = 'approved';

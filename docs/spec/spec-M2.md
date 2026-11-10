@@ -25,6 +25,14 @@
 - Q9: which application form is currently in force, and may VFDA provide a bilingual version of it → A: Use *Mẫu số 01, Phụ lục I* of Circular 17/2022/TT-BVHTTDL (in force from 15/02/2023, amended by Circular 11/2023/TT-BVHTTDL) — application for a licence to provide film shooting services using Vietnamese locations — plus the *Phụ lục IV* commitment on Article 9. The team prepares an unofficial English reading aid; VFDA confirms the version before launch.
 - Q13: when an approved rule needs a correction, is a new draft revision created while the signed text stays in force, and does retiring a rule also create a new rule-set version? → A: Correcting an approved rule creates a new draft revision; the signed text stays in force until the revision is signed. Retiring a rule creates a new rule-set version.
 
+### Session 2026-11-07 (Group C, provisional — the owner in §10 confirms before launch)
+
+- Q14: format of `rule_version` (the mockups use year.month, e.g. 2026.08) when more than one rule is signed in the same month → A: `YYYY.MM` for the first rule-set version of a month (Vietnam time), then `YYYY.MM.02`, `YYYY.MM.03`…, so that text order equals time order and the newest version is the greatest string.
+
+### Session 2026-11-09 (Group C, provisional — the owner in §10 confirms before launch)
+
+- Q10: F-M2-15 filters by segment, but a legal rule has no segment field (M2 §6). Who decides which rules apply to segments A, B and C, and where is it stored? → A: Add `legal_rule.segments` (a list of A / B / C). The VFDA Legal Board chooses the segments of each rule on SC-37; the public library (SC-30) filters on it.
+
 ## 1. Purpose and scope
 
 This module tells a producer, before they commit, which parts of their story are likely to be looked at closely by the reviewing authority and whether their licence dossier has the four components Article 13 requires. Every finding cites the rule written and signed by the VFDA Legal Board; the system never interprets the law on its own.
@@ -59,7 +67,7 @@ This module tells a producer, before they commit, which parts of their story are
 |---|---|---|
 | Guest | Primary — runs the 200-word pre-check | Function List (F-M2-05, 15, 16) |
 | Member | Primary — runs checks on a project, marks findings reviewed | Function List (F-M2-09, 13, 14, 18) |
-| VFDA Legal Board (`vfda_legal`) | Primary — writes, signs and versions rules | Function List (F-M2-01..03) |
+| VFDA Legal Board (`vfda_legal`) | Primary — writes, signs and versions rules. Only this role signs and retires a rule; `admin` may read the rule base but not sign (exception to SYS question 5, 07/11/2026) | Function List (F-M2-01..03) |
 | System | Runs the checks, verifies citations, computes timelines | Function List (F-M2-04, 06–08, 10–12, 17) |
 
 ## 3. User scenarios and acceptance criteria
@@ -94,11 +102,11 @@ This module tells a producer, before they commit, which parts of their story are
 
 ### US-4 (P2): See my licensing timeline
 
-**Journey.** As a producer, I want to know the latest safe date to file, so that a resubmission does not push my shoot.
+**Journey.** As a producer, I want to know the recommended date to file, so that a resubmission does not push my shoot.
 
 **Acceptance scenarios**
 
-1. **Given** a first shooting day of 15/03/2027 and a 7-day buffer, **When** the timeline is computed, **Then** the safe submission deadline is 27/01/2027 and the latest deadline is 16/02/2027.
+1. **Given** a first shooting day of 15/03/2027 and a 7-day buffer, **When** the timeline is computed, **Then** the recommended submission date is 05/01/2027 and the latest deadline is 02/02/2027 (the buffer counts calendar days, the two 20-day periods working days, Tết 2027 excluded).
 
 ### US-5 (P3): Read requirements without an account
 
@@ -110,9 +118,9 @@ This module tells a producer, before they commit, which parts of their story are
 
 ### Edge cases
 
-- The language model API is down: the pre-check shows *Could not check right now — your text is kept*; the dossier completeness check (deterministic) still works.
+- The language model is unavailable (error, time-out, or advanced analysis not allowed): the pre-check matches the keywords the VFDA Legal Board signed with each rule instead, and the result says it ran in fallback mode (*chế độ dự phòng*); only when both the model and the fallback fail does it show *Could not check right now — your text is kept* (decided 07/11/2026). The dossier completeness check (deterministic) still works.
 - Every finding fails citation verification: the result says *Could not check this time* rather than showing an empty *Low* result.
-- The rule set changes while a producer is reading an old result: the old result keeps its version label; [NEEDS CLARIFICATION: re-run automatically or notify?].
+- The rule set changes while a producer is reading an old result: the old result keeps its version label; open projects are not re-checked — their owners are notified and the Content gauge drops 30 points until the producer re-runs the check (Clarifications Q3).
 - A guest runs the pre-check 50 times in an hour: rate limit per IP returns *You have used today's checks — create a free account to continue*.
 
 ## 4. Flows
@@ -244,7 +252,7 @@ sequenceDiagram
 | FR-014 | F-M2-14 | The system MUST let a member mark each finding as reviewed, with an optional note. | Member | Must |
 | FR-015 | F-M2-15 | The system SHOULD publish the approved rules as a public library filterable by topic and segment. | Guest | Should |
 | FR-016 | F-M2-16 | The system SHOULD publish one page per rule with its bilingual description and citation. | Guest | Should |
-| FR-017 | F-M2-17 | The system MUST compute the safe and latest submission deadlines from the first shooting day, the safety buffer and Article 13 clause 4 (20 + 20 days). | System | Must |
+| FR-017 | F-M2-17 | The system MUST compute the recommended submission date and the latest submission deadline from the first shooting day, the buffer and Article 13 clause 4 (20 + 20 days). | System | Must |
 | FR-018 | F-M2-18 | The system MUST always show both scenarios: smooth path and one resubmission. | Member | Must |
 
 ### 5.1 Input / Output contract
@@ -255,7 +263,7 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 |---|---|---|---|---|---|---|
 | FR-001 | `filter_topic` | `ENUM(security, history, religion, privacy, dossier, public_order, heritage)` | No | `rules` | `legal_rule[]` | vfda_legal only (RLS) |
 |  | `filter_status` | `ENUM(draft, approved, retired)` | No |  |  |  |
-| FR-002 | `rule_code` | `VARCHAR(40)` | Yes | `rule_id` | `UUID` | guidance fields added (SC-48 *Points to consider*); severity reduced to two values — see §11 |
+| FR-002 | `rule_code` | `VARCHAR(40)` | Yes | `rule_id` | `UUID` | guidance fields added (SC-48 *Points to consider*); severity reduced to two values — see §11; `version` is the revision number of the rule (`legal_rule.revision`, Clarifications Q13); keywords are signed with the rule and used only by the fallback match (decided 07/11/2026); `segments` lists the segments A / B / C the rule applies to (Clarifications Q10) |
 |  | `topic` | `ENUM(security, history, religion, privacy, dossier, public_order, heritage)` | Yes | `version` | `INTEGER` |  |
 |  | `title_vi` | `VARCHAR(200)` | Yes |  |  |  |
 |  | `title_en` | `VARCHAR(200)` | Yes |  |  |  |
@@ -265,15 +273,18 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 |  | `guidance_en` | `TEXT` | Yes |  |  |  |
 |  | `citation` | `VARCHAR(200)` | Yes |  |  |  |
 |  | `severity` | `ENUM(notice, action)` | Yes |  |  |  |
+|  | `keywords_vi` | `JSONB` | No |  |  |  |
+|  | `keywords_en` | `JSONB` | No |  |  |  |
+|  | `segments` | `JSONB` | Yes |  |  |  |
 | FR-003 | `rule_id` | `UUID` | Yes | `approved_at` | `TIMESTAMPTZ` | CHECK: citation and approver not null |
 |  | `approver_id` | `UUID` | Yes | `is_active` | `BOOLEAN` |  |
-| FR-004 | `rule_change_event` | `JSONB` | Yes | `rule_version` | `VARCHAR(20)` | format [NEEDS CLARIFICATION] |
+| FR-004 | `rule_change_event` | `JSONB` | Yes | `rule_version` | `VARCHAR(20)` | format `YYYY.MM`, then `YYYY.MM.02`, `YYYY.MM.03`… in Vietnam time, so text order is time order (Clarifications Q14) |
 | FR-005 | `synopsis_text` | `TEXT` | Yes | `form_state` | `JSONB` | 20–200 words; flags = real_person, military, heritage_site (yes / no / unsure) |
 |  | `lang` | `ENUM(en, vi)` | Yes |  |  |  |
 |  | `flags` | `JSONB` | No |  |  |  |
-| FR-006 | `synopsis_text` | `TEXT` | Yes | `findings` | `(rule_code VARCHAR(40), quoted_text TEXT, explanation_vi TEXT, explanation_en TEXT)[]` | attention_level added (SC-48) |
+| FR-006 | `synopsis_text` | `TEXT` | Yes | `findings` | `(rule_code VARCHAR(40), quoted_text TEXT, explanation_vi TEXT, explanation_en TEXT)[]` | attention_level added (SC-48); the explanation shown is the cited rule's own description (`description_vi/en`), never model text; the passage is shown to the user but not stored for a guest (Clarifications Q6) |
 |  | `active_rules` | `legal_rule[]` | Yes | `attention_level` | `ENUM(low, medium, high)` |  |
-| FR-007 | `synopsis_hash` | `TEXT` | Yes | `brief_id` | `UUID` | text itself not stored for guests [NEEDS CLARIFICATION] |
+| FR-007 | `synopsis_hash` | `TEXT` | Yes | `brief_id` | `UUID` | the text itself is never stored, only its hash (Clarifications Q6); the run also keeps how many findings were dropped and their rule codes (`dropped_count`, `dropped_rule_codes`, FR-012) |
 |  | `locale` | `ENUM(vi, en)` | Yes |  |  |  |
 |  | `country_guess` | `VARCHAR(2)` | No |  |  |  |
 | FR-008 | `project_id` | `UUID` | Yes | `completeness_pct` | `NUMERIC(5,2)` | exactly 4 components |
@@ -282,12 +293,12 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 | FR-010 | `completeness_pct` | `NUMERIC(5,2)` | Yes | `gauge_compliance` | `NUMERIC(5,2)` |  |
 | FR-011 | `synopsis` | `TEXT` | Yes | `raw_findings` | `JSONB` | structured output only |
 |  | `active_rules` | `legal_rule[]` | Yes |  |  |  |
-| FR-012 | `raw_findings` | `JSONB` | Yes | `verified_findings` | `JSONB` | dropped findings logged for VFDA |
+| FR-012 | `raw_findings` | `JSONB` | Yes | `verified_findings` | `JSONB` | dropped findings logged for VFDA on the run: `precheck_run.dropped_count` and `dropped_rule_codes`, never the dropped text (decided 08/11/2026) |
 |  | `synopsis` | `TEXT` | Yes | `dropped_count` | `INTEGER` |  |
 | FR-013 | `verified_findings` | `JSONB` | Yes | `findings_view` | `JSONB` | citation mandatory per item |
 | FR-014 | `finding_id` | `UUID` | Yes | `finding_status` | `ENUM(open, reviewed)` |  |
 |  | `reviewer_note` | `TEXT` | No |  |  |  |
-| FR-015 | `topic` | `VARCHAR(60)` | No | `rules` | `legal_rule_public[]` | approved rules only |
+| FR-015 | `topic` | `VARCHAR(60)` | No | `rules` | `legal_rule_public[]` | approved rules only; the segment filter reads `legal_rule.segments` (Clarifications Q10); sample rules carry a *Sample* label |
 |  | `segment` | `ENUM(A, B, C)` | No |  |  |  |
 | FR-016 | `rule_slug` | `VARCHAR(120)` | Yes | `rule_detail` | `JSONB` |  |
 | FR-017 | `shoot_date` | `DATE` | Yes | `submit_by` | `DATE` | buffer_days default 7 (added, SC-29) |
@@ -304,7 +315,7 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 | BR-003 | The words *approved*, *accepted*, *legally compliant* and *safe* never appear in results, including when nothing is found. | Only the competent authority decides. |
 | BR-004 | The attention level is derived deterministically from the number and severity of verified findings, never from a model score. | A precise-looking number from a model gives false certainty. |
 | BR-005 | The dossier completeness check uses fixed rules, not a language model. | A missing document is a fact, not a judgement. |
-| BR-006 | Safe deadline = first shooting day − buffer − 20 − 20 working days; latest deadline = first shooting day − buffer − 20 working days. Working days exclude Saturdays, Sundays and dates of type PUBLIC_HOLIDAY (Clarifications Q1). | Article 13 clause 4: 20 days, plus up to 20 more if the script must be revised. |
+| BR-006 | Recommended submission date = first shooting day − buffer − 20 − 20 working days; latest deadline = first shooting day − buffer − 20 working days. The buffer counts calendar days (decision of 07/11/2026); the words *safe* / *an toàn* are not used for a deadline. Working days exclude Saturdays, Sundays and dates of type PUBLIC_HOLIDAY (Clarifications Q1). | Article 13 clause 4: 20 days, plus up to 20 more if the script must be revised. |
 | BR-007 | Every check stores the rule-set version it used. | An old result must remain explainable after rules change. |
 | BR-008 | Legal rules are retired, never deleted (`status = retired`); a finding keeps showing the text of the rule version it cited. | An old result must remain explainable after a rule changes (see BR-007). |
 
@@ -312,12 +323,12 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 
 | Entity | Attributes (from Input/Output fields) | Relationships |
 |---|---|---|
-| LegalRule | rule_id, rule_code, title_vi/en, description_vi/en, guidance_vi/en, citation, severity, status, approved_by, approved_at | belongs to RuleSetVersion |
+| LegalRule | rule_id, rule_code, revision, title_vi/en, description_vi/en, guidance_vi/en, keywords_vi/en, segments, citation, severity, status, approved_by, approved_at, retired_version, is_sample | one row per revision; belongs to the RuleSetVersion that signed it and, once retired or replaced, to the one that retired it |
 | RuleSetVersion | rule_version, created_at, created_by | has many LegalRules |
-| PrecheckRun (brief) | brief_id, synopsis_hash, lang, flags, attention_level, rule_version, created_at | has many PrecheckFindings; may belong to a Project |
-| PrecheckFinding | rule_code, quoted_text, span_start, span_end, explanation | belongs to PrecheckRun |
+| PrecheckRun (brief) | brief_id, synopsis_hash, lang, flags, attention_level, rule_version, dropped_count, dropped_rule_codes, created_at | has many PrecheckFindings; may belong to a Project |
+| PrecheckFinding | rule_id, span_start, span_end | belongs to PrecheckRun; cites one LegalRule revision; no text of the summary is stored (Clarifications Q6) |
 | ComplianceRun | run_id, project_id, rule_version, run_at | has many ComplianceFindings; belongs to Project |
-| ComplianceFinding | finding_id, rule_code, quoted_text, finding_status, reviewer_note | belongs to ComplianceRun |
+| ComplianceFinding | finding_id, rule_id, quoted_text, finding_status, reviewer_note | belongs to ComplianceRun; cites one LegalRule revision |
 | DossierCheck | project_id, checked_at, completeness_pct, missing_documents | derived from DocumentSlots (M5) |
 | LicensingTimeline | project_id, submit_by, result_by, result_by_worst, buffer_days | derived from Project.shoot_date |
 
@@ -327,16 +338,22 @@ Types and required flags of the attributes above that no field in 5.1 declares (
 
 | Entity | Attribute | Type | Required | Notes |
 |---|---|---|---|---|
+| LegalRule | `revision` | `INTEGER` | Yes | 1 for a new rule, n+1 for a correction; at most one approved revision per rule_code (Clarifications Q13) |
+| LegalRule | `retired_version` | `VARCHAR(20)` | No | the rule-set version that retired or replaced this revision; set exactly when status = retired (Clarifications Q13, BR-008) |
+| LegalRule | `is_sample` | `BOOLEAN` | Yes | true for the sample rules used until the VFDA Legal Board writes the real ones (§9; decided 09/11/2026) |
 | RuleSetVersion | `created_at` | `TIMESTAMPTZ` | Yes | time of the activation that created the version (FR-004) |
 | RuleSetVersion | `created_by` | `UUID` | Yes | the Legal Board member who activated it |
 | PrecheckRun | `project_id` | `UUID` | No | empty for a guest pre-check (US-1) |
 | PrecheckRun | `created_at` | `TIMESTAMPTZ` | Yes |  |
-| PrecheckFinding | `span_start` | `INTEGER` | Yes | character position of the quoted passage in the submitted summary (0-based) |
-| PrecheckFinding | `span_end` | `INTEGER` | Yes | span_start + number of characters of quoted_text |
+| PrecheckRun | `dropped_rule_codes` | `JSONB` | Yes | codes of the findings dropped by FR-012 (unknown, unsigned or quote not in the text), never their text; an empty array when none was dropped (decided 08/11/2026) |
+| PrecheckFinding | `rule_id` | `UUID` | Yes | the cited rule revision (BR-008) |
+| PrecheckFinding | `span_start` | `INTEGER` | Yes | character position of the matched passage in the submitted summary (0-based) |
+| PrecheckFinding | `span_end` | `INTEGER` | Yes | span_start + number of characters of the passage; the passage itself is not stored (Clarifications Q6) |
 | ComplianceRun | `run_id` | `UUID` | Yes | identifier |
 | ComplianceRun | `project_id` | `UUID` | Yes |  |
 | ComplianceRun | `run_at` | `TIMESTAMPTZ` | Yes |  |
 | ComplianceFinding | `run_id` | `UUID` | Yes |  |
+| ComplianceFinding | `rule_id` | `UUID` | Yes | the cited rule revision (BR-008) |
 
 ## 7. Screens involved
 
@@ -380,11 +397,11 @@ Types and required flags of the attributes above that no field in 5.1 declares (
 | 7 | [NEEDS CLARIFICATION: daily pre-check limit per IP] *(from SC-03)* | No | Group C | Open |
 | 8 | [NEEDS CLARIFICATION: the specific clause of Article 9 for each rule is to be filled in `legal_rule.citation` by the VFDA Legal Board; the mockup only goes to Article level] *(from SC-48)* *(also raised in SC-31)* | No | Client (VFDA Legal Board) | Open |
 | 9 | [NEEDS CLARIFICATION: which application form is currently in force, and may VFDA provide a bilingual version of it] *(from SC-27)* | Yes | Client (VFDA) | Decided (provisional, VFDA to confirm) — see Clarifications |
-| 10 | [NEEDS CLARIFICATION: F-M2-15 filters by segment, but a legal rule has no segment field (M2 §6). Who decides which rules apply to segments A, B and C, and where is it stored?] *(from SC-30)* | No | Client (VFDA Legal Board) | Open |
+| 10 | [NEEDS CLARIFICATION: F-M2-15 filters by segment, but a legal rule has no segment field (M2 §6). Who decides which rules apply to segments A, B and C, and where is it stored?] *(from SC-30)* | No | Client (VFDA Legal Board) | Decided (provisional, VFDA to confirm) — see Clarifications |
 | 11 | [NEEDS CLARIFICATION: M2 §5.1 declares the public `topic` filter as `VARCHAR(60)` while the rule base uses the 7-value topic enum; confirm the library uses the same enum] *(from SC-30)* | No | Group C | Open |
 | 12 | [NEEDS CLARIFICATION: should the public rule page list earlier versions of the rule and what changed between them?] *(from SC-31)* | No | Client (VFDA Legal Board) | Open |
 | 13 | [NEEDS CLARIFICATION: when an approved rule needs a correction, is a new draft revision created while the signed text stays in force, and does retiring a rule also create a new rule-set version?] *(from SC-37)* | Yes | Client (VFDA Legal Board) | Decided (provisional, VFDA to confirm) — see Clarifications |
-| 14 | [NEEDS CLARIFICATION: format of `rule_version` (the mockups use year.month, e.g. 2026.08) when more than one rule is signed in the same month] *(from SC-37)* | No | Group C | Open |
+| 14 | [NEEDS CLARIFICATION: format of `rule_version` (the mockups use year.month, e.g. 2026.08) when more than one rule is signed in the same month] *(from SC-37)* | No | Group C | Decided (provisional, VFDA to confirm) — see Clarifications |
 
 ## 11. Traceability to DBIZ2
 
@@ -407,6 +424,12 @@ Where the 20-screen design or this spec differs from the DBIZ2 Function List, th
 | Rule severity | ENUM(info, notice, action) | ENUM(notice, action) — the screens show only *Needs attention* / *Action required* | Changed — Confirmed by the Client |
 | Rule guidance | not in DBIZ2 | guidance_vi / guidance_en added to show *Points to consider* (SC-48) | Added — Confirmed by the Client |
 | F-M2-15, F-M2-16 priority | Must | Should — screens SC-30 / SC-31 are not in the 20-screen set | Changed — Confirmed by the Client |
+| Rule revisions | one row per rule; findings cite `rule_code` | one row per revision (`rule_code`, `revision`); at most one approved revision per code; findings cite the revision (`rule_id`); `retired_version` records the version that retired it (Clarifications Q13, BR-008) | Changed — Group C decision 07/11/2026, VFDA to confirm |
+| Stored pre-check findings | rule code, quoted passage and explanation stored | rule revision and span only; nothing of the summary is stored; the explanation shown is the rule's own description (Clarifications Q6) | Changed — Group C decision 07/11/2026, VFDA to confirm |
+| Fallback keywords | not in DBIZ2 | `keywords_vi`, `keywords_en` written and signed by the VFDA Legal Board; used only when the language model is unavailable | Added — Group C decision 07/11/2026, VFDA to confirm |
+| Dropped findings | *logged for VFDA* (place not stated) | `precheck_run.dropped_count` and `dropped_rule_codes`, without text | Added — Group C decision 08/11/2026, VFDA to confirm |
+| Rule segments | F-M2-15 filters by segment; a rule has no segment field | `legal_rule.segments` (A / B / C) chosen by the VFDA Legal Board on SC-37 (Clarifications Q10) | Added — Group C decision 09/11/2026, VFDA to confirm |
+| Sample rules | about 25 rules written by the VFDA Legal Board before launch (§9) | until then, about 25 sample rules (`legal_rule.is_sample`, labelled *Sample*) with Article 9 citations to the clause and point, each to be checked by the VFDA Legal Board | Added — Group C decision 09/11/2026, VFDA to confirm |
 
 ## Completion checklist
 

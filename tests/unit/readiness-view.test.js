@@ -174,6 +174,10 @@ describe('v_project_readiness on node:sqlite (T005, BR-001..BR-004, FR-005, FR-0
   test('US-2 Scenario 1: an A or B project with 2 of 4 Article 13 components present shows 50 % and names the two missing', () => {
     scenario((db) => {
       db.prepare("UPDATE document_slot SET state = 'present' WHERE project_id = ? AND doc_code = 'A13_SCRIPT_VI'").run(RICE);
+      // Added 09/11/2026 with Nam Tran's approval (M2 plan D18): the Dossier gauge now reads M2's dossier check, which keeps
+      // component b below Present while a paragraph is not proofread (SC-27 SR-086); the paragraph of Rice and Salt is
+      // proofread here so that the scenario still has 2 of 4 components present.
+      db.prepare("UPDATE bilingual_paragraph SET status = 'reviewed', reviewed_by = '95f36904-6141-5469-8c63-712a80a4295e', reviewed_at = '2026-11-09T10:00:00+07:00' WHERE project_id = ? AND doc_code = 'A13_SCRIPT_VI'").run(RICE);
       const r = row(RICE);
       assert.equal(num(r.dossier_score), 50);
       assert.equal(r.dossier_action, 'dossier.add_missing');

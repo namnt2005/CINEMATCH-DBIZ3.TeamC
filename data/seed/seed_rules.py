@@ -199,13 +199,45 @@ def validate(S, T):
         if (r["is_active"] == "true") != (r["status"] == "approved"):
             err.append(f"LEGAL_RULE {r['rule_code']}: is_active does not match status (upkeep rule, 04 minimality)")
     # M2 BR-004: attention level recomputed from the verified findings; M2 §6.1: span = length of the quote
-    sev = {r["rule_code"]: r["severity"] for r in T["LEGAL_RULE"]}
+    # M2 Q13 (plan D2): one approved revision per code; retired ⇔ retired_version; segments; keywords
+    approved = {}
+    for r in T["LEGAL_RULE"]:
+        if r["status"] == "approved": approved[r["rule_code"]] = approved.get(r["rule_code"], 0) + 1
+        if (r["status"] == "retired") != bool(r["retired_version"]):
+            err.append(f"LEGAL_RULE {r['rule_code']} r{r['revision']}: retired_version must be set exactly when retired (M2 Q13)")
+        seg = json.loads(r["segments"] or "[]")
+        if not seg or len(set(seg)) != len(seg) or any(x not in ("A", "B", "C") for x in seg):
+            err.append(f"LEGAL_RULE {r['rule_code']}: segments {seg} (M2 Q10)")
+        for k in ("keywords_vi", "keywords_en"):
+            kw = json.loads(r[k] or "[]")
+            if len(kw) > 30 or any(not isinstance(w, str) or not 1 <= len(w) <= 60 for w in kw):
+                err.append(f"LEGAL_RULE {r['rule_code']}: {k} (M2 plan D4)")
+    for code, n in approved.items():
+        if n > 1: err.append(f"LEGAL_RULE {code}: {n} approved revisions (M2 Q13)")
+    rules = {r["rule_id"]: r for r in T["LEGAL_RULE"]}
+    def in_force(rule_id, version):   # M2 BR-001, BR-007: the cited revision was signed in or before the run's version
+        r = rules.get(rule_id)
+        return bool(r and r["rule_version"] and r["rule_version"] <= version and (not r["retired_version"] or r["retired_version"] > version))
+    runs = {r["brief_id"]: r for r in T["PRECHECK_RUN"]}
+    cruns = {r["run_id"]: r for r in T["COMPLIANCE_RUN"]}
     by_run = {}
     for f in T["PRECHECK_FINDING"]:
-        by_run.setdefault(f["brief_id"], []).append(sev[f["rule_code"]])
-        if int(f["span_end"]) - int(f["span_start"]) != len(f["quoted_text"]):
-            err.append(f"PRECHECK_FINDING {f['rule_code']} '{f['quoted_text']}': span length differs from the quote (M2 §6.1)")
+        by_run.setdefault(f["brief_id"], []).append(rules[f["rule_id"]]["severity"])
+        if not 0 <= int(f["span_start"]) < int(f["span_end"]):
+            err.append(f"PRECHECK_FINDING {f['brief_id']}: span {f['span_start']}–{f['span_end']} (M2 §6.1)")
+        if not in_force(f["rule_id"], runs[f["brief_id"]]["rule_version"]):
+            err.append(f"PRECHECK_FINDING {f['brief_id']}: cites a revision not in force in its version (M2 BR-001, BR-007)")
+    for f in T["COMPLIANCE_FINDING"]:
+        if not in_force(f["rule_id"], cruns[f["run_id"]]["rule_version"]):
+            err.append(f"COMPLIANCE_FINDING {f['finding_id']}: cites a revision not in force in its version (M2 BR-001, BR-007)")
     for r in T["PRECHECK_RUN"]:
+        # M2 FR-012 (decided 08/11/2026): dropped findings counted on the run, their codes kept without text
+        codes = json.loads(r["dropped_rule_codes"] or "[]")
+        n = int(r["dropped_count"] or 0)
+        if (n == 0) != (codes == []) or len(codes) > n or len(set(codes)) != len(codes):
+            err.append(f"PRECHECK_RUN {r['brief_id']}: dropped_count {n} does not match dropped_rule_codes {codes} (M2 FR-012)")
+        if r["attention_level"] == "" and n == 0:
+            err.append(f"PRECHECK_RUN {r['brief_id']}: no attention level but nothing was dropped (M2 FR-012)")
         if r["attention_level"] == "":   # every finding was dropped by FR-012: no level is shown
             if r["brief_id"] in by_run: err.append(f"PRECHECK_RUN {r['brief_id']}: findings but no attention level")
             continue

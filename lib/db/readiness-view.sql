@@ -3,6 +3,7 @@
 -- placeholder (the ordered list aggregate) and the migration embeds the PostgreSQL rendering.
 -- Formulas: specs/005-m0-workspace/research.md R1 (= data/seed/seed_rules.py readiness()); gauges shown and
 -- counted from the GAUGE_* rows of segment_requirement (R2, BR-002, BR-004); next steps R4 (BR-003).
+-- The Dossier gauge reads M2's dossier check v_dossier_check (lib/db/dossier-view.sql; M2 FR-010, decided 09/11/2026).
 -- M0 §3 edge case (decision H1): a counted gauge whose readiness_source row is not reporting has no score,
 -- the step not_reported, and stays out of the overall score, which uses only the gauges that reported.
 SELECT
@@ -88,8 +89,8 @@ FROM (
       SELECT {{ordered_list:dt.doc_code}}
       FROM document_type dt
       WHERE SUBSTR(dt.doc_code, 1, 4) = 'A13_'
-        AND NOT EXISTS (SELECT 1 FROM document_slot ds
-                        WHERE ds.project_id = f.project_id AND ds.doc_code = dt.doc_code AND ds.state = 'present')
+        AND NOT EXISTS (SELECT 1 FROM v_dossier_check dc
+                        WHERE dc.project_id = f.project_id AND dc.doc_code = dt.doc_code AND dc.state = 'present')
     ) END AS dossier_missing
   FROM (
     SELECT
@@ -108,7 +109,7 @@ FROM (
       (SELECT COUNT(*) FROM collab_request cr WHERE cr.project_id = p.project_id AND cr.status = 'info_requested') AS requests_info,
       (SELECT COUNT(*) FROM collab_request cr WHERE cr.project_id = p.project_id AND cr.status IN ('pending', 'under_review')) AS requests_waiting,
       (SELECT COUNT(*) FROM document_type dt WHERE SUBSTR(dt.doc_code, 1, 4) = 'A13_') AS a13_types,
-      (SELECT COUNT(*) FROM document_slot ds WHERE ds.project_id = p.project_id AND SUBSTR(ds.doc_code, 1, 4) = 'A13_' AND ds.state = 'present') AS a13_present,
+      (SELECT COUNT(*) FROM v_dossier_check dc WHERE dc.project_id = p.project_id AND dc.state = 'present') AS a13_present,
       CASE WHEN EXISTS (SELECT 1 FROM segment_requirement g WHERE g.segment = p.segment AND g.requirement_code = 'GAUGE_CONTENT') THEN 1 ELSE 0 END AS show_content,
       CASE WHEN EXISTS (SELECT 1 FROM segment_requirement g WHERE g.segment = p.segment AND g.requirement_code = 'GAUGE_LOCATIONS') THEN 1 ELSE 0 END AS show_locations,
       CASE WHEN EXISTS (SELECT 1 FROM segment_requirement g WHERE g.segment = p.segment AND g.requirement_code = 'GAUGE_PARTNERS') THEN 1 ELSE 0 END AS show_partners,

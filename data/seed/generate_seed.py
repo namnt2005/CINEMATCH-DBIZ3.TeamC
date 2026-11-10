@@ -248,9 +248,18 @@ LR = [  # code, version, title_en, title_vi, severity, topic, status, approved
    "across national borders, including dramatised smuggling, in any segment and any format of production")[:200],
    "Cảnh quay liên quan đến khu vực biên giới, cột mốc và đồn biên phòng","action","security","approved"),
 ]
+# Keywords of the fallback match (M2 plan D4), signed with the rule; A13-DOSSIER has none (boundary: never matched)
+KW = {"A9-MIL": (["quân phục", "vũ khí", "bộ đội", "binh lính"], ["soldiers", "military uniform", "weapons", "army base"]),
+      "A9-HIST": (["lịch sử", "nhân vật lịch sử", "chiến tranh"], ["historical figure", "historical event", "war"]),
+      "A9-RELIG": (["chùa", "nhà thờ", "đền", "lễ hội tôn giáo"], ["pagoda", "temple", "church", "religious ceremony"]),
+      "A9-PERSON": (["người thật", "dựa trên cuộc đời", "nhân vật có thật"], ["based on the life of", "real person", "true story"]),
+      "A9-DRUG": (["ma túy"], ["drugs", "heroin"]), "A9-HERIT": (["di sản"], ["heritage site"]), "A9-MAP": (["bản đồ"], ["map"]),
+      "A9-LONG": (["biên giới", "đồn biên phòng", "cột mốc", "vượt biên"], ["border", "border post", "border marker", "smuggling"])}
+RETIRED_IN = {"A9-MAP": "2026.08"}     # M2 Q13: retiring creates a version; A9-MAP left the set in 2026.08 (audit rule.retire 28/08)
 for code, ver, ten, tvi, sev, topic, st in LR:
     ok = st in ("approved", "retired")       # a retired rule was signed before; it is never deleted (M2 BR-008)
-    add("LEGAL_RULE", rule_id=U("rule:" + code), rule_code=code, rule_version=ver, title_vi=tvi, title_en=ten,
+    kw = KW.get(code, ([], []))
+    add("LEGAL_RULE", rule_id=U("rule:" + code), rule_code=code, revision=1, rule_version=ver, title_vi=tvi, title_en=ten,
         description_vi=f"Mô tả quy tắc {code} — bản mẫu, chờ Ban Pháp chế VFDA soạn chính thức.",
         description_en=f"Description of rule {code} — mockup text, pending the VFDA Legal Board's wording.",
         guidance_vi="Điểm cần cân nhắc: nêu rõ bối cảnh và cách thể hiện trong kịch bản tóm tắt.",
@@ -258,7 +267,19 @@ for code, ver, ten, tvi, sev, topic, st in LR:
         citation=("Law 05/2022/QH15, Art. 13(3)" if code.startswith("A13") else "Law 05/2022/QH15, Art. 9") if ok else "",
         severity=sev, topic=topic, rule_slug=code.lower(), status=st,
         approved_by=UID["quan"] if ok else "", approved_at=TS("2026-08-28" if ver == "2026.08" else "2026-07-20" if ver == "2026.07" else "2026-06-15", "15:30") if ok else "",
-        is_active=str(st == "approved").lower())
+        is_active=str(st == "approved").lower(), retired_version=RETIRED_IN.get(code, ""),
+        keywords_vi=J(kw[0]) if kw[0] else "", keywords_en=J(kw[1]) if kw[1] else "",
+        segments=J(["A", "B"] if code.startswith("A13") else ["A", "B", "C"]), is_sample="true")
+# M2 Q13: a correction of A9-HIST is drafted as revision 2; revision 1 stays in force until revision 2 is signed
+add("LEGAL_RULE", rule_id=U("rule:A9-HIST:2"), rule_code="A9-HIST", revision=2, rule_version="",
+    title_vi="Nhân vật và sự kiện lịch sử (bản sửa)", title_en="Historical figures and events (revision)",
+    description_vi="Mô tả quy tắc A9-HIST, bản sửa 2 — bản mẫu, chờ Ban Pháp chế VFDA soạn chính thức.",
+    description_en="Description of rule A9-HIST, revision 2 — mockup text, pending the VFDA Legal Board's wording.",
+    guidance_vi="Điểm cần cân nhắc: nêu rõ nhân vật, thời điểm và nguồn tư liệu lịch sử.",
+    guidance_en="Points to consider: name the figures, the period and the historical sources.",
+    citation="", severity="notice", topic="history", rule_slug="a9-hist", status="draft", approved_by="", approved_at="",
+    is_active="false", retired_version="", keywords_vi=J(KW["A9-HIST"][0]), keywords_en=J(KW["A9-HIST"][1]),
+    segments=J(["A", "B", "C"]), is_sample="true")
 
 SYN = ("In 1972, an old ferryman carries villagers across a river between limestone karsts at dawn. One night, soldiers ask him "
        "to take them across in secret.")
@@ -276,17 +297,20 @@ FINDINGS = [("ferry1","A9-HIST",3,"In 1972"),("ferry1","A9-MIL",65,"soldiers ask
             ("g-vi","A9-LONG",41,"vượt biên giới vào ban đêm"),("g-vi","A9-HIST",80,"năm 1979")]
 SEV = {code: sev for code, _v, _te, _tv, sev, _t, _s in LR}
 DROPPED = {"g-dropped"}          # every finding was dropped by FR-012: no attention level is shown
+# M2 FR-012 (decided 08/11/2026): codes of the dropped findings, never their text. A9-NAVY is not a rule (invented by the model);
+# A9-MIL is a rule whose quote was not in the text; A9-HERIT is a draft rule (unsigned).
+DROPPED_CODES = {"g-dropped": (2, ["A9-NAVY", "A9-MIL"]), "g-vi": (1, ["A9-HERIT"])}
 for k, proj, ver, lang, flags, cc, _typed, d in PR:
     # M2 BR-004 — computed from the verified findings with the M2 §9 thresholds, never typed by hand
     lvl = "" if k in DROPPED else attention_level([SEV[c] for kk, c, _s, _q in FINDINGS if kk == k])
     add("PRECHECK_RUN", brief_id=U("brief:" + k), project_id=PID[proj] if proj else "", rule_version=ver,
         synopsis_hash=U("hash:" + k).replace("-", ""), lang=lang, flags=J(flags) if flags else "", country_guess=cc,
-        attention_level=lvl, created_at=TS(d, "11:00"))
+        attention_level=lvl, dropped_count=DROPPED_CODES.get(k, (0, []))[0], dropped_rule_codes=J(DROPPED_CODES.get(k, (0, []))[1]),
+        created_at=TS(d, "11:00"))
 for k, code, s0, q in FINDINGS:
     # M2 §6.1 — span_end = span_start + length of the quoted passage
-    add("PRECHECK_FINDING", brief_id=U("brief:" + k), rule_code=code, span_start=s0, span_end=s0 + len(q), quoted_text=q,
-        explanation_vi=f"Đoạn này liên quan đến quy tắc {code}; hội đồng thẩm định thường xem xét kỹ nội dung này.",
-        explanation_en=f"This passage relates to rule {code}; appraisal boards usually look closely at such content.")
+    # M2 Q6: only the cited revision and the span are stored, never the passage itself
+    add("PRECHECK_FINDING", brief_id=U("brief:" + k), rule_id=U("rule:" + code), span_start=s0, span_end=s0 + len(q))
 for k, proj, ver, d in [("ferry-a","ferry","2026.07","2026-08-10"),("ferry-b","ferry","2026.08","2026-09-15"),
                         ("rice-a","rice","2026.08","2026-09-19"),("lantern-a","lantern","2026.08","2026-09-18"),
                         ("sapa-a","sapa","2026.08","2026-09-12"),("blues-a","blues","2026.08","2026-09-08")]:
@@ -298,7 +322,7 @@ for k, run, code, q, st, note in [
     ("f4","ferry-b","A9-MIL","soldiers ask him to take them across in secret","reviewed","Same as previous run."),
     ("f5","rice-a","A9-PERSON","the Nguyễn family of Bạc Liêu","open",""),
     ("f6","lantern-a","A9-RELIG","the lantern procession at Chùa Cầu","reviewed","Procession staged, no ceremony filmed.")]:
-    add("COMPLIANCE_FINDING", finding_id=U("finding:" + k), run_id=U("run:" + run), rule_code=code, quoted_text=q,
+    add("COMPLIANCE_FINDING", finding_id=U("finding:" + k), run_id=U("run:" + run), rule_id=U("rule:" + code), quoted_text=q,
         finding_status=st, reviewer_note=note)
 
 # ------------------------------------------------------------------ M3 locations

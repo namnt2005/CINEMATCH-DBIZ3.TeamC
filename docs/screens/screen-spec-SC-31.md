@@ -40,7 +40,7 @@
 | 1 | Navigation bar | Header | static; *Permits* selected; guest view | — | — |
 | 2 | Breadcrumb | Link | static + `topic` + `rule_code` | — | — |
 | 3 | Rule title | Header | `title_en` / `title_vi` by interface language | Yes | — |
-| 4 | Rule code, topic and severity | Text | `rule_code`, `topic`, `severity` (notice → *Needs attention*, action → *Action required*) | Yes | enum values shown with readable labels |
+| 4 | Rule code, topic, severity and segments | Text | `rule_code`, `topic`, `severity` (notice → *Needs attention*, action → *Action required*), `segments`; the label *Sample — pending the VFDA Legal Board* when `is_sample` | Yes | enum values shown with readable labels |
 | 5 | Rule version box | Text | `rule_version`, `approved_at` of the version in force | Yes | — |
 | 6 | Description — English | Text | `description_en` | Yes | — |
 | 7 | Description — Vietnamese | Text | `description_vi` | Yes | — |

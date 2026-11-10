@@ -45,7 +45,7 @@
 | 6 | Worth-mentioning hints | List (chip) | static; chips auto-tick ✓ when the topic is detected in the text | — | hints only, never block submission |
 | 7 | Three quick questions | Toggle (single choice ×3) | `precheck_run.flags` — real_person, military, heritage_site | No | Yes / No / Not sure |
 | 8 | *Check content* button | Button | static | — | disabled below 20 or above 200 words |
-| 9 | Privacy line | Text | static | Yes | always shown next to the button |
+| 9 | Privacy line + consent box | Text + Checkbox | static: *Văn bản của bạn không được lưu. Khi dùng phân tích nâng cao, văn bản được gửi tạm thời tới nhà cung cấp mô hình AI để xử lý.* / *Your text is not stored. With advanced analysis, the text is sent temporarily to the AI model provider for processing.* The box *I agree to advanced analysis* is shown only when the paid model plan is enabled (`GEMINI_PAID_TIER=true`, as M5 Clarifications Q3) | Yes | always shown next to the button; the box is unticked by default; unticked → keyword matching |
 | 10 | *What is it checked against?* block | Text | `rule_set_version.rule_version (latest)`, count of approved `legal_rule` | Yes | must show the rule set version |
 | 11 | Disclaimer line | Text | static | Yes | always shown |
 
@@ -66,8 +66,9 @@
 | 1 | Summary box | type | Counts words; ticks hint chips when topics are detected | stays |
 | 2 | Language chip | tap | Changes the analysis language | stays |
 | 3 | Quick question | tap | Records the flag | stays |
-| 4 | *Check content* button | tap | Calls `F-M2-06`, logs the run via `F-M2-07` | SC-48 |
-| 5 | *View the regulations library* | tap | — | SC-30 |
+| 4 | Consent box | tick | Allows advanced analysis by the language model for this check only; unticked, the check uses keyword matching (fallback mode) | stays |
+| 5 | *Check content* button | tap | Calls `F-M2-06`, logs the run via `F-M2-07` | SC-48 |
+| 6 | *View the regulations library* | tap | — | SC-30 |
 
 ## 6. Screen-level rules
 
@@ -77,6 +78,7 @@
 | SR-062 | The 200-word limit is deliberate: enough to identify the topics, not enough for users to paste a whole script into a public tool. | Data minimisation principle |
 | SR-063 | The three quick questions are **optional**; *Not sure* is a valid answer and is treated as no information. | No-guessing principle |
 | SR-064 | Always show the rule set version that will be used — results must be traceable to the exact version. | TL5 §M2 |
+| SR-065 | The text is sent to the language model only with the user's tick and only on the paid model plan; otherwise keyword matching runs. The text is never stored (Clarifications Q6). | M2 Clarifications Q6; M5 Clarifications Q3 |
 
 ## 7. Linked requirements
 

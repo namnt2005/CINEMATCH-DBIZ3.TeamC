@@ -42,7 +42,7 @@
 | 7 | *Next step* sentence | Text | `F-M0-07` — rule-generated, no language model | Yes | always present; when done, shows *Complete* |
 | 8 | Gauge action button | Button | static; target per gauge | — | — |
 | 9 | *Logistics* gauge (not yet available) | Chart (gauge) | static | — | shows `—`, not 0% |
-| 10 | Safe submission deadline strip | Text | `F-M5-08` — safe submission date and days remaining | No | hidden when there is no first shooting day or for segment C |
+| 10 | Recommended submission date strip | Text | `F-M5-08` — recommended submission date and days remaining | No | hidden when there is no first shooting day or for segment C |
 | 11 | Recent activity | List | project `notification` rows (`event_type`), 3 latest items | No | — |
 | 12 | *Book a consultation with VFDA* button | Button | static | — | — |
 

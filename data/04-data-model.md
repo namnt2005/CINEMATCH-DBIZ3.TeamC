@@ -8,7 +8,7 @@ sources: FUNCTIONS, FIELDS, ENTITIES, RULES, SCENARIOS, FLOWS, SCREENS, BOUNDARY
 
 # Logical Data Model — CINEMATCH
 
-49 tables, 336 columns. Every column is **copied** from a FIELDS row (section 5.1) or an ENTITIES attribute (section 6), with its declared type and Req / Opt flag. *system-set* = an output field (the system fills it); *not declared* = no flag in the input.
+49 tables, 341 columns. Every column is **copied** from a FIELDS row (section 5.1) or an ENTITIES attribute (section 6), with its declared type and Req / Opt flag. *system-set* = an output field (the system fills it); *not declared* = no flag in the input.
 
 **Every column has a declared type** — the types of the section 6 attributes that no 5.1 field declares come from section 6.1 of the owning Spec Document (cited as `<MODULE> §6.1`). Technical columns (`created_at`, `updated_at`) appear only where the spec declares them. The physical schema built from this model is in `data/schema/schema-<MODULE>.sql`; one readable view per module is in `data/data-model-<MODULE>.md`.
 
@@ -227,8 +227,9 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 | Column | Type (as declared) | Required | Key | Citation |
 |---|---|---|---|---|
 | `rule_id` | `UUID` | system-set | PK | M2 §5.1 FR-002 (OUT) |
-| `rule_code` | `VARCHAR(40)` | Req | UK | M2 §5.1 FR-002 |
-| `rule_version` | `VARCHAR(20)` | system-set | FK → `RULE_SET_VERSION` | M2 §6; M2 §5.1 FR-002 (OUT version INTEGER) — see Type conflicts |
+| `rule_code` | `VARCHAR(40)` | Req |  | M2 §5.1 FR-002; unique with revision (D2, 07/11/2026) |
+| `revision` | `INTEGER` | Req |  | M2 §6; M2 §5.1 FR-002 (OUT version = revision number); Clarifications Q13; M2 §6.1 |
+| `rule_version` | `VARCHAR(20)` | system-set | FK → `RULE_SET_VERSION` | M2 §6; M2 §5.1 FR-004 — the version that signed this revision |
 | `title_vi` | `VARCHAR(200)` | Req |  | M2 §5.1 FR-002 |
 | `title_en` | `VARCHAR(200)` | Req |  | M2 §5.1 FR-002 |
 | `description_vi` | `TEXT` | Req |  | M2 §5.1 FR-002 |
@@ -237,14 +238,19 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 | `guidance_en` | `TEXT` | Req |  | M2 §5.1 FR-002 |
 | `citation` | `VARCHAR(200)` | Req |  | M2 §5.1 FR-002; M2 §5.2 BR-002 (CHECK) |
 | `severity` | `ENUM(notice, action)` | Req |  | M2 §5.1 FR-002 |
+| `keywords_vi` | `JSONB` | Opt |  | M2 §5.1 FR-002 (keywords for the fallback match, decided 07/11/2026) |
+| `keywords_en` | `JSONB` | Opt |  | M2 §5.1 FR-002 (keywords for the fallback match, decided 07/11/2026) |
+| `segments` | `JSONB` | Req |  | M2 §5.1 FR-002, FR-015; Clarifications Q10 (decided 09/11/2026) |
 | `topic` | `ENUM(security, history, religion, privacy, dossier, public_order, heritage)` | Req |  | M2 §5.1 FR-002 (Req), FR-001 (filter_topic) — FR-015 declares VARCHAR(60), see Type conflicts |
-| `rule_slug` | `VARCHAR(120)` | Req | UK | M2 §5.1 FR-016 |
+| `rule_slug` | `VARCHAR(120)` | Req |  | M2 §5.1 FR-016; unique with revision (D2) |
 | `status` | `ENUM(draft, approved, retired)` | Opt |  | M2 §5.1 FR-001 (filter_status); M2 §6; M2 §5.2 BR-008 (retired, never deleted) |
 | `approved_by` | `UUID` | Req | FK → `USER_ACCOUNT` | M2 §5.1 FR-003 (approver_id); M2 §5.2 BR-002 (CHECK) |
 | `approved_at` | `TIMESTAMPTZ` | system-set |  | M2 §5.1 FR-003 (OUT) |
 | `is_active` | `BOOLEAN` | system-set |  | M2 §5.1 FR-003 (OUT) |
+| `retired_version` | `VARCHAR(20)` | Opt | FK → `RULE_SET_VERSION` | M2 §6; Clarifications Q13 (retiring creates a version); M2 §5.2 BR-008; M2 §6.1 |
+| `is_sample` | `BOOLEAN` | Req |  | M2 §6; M2 §9 (sample rules until the VFDA Legal Board writes them, decided 09/11/2026); M2 §6.1 |
 
-**Natural key:** rule_code today; rule_code + rule_version once one text per version is kept, as M2 BR-008 now requires (OQ-04-24).
+**Natural key:** rule_code + revision — one row per revision, at most one approved revision per code (M2 Clarifications Q13; OQ-04-24 resolved 07/11/2026).
 
 ## RULE_SET_VERSION
 
@@ -272,6 +278,8 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 | `flags` | `JSONB` | Opt |  | M2 §5.1 FR-005 |
 | `country_guess` | `VARCHAR(2)` | Opt |  | M2 §5.1 FR-007 |
 | `attention_level` | `ENUM(low, medium, high)` | system-set |  | M2 §5.1 FR-006 (OUT); M2 §5.2 BR-004 |
+| `dropped_count` | `INTEGER` | system-set |  | M2 §5.1 FR-012 (OUT dropped_count); decided 08/11/2026 — stored on the run for VFDA |
+| `dropped_rule_codes` | `JSONB` | Req |  | M2 §6; M2 §5.1 FR-012 (dropped findings logged for VFDA, no text); M2 §6.1 |
 | `created_at` | `TIMESTAMPTZ` | Req |  | M2 §6; M2 §6.1 |
 
 **Natural key:** None — the same summary may be checked many times (synopsis_hash + created_at in practice).
@@ -283,14 +291,11 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 | Column | Type (as declared) | Required | Key | Citation |
 |---|---|---|---|---|
 | `brief_id` | `UUID` | Req | PK, FK → `PRECHECK_RUN` | M2 §6 ("belongs to PrecheckRun") |
-| `rule_code` | `VARCHAR(40)` | system-set | PK, FK → `LEGAL_RULE` | M2 §5.1 FR-006 (OUT findings) |
+| `rule_id` | `UUID` | Req | PK, FK → `LEGAL_RULE` | M2 §6 (the cited revision); M2 §5.2 BR-008; M2 §6.1 |
 | `span_start` | `INTEGER` | Req | PK | M2 §6; M2 §6.1 |
 | `span_end` | `INTEGER` | Req |  | M2 §6; M2 §6.1 |
-| `quoted_text` | `TEXT` | system-set |  | M2 §5.1 FR-006 (OUT) |
-| `explanation_vi` | `TEXT` | system-set |  | M2 §5.1 FR-006 (OUT); M2 §6 (explanation) |
-| `explanation_en` | `TEXT` | system-set |  | M2 §5.1 FR-006 (OUT) |
 
-**Natural key:** brief_id + rule_code + span_start.
+**Natural key:** brief_id + rule_id + span_start.
 
 ## COMPLIANCE_RUN
 
@@ -313,12 +318,12 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 |---|---|---|---|---|
 | `finding_id` | `UUID` | Req | PK | M2 §5.1 FR-014 |
 | `run_id` | `UUID` | Req | FK → `COMPLIANCE_RUN` | M2 §6 ("belongs to ComplianceRun"); M2 §6.1 |
-| `rule_code` | `VARCHAR(40)` | system-set | FK → `LEGAL_RULE` | M2 §6; type from M2 §5.1 FR-006 |
+| `rule_id` | `UUID` | Req | FK → `LEGAL_RULE` | M2 §6 (the cited revision); M2 §5.2 BR-008; M2 §6.1 |
 | `quoted_text` | `TEXT` | system-set |  | M2 §6; type from M2 §5.1 FR-006 |
 | `finding_status` | `ENUM(open, reviewed)` | system-set |  | M2 §5.1 FR-014 (OUT) |
 | `reviewer_note` | `TEXT` | Opt |  | M2 §5.1 FR-014 |
 
-**Natural key:** run_id + rule_code + quoted_text.
+**Natural key:** run_id + rule_id + quoted_text.
 
 ## LOCATION
 
@@ -819,7 +824,7 @@ Reported only — nothing was fixed in the model.
 |---|---|---|---|
 | (i) freeze | PROVINCE_NOTICE.authority_email ← AUTHORITY_CONTACT.contact_email | Contacts are re-verified and may change (M3 BR-004). No rule says the notice keeps the address it was sent to. | OQ-04-1 |
 | (i) freeze | PROVINCE_NOTICE.project_summary ← PROJECT | Project name, dates and logline can be edited after the notice is sent (M0 FR-002). No rule says the summary is frozen. | OQ-04-2 |
-| (i) freeze | PRECHECK_FINDING / COMPLIANCE_FINDING → LEGAL_RULE (rule_code) | Settled by M2 BR-008: a finding keeps showing the text of the rule version it cited (versions stored per check, BR-007). The model still keys LEGAL_RULE by rule_code alone, so it cannot yet hold two texts of one rule. | OQ-04-3 (resolved); OQ-04-24 |
+| (i) freeze | PRECHECK_FINDING / COMPLIANCE_FINDING → LEGAL_RULE (rule_id) | Settled by M2 BR-008 and Clarifications Q13: one row per revision; a finding points at the revision it cited, so it keeps showing that text after a correction. | OQ-04-3 (resolved); OQ-04-24 (resolved) |
 | (i) freeze | SEGMENT_DECISION → SEGMENT_RULE | SEGMENT_RULE has a version; the decision does not store which version decided it. | OQ-04-4 |
 | (i) freeze | BILINGUAL_DOCUMENT.project_meta ← PROJECT | A copy of project data is stored with the draft; no rule says whether it refreshes when the project changes. | OQ-04-5 |
 | (i) freeze | NDA_ACCEPTANCE.nda_version; CONSENT.consent_version; READINESS_SNAPSHOT.readiness_total | Settled: versions and snapshots are stored at the time (M4 FR-017, SYS BR-003, M0 FR-008). | — |
@@ -873,6 +878,7 @@ erDiagram
     SEGMENT_RULE |o..o{ SEGMENT_DECISION : "decides"
     RULE_SET_VERSION |o..|{ LEGAL_RULE : "includes"
     USER_ACCOUNT ||..o{ RULE_SET_VERSION : "publishes"
+    RULE_SET_VERSION |o..o{ LEGAL_RULE : "retires"
     USER_ACCOUNT |o..o{ LEGAL_RULE : "approves"
     RULE_SET_VERSION ||..o{ PRECHECK_RUN : "is applied in"
     PROJECT |o..o{ PRECHECK_RUN : "may be linked to"
@@ -1043,8 +1049,9 @@ erDiagram
     }
     LEGAL_RULE {
         uuid rule_id PK "M2 s5.1 FR-002 (OUT)"
-        string rule_code UK "M2 s5.1 FR-002"
-        string rule_version FK "M2 s6; M2 s5.1 FR-002 (OUT version INTEGER) - see Type conflicts"
+        string rule_code "M2 s5.1 FR-002; unique with revision (D2, 07/11/2026)"
+        int revision "M2 s6; M2 s5.1 FR-002 (OUT version = revision number); Clarifications Q13; M2 s6.1"
+        string rule_version FK "M2 s6; M2 s5.1 FR-004 - the version that signed this revision"
         string title_vi "M2 s5.1 FR-002"
         string title_en "M2 s5.1 FR-002"
         string description_vi "M2 s5.1 FR-002"
@@ -1053,12 +1060,17 @@ erDiagram
         string guidance_en "M2 s5.1 FR-002"
         string citation "M2 s5.1 FR-002; M2 s5.2 BR-002 (CHECK)"
         enum severity "M2 s5.1 FR-002"
+        string keywords_vi "declared JSONB - M2 s5.1 FR-002 (keywords for the fallback match, decided 07/11/2026)"
+        string keywords_en "declared JSONB - M2 s5.1 FR-002 (keywords for the fallback match, decided 07/11/2026)"
+        string segments "declared JSONB - M2 s5.1 FR-002, FR-015; Clarifications Q10 (decided 09/11/2026)"
         enum topic "M2 s5.1 FR-002 (Req), FR-001 (filter_topic) - FR-015 declares VARCHAR(60), see Type conflicts"
-        string rule_slug UK "M2 s5.1 FR-016"
+        string rule_slug "M2 s5.1 FR-016; unique with revision (D2)"
         enum status "M2 s5.1 FR-001 (filter_status); M2 s6; M2 s5.2 BR-008 (retired, never deleted)"
         uuid approved_by FK "M2 s5.1 FR-003 (approver_id); M2 s5.2 BR-002 (CHECK)"
         datetime approved_at "M2 s5.1 FR-003 (OUT)"
         boolean is_active "M2 s5.1 FR-003 (OUT)"
+        string retired_version FK "M2 s6; Clarifications Q13 (retiring creates a version); M2 s5.2 BR-008; M2 s6.1"
+        boolean is_sample "M2 s6; M2 s9 (sample rules until the VFDA Legal Board writes them, decided 09/11/2026); M2 s6.1"
     }
     RULE_SET_VERSION {
         string rule_version PK "M2 s5.1 FR-004 (OUT) - see Type conflicts"
@@ -1074,16 +1086,15 @@ erDiagram
         string flags "declared JSONB - M2 s5.1 FR-005"
         string country_guess "M2 s5.1 FR-007"
         enum attention_level "M2 s5.1 FR-006 (OUT); M2 s5.2 BR-004"
+        int dropped_count "M2 s5.1 FR-012 (OUT dropped_count); decided 08/11/2026 - stored on the run for VFDA"
+        string dropped_rule_codes "declared JSONB - M2 s6; M2 s5.1 FR-012 (dropped findings logged for VFDA, no text); M2 s6.1"
         datetime created_at "M2 s6; M2 s6.1"
     }
     PRECHECK_FINDING {
         uuid brief_id PK,FK "M2 s6 ('belongs to PrecheckRun')"
-        string rule_code PK,FK "M2 s5.1 FR-006 (OUT findings)"
+        uuid rule_id PK,FK "M2 s6 (the cited revision); M2 s5.2 BR-008; M2 s6.1"
         int span_start PK "M2 s6; M2 s6.1"
         int span_end "M2 s6; M2 s6.1"
-        string quoted_text "M2 s5.1 FR-006 (OUT)"
-        string explanation_vi "M2 s5.1 FR-006 (OUT); M2 s6 (explanation)"
-        string explanation_en "M2 s5.1 FR-006 (OUT)"
     }
     COMPLIANCE_RUN {
         uuid run_id PK "M2 s6; M2 s6.1"
@@ -1094,7 +1105,7 @@ erDiagram
     COMPLIANCE_FINDING {
         uuid finding_id PK "M2 s5.1 FR-014"
         uuid run_id FK "M2 s6 ('belongs to ComplianceRun'); M2 s6.1"
-        string rule_code FK "M2 s6; type from M2 s5.1 FR-006"
+        uuid rule_id FK "M2 s6 (the cited revision); M2 s5.2 BR-008; M2 s6.1"
         string quoted_text "M2 s6; type from M2 s5.1 FR-006"
         enum finding_status "M2 s5.1 FR-014 (OUT)"
         string reviewer_note "M2 s5.1 FR-014"
@@ -1396,7 +1407,7 @@ erDiagram
 | OQ-04-21 | [NEEDS CLARIFICATION: Add a creation time to PROJECT and LOCATION_QUERY so the demand index can be filtered by period (M10 FR-003, FR-005)?] | No | M0, M3, M10 owners | Not modelled; seed rows carry no creation time | Indicators cannot be computed for a month, quarter or year. | Open |
 | OQ-04-22 | [NEEDS CLARIFICATION: Which function lets a partner submit a location photo for moderation? F-M3-03 is for VFDA staff only.] | No | M3 + M10 owners | Seed has partner photos as if submitted; no function is mapped | The `location_image` content type has no source. | Open |
 | OQ-04-23 | [NEEDS CLARIFICATION: Which function sets LEGAL_RULE.status = retired (M2 BR-008)?] | No | M2 owner (VFDA Legal) | Treated as an edit through F-M2-02 | Retiring a rule has no permission check or audit action of its own. | Open |
-| OQ-04-24 | [NEEDS CLARIFICATION: Since each rule version keeps its text (M2 BR-008), key LEGAL_RULE by rule_code + rule_version and point findings at that pair?] | Yes | M2 owner | Not changed: rule_code stays unique; one text per rule in the seed | An edited rule overwrites the text old findings must keep showing. | Open |
+| OQ-04-24 | [NEEDS CLARIFICATION: Since each rule version keeps its text (M2 BR-008), key LEGAL_RULE by rule_code + rule_version and point findings at that pair?] | Yes | M2 owner | Not changed: rule_code stays unique; one text per rule in the seed | An edited rule overwrites the text old findings must keep showing. | Resolved 07/11/2026 (M2 plan D2): one row per revision keyed by rule_code + revision; findings point at rule_id; legal_rule.retired_version. |
 | OQ-04-25 | [NEEDS CLARIFICATION: AUDIT_LOG.target_id is a UUID; how are actions on rows keyed by text (image_url, rule_version, doc_code) recorded?] | No | M10 owner | Seed logs only actions whose target has a UUID key | Some admin actions cannot name their target, which M10 US-4 requires. | Open |
 
 

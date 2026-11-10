@@ -44,7 +44,7 @@
 | 4 | Point count by level | Text | count of `precheck_finding` by `severity` | Yes | — |
 | 5 | Submitted text | Text | `summary_text — input only, never stored (M2 FR-007 keeps precheck_run.synopsis_hash)` | Yes | shown verbatim, unedited |
 | 6 | Highlighted passage | Text (highlight) | `precheck_finding.span_start/end`, finding number | — | yellow = Needs attention, red = Action required; always with a number |
-| 7 | Finding card | List | `precheck_finding` + `legal_rule.title_en` | — | shown only with a valid citation |
+| 7 | Finding card | List | `precheck_finding` + `legal_rule.title_en`; the label *Sample — pending the VFDA Legal Board* when the cited rule has `is_sample` | — | shown only with a valid citation |
 | 8 | Severity label | Text | `legal_rule.severity` | Yes | Needs attention / Action required |
 | 9 | Provision citation + rule code | Text | `legal_rule.citation`, `legal_rule.rule_code` | **Yes** | **no citation, no finding shown** (`F-M2-12`) |
 | 10 | Points to consider | Text | `legal_rule.guidance_vi/en` — written by the VFDA Legal Board | Yes | taken verbatim from the rule; **not** written by a language model |

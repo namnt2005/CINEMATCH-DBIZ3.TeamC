@@ -19,11 +19,11 @@
 
 - Q1: Document list for segment C. → A: Minimum list for segment C: crew passports and visas, service contract with the Vietnamese partner, shooting schedule with locations, and a local permit when shooting in a public place. Marked *awaiting VFDA confirmation*.
 - Q3: Which translation service may process scripts, which are confidential? → A: Only the paid Google Gemini API (data not used for training) may process real scripts, and only after the user ticks a consent box. The free tier is used with synthetic sample scripts only.
-- Q7: are the "20 days" calendar days or working days — if working days, the safe deadline moves about 3 weeks earlier → A: Working days (weekends and PUBLIC_HOLIDAY excluded). Same decision as M2 question 1.
+- Q7: are the "20 days" calendar days or working days — if working days, the recommended submission date moves about 3 weeks earlier → A: Working days (weekends and PUBLIC_HOLIDAY excluded). Same decision as M2 question 1.
 
 ## 1. Purpose and scope
 
-This module gives each project the list of documents its segment needs, stores them, helps turn the English script summary into a Vietnamese draft that a person proofreads, and counts back from the first shooting day to the latest safe date to file. Nothing it produces is presented as final: every generated document is a draft for a human.
+This module gives each project the list of documents its segment needs, stores them, helps turn the English script summary into a Vietnamese draft that a person proofreads, and counts back from the first shooting day to the recommended date to file. Nothing it produces is presented as final: every generated document is a draft for a human.
 
 **In scope**
 
@@ -75,20 +75,20 @@ This module gives each project the list of documents its segment needs, stores t
 2. **Given** a paragraph marked proofread, **When** anyone edits it, **Then** it returns to *not proofread*.
 3. **Given** 14 of 14 paragraphs proofread, **When** the page updates, **Then** Article 13 component b can become *Present*.
 
-### US-3 (P1): See my latest safe filing date
+### US-3 (P1): See my recommended filing date
 
-**Journey.** As a producer, I want the safe submission deadline counted back from my first shooting day, so that one resubmission cannot push my shoot.
+**Journey.** As a producer, I want the recommended submission date counted back from my first shooting day, so that one resubmission cannot push my shoot.
 
 **Acceptance scenarios**
 
-1. **Given** first shooting day 15/03/2027 and a 7-day buffer, **When** the countdown loads, **Then** it shows the safe deadline 27/01/2027 and warns that filing on 16/02/2027 with one resubmission gives a result on 28/03/2027, after the first shooting day.
+1. **Given** first shooting day 15/03/2027 and a 7-day buffer, **When** the countdown loads, **Then** it shows the recommended submission date 05/01/2027 and warns that filing on the latest deadline 02/02/2027 with one resubmission gives a result on 02/04/2027, after the first shooting day (buffer in calendar days, 20-day periods in working days — M2 BR-006).
 2. **Given** a public holiday period inside the processing window, **When** the countdown loads, **Then** it is shown as a band marked *expected* until official dates are published.
 
 ### Edge cases
 
 - A file larger than 25 MB or of another type: refused at the upload area with the limit stated.
 - A document is replaced: the old version is kept in history; the check reruns.
-- The first shooting day is so close that the safe deadline has passed: the countdown says by how many days, in red, and offers *Book a VFDA consultation*.
+- The first shooting day is so close that the recommended submission date has passed: the countdown says by how many days, in red, and offers *Book a VFDA consultation*.
 - The translation call fails for one paragraph: only that paragraph shows *Could not translate — retry*.
 
 ## 4. Flows
@@ -144,7 +144,7 @@ sequenceDiagram
 | FR-004 | F-M5-04 | The system MUST generate a Vietnamese draft of the synopsis and Vietnam-scene script, aligned paragraph by paragraph with the source. | System | Must |
 | FR-005 | F-M5-05 | The system MUST export a two-column English–Vietnamese PDF with *DRAFT — REQUIRES PROOFREADING* on every page. | System | Must |
 | FR-006 | F-M5-06 | The system MUST record who proofread each paragraph and when, and let the project's Vietnamese partner confirm the whole document as proofread (who may proofread: §10 question 2). | Partner / Member | Must |
-| FR-007 | F-M5-07 | The system MUST store the project's first shooting day and safety buffer. | Member | Must |
+| FR-007 | F-M5-07 | The system MUST store the project's first shooting day and buffer before shooting. | Member | Must |
 | FR-008 | F-M5-08 | The system MUST show the reverse timeline with both scenarios and flag milestones that are late. | Member | Must |
 
 ### 5.1 Input / Output contract
@@ -226,7 +226,7 @@ Types and required flags of the attributes above that no field in 5.1 declares (
 |---|---|---|
 | SC-001 | A producer sees the full list of documents for their segment, with the reason for each, on the first visit. | Walkthrough with 5 producers: ask *why do you need item X?* |
 | SC-002 | A Vietnamese partner proofreads a 14-paragraph draft in under 45 minutes. | Timed session with 2 partners. |
-| SC-003 | Every producer in testing can state their safe submission deadline after opening the countdown. | Task check with 5 producers. |
+| SC-003 | Every producer in testing can state their recommended submission date after opening the countdown. | Task check with 5 producers. |
 
 ## 9. Assumptions
 
@@ -244,7 +244,7 @@ Types and required flags of the attributes above that no field in 5.1 declares (
 | 4 | [NEEDS CLARIFICATION: Are *foreign crew list* and *provincial notice* required anywhere, or only common practice?] *(also raised in SC-26)* | No | Client (VFDA Legal Board) | Open |
 | 5 | [NEEDS CLARIFICATION: Official Lunar New Year 2027 holiday dates.] *(also raised in SC-29)* | No | Client (VFDA) | Open |
 | 6 | [NEEDS CLARIFICATION: must the proofreader be Vietnamese / a certified translator, and must the proofreader be named in the submitted dossier] *(from SC-28)* | No | Client (VFDA Legal Board) | Open |
-| 7 | [NEEDS CLARIFICATION: are the "20 days" calendar days or working days — if working days, the safe deadline moves about 3 weeks earlier] *(from SC-29)* | Yes | Client (VFDA Legal Board) — same question as spec-M2.md | Decided (provisional, VFDA to confirm) — see Clarifications |
+| 7 | [NEEDS CLARIFICATION: are the "20 days" calendar days or working days — if working days, the recommended submission date moves about 3 weeks earlier] *(from SC-29)* | Yes | Client (VFDA Legal Board) — same question as spec-M2.md | Decided (provisional, VFDA to confirm) — see Clarifications |
 
 ## 11. Traceability to DBIZ2
 

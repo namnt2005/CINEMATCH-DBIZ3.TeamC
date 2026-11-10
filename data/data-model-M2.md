@@ -47,7 +47,7 @@ CITATION SCHEME = <MODULE> §<section> <ID>
 
 | Entity | Definition (one sentence) | Kind | Owner | Source | Table | Seed file (rows) |
 |---|---|---|---|---|---|---|
-| `LEGAL_RULE` | A content or dossier rule written and signed by the VFDA Legal Board, with its legal citation. | THING | M2 | spec §6 — M2 §6; M2 §5.1 FR-001, FR-002; M2 §5.2 BR-008 | `legal_rule` | `17_legal_rule.csv` (9) |
+| `LEGAL_RULE` | A content or dossier rule written and signed by the VFDA Legal Board, with its legal citation. | THING | M2 | spec §6 — M2 §6; M2 §5.1 FR-001, FR-002; M2 §5.2 BR-008 | `legal_rule` | `17_legal_rule.csv` (10) |
 | `RULE_SET_VERSION` | A numbered edition of the active rule set, created each time a rule is activated. | EVENT | M2 | spec §6 — M2 §6; M2 §5.1 FR-004 | `rule_set_version` | `16_rule_set_version.csv` (3) |
 | `PRECHECK_RUN` | One 200-word content pre-check, kept as a demand data point. | EVENT | M2 | spec §6 — M2 §6; M2 §5.1 FR-007 | `precheck_run` | `18_precheck_run.csv` (7) |
 | `PRECHECK_FINDING` | One passage of a pre-checked summary that matches an approved rule. | EVENT | M2 | spec §6 — M2 §6; M2 §5.1 FR-006 | `precheck_finding` | `19_precheck_finding.csv` (6) |
@@ -67,8 +67,9 @@ Every attribute traces to a §5.1 field, a §6.1 declared type, a key, or a deli
 | Column | Type | Required | Key | Source kind | Citation |
 |---|---|---|---|---|---|
 | `rule_id` | `UUID` | system-set | PK | §5.1 field | M2 §5.1 FR-002 (OUT) |
-| `rule_code` | `VARCHAR(40)` | Req | UK | §5.1 field | M2 §5.1 FR-002 |
-| `rule_version` | `VARCHAR(20)` | system-set | FK → `RULE_SET_VERSION` | §5.1 field | M2 §6; M2 §5.1 FR-002 (OUT version INTEGER) — see Type conflicts |
+| `rule_code` | `VARCHAR(40)` | Req |  | §5.1 field | M2 §5.1 FR-002; unique with revision (D2, 07/11/2026) |
+| `revision` | `INTEGER` | Req |  | §6.1 declared type | M2 §6; M2 §5.1 FR-002 (OUT version = revision number); Clarifications Q13; M2 §6.1 |
+| `rule_version` | `VARCHAR(20)` | system-set | FK → `RULE_SET_VERSION` | §5.1 field | M2 §6; M2 §5.1 FR-004 — the version that signed this revision |
 | `title_vi` | `VARCHAR(200)` | Req |  | §5.1 field | M2 §5.1 FR-002 |
 | `title_en` | `VARCHAR(200)` | Req |  | §5.1 field | M2 §5.1 FR-002 |
 | `description_vi` | `TEXT` | Req |  | §5.1 field | M2 §5.1 FR-002 |
@@ -77,14 +78,19 @@ Every attribute traces to a §5.1 field, a §6.1 declared type, a key, or a deli
 | `guidance_en` | `TEXT` | Req |  | §5.1 field | M2 §5.1 FR-002 |
 | `citation` | `VARCHAR(200)` | Req |  | §5.1 field | M2 §5.1 FR-002; M2 §5.2 BR-002 (CHECK) |
 | `severity` | `ENUM(notice, action)` | Req |  | §5.1 field | M2 §5.1 FR-002 |
+| `keywords_vi` | `JSONB` | Opt |  | §5.1 field | M2 §5.1 FR-002 (keywords for the fallback match, decided 07/11/2026) |
+| `keywords_en` | `JSONB` | Opt |  | §5.1 field | M2 §5.1 FR-002 (keywords for the fallback match, decided 07/11/2026) |
+| `segments` | `JSONB` | Req |  | §5.1 field | M2 §5.1 FR-002, FR-015; Clarifications Q10 (decided 09/11/2026) |
 | `topic` | `ENUM(security, history, religion, privacy, dossier, public_order, heritage)` | Req |  | §5.1 field | M2 §5.1 FR-002 (Req), FR-001 (filter_topic) — FR-015 declares VARCHAR(60), see Type conflicts |
-| `rule_slug` | `VARCHAR(120)` | Req | UK | §5.1 field | M2 §5.1 FR-016 |
+| `rule_slug` | `VARCHAR(120)` | Req |  | §5.1 field | M2 §5.1 FR-016; unique with revision (D2) |
 | `status` | `ENUM(draft, approved, retired)` | Opt |  | §5.1 field | M2 §5.1 FR-001 (filter_status); M2 §6; M2 §5.2 BR-008 (retired, never deleted) |
 | `approved_by` | `UUID` | Req | FK → `USER_ACCOUNT` | §5.1 field | M2 §5.1 FR-003 (approver_id); M2 §5.2 BR-002 (CHECK) |
 | `approved_at` | `TIMESTAMPTZ` | system-set |  | §5.1 field | M2 §5.1 FR-003 (OUT) |
 | `is_active` | `BOOLEAN` | system-set |  | §5.1 field | M2 §5.1 FR-003 (OUT) |
+| `retired_version` | `VARCHAR(20)` | Opt | FK → `RULE_SET_VERSION` | §6.1 declared type | M2 §6; Clarifications Q13 (retiring creates a version); M2 §5.2 BR-008; M2 §6.1 |
+| `is_sample` | `BOOLEAN` | Req |  | §6.1 declared type | M2 §6; M2 §9 (sample rules until the VFDA Legal Board writes them, decided 09/11/2026); M2 §6.1 |
 
-**Natural key:** rule_code today; rule_code + rule_version once one text per version is kept, as M2 BR-008 now requires (OQ-04-24).
+**Natural key:** rule_code + revision — one row per revision, at most one approved revision per code (M2 Clarifications Q13; OQ-04-24 resolved 07/11/2026).
 
 ### RULE_SET_VERSION
 
@@ -108,6 +114,8 @@ Every attribute traces to a §5.1 field, a §6.1 declared type, a key, or a deli
 | `flags` | `JSONB` | Opt |  | §5.1 field | M2 §5.1 FR-005 |
 | `country_guess` | `VARCHAR(2)` | Opt |  | §5.1 field | M2 §5.1 FR-007 |
 | `attention_level` | `ENUM(low, medium, high)` | system-set |  | §5.1 field | M2 §5.1 FR-006 (OUT); M2 §5.2 BR-004 |
+| `dropped_count` | `INTEGER` | system-set |  | §5.1 field | M2 §5.1 FR-012 (OUT dropped_count); decided 08/11/2026 — stored on the run for VFDA |
+| `dropped_rule_codes` | `JSONB` | Req |  | §6.1 declared type | M2 §6; M2 §5.1 FR-012 (dropped findings logged for VFDA, no text); M2 §6.1 |
 | `created_at` | `TIMESTAMPTZ` | Req |  | §6.1 declared type | M2 §6; M2 §6.1 |
 
 **Natural key:** None — the same summary may be checked many times (synopsis_hash + created_at in practice).
@@ -117,14 +125,11 @@ Every attribute traces to a §5.1 field, a §6.1 declared type, a key, or a deli
 | Column | Type | Required | Key | Source kind | Citation |
 |---|---|---|---|---|---|
 | `brief_id` | `UUID` | Req | PK, FK → `PRECHECK_RUN` | key | M2 §6 ("belongs to PrecheckRun") |
-| `rule_code` | `VARCHAR(40)` | system-set | PK, FK → `LEGAL_RULE` | §5.1 field | M2 §5.1 FR-006 (OUT findings) |
+| `rule_id` | `UUID` | Req | PK, FK → `LEGAL_RULE` | §6.1 declared type | M2 §6 (the cited revision); M2 §5.2 BR-008; M2 §6.1 |
 | `span_start` | `INTEGER` | Req | PK | §6.1 declared type | M2 §6; M2 §6.1 |
 | `span_end` | `INTEGER` | Req |  | §6.1 declared type | M2 §6; M2 §6.1 |
-| `quoted_text` | `TEXT` | system-set |  | §5.1 field | M2 §5.1 FR-006 (OUT) |
-| `explanation_vi` | `TEXT` | system-set |  | §5.1 field | M2 §5.1 FR-006 (OUT); M2 §6 (explanation) |
-| `explanation_en` | `TEXT` | system-set |  | §5.1 field | M2 §5.1 FR-006 (OUT) |
 
-**Natural key:** brief_id + rule_code + span_start.
+**Natural key:** brief_id + rule_id + span_start.
 
 ### COMPLIANCE_RUN
 
@@ -143,12 +148,12 @@ Every attribute traces to a §5.1 field, a §6.1 declared type, a key, or a deli
 |---|---|---|---|---|---|
 | `finding_id` | `UUID` | Req | PK | §5.1 field | M2 §5.1 FR-014 |
 | `run_id` | `UUID` | Req | FK → `COMPLIANCE_RUN` | §6.1 declared type | M2 §6 ("belongs to ComplianceRun"); M2 §6.1 |
-| `rule_code` | `VARCHAR(40)` | system-set | FK → `LEGAL_RULE` | §5.1 field | M2 §6; type from M2 §5.1 FR-006 |
+| `rule_id` | `UUID` | Req | FK → `LEGAL_RULE` | §6.1 declared type | M2 §6 (the cited revision); M2 §5.2 BR-008; M2 §6.1 |
 | `quoted_text` | `TEXT` | system-set |  | §5.1 field | M2 §6; type from M2 §5.1 FR-006 |
 | `finding_status` | `ENUM(open, reviewed)` | system-set |  | §5.1 field | M2 §5.1 FR-014 (OUT) |
 | `reviewer_note` | `TEXT` | Opt |  | §5.1 field | M2 §5.1 FR-014 |
 
-**Natural key:** run_id + rule_code + quoted_text.
+**Natural key:** run_id + rule_id + quoted_text.
 
 ## 4. Relationships (mandatory)
 
@@ -158,15 +163,16 @@ Each relationship is read in both directions; the citation is the spec line it c
 |---|---|---|---|---|---|
 | `RULE_SET_VERSION` \|o..\|{ `LEGAL_RULE` | Each rule set version includes one or more legal rules | Each legal rule is included in zero or one rule set version | LEGAL_RULE's version (draft rules have none) | non-identifying (`..`) | M2 §6 ("has many LegalRules"); M2 §5.1 FR-004 (version created on activation) |
 | `USER_ACCOUNT` \|\|..o{ `RULE_SET_VERSION` | Each user account publishes zero or more rule set versions | Each rule set version is published by exactly one user account | RULE_SET_VERSION side | non-identifying (`..`) | M2 §6 (created_by); M2 §5.1 FR-004 (version created on each activation) |
+| `RULE_SET_VERSION` \|o..o{ `LEGAL_RULE` | Each rule set version retires zero or more legal rule revisions | Each legal rule revision is retired by zero or one rule set version | both sides | non-identifying (`..`) | M2 Clarifications Q13 (retiring creates a version); M2 §5.2 BR-008 (retired_version, decided 07/11/2026) |
 | `USER_ACCOUNT` \|o..o{ `LEGAL_RULE` | Each user account approves zero or more legal rules | Each legal rule is approved by zero or one user account | both sides | non-identifying (`..`) | M2 §6 (approved_by); M2 §3 US-3 (draft rule has no approver) |
 | `RULE_SET_VERSION` \|\|..o{ `PRECHECK_RUN` | Each rule set version is applied in zero or more pre-check runs | Each pre-check run applies exactly one rule set version | PRECHECK_RUN side | non-identifying (`..`) | M2 §6 (rule_version); M2 §5.2 BR-007 |
 | `PROJECT` \|o..o{ `PRECHECK_RUN` | Each project is linked to zero or more pre-check runs | Each pre-check run is linked to zero or one project | both sides | non-identifying (`..`) | M2 §6 ("may belong to a Project"); M2 §3 US-1 (guest, no sign-up) |
 | `PRECHECK_RUN` \|\|--o{ `PRECHECK_FINDING` | Each pre-check run produces zero or more pre-check findings | Each pre-check finding is produced by exactly one pre-check run | PRECHECK_FINDING side | identifying (`--`) | M2 §6; M2 §3 US-1 ("Given no findings") |
-| `LEGAL_RULE` \|\|..o{ `PRECHECK_FINDING` | Each legal rule is cited by zero or more pre-check findings | Each pre-check finding cites exactly one legal rule | PRECHECK_FINDING side | non-identifying (`..`) | M2 §6 (rule_code); M2 §5.2 BR-001 |
+| `LEGAL_RULE` \|\|..o{ `PRECHECK_FINDING` | Each legal rule is cited by zero or more pre-check findings | Each pre-check finding cites exactly one legal rule revision | PRECHECK_FINDING side | non-identifying (`..`) | M2 §6 (rule_id, the cited revision); M2 §5.2 BR-001, BR-008 |
 | `RULE_SET_VERSION` \|\|..o{ `COMPLIANCE_RUN` | Each rule set version is applied in zero or more compliance runs | Each compliance run applies exactly one rule set version | COMPLIANCE_RUN side | non-identifying (`..`) | M2 §6 (rule_version); M2 §5.2 BR-007 |
 | `PROJECT` \|\|--o{ `COMPLIANCE_RUN` | Each project is checked by zero or more compliance runs | Each compliance run checks exactly one project | COMPLIANCE_RUN side | identifying (`--`) | M2 §6 ("belongs to Project") |
 | `COMPLIANCE_RUN` \|\|--o{ `COMPLIANCE_FINDING` | Each compliance run produces zero or more compliance findings | Each compliance finding is produced by exactly one compliance run | COMPLIANCE_FINDING side | identifying (`--`) | M2 §6; M2 §3 US-1 ("Given no findings") |
-| `LEGAL_RULE` \|\|..o{ `COMPLIANCE_FINDING` | Each legal rule is cited by zero or more compliance findings | Each compliance finding cites exactly one legal rule | COMPLIANCE_FINDING side | non-identifying (`..`) | M2 §6 (rule_code); M2 §5.2 BR-001 |
+| `LEGAL_RULE` \|\|..o{ `COMPLIANCE_FINDING` | Each legal rule is cited by zero or more compliance findings | Each compliance finding cites exactly one legal rule revision | COMPLIANCE_FINDING side | non-identifying (`..`) | M2 §6 (rule_id, the cited revision); M2 §5.2 BR-001, BR-008 |
 
 ## 5. ERD and diagram check (mandatory)
 
@@ -176,6 +182,7 @@ Entities of M2 with their attributes; entities of other modules appear as names 
 erDiagram
     RULE_SET_VERSION |o..|{ LEGAL_RULE : "includes"
     USER_ACCOUNT ||..o{ RULE_SET_VERSION : "publishes"
+    RULE_SET_VERSION |o..o{ LEGAL_RULE : "retires"
     USER_ACCOUNT |o..o{ LEGAL_RULE : "approves"
     RULE_SET_VERSION ||..o{ PRECHECK_RUN : "is applied in"
     PROJECT |o..o{ PRECHECK_RUN : "may be linked to"
@@ -187,7 +194,8 @@ erDiagram
     LEGAL_RULE ||..o{ COMPLIANCE_FINDING : "is cited by"
     LEGAL_RULE {
         uuid rule_id PK
-        string rule_code UK
+        string rule_code
+        int revision
         string rule_version FK
         string title_vi
         string title_en
@@ -197,12 +205,17 @@ erDiagram
         string guidance_en
         string citation
         enum severity
+        string keywords_vi
+        string keywords_en
+        string segments
         enum topic
-        string rule_slug UK
+        string rule_slug
         enum status
         uuid approved_by FK
         datetime approved_at
         boolean is_active
+        string retired_version FK
+        boolean is_sample
     }
     RULE_SET_VERSION {
         string rule_version PK
@@ -218,16 +231,15 @@ erDiagram
         string flags
         string country_guess
         enum attention_level
+        int dropped_count
+        string dropped_rule_codes
         datetime created_at
     }
     PRECHECK_FINDING {
         uuid brief_id PK,FK
-        string rule_code PK,FK
+        uuid rule_id PK,FK
         int span_start PK
         int span_end
-        string quoted_text
-        string explanation_vi
-        string explanation_en
     }
     COMPLIANCE_RUN {
         uuid run_id PK
@@ -238,7 +250,7 @@ erDiagram
     COMPLIANCE_FINDING {
         uuid finding_id PK
         uuid run_id FK
-        string rule_code FK
+        uuid rule_id FK
         string quoted_text
         enum finding_status
         string reviewer_note
@@ -253,9 +265,9 @@ Renders with mermaid-cli: **yes**.
 |---|---|---|---|---|
 | Entities owned and stored (catalogue §2) | 6 | entity blocks in the ERD (§5) | 6 | ✓ |
 | Entities owned and stored (catalogue §2) | 6 | tables in `schema-M2.sql` | 6 | ✓ |
-| Attributes (§3) | 46 | columns in `schema-M2.sql` | 46 | ✓ |
-| Relationships with the child in this module (§4) | 11 | FOREIGN KEY constraints in `schema-M2.sql` | 11 | ✓ |
-| Relationships touching this module (§4) | 11 | relationship lines in the ERD (§5) | 11 | ✓ |
+| Attributes (§3) | 51 | columns in `schema-M2.sql` | 51 | ✓ |
+| Relationships with the child in this module (§4) | 12 | FOREIGN KEY constraints in `schema-M2.sql` | 12 | ✓ |
+| Relationships touching this module (§4) | 12 | relationship lines in the ERD (§5) | 12 | ✓ |
 | Seed files of this module (§9) | 6 | tables in `schema-M2.sql` | 6 | ✓ |
 
 ## 6. Normalization check (mandatory)
@@ -265,7 +277,7 @@ Renders with mermaid-cli: **yes**.
 | `LEGAL_RULE` | ✓ | ✓ single-column key | exception: `is_active` |
 | `RULE_SET_VERSION` | ✓ | ✓ single-column key | ✓ |
 | `PRECHECK_RUN` | ✓ | ✓ single-column key | ✓ |
-| `PRECHECK_FINDING` | ✓ | ✓ composite key (brief_id, rule_code, span_start): every non-key column describes the whole key | ✓ |
+| `PRECHECK_FINDING` | ✓ | ✓ composite key (brief_id, rule_id, span_start): every non-key column describes the whole key | ✓ |
 | `COMPLIANCE_RUN` | ✓ | ✓ single-column key | ✓ |
 | `COMPLIANCE_FINDING` | ✓ | ✓ single-column key | ✓ |
 
@@ -282,18 +294,18 @@ Renders with mermaid-cli: **yes**.
 
 | Rule | Statement | Enforced in | Named object | Seed rows that show it |
 |---|---|---|---|---|
-| BR-001 | Every finding shown to a user cites a rule written and signed by the VFDA Legal Board; findings without a valid citation are dropped by code before display. | APP (Plan step) + SCHEMA | Edge Function drops unverified findings; `fk_precheck_finding_rule_code` → `legal_rule.rule_code` | `18_precheck_run.csv` — cc6bcb72 — every finding dropped: no level shown<br>`19_precheck_finding.csv` — A9-MIL · đồn biên phòng trên núi; A9-MIL · soldiers ask him to take them across i — a kept finding cites an approved rule |
-| BR-002 | A rule becomes active only when it has a citation **and** an approver; this is enforced by a database CHECK constraint. | SCHEMA | `ck_legal_rule_approved_needs_signature` | `17_legal_rule.csv` — A9-DRUG · draft · action; A9-HERIT · draft · notice — draft rules without citation and approver (cannot be active)<br>`17_legal_rule.csv` — A9-LONG · approved · action; A9-PERSON · approved · notice (+4) — approved rules carry both |
+| BR-001 | Every finding shown to a user cites a rule written and signed by the VFDA Legal Board; findings without a valid citation are dropped by code before display. | APP (Plan step) + SCHEMA | the server drops unverified findings (lib/content-check/verify.js); `fk_precheck_finding_rule_id` → `legal_rule.rule_id` (the cited revision) | `18_precheck_run.csv` — cc6bcb72 — every finding dropped: no level shown<br>`19_precheck_finding.csv` — 12 · 35; 65 · 111 — a kept finding cites the approved revision of A9-MIL; no text of the summary is stored (Q6) |
+| BR-002 | A rule becomes active only when it has a citation **and** an approver; this is enforced by a database CHECK constraint. | SCHEMA | `ck_legal_rule_approved_needs_signature` | `17_legal_rule.csv` — A9-DRUG · draft · action; A9-HIST · draft · notice (+1) — draft rules without citation and approver (cannot be active)<br>`17_legal_rule.csv` — A9-LONG · approved · action; A9-PERSON · approved · notice (+4) — approved rules carry both |
 | BR-003 | The words *approved*, *accepted*, *legally compliant* and *safe* never appear in results, including when nothing is found. | NOT DATA | wording rule of the result screens (SC-48, SC-27); tested by acceptance scenario M2 US-1 | `18_precheck_run.csv` — US · low; FR · low (+2) — a *Low* result must still not say *safe* |
 | BR-004 | The attention level is derived deterministically from the number and severity of verified findings, never from a model score. | SEED CHECK + APP | seed_rules.attention_level() (M2 §9 thresholds) computes the level before writing | `18_precheck_run.csv` — VN · high — 2 *action* findings → High<br>`18_precheck_run.csv` — KR · medium — 1 *action* finding → Medium<br>`18_precheck_run.csv` — US · low — 1 *notice* finding → Low (corrected 01/10/2026) |
 | BR-005 | The dossier completeness check uses fixed rules, not a language model. | VIEW (Plan step) | view `v_dossier_check` counts slots in state `present` — no language model | `35_document_slot.csv` — A13_APPLICATION · present — 1 of 4 components present for The Last Ferry |
-| BR-006 | Safe deadline = first shooting day − buffer − 20 − 20 working days; latest deadline = first shooting day − buffer − 20 working days. Working days exclude Saturdays, Sundays and dates of type PUBLIC_HOLIDAY (Clarifications Q1). | VIEW (Plan step) | view `v_licensing_timeline` (shoot_date − buffer − 20 [− 20]) | `09_project.csv` — The Last Ferry · A · preparing — 15/03/2027, buffer 7 → 27/01/2027 and 16/02/2027<br>`09_project.csv` — Quiet Harbour Blues · A · preparing — safe deadline already passed |
+| BR-006 | Recommended submission date = first shooting day − buffer − 20 − 20 working days; latest deadline = first shooting day − buffer − 20 working days. The buffer counts calendar days (decision of 07/11/2026); the words *safe* / *an toàn* are not used for a deadline. Working days exclude Saturdays, Sundays and dates of type PUBLIC_HOLIDAY (Clarifications Q1). | VIEW (Plan step) | lib/licensing/timeline.js on lib/dates/working-days.js (shoot_date − buffer in calendar days − 20 [− 20] working days) | `09_project.csv` — The Last Ferry · A · preparing — 15/03/2027, buffer 7 (calendar days) → recommended 05/01/2027, latest 02/02/2027 (Tết 2027 skipped)<br>`09_project.csv` — Quiet Harbour Blues · A · preparing — recommended submission date 08/09/2026 already passed |
 | BR-007 | Every check stores the rule-set version it used. | SCHEMA | `fk_precheck_run_rule_version`, `fk_compliance_run_rule_version` (NOT NULL on compliance runs) | `20_compliance_run.csv` — 2026.07 · 2026-08-10T14:00:00+07:00 — older run kept with its older version |
-| BR-008 | Legal rules are retired, never deleted (`status = retired`); a finding keeps showing the text of the rule version it cited. | SCHEMA + SEED CHECK | `ck_legal_rule_status`, `ck_legal_rule_active_matches_status`; no DELETE in any function | `17_legal_rule.csv` — A9-MAP · retired · action — A9-MAP retired, not active, not deleted<br>`48_audit_log.csv` — rule.retire · 2026-08-28T15:35:00+07:00 — the retirement is audited |
+| BR-008 | Legal rules are retired, never deleted (`status = retired`); a finding keeps showing the text of the rule version it cited. | SCHEMA + SEED CHECK | `ck_legal_rule_status`, `ck_legal_rule_active_matches_status`; no DELETE in any function | `17_legal_rule.csv` — A9-MAP · retired · action — A9-MAP retired in a rule-set version, not active, not deleted<br>`17_legal_rule.csv` — A9-HIST · draft · notice — draft revision 2 of A9-HIST — revision 1 stays in force until it is signed (Q13)<br>`48_audit_log.csv` — rule.retire · 2026-08-28T15:35:00+07:00 — the retirement is audited |
 
 ## 8. Schema (mandatory)
 
-`data/schema/schema-M2.sql` — 6 tables in load order: `rule_set_version`, `legal_rule`, `precheck_run`, `precheck_finding`, `compliance_run`, `compliance_finding`; 11 foreign keys; 9 CHECK constraints. Portable SQL (SQLite 3 and PostgreSQL 14+).
+`data/schema/schema-M2.sql` — 6 tables in load order: `rule_set_version`, `legal_rule`, `precheck_run`, `precheck_finding`, `compliance_run`, `compliance_finding`; 12 foreign keys; 12 CHECK constraints. Portable SQL (SQLite 3 and PostgreSQL 14+).
 
 Load test: `python3 data/schema/load_check.py` runs every schema file, then every seed file in filename order with foreign keys on — **PASS** (also on PostgreSQL 16 with `--postgres`).
 
@@ -305,13 +317,13 @@ Load test: `python3 data/schema/load_check.py` runs every schema file, then ever
 | Regenerate | `python3 data/seed/generate_seed.py && python3 data/seed/check_seed.py` (must print PASS; `git status` stays clean) |
 | Random seed | none — no randomness and no clock: keys are UUIDv5 of readable names (namespace `6f1c2a8e-3b4d-5e6f-8a9b-0c1d2e3f4a5b`), so every run is byte-identical |
 | Business-rule values | computed by the generator, never typed: attention level (M2 BR-004), quote span (M2 §6.1), latest readiness (M0 §9), is_active, published |
-| Files | 6 files of this module, 37 rows (product: 49 files, 457 rows) |
+| Files | 6 files of this module, 38 rows (product: 49 files, 458 rows) |
 
 **Rows per file and row kinds** (1 = ordinary rows in every file)
 
 | File | Rows | (2) Boundary | (3) Empty case | (4) Exceptional state |
 |---|---|---|---|---|
-| `17_legal_rule.csv` | 9 | 200-character title | `A9-RELIG`: never cited by a pre-check | `A9-DRUG`, `A9-HERIT`: draft, no citation, no approver; `A9-MAP`: retired, not active (M2 BR-008) |
+| `17_legal_rule.csv` | 10 | 200-character title | `A9-RELIG`: never cited by a pre-check | `A9-DRUG`, `A9-HERIT`: draft, no citation, no approver; `A9-MAP`: retired, not active (M2 BR-008) |
 | `16_rule_set_version.csv` | 3 | — | 2026.06: no run applied it | — (no status column) |
 | `18_precheck_run.csv` | 7 | all flags `unsure` | `g-fr`: no finding | `g-dropped`: every finding dropped, no attention level |
 | `19_precheck_finding.csv` | 6 | span starting at 0 | — | — (no status column) |
@@ -326,16 +338,16 @@ Computed from the seed files. (a) every enumerated value has a row; (b) empty st
 
 | Column | Value | Seed rows |
 |---|---|---|
-| `LEGAL_RULE.severity` | `notice` | 4 row(s), e.g. A9-PERSON · approved · notice |
+| `LEGAL_RULE.severity` | `notice` | 5 row(s), e.g. A9-HIST · draft · notice |
 | `LEGAL_RULE.severity` | `action` | 5 row(s), e.g. A9-DRUG · draft · action |
 | `LEGAL_RULE.topic` | `security` | 3 row(s), e.g. A9-LONG · approved · action |
-| `LEGAL_RULE.topic` | `history` | 1 row(s), e.g. A9-HIST · approved · notice |
+| `LEGAL_RULE.topic` | `history` | 2 row(s), e.g. A9-HIST · draft · notice |
 | `LEGAL_RULE.topic` | `religion` | 1 row(s), e.g. A9-RELIG · approved · notice |
 | `LEGAL_RULE.topic` | `privacy` | 1 row(s), e.g. A9-PERSON · approved · notice |
 | `LEGAL_RULE.topic` | `dossier` | 1 row(s), e.g. A13-DOSSIER · approved · action |
 | `LEGAL_RULE.topic` | `public_order` | 1 row(s), e.g. A9-DRUG · draft · action |
 | `LEGAL_RULE.topic` | `heritage` | 1 row(s), e.g. A9-HERIT · draft · notice |
-| `LEGAL_RULE.status` | `draft` | 2 row(s), e.g. A9-DRUG · draft · action |
+| `LEGAL_RULE.status` | `draft` | 3 row(s), e.g. A9-DRUG · draft · action |
 | `LEGAL_RULE.status` | `approved` | 6 row(s), e.g. A9-LONG · approved · action |
 | `LEGAL_RULE.status` | `retired` | 1 row(s), e.g. A9-MAP · retired · action |
 | `PRECHECK_RUN.lang` | `en` | 6 row(s), e.g. US · low |
@@ -343,8 +355,8 @@ Computed from the seed files. (a) every enumerated value has a row; (b) empty st
 | `PRECHECK_RUN.attention_level` | `low` | 4 row(s), e.g. US · low |
 | `PRECHECK_RUN.attention_level` | `medium` | 1 row(s), e.g. KR · medium |
 | `PRECHECK_RUN.attention_level` | `high` | 1 row(s), e.g. VN · high |
-| `COMPLIANCE_FINDING.finding_status` | `open` | 2 row(s), e.g. A9-PERSON · open |
-| `COMPLIANCE_FINDING.finding_status` | `reviewed` | 4 row(s), e.g. A9-HIST · reviewed |
+| `COMPLIANCE_FINDING.finding_status` | `open` | 2 row(s), e.g. the Nguyễn family of Bạc Liêu · open |
+| `COMPLIANCE_FINDING.finding_status` | `reviewed` | 4 row(s), e.g. In 1972 · reviewed |
 
 **(b) Empty states**
 
@@ -352,17 +364,17 @@ Computed from the seed files. (a) every enumerated value has a row; (b) empty st
 |---|---|
 | `RULE_SET_VERSION` with no `PRECHECK_RUN` (is applied in) | 1 row(s), e.g. 2026.06 |
 | `PRECHECK_RUN` with no `PRECHECK_FINDING` (produces) | 4 row(s), e.g.  |
-| `LEGAL_RULE` with no `PRECHECK_FINDING` (is cited by) | 5 row(s), e.g. A9-DRUG · draft · action |
+| `LEGAL_RULE` with no `PRECHECK_FINDING` (is cited by) | 6 row(s), e.g. A9-DRUG · draft · action |
 | `RULE_SET_VERSION` with no `COMPLIANCE_RUN` (is applied in) | 1 row(s), e.g. 2026.06 |
 | `COMPLIANCE_RUN` with no `COMPLIANCE_FINDING` (produces) | 2 row(s), e.g. 2026.08 · 2026-09-08T14:00:00+07:00 |
-| `LEGAL_RULE` with no `COMPLIANCE_FINDING` (is cited by) | 5 row(s), e.g. A9-DRUG · draft · action |
+| `LEGAL_RULE` with no `COMPLIANCE_FINDING` (is cited by) | 6 row(s), e.g. A9-DRUG · draft · action |
 
 **(c) Boundaries of numeric and date rules**
 
 | Rule | Seed row |
 |---|---|
 | Deadline already passed (M2 BR-006) | `09_project.csv` — Quiet Harbour Blues · A · preparing — first day 10/11/2026: safe deadline 24/09/2026 is past |
-| Quote starts at character 0 (M2 §6.1) | `19_precheck_finding.csv` — A9-PERSON · Based on the life of a — span starting at 0 |
+| Quote starts at character 0 (M2 §6.1) | `19_precheck_finding.csv` — 0 · 22 — span starting at 0 |
 | Rule title ≤ 200 characters (M2 §5.1 FR-002) | `17_legal_rule.csv` — A9-LONG · approved · action — 200-character title |
 
 **(d) Business rules** — 8 of 8 rules have their rows named in section 7.
@@ -394,7 +406,7 @@ Data questions raised in `data/01`–`04` whose owner includes M2. All other ope
 | [NEEDS CLARIFICATION: Is DOCUMENT_SLOT.state stored, or derived from documents, proofreading and partner status each time?] | Yes | M5 + M2 owners | Open |
 | [NEEDS CLARIFICATION: Drop derivable columns (PROVINCE_NOTICE.province_id, LEGAL_RULE.is_active, BILINGUAL_DOCUMENT.watermark)?] | No | M7, M2, M5 owners | Resolved 01/10/2026 — watermark dropped; is_active kept with CHECK `ck_legal_rule_active_matches_status`; province_id kept as the province the notice was addressed to (M7 §6.1). See Structural findings, minimality. |
 | [NEEDS CLARIFICATION: Which function sets LEGAL_RULE.status = retired (M2 BR-008)?] | No | M2 owner (VFDA Legal) | Open |
-| [NEEDS CLARIFICATION: Since each rule version keeps its text (M2 BR-008), key LEGAL_RULE by rule_code + rule_version and point findings at that pair?] | Yes | M2 owner | Open |
+| [NEEDS CLARIFICATION: Since each rule version keeps its text (M2 BR-008), key LEGAL_RULE by rule_code + rule_version and point findings at that pair?] | Yes | M2 owner | Resolved 07/11/2026 (M2 plan D2): one row per revision keyed by rule_code + revision; findings point at rule_id; legal_rule.retired_version. |
 
 ## 13. Human gates and sign-off
 

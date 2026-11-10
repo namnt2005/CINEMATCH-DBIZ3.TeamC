@@ -18,15 +18,16 @@
 %% SEGMENT_RULE SEGMENT_DECISION | Each segment rule decides zero or more segment decisions | Each segment decision is decided by zero or one segment rule | both sides | M1 §6 ("used by SegmentDecision"); M1 §3 US-2 (override); M1 §3 Edge cases (answers match no rule)
 %% RULE_SET_VERSION LEGAL_RULE | Each rule set version includes one or more legal rules | Each legal rule is included in zero or one rule set version | LEGAL_RULE's version (draft rules have none) | M2 §6 ("has many LegalRules"); M2 §5.1 FR-004 (version created on activation)
 %% USER_ACCOUNT RULE_SET_VERSION | Each user account publishes zero or more rule set versions | Each rule set version is published by exactly one user account | RULE_SET_VERSION side | M2 §6 (created_by); M2 §5.1 FR-004 (version created on each activation)
+%% RULE_SET_VERSION LEGAL_RULE | Each rule set version retires zero or more legal rule revisions | Each legal rule revision is retired by zero or one rule set version | both sides | M2 Clarifications Q13 (retiring creates a version); M2 §5.2 BR-008 (retired_version, decided 07/11/2026)
 %% USER_ACCOUNT LEGAL_RULE | Each user account approves zero or more legal rules | Each legal rule is approved by zero or one user account | both sides | M2 §6 (approved_by); M2 §3 US-3 (draft rule has no approver)
 %% RULE_SET_VERSION PRECHECK_RUN | Each rule set version is applied in zero or more pre-check runs | Each pre-check run applies exactly one rule set version | PRECHECK_RUN side | M2 §6 (rule_version); M2 §5.2 BR-007
 %% PROJECT PRECHECK_RUN | Each project is linked to zero or more pre-check runs | Each pre-check run is linked to zero or one project | both sides | M2 §6 ("may belong to a Project"); M2 §3 US-1 (guest, no sign-up)
 %% PRECHECK_RUN PRECHECK_FINDING | Each pre-check run produces zero or more pre-check findings | Each pre-check finding is produced by exactly one pre-check run | PRECHECK_FINDING side | M2 §6; M2 §3 US-1 ("Given no findings")
-%% LEGAL_RULE PRECHECK_FINDING | Each legal rule is cited by zero or more pre-check findings | Each pre-check finding cites exactly one legal rule | PRECHECK_FINDING side | M2 §6 (rule_code); M2 §5.2 BR-001
+%% LEGAL_RULE PRECHECK_FINDING | Each legal rule is cited by zero or more pre-check findings | Each pre-check finding cites exactly one legal rule revision | PRECHECK_FINDING side | M2 §6 (rule_id, the cited revision); M2 §5.2 BR-001, BR-008
 %% RULE_SET_VERSION COMPLIANCE_RUN | Each rule set version is applied in zero or more compliance runs | Each compliance run applies exactly one rule set version | COMPLIANCE_RUN side | M2 §6 (rule_version); M2 §5.2 BR-007
 %% PROJECT COMPLIANCE_RUN | Each project is checked by zero or more compliance runs | Each compliance run checks exactly one project | COMPLIANCE_RUN side | M2 §6 ("belongs to Project")
 %% COMPLIANCE_RUN COMPLIANCE_FINDING | Each compliance run produces zero or more compliance findings | Each compliance finding is produced by exactly one compliance run | COMPLIANCE_FINDING side | M2 §6; M2 §3 US-1 ("Given no findings")
-%% LEGAL_RULE COMPLIANCE_FINDING | Each legal rule is cited by zero or more compliance findings | Each compliance finding cites exactly one legal rule | COMPLIANCE_FINDING side | M2 §6 (rule_code); M2 §5.2 BR-001
+%% LEGAL_RULE COMPLIANCE_FINDING | Each legal rule is cited by zero or more compliance findings | Each compliance finding cites exactly one legal rule revision | COMPLIANCE_FINDING side | M2 §6 (rule_id, the cited revision); M2 §5.2 BR-001, BR-008
 %% PROVINCE LOCATION | Each province contains zero or more locations | Each location lies in exactly one province | LOCATION side | M3 §6; M3 §5.1 FR-002 province_id Req; M3 §3 US-5 (province with too little data)
 %% LOCATION LOCATION_IMAGE | Each location is shown in zero or more location images | Each location image shows exactly one location | LOCATION_IMAGE side | M3 §6 ("has many LocationImages")
 %% LOCATION AUTHORITY_CONTACT | Each location is reached through zero or one authority contact | Each authority contact serves exactly one location | AUTHORITY_CONTACT side | M3 §6 ("has one AuthorityContact"); M3 §3 US-3 (location with an unverified contact)
@@ -99,6 +100,7 @@ erDiagram
     SEGMENT_RULE |o..o{ SEGMENT_DECISION : "decides"
     RULE_SET_VERSION |o..|{ LEGAL_RULE : "includes"
     USER_ACCOUNT ||..o{ RULE_SET_VERSION : "publishes"
+    RULE_SET_VERSION |o..o{ LEGAL_RULE : "retires"
     USER_ACCOUNT |o..o{ LEGAL_RULE : "approves"
     RULE_SET_VERSION ||..o{ PRECHECK_RUN : "is applied in"
     PROJECT |o..o{ PRECHECK_RUN : "may be linked to"
