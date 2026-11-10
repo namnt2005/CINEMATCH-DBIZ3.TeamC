@@ -12,7 +12,7 @@ A member sees on SC-27 which of the **four Article 13 clause 3 components** are 
 
 The VFDA Legal Board writes rules on SC-37 and signs them alone (Q2). A rule can be signed only with a citation and an approver — a database CHECK (BR-002). Every signature and every retirement creates a **new rule-set version**, and every check stores the version it used (FR-004, BR-007, Q13). Correcting a signed rule creates a **new draft revision**; the signed text stays in force until the revision is signed, and old findings keep pointing at the revision they cited (Q13, BR-008, D2). When the rule set changes, open projects are **not re-checked**: their owners are notified and the Content gauge loses its 30 *current rule set* points until the producer re-runs the check (Q3).
 
-**In this plan**: US-1, US-2, US-3, US-4; FR-001..FR-014, FR-017, FR-018; BR-001..BR-008; screens SC-03, SC-48, SC-27, SC-29, SC-37. **Not in this plan**: US-5 and FR-015, FR-016 (Should — SC-30, SC-31; research Open question 3); deadline reminder emails and the `.ics` file on SC-29 #13 (SYS F-SYS-08); the bilingual draft and uploads themselves (M5); submitting the dossier to the Ministry (phase 3).
+**In this plan**: US-1, US-2, US-3, US-4, US-5 (added 09/11/2026, D17); FR-001..FR-018; BR-001..BR-008; screens SC-03, SC-48, SC-27, SC-29, SC-37 and the SC-12 deadline strip (D13). **Not in this plan**: earlier revisions on SC-31 (spec question 12); deadline reminder emails and the `.ics` file on SC-29 #13 (SYS F-SYS-08); the bilingual draft and uploads themselves (M5); submitting the dossier to the Ministry (phase 3).
 
 ## Decisions taken for this plan
 
@@ -28,6 +28,13 @@ The VFDA Legal Board writes rules on SC-37 and signs them alone (Q2). A rule can
 | D8 | Wording of the deadline (Nam Tran, 07/11/2026) | SC-29 #5 is *Recommended submission date* / *Hạn nộp khuyến nghị (có dự phòng)*; no M2 or M5 screen uses *safe* / *an toàn* for a deadline or a check result. Changed at the sources `tools/s3_en.py` (SC-29), `tools/s1_en.py` (SC-12 strip, data from F-M5-08), `tools/specs_a.py` (M2 FR-017, BR-006, US-4; M0 edge case), `tools/specs_b.py` (M5 purpose, US-3, edge case, F-M5-07, success criterion); *safety buffer* became *buffer before shooting* on SC-29. Kept: the BR-003 lists of banned words (SC-48, SC-30), which name the word to forbid it, and SC-12 *Your project data is safe* (an error text, not a deadline or a result). The mockup images still show the old label until they are redrawn with `build_docs.py --img`. |
 | D9 | Who signs rules (Nam Tran, 07/11/2026) | Only `vfda_legal` signs and retires a rule; `admin` reads the rule base but a signing or retiring request by `admin` answers **403**. An exception to SYS question 5 (admin holds the staff and Legal Board permissions), written in `tools/decisions.py` (SYS 5), M2 §2 Actors (`tools/specs_a.py`) and SC-37 SR-304 (`tools/s5_en.py`). |
 | D10 | Buffer editable (M0 open question 2) (Nam Tran, 07/11/2026) | Owner and edit members change `buffer_days` (0, 7, 14, 21) on SC-29; view members read it. Provisional decision M0 question 2 in `tools/decisions.py`. M0 code extended (`lib/projects/input.js`, `app_update_project`); every M0 test must stay green. |
+| D11 | Dropped findings for VFDA (FR-012, analysis C1) (Nam Tran, 08/11/2026) | `precheck_run.dropped_count` (INTEGER ≥ 0) and `dropped_rule_codes` (JSON array of distinct codes, never text) through the generators — **done 08/11/2026** (`tools/dm_model.py`, `tools/dm_model2.py`, `tools/build_schema.py`, `tools/specs_types.py`, `data/seed/generate_seed.py`, `data/seed/seed_rules.py`; seed: the all-dropped run keeps 2 codes, one *High* run 1). **Data owner (Nguyễn Huy Trung) to review.** |
+| D12 | Consent to advanced analysis (analysis U1) (Nam Tran, 08/11/2026) | SC-03 #9 reads *Văn bản của bạn không được lưu. Khi dùng phân tích nâng cao, văn bản được gửi tạm thời tới nhà cung cấp mô hình AI để xử lý.*; a box *I agree to advanced analysis* appears only when `GEMINI_PAID_TIER=true` (as M5 Q3), unticked by default; unticked → keyword match. Changed at the source `tools/s1_en.py`. |
+| D13 | Deadline on SC-12 (SC-005, analysis C2) (Nam Tran, 08/11/2026) | The SC-12 deadline strip (#10) and the SC-27 deadline line use the same `licensingTimeline()` as SC-29; one test compares the three. |
+| D14 | Sample rules (Nam Tran, 09/11/2026) | About 25 rules in all: the 9 seed rules plus a separate generated file `data/seed/samples/legal_rule_samples.csv` (generator `data/seed/generate_samples.py`, with its own check), loaded after the main seed by the node:sqlite loader and by `scripts/seed-supabase.mjs`; the main seed (49 files) is unchanged by it. **Data owner (Nguyễn Huy Trung) to review.** |
+| D15 | Marking samples (Nam Tran, 09/11/2026) | `legal_rule.is_sample` (BOOLEAN) through the generators; every seed and sample rule is a sample until the VFDA Legal Board writes the real ones; SC-30, SC-31, SC-48, SC-37 show *Sample — pending the VFDA Legal Board*. **Data owner to review.** |
+| D16 | Citations of sample rules (Nam Tran, 09/11/2026) | Down to the clause and point of Article 9 of the Cinema Law (Law No. 05/2022/QH15), each ending with *(mẫu — chờ Ban Pháp chế VFDA kiểm)*; the agent's clause and point choices may be wrong and the Legal Board checks every line before launch. |
+| D17 | Rule segments (spec question 10) (Nam Tran, 09/11/2026) | `legal_rule.segments` (JSON list of A / B / C) through the generators, chosen on SC-37; the SC-30 segment filter reads it; decided as M2 question 10 in `tools/decisions.py`; US-5 (SC-30, SC-31, FR-015, FR-016) is now in this plan. **Data owner to review.** |
 
 ## Technical Context
 
@@ -120,7 +127,7 @@ app/
 └── api/  precheck/, precheck/basis/, precheck/[id]/,
           projects/[id]/content-checks/, projects/[id]/dossier/, projects/[id]/timeline/,
           content-findings/[id]/review/, admin/legal-rules/…, admin/rule-set-versions/
-supabase/migrations/2026110700xxxx_m2_check.sql
+supabase/migrations/20261108000100_m2_check.sql
 tests/unit/…, tests/contracts/…, tests/rls/rls.test.js (member fixtures only)
 ```
 
@@ -142,12 +149,14 @@ Interim choices this plan builds on, each also in research.md *Open questions*:
 
 ## Known limitations
 
-1. US-5 (SC-30, SC-31) is not built: the rule code on SC-48 is plain text, and SC-03 has no *View the regulations library* link.
+1. SC-31 shows only the revision in force, not earlier revisions (spec question 12).
 2. The rate limit (D7) is kept in server memory: on Vercel each instance counts on its own, so a guest may get more than 10 checks a day, and every count is lost when an instance restarts.
 3. A guest result cannot be reopened with its text after the browser session ends: SC-48 then shows the level, the counts and the rule cards without quotes (D3).
 4. Document states come from `document_slot.state` (M5 not built); SC-27 only lowers *Present* to *Needs fixing* (b) or *Pending* (c) from the M5 and M4 data (R8).
 5. SC-29 milestones *partner confirmed* and *Vietnamese version done* show their current state, not a target date (R5); no reminder email or `.ics`.
-6. The summary is sent to Gemini only when `LLM_PROVIDER=gemini` **and** `GEMINI_PAID_TIER=true` (the rule `.env.example` already applies to scripts, spec-M5 Q3); otherwise the keyword match answers. Whether a free-tier key may ever receive a summary is a SYS privacy question (R3).
+6. The summary is sent to Gemini only when `LLM_PROVIDER=gemini`, `GEMINI_PAID_TIER=true` **and** the user ticked the consent box (D12); otherwise the keyword match answers. Whether a free-tier key may ever receive a summary is a SYS privacy question (R3).
+7. The rate limit reads the first address of `x-forwarded-for`, which only the hosting platform should set; outside Vercel a client can forge it (analysis U4).
+8. *Download template* links come from `document_type.template_url`; the seed links are placeholders until VFDA provides the templates (R10, analysis U5).
 
 ## Complexity Tracking
 

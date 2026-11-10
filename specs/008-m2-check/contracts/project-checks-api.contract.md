@@ -11,6 +11,10 @@ All routes: signed in; project members read (`404` for a project the caller is n
 | `GET /api/projects/:id/dossier` | project members | | **200** `{ segment, applies: boolean, checked_at, present, total: 4, completeness_pct, verdict: "complete" \| "not_ready", components: [{ letter, doc_code, name_vi, name_en, state: "present" \| "needs_fix" \| "pending" \| "missing", reason?, auto_checked: [key], needs_person: [key], action, template_url }] }` — order a–d; `applies = false` for segment C |
 | `GET /api/projects/:id/timeline` | project members | `?submit=YYYY-MM-DD` optional | **200** `{ applies, shoot_date, buffer_days, buffer_start, latest, recommended, today, days_to_recommended, days_to_latest, recommended_passed, smooth: { submit, result_by }, resubmission: { submit, result_by_worst }, holidays: [{ name, start_date, end_date, expected }], milestones: [{ key, state, date? }] }`; `applies = false` for segment C; `shoot_date = null` → the empty state fields only |
 
+Field names (analysis I4): spec §5.1 FR-017 `submit_by` = `recommended`; `result_by` = `smooth.result_by` and `result_by_worst` = `resubmission.result_by_worst`, both counted from the submission date (by default `recommended`); `latest` is the latest submission deadline of BR-006.
+
+The SC-12 deadline strip and the SC-27 deadline line read the same `licensingTimeline()` (D13); a test compares SC-12, SC-27 and SC-29 on every seed project.
+
 Shoot date and buffer are changed through M0's `PATCH /api/projects/:id` (owner or edit), which this feature extends with `buffer_days` ∈ {0, 7, 14, 21} (422 `fields.buffer_days` otherwise; M0 question 2, D10; research R5); the timeline is recomputed on read (SC-29 Loading *not applicable*).
 
 Guarantees tested:

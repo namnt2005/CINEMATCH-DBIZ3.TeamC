@@ -476,7 +476,7 @@ html = page("SC-03", "Script content input (200-word pre-check)", "M2 · Guest �
     </div>
     <div class="row" style="align-items:center;gap:16px">
       <span class="btn" data-n="8" style="height:44px;font-size:15px">Check content</span>
-      <span class="small muted" data-n="9">Your summary is used only for the check — never published or shared with third parties.</span>
+      <span class="small muted" data-n="9">Your text is not stored. With advanced analysis, it is sent temporarily to the AI model provider for processing.</span>
     </div>
   </div>
   <div style="flex:1" class="col">
@@ -504,7 +504,7 @@ add(dict(
   (6, "Worth-mentioning hints", "List (chip)", "static; chips auto-tick ✓ when the topic is detected in the text", "—", "hints only, never block submission"),
   (7, "Three quick questions", "Toggle (single choice ×3)", "`precheck_run.flags` — real_person, military, heritage_site", "No", "Yes / No / Not sure"),
   (8, "*Check content* button", "Button", "static", "—", "disabled below 20 or above 200 words"),
-  (9, "Privacy line", "Text", "static", "Yes", "always shown next to the button"),
+  (9, "Privacy line + consent box", "Text + Checkbox", "static: *Văn bản của bạn không được lưu. Khi dùng phân tích nâng cao, văn bản được gửi tạm thời tới nhà cung cấp mô hình AI để xử lý.* / *Your text is not stored. With advanced analysis, the text is sent temporarily to the AI model provider for processing.* The box *I agree to advanced analysis* is shown only when the paid model plan is enabled (`GEMINI_PAID_TIER=true`, as M5 Clarifications Q3)", "Yes", "always shown next to the button; the box is unticked by default; unticked → keyword matching"),
   (10, "*What is it checked against?* block", "Text", "`rule_set_version.rule_version (latest)`, count of approved `legal_rule`", "Yes", "must show the rule set version"),
   (11, "Disclaimer line", "Text", "static", "Yes", "always shown"),
  ],
@@ -519,6 +519,7 @@ add(dict(
   ("Summary box", "type", "Counts words; ticks hint chips when topics are detected", "stays"),
   ("Language chip", "tap", "Changes the analysis language", "stays"),
   ("Quick question", "tap", "Records the flag", "stays"),
+  ("Consent box", "tick", "Allows advanced analysis by the language model for this check only; unticked, the check uses keyword matching (fallback mode)", "stays"),
   ("*Check content* button", "tap", "Calls `F-M2-06`, logs the run via `F-M2-07`", "SC-48"),
   ("*View the regulations library*", "tap", "—", "SC-30"),
  ],
@@ -527,6 +528,7 @@ add(dict(
   ("The 200-word limit is deliberate: enough to identify the topics, not enough for users to paste a whole script into a public tool.", "Data minimisation principle"),
   ("The three quick questions are **optional**; *Not sure* is a valid answer and is treated as no information.", "No-guessing principle"),
   ("Always show the rule set version that will be used — results must be traceable to the exact version.", "TL5 §M2"),
+  ("The text is sent to the language model only with the user's tick and only on the paid model plan; otherwise keyword matching runs. The text is never stored (Clarifications Q6).", "M2 Clarifications Q6; M5 Clarifications Q3"),
  ],
  fr=[("F-M2-05", "Summary input box"), ("F-M2-06", "Submit for review"), ("F-M2-07", "Log the pre-check run")],
  resp=["Minimum supported width: **360px**.", "Narrow screens: the right column moves below the check button; the disclaimer line always sits right under the button.", "The summary box has a real `<label>`; the counter is announced via `aria-live=\"polite\"`.", "Hint chips don't convey information by colour alone — they carry a text ✓ mark."],
@@ -589,7 +591,7 @@ add(dict(
   (4, "Point count by level", "Text", "count of `precheck_finding` by `severity`", "Yes", "—"),
   (5, "Submitted text", "Text", "`summary_text — input only, never stored (M2 FR-007 keeps precheck_run.synopsis_hash)`", "Yes", "shown verbatim, unedited"),
   (6, "Highlighted passage", "Text (highlight)", "`precheck_finding.span_start/end`, finding number", "—", "yellow = Needs attention, red = Action required; always with a number"),
-  (7, "Finding card", "List", "`precheck_finding` + `legal_rule.title_en`", "—", "shown only with a valid citation"),
+  (7, "Finding card", "List", "`precheck_finding` + `legal_rule.title_en`; the label *Sample — pending the VFDA Legal Board* when the cited rule has `is_sample`", "—", "shown only with a valid citation"),
   (8, "Severity label", "Text", "`legal_rule.severity`", "Yes", "Needs attention / Action required"),
   (9, "Provision citation + rule code", "Text", "`legal_rule.citation`, `legal_rule.rule_code`", "**Yes**", "**no citation, no finding shown** (`F-M2-12`)"),
   (10, "Points to consider", "Text", "`legal_rule.guidance_vi/en` — written by the VFDA Legal Board", "Yes", "taken verbatim from the rule; **not** written by a language model"),

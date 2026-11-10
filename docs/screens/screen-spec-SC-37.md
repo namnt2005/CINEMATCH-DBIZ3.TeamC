@@ -44,16 +44,16 @@
 | 5 | Topic filter | Toggle (dropdown) | `filter_topic` — security / history / religion / privacy / dossier / public_order / heritage | No | enum or *All topics* |
 | 6 | Status filter with counts | Toggle (single choice) | `filter_status` — draft / approved / retired | No | enum or *All* |
 | 7 | Rule table | List | `legal_rule` (`legal_rule[]`): `rule_code`, `title_en`, `topic` | — | visible to the `vfda_legal` role only (Row Level Security) |
-| 8 | Rule status | Text | status — Draft / Approved / Retired; *Approved* means `is_active` = true | — | enum |
+| 8 | Rule status | Text | status — Draft / Approved / Retired; *Approved* means `is_active` = true; the label *Sample — pending the VFDA Legal Board* when `is_sample` (decided 09/11/2026) | — | enum |
 | 9 | Rule version | Text | `version` / `rule_version` in which the rule was activated | — | *—* for drafts |
-| 10 | Row action *Edit* / *Retire* | Link | draft → *Edit*; approved → *Retire* (confirmation dialog); retired → *View* | — | *Retire* needs a confirmation; retired rules are read-only |
+| 10 | Row action *Edit* / *Retire* / *Create revision* | Link | draft → *Edit*; approved → *Retire* (confirmation dialog) and *Create revision* when the code has no draft revision; retired → *View* | — | *Retire* needs a confirmation; retired rules are read-only; a revision copies the signed text into a new draft and the signed text stays in force until the revision is signed (M2 Clarifications Q13) |
 | 11 | Rule editor | Container | the selected rule | — | editable only while the rule is a draft |
 | 12 | Rule code | Input | `rule_code` | Yes | max 40 characters, capitals, digits and hyphens; unique |
-| 13 | Topic | Toggle (dropdown) | `topic` | Yes | one of the 7 topic values |
+| 13 | Topic and segments | Toggle (dropdown) + Toggle (multiple choice) | `topic`; `segments` — the segments A / B / C the rule applies to (M2 Clarifications Q10) | Yes | one of the 7 topic values; at least one segment |
 | 14 | Severity | Toggle (single choice) | `severity` — notice (*Needs attention*) / action (*Action required*) | Yes | enum, 2 values |
 | 15 | Title EN / VI | Input (2 fields) | `title_en`, `title_vi` | Yes | max 200 characters each; both required |
 | 16 | Description EN / VI | Input (multi-line, 2 fields) | `description_en`, `description_vi` | Yes | both required |
-| 17 | Points to consider EN / VI | Input (multi-line, 2 fields) | `guidance_en`, `guidance_vi` | Yes | both required |
+| 17 | Points to consider EN / VI and fallback keywords EN / VI | Input (multi-line, 2 fields) + Input (list, 2 fields) | `guidance_en`, `guidance_vi`; `keywords_en`, `keywords_vi` — used only when the language model is unavailable (keyword matching) | Yes | both *Points to consider* required; keywords optional, at most 30 per language, 1–60 characters each, signed with the rule |
 | 18 | Citation | Input | `citation` | Yes | max 200 characters; required to sign — highlighted when missing |
 | 19 | Author and approver line | Text | author, last edit time; `approver_id` and `approved_at` once signed | — | — |
 | 20 | *Save draft* button | Button | static | — | enabled when a field changed |
@@ -69,7 +69,7 @@
 | Empty (no data) | No rules yet: the table shows *No rules yet — create the first rule* with *+ New rule*; version history reads *No rule set in force yet*. A filter with no match shows *No rules for this filter*. | 0 rules / filter returns 0 |
 | Loading | Grey skeleton rows in the table; the editor shows a skeleton until the rule has loaded. | Loading rules |
 | Error | Signing refused by the database: red strip *Cannot sign — citation missing* and the citation field outlined. Duplicate rule code: message under the code field. Save fails: *Couldn't save — your text is kept*. | CHECK constraint / unique constraint / write error |
-| Success / confirmation | Signed: strip *A9-HERIT signed — rule set 2026.09 is now in force*, status turns *Approved*, a new row appears in the version history. Retired: status *Retired*, strip *Rule retired — past results still show its text*. Saved draft: *Draft saved*. | Sign / retire / save succeeded |
+| Success / confirmation | Signed: strip *A9-HERIT signed — rule set 2026.09 is now in force*, status turns *Approved*, a new row appears in the version history. Retired: status *Retired*, strip *Rule retired — past results still show its text*. Saved draft: *Draft saved*. Revision: strip *Revision 2 of A9-MIL created — revision 1 stays in force until it is signed*. | Sign / retire / save / revise succeeded |
 
 ## 5. Interactions and navigation
 
@@ -82,8 +82,9 @@
 | 5 | *Save draft* button | tap | Saves the draft and writes an audit record | stays |
 | 6 | *Approve and sign* button | tap | Confirmation dialog; on confirm records the approver, activates the rule, creates a new rule-set version and writes an audit record | stays |
 | 7 | *Retire* link | tap | Confirmation dialog; on confirm sets status *retired*, removes the rule from future checks and writes an audit record | stays |
-| 8 | Rule code of an approved rule | tap | Opens its public page in a new tab | SC-31 |
-| 9 | Audit note | tap | Opens the audit log filtered to legal rules (admin role) | SC-41 |
+| 8 | *Create revision* link | tap | Copies the signed text into a new draft revision and writes an audit record; the signed revision stays in force (M2 Clarifications Q13) | stays |
+| 9 | Rule code of an approved rule | tap | Opens its public page in a new tab | SC-31 |
+| 10 | Audit note | tap | Opens the audit log filtered to legal rules (admin role) | SC-41 |
 
 ## 6. Screen-level rules
 

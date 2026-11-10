@@ -38,7 +38,10 @@ ROW_RULES = [
  ("READINESS_SNAPSHOT", "ck_readiness_snapshot_range", "readiness_total BETWEEN 0 AND 100", "M0 §5.1 FR-008 — a percentage"),
  ("LEGAL_RULE", "ck_legal_rule_approved_needs_signature", "status <> 'approved' OR (citation IS NOT NULL AND approved_by IS NOT NULL)", "M2 BR-002 — active only with a citation and an approver"),
  ("LEGAL_RULE", "ck_legal_rule_active_matches_status", f"({B('is_active')}) = (status = 'approved')", "04 minimality — upkeep rule of is_active"),
- ("PRECHECK_FINDING", "ck_precheck_finding_span_matches_quote", "span_end - span_start = LENGTH(quoted_text)", "M2 §6.1 — the span is the quoted passage"),
+ ("PRECHECK_RUN", "ck_precheck_run_dropped_count", "dropped_count >= 0", "M2 FR-012 — dropped findings are counted (decided 08/11/2026)"),
+ ("PRECHECK_FINDING", "ck_precheck_finding_span", "span_start >= 0 AND span_end > span_start", "M2 §6.1 — the span of the matched passage (the passage itself is not stored, Q6)"),
+ ("LEGAL_RULE", "ck_legal_rule_revision", "revision >= 1", "M2 Clarifications Q13 — revisions count from 1"),
+ ("LEGAL_RULE", "ck_legal_rule_retired_version", "(status = 'retired') = (retired_version IS NOT NULL)", "M2 BR-008, Q13 — a retired revision names the version that retired it"),
  ("LOCATION", "ck_location_published_matches_status", f"({B('published')}) = (intake_status = 'published')", "M3 BR-004, BR-008 — published only in the published state"),
  ("LOCATION", "ck_location_in_vietnam", "lat BETWEEN 8 AND 24 AND lng BETWEEN 102 AND 110", "M3 §5.1 FR-002 — coordinates inside Vietnam"),
  ("LOCATION_QUERY", "ck_location_query_length", "LENGTH(scene_description) BETWEEN 10 AND 1000", "M3 §5.1 FR-010 — 10 to 1000 characters"),
@@ -58,6 +61,13 @@ ROW_RULES = [
  ("MODERATION_ITEM", "ck_moderation_item_hidden_needs_reason", "content_status <> 'hidden' OR reason IS NOT NULL", "M10 BR-002 — hiding needs a reason"),
  ("QUARTERLY_REPORT", "ck_quarterly_report_period", "period_end >= period_start", "M10 §5.1 FR-003 — a period"),
  ("QUARTERLY_REPORT", "ck_quarterly_report_reread_before_export", "exported_at IS NULL OR reread_by IS NOT NULL", "M10 BR-004 — no export before a reread"),
+]
+
+
+# M2 plan D2 (07/11/2026): one row per rule revision
+COMPOSITE_UNIQUE = [
+ ("LEGAL_RULE", "uq_legal_rule_rule_code_revision", "rule_code, revision"),
+ ("LEGAL_RULE", "uq_legal_rule_rule_slug_revision", "rule_slug, revision"),
 ]
 
 
@@ -83,6 +93,9 @@ def table_sql(e):
     for c in C[e]:
         if "UK" in c[3]:
             cons.append(f"    CONSTRAINT uq_{m['table']}_{c[0]} UNIQUE ({c[0]})")
+    for ent, name, cols in COMPOSITE_UNIQUE:
+        if ent == e:
+            cons.append(f"    CONSTRAINT {name} UNIQUE ({cols})")
     for name, vals in m["enums"].items():
         quoted = ", ".join(f"'{v}'" for v in vals)
         cons.append(f"    CONSTRAINT ck_{m['table']}_{name} CHECK ({name} IN ({quoted}))")

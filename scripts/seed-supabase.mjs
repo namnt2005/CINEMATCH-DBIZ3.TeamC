@@ -52,6 +52,14 @@ const tables = fs.readdirSync(seedDir).filter(f => /^\d{2}_.*\.csv$/.test(f)).so
   const [header, ...rows] = parseCsv(fs.readFileSync(path.join(seedDir, f), 'utf8'));
   return { table: f.replace(/^\d+_/, '').replace(/\.csv$/, ''), columns: header.map(h => h.trim()), rows };
 });
+// M2 plan D14: sample files after the main seed (data/seed/samples/<table>_samples.csv), loaded into the same table
+const sampleDir = path.join(seedDir, 'samples');
+if (fs.existsSync(sampleDir)) {
+  for (const f of fs.readdirSync(sampleDir).filter(n => /^[a-z_]+_samples\.csv$/.test(n)).sort()) {
+    const [header, ...rows] = parseCsv(fs.readFileSync(path.join(sampleDir, f), 'utf8'));
+    tables.push({ table: f.replace(/_samples\.csv$/, ''), columns: header.map(h => h.trim()), rows });
+  }
+}
 const schemaSql = fs.readdirSync(path.join(ROOT, 'data/schema')).filter(f => /^schema-.*\.sql$/.test(f)).sort()
   .map(f => fs.readFileSync(path.join(ROOT, 'data/schema', f), 'utf8')).join('\n');
 

@@ -8,7 +8,7 @@ sources: FUNCTIONS, FIELDS, ENTITIES, RULES, SCENARIOS, FLOWS, SCREENS, BOUNDARY
 
 # CRUD Matrix — CINEMATCH
 
-Long form: one row per (function, entity) pair that interacts — 169 rows over 96 of the 104 functions. Function IDs are the DBIZ2 Subfunction IDs; `F-M3-08` is `FR-008` in `docs/spec/spec-M3.md`. Each row was decided from the function description and its I/O row, not from the entity name.
+Long form: one row per (function, entity) pair that interacts — 170 rows over 96 of the 104 functions. Function IDs are the DBIZ2 Subfunction IDs; `F-M3-08` is `FR-008` in `docs/spec/spec-M3.md`. Each row was decided from the function description and its I/O row, not from the entity name.
 
 ## Interactions
 
@@ -68,6 +68,7 @@ Long form: one row per (function, entity) pair that interacts — 169 rows over 
 | F-M2-12 | `PRECHECK_FINDING` | C | M2 §5.1 FR-012 (verified_findings) — see open question 3 |
 | F-M2-12 | `COMPLIANCE_FINDING` | C | M2 §5.1 FR-012 (verified_findings) — see open question 3 |
 | F-M2-12 | `LEGAL_RULE` | R | M2 §5.1 FR-012 ("rule code is unknown") |
+| F-M2-12 | `PRECHECK_RUN` | U | M2 §5.1 FR-012 (dropped_count, dropped_rule_codes — decided 08/11/2026) |
 | F-M2-13 | `PRECHECK_FINDING` | R | M2 §5.1 FR-013 |
 | F-M2-13 | `COMPLIANCE_FINDING` | R | M2 §5.1 FR-013 |
 | F-M2-13 | `LEGAL_RULE` | R | M2 §5.1 FR-013 (citation mandatory) |
@@ -205,7 +206,7 @@ Long form: one row per (function, entity) pair that interacts — 169 rows over 
 | `READINESS_SOURCE` | — | F-M0-05 | — | — |
 | `LEGAL_RULE` | F-M2-02 | F-M2-01, F-M2-06, F-M2-11, F-M2-12, F-M2-13, F-M2-15, F-M2-16 | F-M2-02, F-M2-03 | — |
 | `RULE_SET_VERSION` | F-M2-04 | — | — | — |
-| `PRECHECK_RUN` | F-M2-07 | F-M10-03 | F-M2-06 | — |
+| `PRECHECK_RUN` | F-M2-07 | F-M10-03 | F-M2-06, F-M2-12 | — |
 | `PRECHECK_FINDING` | F-M2-06, F-M2-12 | F-M2-13 | — | — |
 | `COMPLIANCE_RUN` | — | — | — | — |
 | `COMPLIANCE_FINDING` | F-M2-12 | F-M2-13 | F-M2-14 | — |

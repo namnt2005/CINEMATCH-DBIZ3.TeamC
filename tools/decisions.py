@@ -35,7 +35,9 @@ DECISIONS = {
     ("M2", 4): ("Thresholds", "Keep the test thresholds: High = 2 or more *action* findings; Medium = 1 *action* finding or 3 or more *notice* findings; otherwise Low."),
     ("M2", 6): ("pre-check", "Pre-check text is not stored (hash only) and is not used to improve the rule base. Same decision as SYS question 11."),
     ("M2", 9): ("application form", "Use *Mẫu số 01, Phụ lục I* of Circular 17/2022/TT-BVHTTDL (in force from 15/02/2023, amended by Circular 11/2023/TT-BVHTTDL) — application for a licence to provide film shooting services using Vietnamese locations — plus the *Phụ lục IV* commitment on Article 9. The team prepares an unofficial English reading aid; VFDA confirms the version before launch."),
+    ("M2", 10): ("segment", "Add `legal_rule.segments` (a list of A / B / C). The VFDA Legal Board chooses the segments of each rule on SC-37; the public library (SC-30) filters on it.", "2026-11-09"),
     ("M2", 13): ("correction", "Correcting an approved rule creates a new draft revision; the signed text stays in force until the revision is signed. Retiring a rule creates a new rule-set version."),
+    ("M2", 14): ("format", "`YYYY.MM` for the first rule-set version of a month (Vietnam time), then `YYYY.MM.02`, `YYYY.MM.03`…, so that text order equals time order and the newest version is the greatest string.", "2026-11-07"),
     # ---------------------------------------------------------------- M3
     ("M3", 1): ("Weights", "Scene fit first: scene fit 35%, season 15%, crew 15%, logistics 15%, permit 10%, availability 10%."),
     ("M3", 2): ("catalogue", "The team keeps `config/scene-catalog.json` (with a `version` number) and changes it only through a reviewed pull request approved by the M3 owner; VFDA confirms the content before launch."),

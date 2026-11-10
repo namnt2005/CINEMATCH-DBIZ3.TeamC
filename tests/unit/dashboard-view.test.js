@@ -58,10 +58,16 @@ describe('SC-12 dashboard view (T027, BR-001, BR-002, US-2)', () => {
     assert.equal(overall({ ...ROW_A, content_score: 0, locations_score: 0, readiness_total: 55.5 }).display, '56');
   });
 
-  test('SC-12 #8: gauge buttons lead only to built screens; the others are coming soon', async () => {
+  // Changed 09/11/2026 with Nam Tran's approval (M2 plan D19): SC-48 (project), SC-25 and SC-27 are built, so their
+  // buttons are links to the project's screens; without a project id they still say coming soon.
+  test('SC-12 #8: gauge buttons lead to the built screens of the project; without a project they are coming soon', async () => {
     const { gaugeCards, gaugeLabels } = await load();
-    const byGauge = Object.fromEntries(gaugeCards(ROW_A, gaugeLabels(REQUIREMENTS, 'A', 'en')).map(c => [c.gauge, c.button]));
+    const byGauge = Object.fromEntries(gaugeCards(ROW_A, gaugeLabels(REQUIREMENTS, 'A', 'en'), 'p1').map(c => [c.gauge, c.button]));
     assert.deepEqual(byGauge.locations, { href: '/locations/match', label: 'dashboard.action.locations' });
-    for (const g of ['content', 'partners', 'dossier']) assert.deepEqual(byGauge[g], { soon: true, label: `dashboard.action.${g}` });
+    assert.deepEqual(byGauge.content, { href: '/projects/p1/content', label: 'dashboard.action.content' });
+    assert.deepEqual(byGauge.partners, { href: '/requests?project=p1', label: 'dashboard.action.partners' });
+    assert.deepEqual(byGauge.dossier, { href: '/projects/p1/dossier', label: 'dashboard.action.dossier' });
+    const none = Object.fromEntries(gaugeCards(ROW_A, gaugeLabels(REQUIREMENTS, 'A', 'en')).map(c => [c.gauge, c.button]));
+    for (const g of ['content', 'partners', 'dossier']) assert.deepEqual(none[g], { soon: true, label: `dashboard.action.${g}` });
   });
 });

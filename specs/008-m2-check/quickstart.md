@@ -39,7 +39,8 @@ Expected from `npm test` (each written and seen failing first): BR-001..BR-008, 
 4. In the database (secret key, Nam Tran): the new `precheck_run` has a hash, no text; its `precheck_finding` rows have `rule_id` and span only (Q6).
 5. Close the tab, reopen the result link → level and cards, *the text is not kept* (D3).
 6. Sign in as the seed member, re-check, *Save to project* → choose *Lantern Street* → `/projects/…/content` lists the findings with their passages; *Mark reviewed* with a note; the Content gauge on SC-12 rises (FR-014).
-7. With `LLM_PROVIDER=gemini` and a paid key: the same summary; with a wrong key the result says *checked by keyword matching* (R3).
+7. With `LLM_PROVIDER=gemini` and `GEMINI_PAID_TIER=true`: SC-03 shows the consent box; unticked → *checked by keyword matching*; ticked → the model runs; with a wrong key the result falls back to keyword matching (R3, D12). Without the paid plan the box is not shown.
+8. In the database (secret key, Nam Tran): a check whose model answer was partly dropped keeps `dropped_count` and `dropped_rule_codes`, and no text (D11).
 
 ## Slice 3 — dossier (US-2, FR-008..FR-010)
 
@@ -51,7 +52,7 @@ Expected from `npm test` (each written and seen failing first): BR-001..BR-008, 
 ## Slice 4 — timeline (US-4, FR-017, FR-018)
 
 1. `/projects/<The Last Ferry>/timeline` (15/03/2027, buffer 7) → *Recommended submission date* **05/01/2027**, latest **02/02/2027**; the Tết 2027 band (05–10/02, *expected*) inside the window; both paths shown (US-4 Sc1, D1).
-2. Change the buffer to 14 → both dates move earlier; SC-12 shows the same dates (SR-173).
+2. Change the buffer to 14 → both dates move earlier; the SC-12 strip and the SC-27 deadline line show the same dates (SR-173, D13).
 3. *Quiet Harbour Blues* (10/11/2026) → *Recommended submission date passed … days ago* and the consultation button; no deadline text says *safe* / *an toàn* (D8).
 4. Segment C → *no countdown*; no shooting day → the date field.
 5. Phone width 360 px on all five screens (in an iframe of that width, build-log Entry 10).
@@ -59,3 +60,32 @@ Expected from `npm test` (each written and seen failing first): BR-001..BR-008, 
 ## Results
 
 *(filled in by the person who runs it)*
+
+**09/11/2026 — baseline before any M2 code (T001), run by Claude Code for Nam Tran** (branch `008-m2-check`, last commit `b0af2da`; uncommitted: the analysis fixes of 08/11 and the test-only run)
+
+| Check | Result |
+|---|---|
+| `npm test` | 881 tests, 829 passed, 52 failed — the 52 are the new M2 tests of the test-only run (red by design) |
+| `npm run build` | OK |
+| `uv run tools/start_feature.py --check` | OK |
+| `python3 data/seed/check_seed.py` | PASS |
+| `python3 data/schema/load_check.py` | SQLite PASS — 49 tables, 457 rows |
+| `python3 tools/build_supabase.py --check` | OK |
+
+**10/11/2026 — offline close-out of the code run, run by Claude Code for Nam Tran** (branch `008-m2-check`, last commit `b0af2da`; everything uncommitted; nothing run online)
+
+| Check | Result |
+|---|---|
+| `npm test` | 1014 tests, 1014 passed, 0 failed |
+| `npm run build` | OK (after moving the word count to `lib/content-check/words.js`, see build-log Entry 16 §4) |
+| `node scripts/check-i18n.mjs` | vi.json and en.json complete |
+| `uv run tools/start_feature.py --check` | OK |
+| `python3 tools/build_supabase.py --check` | OK |
+| `python3 data/seed/check_seed.py` | PASS |
+| `python3 data/schema/load_check.py` | SQLite PASS — 49 tables, 458 rows |
+| `python3 data/seed/generate_samples.py` | 16 samples (14 approved), 26 rules with the main seed; output unchanged |
+| PGlite (old and new database shapes) | migration `20261108000100` applied twice; pre-check record, save, review, dossier view and the four rule functions behave (admin refused, sign without citation refused by the CHECK, revision 2 retires revision 1, versions 2026.11 → .02 → .03, one audit row per action) |
+| SC-001 timing, keyword match, node:sqlite | 20 invented summaries of 60–155 words through `POST /api/precheck`: max 54 ms, median 0.4 ms (Gemini not timed: no paid key used) |
+| Offline smoke on `next dev` with node:sqlite | `/api/requirements?segment=A` 20 rules, `segment=C` 18; `/api/requirements/a9-map` retired and marked; `a9-drug` (draft only) 404; segment C + topic dossier shows the empty state |
+| Not run (online, Nam Tran) | `npx supabase db push --remote`, `node scripts/seed-supabase.mjs --reset`, `npm run test:rls`, `npm run check:supabase`, slices 1–5 in the browser, 360 px check |
+

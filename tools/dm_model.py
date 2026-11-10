@@ -312,6 +312,7 @@ CRUD = [
  ("F-M2-12","PRECHECK_FINDING","C","M2 §5.1 FR-012 (verified_findings) — see open question 3"),
  ("F-M2-12","COMPLIANCE_FINDING","C","M2 §5.1 FR-012 (verified_findings) — see open question 3"),
  ("F-M2-12","LEGAL_RULE","R","M2 §5.1 FR-012 (\"rule code is unknown\")"),
+ ("F-M2-12","PRECHECK_RUN","U","M2 §5.1 FR-012 (dropped_count, dropped_rule_codes — decided 08/11/2026)"),
  ("F-M2-13","PRECHECK_FINDING","R","M2 §5.1 FR-013"),("F-M2-13","COMPLIANCE_FINDING","R","M2 §5.1 FR-013"),
  ("F-M2-13","LEGAL_RULE","R","M2 §5.1 FR-013 (citation mandatory)"),
  ("F-M2-14","COMPLIANCE_FINDING","U","M2 §5.1 FR-014"),

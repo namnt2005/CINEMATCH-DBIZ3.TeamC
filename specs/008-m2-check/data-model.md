@@ -44,6 +44,15 @@ Natural key: `rule_code + revision` (OQ-04-24 closed).
 | PK | `(brief_id, rule_id, span_start)` |
 | CHECK | `ck_precheck_finding_span` `span_start >= 0 AND span_end > span_start` replaces the check on `LENGTH(quoted_text)` |
 
+### PRECHECK_RUN (D11 — done 08/11/2026 through the generators)
+
+| Column | Type | Required | Rule |
+|---|---|---|---|
+| `dropped_count` | `INTEGER` | system-set | ≥ 0 (`ck_precheck_run_dropped_count`); 0 ⇔ `dropped_rule_codes = []` (seed check) |
+| `dropped_rule_codes` | `JSONB` | Req | distinct rule codes of the dropped findings (unknown codes included), never text; no attention level ⇒ `dropped_count > 0` |
+
+Seed: the all-dropped run `cc6bcb72` keeps `["A9-NAVY", "A9-MIL"]` (an invented code and a quote not in the text); the *High* Vietnamese run keeps `["A9-HERIT"]` (a draft rule).
+
 ### COMPLIANCE_FINDING (D2)
 
 | Column | Change |
@@ -108,13 +117,13 @@ Stored `document_slot.state` (or `missing`), lowered for b (`present → needs_f
 | summary | 20–200 words after trimming | `precheck.error.words` |
 | `lang` | `en` or `vi` | `precheck.error.lang` |
 | `flags.*` | `yes`, `no`, `unsure` | `precheck.error.flags` |
-| `rule_code` | 1–40 of `A-Z`, `0-9`, `-`; unique among codes (any revision of another rule) | `legal.error.code` |
-| `topic` | one of the 7 topics | `legal.error.topic` |
-| `severity` | `notice` or `action` | `legal.error.severity` |
-| `title_vi`, `title_en` | 1–200 characters | `legal.error.title` |
-| `description_*`, `guidance_*` | 1–4 000 characters* | `legal.error.text` |
-| `citation` | ≤ 200 characters; required **to sign** (database CHECK) | `legal.error.citation` |
-| `keywords_*` | ≤ 30 items, each 1–60 characters* | `legal.error.keywords` |
+| `rule_code` | 1–40 of `A-Z`, `0-9`, `-`; unique among codes (any revision of another rule) | `rules.error.code` |
+| `topic` | one of the 7 topics | `rules.error.topic` |
+| `severity` | `notice` or `action` | `rules.error.severity` |
+| `title_vi`, `title_en` | 1–200 characters | `rules.error.title` |
+| `description_*`, `guidance_*` | 1–4 000 characters* | `rules.error.text` |
+| `citation` | ≤ 200 characters; required **to sign** (database CHECK) | `rules.error.citation` |
+| `keywords_*` | ≤ 30 items, each 1–60 characters* | `rules.error.keywords` |
 | `rule_slug` | from `rule_code` lower-case (`a9-long`), not editable | — |
 | `reviewer_note` | ≤ 1 000 characters* | `content.error.note` |
 | `shoot_date`, `buffer_days` | through M0 (`buffer_days` 0, 7, 14, 21 on SC-29, M0 question 2 — D10) | M0 keys, `projects.error.buffer_days` |
@@ -129,7 +138,7 @@ Stored `document_slot.state` (or `missing`), lowered for b (`present → needs_f
 | `app_revise_rule(p_rule_code text)` | `vfda_legal` | copies the approved revision to a new draft n+1; `DRAFT_EXISTS`, `NOT_FOUND`; audit `rule.revise` |
 | `app_sign_rule(p_rule_id uuid)` | `vfda_legal` exactly — `admin` refused (D9) | required texts checked; update meets the BR-002 CHECK (`CITATION_REQUIRED`); new version; previous approved revision retired; audit `rule.sign`; returns `{ rule_version, retired_rule_id }` |
 | `app_retire_rule(p_rule_id uuid)` | `vfda_legal` exactly — `admin` refused (D9) | approved → retired; new version; audit `rule.retire` |
-| `app_record_precheck(p_hash text, p_lang text, p_flags jsonb, p_country text, p_rule_version text, p_project_id uuid, p_findings jsonb)` | System (`service_role` only) | checks every `rule_id` is approved in `p_rule_version`'s set, recomputes the level, writes run and findings |
+| `app_record_precheck(p_hash text, p_lang text, p_flags jsonb, p_country text, p_rule_version text, p_project_id uuid, p_findings jsonb)` | System (`service_role` only) | checks every `rule_id` is approved in `p_rule_version`'s set, recomputes the level, writes run (with `dropped_count`, `dropped_rule_codes` from `p_findings`) and findings |
 | `app_save_content_check(p_project_id uuid, p_rule_version text, p_findings jsonb)` | owner or edit, project not archived | `RULE_SET_CHANGED` if not the current version; writes `compliance_run` + findings (`open`) |
 | `app_review_finding(p_finding_id uuid, p_note text)` | owner or edit | `open → reviewed`, note |
 | `app.next_rule_version()` | internal | D6 label in Vietnam time |
@@ -141,7 +150,7 @@ Direct `INSERT`, `UPDATE`, `DELETE` on the six M2 tables are revoked from `anon`
 | Table | Who reads today (`20261101000300_grants_rls.sql`) | Change in this feature (at the source, then `build_supabase.py`) |
 |---|---|---|
 | `legal_rule` | anyone: `approved` and `is_active`; `vfda_legal` (and admin by hierarchy): all revisions | none; direct `INSERT`/`UPDATE` grants revoked in the M2 migration (writes through §6) |
-| `rule_set_version` | nobody (no grant, no policy) | **select for `anon`, `signed_in`** — the version label is public (SC-03 #10, SC-48 #2, SC-37 #22) |
+| `rule_set_version` | nobody (no grant, no policy) | **select for `signed_in`** (SC-48 project view, SC-37 #22); guests get the label through `GET /api/precheck/basis` (System actor), so `anon` keeps its five tables (`tests/unit/rls-coverage.test.js`) |
 | `precheck_run` | nobody | **select for members of the linked project** (`project_id` not null) |
 | `precheck_finding` | members of the linked project | none |
 | `compliance_run` | nobody | **select for project members** (SC-48 project view; M0 reads through its own functions) |

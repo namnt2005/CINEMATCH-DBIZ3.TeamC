@@ -13,13 +13,13 @@ It adds no requirement of its own. If this index and a module file ever disagree
 | SYS | [`spec-SYS.md`](spec-SYS.md) | Platform foundation — accounts, roles, bilingual UI, notifications, search | 11 | 5 | 4 | SC-04, SC-06, SC-07, SC-08, SC-09, SC-42, SC-43 | 9 (0 blocking) |
 | M1 | [`spec-M1.md`](spec-M1.md) | Segment router | 3 | 4 | 3 | SC-01, SC-02, SC-13 | 1 (0 blocking) |
 | M0 | [`spec-M0.md`](spec-M0.md) | Project workspace and readiness dashboard | 9 | 5 | 3 | SC-10, SC-12, SC-13 | 4 (0 blocking) |
-| M2 | [`spec-M2.md`](spec-M2.md) | Content pre-check and Article 13 dossier check | 18 | 8 | 5 | SC-03, SC-27, SC-29, SC-30, SC-31, SC-37, SC-48 | 7 (0 blocking) |
+| M2 | [`spec-M2.md`](spec-M2.md) | Content pre-check and Article 13 dossier check | 18 | 8 | 5 | SC-03, SC-27, SC-29, SC-30, SC-31, SC-37, SC-48 | 5 (0 blocking) |
 | M3 | [`spec-M3.md`](spec-M3.md) | Location discovery | 20 | 10 | 5 | SC-14, SC-15, SC-16, SC-17, SC-18, SC-35 | 6 (0 blocking) |
 | M4 | [`spec-M4.md`](spec-M4.md) | Vietnamese service partners | 19 | 9 | 4 | SC-19, SC-20, SC-21, SC-22, SC-23, SC-25, SC-36 | 4 (0 blocking) |
 | M5 | [`spec-M5.md`](spec-M5.md) | Dossier kit, bilingual drafts and countdown | 8 | 6 | 3 | SC-26, SC-28, SC-29 | 4 (0 blocking) |
 | M7 | [`spec-M7.md`](spec-M7.md) | VFDA support — provincial notices and consultations | 7 | 5 | 3 | SC-32, SC-33 | 2 (0 blocking) |
 | M10 | [`spec-M10.md`](spec-M10.md) | VFDA back office — moderation, demand index, quarterly report, audit log | 9 | 5 | 4 | SC-34, SC-38, SC-39, SC-40, SC-41 | 7 (0 blocking) |
-| **Total** |  |  | **104** | **57** | **34** | 41 screens | **44 (0 blocking)** |
+| **Total** |  |  | **104** | **57** | **34** | 41 screens | **42 (0 blocking)** |
 
 Modules `M6`, `M8` and `M9` are *Won't* for this release (see `docs/prd.md` section 4.4) and have no Spec Document.
 

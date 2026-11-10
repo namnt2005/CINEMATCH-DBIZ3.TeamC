@@ -45,6 +45,8 @@ export default function SiteHeader({ state }) {
         <a href="/locations" style={link}>{t('frame.nav.locations')}</a>
         <a href="/locations/match" style={link}>{t('header.match')}</a>
         <a href="/partners" style={link}>{t('partners.nav')}</a>
+        <a href="/pre-check" style={link}>{t('header.precheck')}</a>
+        <a href="/requirements" style={link}>{t('header.requirements')}</a>
         {state.signedIn && state.role !== 'partner' ? <a href="/projects" style={link}>{t('header.projects')}</a> : null}
         {state.role === 'partner' ? <a href="/partners/me" style={link}>{t('partners.header.my_organisation')}</a> : null}
         {state.role === 'partner' ? <a href="/requests" style={link}>{t('partners.header.requests')}</a> : null}
@@ -52,6 +54,7 @@ export default function SiteHeader({ state }) {
         {['vfda_staff', 'admin'].includes(state.role) ? <a href="/admin/notices" style={link}>{t('notices.staff.header_link')}</a> : null}
         {['vfda_staff', 'admin'].includes(state.role) ? <a href="/admin/verification" style={link}>{t('partners.header.verification')}</a> : null}
         {['vfda_staff', 'admin'].includes(state.role) ? <a href="/admin/partners/invite" style={link}>{t('partners.header.invite')}</a> : null}
+        {['vfda_legal', 'admin'].includes(state.role) ? <a href="/admin/legal-rules" style={link}>{t('header.legal_rules')}</a> : null}
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
           <LanguageSwitch />
           {state.signedIn ? (

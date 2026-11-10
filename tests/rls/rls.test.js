@@ -51,6 +51,11 @@ describe('Row Level Security on cinematch-dev (npm run test:rls)', () => {
   after(async () => {
     // Test fixtures only: the app never deletes a project (M0 BR-005); the secret key removes what this run made
     for (const id of createdProjects) {
+      // M2: the fixture's content checks (runs, findings) and pre-check runs
+      const { data: m2runs } = await admin.from('compliance_run').select('run_id').eq('project_id', id);
+      for (const { run_id } of m2runs || []) await admin.from('compliance_finding').delete().eq('run_id', run_id);
+      await admin.from('compliance_run').delete().eq('project_id', id);
+      await admin.from('precheck_run').delete().eq('project_id', id);
       // M4: the fixture's requests carry no note, so no message; a final request or a message would be kept by its trigger
       const { error: requestError } = await admin.from('collab_request').delete().eq('project_id', id);
       if (requestError) console.log(`kept: collab_request of fixture project ${id} (${requestError.message}); the next --reset clears it`);
@@ -329,5 +334,57 @@ describe('Row Level Security on cinematch-dev (npm run test:rls)', () => {
     assert.ok(direct, 'a direct insert is refused');
     const { data: rows } = await admin.from('nda_acceptance').select('nda_acceptance_id').eq('request_id', sent.request_id);
     assert.deepEqual(rows, []);
+  });
+
+  // M2 (specs/008-m2-check T033, data-model §7, research R6): member fixtures only.
+  test('M2 RLS: a member reads the content check of their own project and none of another; direct writes are refused', async () => {
+    const { ownerClient, projectId } = await createTestProject();
+    const { data: rule, error: ruleError } = await ownerClient.from('legal_rule').select('rule_id, rule_version').eq('rule_code', 'A9-MIL').eq('status', 'approved').single();
+    assert.equal(ruleError, null, ruleError?.message);
+    const { data: version } = await ownerClient.from('rule_set_version').select('rule_version').order('rule_version', { ascending: false }).limit(1).single();
+    const text = 'Two soldiers row a lantern boat to the river bank at dawn while the street watches from the old bridge in silence.';
+    const { error } = await ownerClient.rpc('app_save_content_check', { p_project_id: projectId, p_rule_version: version.rule_version, p_text: text,
+      p_findings: [{ rule_id: rule.rule_id, quoted_text: 'Two soldiers' }] });
+    assert.equal(error, null, error?.message);
+    const { data: own } = await ownerClient.from('compliance_run').select('run_id').eq('project_id', projectId);
+    assert.equal(own.length, 1);
+    const outsider = await signedInClient(await createTestAccount(SIGNUP_METADATA));
+    const { data: others } = await outsider.from('compliance_run').select('run_id').eq('project_id', projectId);
+    assert.equal((others || []).length, 0);
+    const { data: findings } = await ownerClient.from('compliance_finding').select('finding_id').eq('run_id', own[0].run_id);
+    const { error: upd } = await ownerClient.from('compliance_finding').update({ finding_status: 'reviewed' }).eq('finding_id', findings[0].finding_id);
+    const { data: after } = await admin.from('compliance_finding').select('finding_status').eq('finding_id', findings[0].finding_id).single();
+    assert.equal(after.finding_status, 'open', upd?.message);
+    const { error: ins } = await ownerClient.from('precheck_run').insert({ brief_id: randomUUID(), synopsis_hash: 'x', lang: 'en', dropped_rule_codes: [], created_at: new Date().toISOString() });
+    assert.ok(ins, 'a direct insert into precheck_run is refused');
+  });
+
+  test('M2 RLS: app_save_content_check refuses a quote that is not in the text, and a member cannot record a pre-check', async () => {
+    const { ownerClient, projectId } = await createTestProject();
+    const { data: rule } = await ownerClient.from('legal_rule').select('rule_id').eq('rule_code', 'A9-MIL').eq('status', 'approved').single();
+    const { data: version } = await ownerClient.from('rule_set_version').select('rule_version').order('rule_version', { ascending: false }).limit(1).single();
+    const { error } = await ownerClient.rpc('app_save_content_check', { p_project_id: projectId, p_rule_version: version.rule_version,
+      p_text: 'A quiet story about noodles in Đà Lạt with nothing else in it at all.', p_findings: [{ rule_id: rule.rule_id, quoted_text: 'soldiers' }] });
+    assert.match(error?.message ?? '', /VALIDATION_ERROR/);
+    const { error: record } = await ownerClient.rpc('app_record_precheck', { p_hash: 'x', p_lang: 'en', p_flags: null, p_country: null,
+      p_rule_version: version.rule_version, p_project_id: null, p_findings: [], p_dropped_count: 0, p_dropped_rule_codes: [] });
+    assert.ok(record, 'only the System actor records pre-checks');
+  });
+
+  // M2 US-3 (T016): member fixtures only; the Legal Board steps are run by Nam Tran in the browser.
+  test('M2 RLS: a member reads approved, active revisions only, cannot write a rule, reads the version labels; anon reads no version row', async () => {
+    const member = await signedInClient(await createTestAccount(SIGNUP_METADATA));
+    const { data: visible, error } = await member.from('legal_rule').select('status, is_active');
+    assert.equal(error, null, error?.message);
+    assert.ok(visible.length > 0);
+    assert.ok(visible.every(r => r.status === 'approved' && r.is_active === true));
+    const { error: ins } = await member.from('legal_rule').insert({ rule_id: randomUUID(), rule_code: 'RLS-X', revision: 1, title_vi: 'x', title_en: 'x', description_vi: 'x',
+      description_en: 'x', guidance_vi: 'x', guidance_en: 'x', severity: 'notice', topic: 'security', rule_slug: 'rls-x', segments: ['A'], is_sample: false });
+    assert.ok(ins, 'a direct insert is refused');
+    const { data: versions, error: vErr } = await member.from('rule_set_version').select('rule_version');
+    assert.equal(vErr, null, vErr?.message);
+    assert.ok(versions.length > 0);
+    const { data: anonVersions, error: anonErr } = await anon.from('rule_set_version').select('rule_version');
+    assert.ok(anonErr || (anonVersions || []).length === 0, 'anon reads no version row');
   });
 });

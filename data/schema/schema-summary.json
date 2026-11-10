@@ -19,9 +19,9 @@
  },
  "M2": {
   "tables": 6,
-  "columns": 46,
-  "fks": 11,
-  "checks": 9
+  "columns": 51,
+  "fks": 12,
+  "checks": 12
  },
  "M3": {
   "tables": 6,

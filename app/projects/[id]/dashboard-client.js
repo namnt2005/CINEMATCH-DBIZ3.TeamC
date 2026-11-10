@@ -1,8 +1,8 @@
 'use client';
 // SC-12, in the order of docs/screens/screen-spec-SC-12.md: sidebar (#2) → name, segment, organisation (#3) →
 // shoot date and countdown (#4) → overall readiness (#5) → one card per shown gauge with its next step and
-// button (#6–#9); then the Empty, Error and Success states. The deadline strip (#10, M5) and recent activity (#11)
-// are not built yet; the consultation line (#12) opens SC-33. Nothing is computed here (BR-001, SR-052).
+// button (#6–#9); then the Empty, Error and Success states. The deadline strip (#10) comes from the M2 timeline
+// (SR-173, M2 D13); recent activity (#11) is not built yet; the consultation line (#12) opens SC-33. Nothing is computed here (BR-001, SR-052).
 import { useState } from 'react';
 import { useLocale, useT } from '../../../lib/i18n/client.js';
 import { nextStepText } from '../../../lib/readiness/next-steps.js';
@@ -10,6 +10,7 @@ import { fromApiReadiness } from '../../../lib/db/project-shape.js';
 import { shootLine } from '../projects-view.js';
 import { gaugeLabels, gaugeCards, overall } from './dashboard-view.js';
 import ProjectNav from './project-nav.js';
+import { stripView, vnDate } from '../../../lib/licensing/view.js';
 
 const C = { navy: '#0f2d52', blue: '#2563eb', muted: '#6b7280', border: '#e5e7eb', red: '#b91c1c', green: '#166534' };
 
@@ -40,13 +41,13 @@ function GaugeCard({ card, row, documentTypes }) {
   );
 }
 
-export default function DashboardClient({ project, requirements, documentTypes, today, created }) {
+export default function DashboardClient({ project, requirements, documentTypes, today, created, timeline = null }) {
   const t = useT();
   const locale = useLocale();
   const [row, setRow] = useState(project.readinessFailed ? null : project.readiness);
   const [retrying, setRetrying] = useState(false);
   const labels = gaugeLabels(requirements, project.segment, locale);
-  const cards = gaugeCards(row, labels);
+  const cards = gaugeCards(row, labels, project.project_id);
   const total = overall(row);
   const date = shootLine(project.shoot_date, today, 'dashboard.shoot');
 
@@ -72,6 +73,11 @@ export default function DashboardClient({ project, requirements, documentTypes, 
           {project.shoot_date || project.stage === 'archived' ? null : <> · <a href={`/projects/${project.project_id}/settings`} style={{ color: C.blue }}>{t('dashboard.shoot.set')}</a></>}
         </p>
 
+        {stripView(timeline) ? (
+          <p role="note" style={{ margin: '0.75rem 0 0', padding: '0.625rem 0.875rem', borderRadius: '0.5rem', background: stripView(timeline).passed ? '#fef2f2' : '#fffbeb' }}>
+            <a href={`/projects/${project.project_id}/timeline`} style={{ color: 'inherit' }}>{t(stripView(timeline).key, { date: vnDate(stripView(timeline).date), days: stripView(timeline).days })}</a>
+          </p>
+        ) : null}
         <section aria-labelledby="overall" style={{ margin: '1.25rem 0', padding: '1rem', border: `1px solid ${C.border}`, borderRadius: '0.75rem' }}>
           <h2 id="overall" style={{ fontSize: '1rem', margin: 0 }}>{t('dashboard.overall')}</h2>
           <p style={{ fontSize: '2.25rem', fontWeight: 800, margin: '0.25rem 0' }}>{total.display}{total.value === null ? '' : '%'}</p>
