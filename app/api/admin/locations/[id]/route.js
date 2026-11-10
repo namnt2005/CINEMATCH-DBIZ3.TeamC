@@ -1,6 +1,8 @@
 import { adminRoute, readBody, methodNotAllowed } from '../../../../../lib/api/admin.js';
 import { getAdminLocation, updateLocation } from '../../../../../lib/db/admin-locations.js';
 
+export const dynamic = 'force-dynamic';
+
 /** GET: one location for the SC-35 editor (20 fields, contact, read-only photos, publish state). */
 export const GET = adminRoute(async (_req, params) => Response.json(await getAdminLocation(params.id)));
 

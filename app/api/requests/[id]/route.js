@@ -2,6 +2,8 @@ import { getRequest } from '../../../../lib/db/collab.js';
 import { memberSession } from '../../../../lib/api/projects.js';
 import { partnerError, fromPartnerError, isUuidLike } from '../../../../lib/api/partners.js';
 
+export const dynamic = 'force-dynamic';
+
 /** GET /api/requests/:id — SC-25 (M4 FR-013, FR-014): the project's members and the partner's users. */
 export async function GET(req, { params }) {
   const session = await memberSession(req);

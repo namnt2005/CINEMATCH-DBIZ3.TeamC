@@ -3,6 +3,8 @@ import { memberSession, readBody } from '../../../../lib/api/projects.js';
 import { checkError, fromCheckError } from '../../../../lib/api/checks.js';
 import { validateRule, TOPICS } from '../../../../lib/legal/input.js';
 
+export const dynamic = 'force-dynamic';
+
 const READERS = ['vfda_legal', 'admin'];
 
 /** GET /api/admin/legal-rules?topic=&status= — SC-37 (FR-001): vfda_legal and admin read. */

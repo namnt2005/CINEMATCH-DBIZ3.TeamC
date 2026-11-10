@@ -5,6 +5,8 @@ import { getAllProvinces } from '../../../lib/db/locations.js';
 import { getProfileName } from '../../../lib/db/profiles.js';
 import AdminLocationsClient from './admin-locations-client.js';
 
+export const dynamic = 'force-dynamic';
+
 /**
  * SC-35 Admin — Locations (/admin/locations), M3 US-3.
  * vfda_staff only (SC-35 #7; admin inherits, D5). The role comes from the Supabase session (@supabase/ssr);

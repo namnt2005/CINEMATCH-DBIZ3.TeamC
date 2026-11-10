@@ -6,6 +6,8 @@ import { getMyOrganisation } from '../../../../lib/db/partners.js';
 import { listMyVerification } from '../../../../lib/db/verification.js';
 import VerifyForm from './verify-form.js';
 
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata() {
   const { t } = await getI18n();
   return { title: `${t('verification.meta.title')} · CINEMATCH` };

@@ -5,6 +5,8 @@ import { getApprovedLetter } from '../../../../../../lib/db/notices.js';
 import { getI18n } from '../../../../../../lib/i18n/server.js';
 import PrintButton from './print-button.js';
 
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata() {
   const { t } = await getI18n();
   return { title: `${t('notices.print.title')} · CINEMATCH` };

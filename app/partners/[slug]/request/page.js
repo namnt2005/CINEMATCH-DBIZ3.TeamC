@@ -8,6 +8,8 @@ import { isSlug } from '../../../../lib/api/partners.js';
 import { eligibleProjects } from '../../../requests/request-view.js';
 import RequestForm from './request-form.js';
 
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata() {
   const { t } = await getI18n();
   return { title: `${t('requests.form.title')} · CINEMATCH` };

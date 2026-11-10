@@ -1,6 +1,8 @@
 import { getLocationDetail } from '../../../../lib/db/location-detail.js';
 import { locationNotFound } from '../../../../lib/api/errors.js';
 
+export const dynamic = 'force-dynamic';
+
 /**
  * Route Handler for public location detail (F-M3-13, BR-008).
  */

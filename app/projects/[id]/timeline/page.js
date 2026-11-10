@@ -6,6 +6,8 @@ import { getTimeline } from '../../../../lib/db/timeline.js';
 import { getI18n } from '../../../../lib/i18n/server.js';
 import TimelineClient from './timeline-client.js';
 
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata() {
   const { t } = await getI18n();
   return { title: `${t('timeline.meta.title')} · CINEMATCH` };

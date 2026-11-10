@@ -5,6 +5,8 @@ import { listInvitations, listInvitableOrganisations } from '../../../../lib/db/
 import { getAllProvinces } from '../../../../lib/db/locations.js';
 import InviteForm from './invite-form.js';
 
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata() {
   const { t } = await getI18n();
   return { title: `${t('invitations.meta.title')} · CINEMATCH` };

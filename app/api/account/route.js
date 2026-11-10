@@ -4,6 +4,8 @@ import { getAccount, updateAccount } from '../../../lib/db/accounts.js';
 import { authError, authUnavailable, readJson } from '../../../lib/api/auth.js';
 import { localeCookie } from '../../../lib/i18n/switch.js';
 
+export const dynamic = 'force-dynamic';
+
 async function signedInUser(req) {
   const session = await getSession({ headers: req.headers });
   return session.isAuthenticated && session.userId ? session.userId : null;

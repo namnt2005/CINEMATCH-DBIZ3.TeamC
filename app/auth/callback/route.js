@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server.js';
 import { safeNext } from '../../../lib/auth/next.js';
 import { isSupabase } from '../../../lib/db/source.js';
 
+export const dynamic = 'force-dynamic';
+
 /**
  * GET /auth/callback — the verification link of the sign-up email (US-1 Scenario 2).
  * Supabase Auth checks the code or token and starts the session; the user returns to the page that led to

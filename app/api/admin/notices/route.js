@@ -1,6 +1,8 @@
 import { listStaffNotices } from '../../../../lib/db/notices.js';
 import { projectError, fromProjectError, memberSession, isStaffSession } from '../../../../lib/api/projects.js';
 
+export const dynamic = 'force-dynamic';
+
 const STATUSES = ['draft', 'submitted', 'changes_requested', 'approved'];
 
 /** GET /api/admin/notices?status= — M7 R6: the VFDA review queue (vfda_staff, admin). */

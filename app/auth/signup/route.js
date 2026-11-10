@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server.js';
 
+export const dynamic = 'force-dynamic';
+
 /** Older link (signup_url of the contact API): /auth/signup → SC-04 at /signup, query kept. */
 export function GET(req) {
   const url = new URL(req.url);

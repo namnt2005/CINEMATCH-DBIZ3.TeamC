@@ -9,6 +9,8 @@ import { todayInVietnam } from '../../../lib/projects/input.js';
 import { getTimeline } from '../../../lib/db/timeline.js';
 import DashboardClient from './dashboard-client.js';
 
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata() {
   const { t } = await getI18n();
   return { title: `${t('dashboard.overall')} · CINEMATCH` };

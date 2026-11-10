@@ -7,6 +7,8 @@ import { getAllProvinces } from '../../../lib/db/locations.js';
 import { isSlug } from '../../../lib/api/partners.js';
 import { layerIndicator, requestAction, art13Badge, initials } from '../directory-view.js';
 
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata() {
   const { t } = await getI18n();
   return { title: `${t('partners.meta.title')} · CINEMATCH` };

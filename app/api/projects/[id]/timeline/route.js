@@ -2,6 +2,8 @@ import { getTimeline } from '../../../../../lib/db/timeline.js';
 import { memberSession, isUuid } from '../../../../../lib/api/projects.js';
 import { checkError, fromCheckError } from '../../../../../lib/api/checks.js';
 
+export const dynamic = 'force-dynamic';
+
 /** GET /api/projects/:id/timeline?submit= — SC-29 (M2 FR-017, FR-018, BR-006): project members. */
 export async function GET(req, { params }) {
   const session = await memberSession(req);

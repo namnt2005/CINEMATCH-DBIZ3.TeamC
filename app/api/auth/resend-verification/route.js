@@ -1,6 +1,8 @@
 import { checkEmail } from '../../../../lib/auth/signup-input.js';
 import { authUnavailable, readJson, siteOrigin, userClient } from '../../../../lib/api/auth.js';
 
+export const dynamic = 'force-dynamic';
+
 /**
  * POST /api/auth/resend-verification — SC-04 *Resend* (edge case: email provider down).
  * Always 200 with the same body, so it cannot tell who has an account; the screen locks Resend for 60 s.

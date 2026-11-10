@@ -3,6 +3,8 @@ import { deletionConfirmed } from '../../../../lib/auth/account-input.js';
 import { deleteMyAccount } from '../../../../lib/db/accounts.js';
 import { authError, authUnavailable, readJson } from '../../../../lib/api/auth.js';
 
+export const dynamic = 'force-dynamic';
+
 /** POST /api/account/deactivate — SC-08 *Delete my account* (BR-005, SR-233, SR-234): needs "DELETE" typed exactly. */
 export async function POST(req) {
   const unavailable = authUnavailable();

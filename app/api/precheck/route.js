@@ -5,6 +5,8 @@ import { takeCheck, GUEST_LIMIT, MEMBER_LIMIT } from '../../../lib/content-check
 import { checkError, fromCheckError, clientIp, countryOf } from '../../../lib/api/checks.js';
 import { readBody } from '../../../lib/api/projects.js';
 
+export const dynamic = 'force-dynamic';
+
 /**
  * POST /api/precheck — SC-03 → SC-48 (M2 FR-005..FR-007, FR-011, FR-012, BR-001, BR-004; D7, D11, D12).
  * No sign-up needed. The summary is checked and thrown away: only its hash, the cited revisions and spans are stored.

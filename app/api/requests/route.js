@@ -3,6 +3,8 @@ import { validateRequestInput } from '../../../lib/partners/input.js';
 import { memberSession, readBody } from '../../../lib/api/projects.js';
 import { partnerError, fromPartnerError, isUuidLike } from '../../../lib/api/partners.js';
 
+export const dynamic = 'force-dynamic';
+
 /** POST /api/requests — SC-23 send (M4 FR-012): a producer of the project; one open request per project and partner. */
 export async function POST(req) {
   const session = await memberSession(req);

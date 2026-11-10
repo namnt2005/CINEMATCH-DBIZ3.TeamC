@@ -2,6 +2,8 @@ import { listVerificationQueue } from '../../../../lib/db/verification.js';
 import { memberSession, isStaffSession } from '../../../../lib/api/projects.js';
 import { partnerError, fromPartnerError } from '../../../../lib/api/partners.js';
 
+export const dynamic = 'force-dynamic';
+
 const STATUSES = ['pending', 'approved', 'rejected', 'all'];
 
 /** GET /api/admin/verification?status= — SC-36 (FR-009): VFDA staff and admin only. */

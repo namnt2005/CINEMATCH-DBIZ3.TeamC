@@ -4,6 +4,8 @@ import { headerState } from '../lib/auth/header-state.js';
 import SiteHeader from './components/site-header.js';
 import SiteFooter from './components/site-footer.js';
 
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata() {
   const { t } = await getI18n();
   return { title: t('meta.title'), description: t('meta.description') };

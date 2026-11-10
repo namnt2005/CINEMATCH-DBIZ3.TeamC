@@ -4,6 +4,8 @@ import { getSession } from '../../lib/auth/session.js';
 import { listNotifications } from '../../lib/db/notifications.js';
 import NotificationCentre from './notification-centre.js';
 
+export const dynamic = 'force-dynamic';
+
 /** SC-09 Notification centre (/notifications, ?filter=unread): signed-in users only (FR-009). */
 export default async function NotificationsPage({ searchParams }) {
   const session = await getSession({ headers: headers() });

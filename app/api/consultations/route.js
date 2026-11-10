@@ -3,6 +3,8 @@ import { validateConsultationRequest } from '../../../lib/consultations/input.js
 import { sendConsultationRequest } from '../../../lib/email/resend.js';
 import { projectError, fromProjectError, memberSession, readBody } from '../../../lib/api/projects.js';
 
+export const dynamic = 'force-dynamic';
+
 const ANSWER = { sent: 'sent', bounced: 'failed', queued: 'queued' };
 
 /**

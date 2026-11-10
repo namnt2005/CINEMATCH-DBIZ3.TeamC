@@ -4,6 +4,8 @@ import { getI18n } from '../../../../lib/i18n/server.js';
 import { getInvitation } from '../../../../lib/db/partner-invitations.js';
 import AcceptButton from './accept-button.js';
 
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata() {
   const { t } = await getI18n();
   return { title: `${t('invitations.accept.meta')} · CINEMATCH` };

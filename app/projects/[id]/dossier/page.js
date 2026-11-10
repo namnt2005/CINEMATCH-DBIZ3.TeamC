@@ -8,6 +8,8 @@ import { stateView } from '../../../../lib/dossier/check.js';
 import ProjectNav from '../project-nav.js';
 import DossierDeadline from './dossier-deadline.js';
 
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata() {
   const { t } = await getI18n();
   return { title: `${t('dossier.meta.title')} · CINEMATCH` };

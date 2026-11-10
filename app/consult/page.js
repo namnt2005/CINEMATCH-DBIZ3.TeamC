@@ -5,6 +5,8 @@ import { listConsultations } from '../../lib/db/consultations.js';
 import { getI18n } from '../../lib/i18n/server.js';
 import ConsultationForm from './consultation-form.js';
 
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata() {
   const { t } = await getI18n();
   return { title: `${t('consult.meta.title')} · CINEMATCH` };

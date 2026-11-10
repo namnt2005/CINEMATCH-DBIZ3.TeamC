@@ -4,6 +4,8 @@ import { readSession, newSession, sessionKey, sessionCookie, requestLocale } fro
 import { getRouterData, saveDecision } from '../../../../lib/db/router.js';
 import { apiMessage } from '../../../../lib/i18n/index.js';
 
+export const dynamic = 'force-dynamic';
+
 const fail = (code, status, extra = {}) => Response.json({ error: code, message: apiMessage(`router.api.${code}`), ...extra }, { status });
 
 /**

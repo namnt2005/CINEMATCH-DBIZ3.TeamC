@@ -2,6 +2,8 @@ import { precheckBasis } from '../../lib/db/precheck.js';
 import { getI18n } from '../../lib/i18n/server.js';
 import PrecheckForm from './precheck-form.js';
 
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata() {
   const { t } = await getI18n();
   return { title: `${t('precheck.meta.title')} · CINEMATCH` };

@@ -6,6 +6,8 @@ import { getAllProvinces } from '../../lib/db/locations.js';
 import { validateDirectoryQuery } from '../../lib/partners/input.js';
 import { filtersFromSearch, searchFromFilters, showLanguageFilter, memberLine, sendRequestHref, initials, showNotVerified } from './directory-view.js';
 
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata() {
   const { t } = await getI18n();
   return { title: `${t('partners.meta.title')} · CINEMATCH` };

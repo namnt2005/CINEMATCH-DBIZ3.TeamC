@@ -6,6 +6,8 @@ import { latestContentCheck } from '../../../../lib/db/content-checks.js';
 import { getI18n } from '../../../../lib/i18n/server.js';
 import ContentClient from './content-client.js';
 
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata() {
   const { t } = await getI18n();
   return { title: `${t('content.meta.title')} · CINEMATCH` };

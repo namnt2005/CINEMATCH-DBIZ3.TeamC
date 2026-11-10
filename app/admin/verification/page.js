@@ -5,6 +5,8 @@ import { listVerificationQueue } from '../../../lib/db/verification.js';
 import { getAllProvinces } from '../../../lib/db/locations.js';
 import VerificationQueue from './verification-queue.js';
 
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata() {
   const { t } = await getI18n();
   return { title: `${t('queue.meta.title')} · CINEMATCH` };

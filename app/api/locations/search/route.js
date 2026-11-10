@@ -1,5 +1,7 @@
 import { searchLocations } from '../../../../lib/db/search.js';
 
+export const dynamic = 'force-dynamic';
+
 /**
  * Route Handler for multi-criteria location discovery search & ranking (F-M3-06, F-M3-08, F-M3-09).
  */

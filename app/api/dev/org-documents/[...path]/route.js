@@ -1,5 +1,7 @@
 import { localAdapter, MAX_BYTES } from '../../../../../lib/storage/org-documents.js';
 
+export const dynamic = 'force-dynamic';
+
 // Offline stand-in for the signed Storage URLs of `org-documents` (specs/007-m4-partners R10): node:sqlite only, never
 // in production (analysis U1) and never when Supabase is configured.
 const closed = () => process.env.NODE_ENV === 'production' || Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL);

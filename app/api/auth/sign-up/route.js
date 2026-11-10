@@ -3,6 +3,8 @@ import { safeNext } from '../../../../lib/auth/next.js';
 import { currentConsentVersion } from '../../../../lib/db/consent.js';
 import { authError, authUnavailable, readJson, siteOrigin, userClient } from '../../../../lib/api/auth.js';
 
+export const dynamic = 'force-dynamic';
+
 /**
  * POST /api/auth/sign-up — SC-04 Create account (FR-001, US-1 Scenarios 1 and 3).
  * The password goes to Supabase Auth only (BR-004). The metadata carries the FR-001 fields and the server's

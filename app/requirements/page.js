@@ -2,6 +2,8 @@ import { getI18n } from '../../lib/i18n/server.js';
 import { listRequirements } from '../../lib/db/requirements.js';
 import LibraryClient from './library-client.js';
 
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata() {
   const { t } = await getI18n();
   return { title: `${t('requirements.meta.title')} · CINEMATCH` };

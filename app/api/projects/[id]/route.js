@@ -2,6 +2,8 @@ import { getProject, updateProject } from '../../../../lib/db/projects.js';
 import { validateProjectUpdate } from '../../../../lib/projects/input.js';
 import { projectError, fromProjectError, memberSession, readBody, isUuid } from '../../../../lib/api/projects.js';
 
+export const dynamic = 'force-dynamic';
+
 /** GET /api/projects/:id — the project, the caller's permission, members and the view row; 404 for non-members. */
 export async function GET(req, { params }) {
   const session = await memberSession(req);

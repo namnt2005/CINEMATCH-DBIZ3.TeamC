@@ -246,6 +246,19 @@ did and what the humans decided.
 | Spec issues found | none new (rows 55–68 from Entry 16 stand) |
 | Commit | not committed yet |
 
+### Entry 18: 11/11/2026 Nam Tran
+
+| Field | Value |
+|---|---|
+| Path and agent | Claude Code (VS Code extension); code, test and checks run by the agent for Nam Tran (Nguyễn Trần Nam) in the session; nothing deployed |
+| Command and argument | Fix of the Vercel build failure *Error occurred prerendering page /api/precheck/basis — SUPABASE_SECRET_KEY is not set* (also /start), prompt of Nam Tran, 11/11/2026; `npm test`, `npm run build`, `npm run build:ci-check` |
+| Feature and tasks | Cross-cutting (branch `008-m2-check`); no task in `tasks.md` |
+| What the agent produced | `export const dynamic = 'force-dynamic'` in all 78 Route Handlers of `app/api/**` and in the 34 pages and layouts that read data (through `lib/db`, `lib/supabase` or the session), including `app/layout.js` and `app/start/page.js`; `scripts/build-ci-check.mjs` and `npm run build:ci-check` (build with `NEXT_PUBLIC_SUPABASE_URL=https://example.supabase.co`, a placeholder publishable key and no `SUPABASE_SECRET_KEY`, into `.next/ci-check`; fails on a prerender error or a static `/api` route); `distDir` from `NEXT_DIST_DIR` in `next.config.mjs`; `engines.node` `22.x`; test `tests/unit/build-dynamic.test.js`. No module created a Supabase client or read an environment variable at import time; the new test keeps it so |
+| Human review | Not yet reviewed by a person |
+| Tests | Red first: `build-dynamic.test.js` 4 of 5 failed (the import-time rule passed at once: nothing to fix, it is a guard); `npm run build:ci-check` failed with the Vercel error. After the fix: `npm test` `1019 tests, 1019 passed, 0 failed`; `npm run build` OK; `npm run build:ci-check` OK |
+| Spec issues found | none |
+| Commit | not committed yet |
+
 ## 3. Spec issues found while building
 
 Every gap the build uncovers goes back to `docs/spec/` as an open question or a spec change. It
@@ -363,3 +376,4 @@ is never fixed silently in code.
 | Entry 16 | `next start` read `.env`, so the offline smoke test read (read only) the old `cinematch-dev` data. | `segment=C` returned 0 rules (no `segments` column there yet). | Offline smoke runs with `NEXT_PUBLIC_SUPABASE_URL=` empty. |
 | Entry 16 | Two tests were green for the wrong reason (the keywords column test and the dossier banned-words test), and three test bugs: an `assert.rejects` validator returning a string, a case-sensitive uuid pattern, an `ORDER BY revision` before the column existed. | The Red runs. | Each test first asserts that the column or key it reads exists; validators return `true`. |
 | Entry 16 | *passed* in the English deadline texts is a banned word (BR-003). | The banned-words test. | English reworded; the Screen Spec example is row 66. |
+| Entry 18 | The first version of the import-time rule in `build-dynamic.test.js` flagged `const url = () => process.env…` (the arrow-function exclusion backtracked over the space), so it was red for the wrong reason. | The offender list named arrow functions. | Regex fixed and checked on six sample lines (four real offenders caught, two arrow functions passed). |

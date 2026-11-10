@@ -3,6 +3,8 @@ import { validateVerificationInput } from '../../../../../lib/partners/input.js'
 import { memberSession, readBody } from '../../../../../lib/api/projects.js';
 import { partnerError, fromPartnerError } from '../../../../../lib/api/partners.js';
 
+export const dynamic = 'force-dynamic';
+
 /** GET /api/partners/me/verification — SC-22 #12: the current request and the history, newest first. */
 export async function GET(req) {
   const session = await memberSession(req);

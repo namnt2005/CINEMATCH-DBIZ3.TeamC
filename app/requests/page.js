@@ -6,6 +6,8 @@ import { listRequests } from '../../lib/db/collab.js';
 import { getProject } from '../../lib/db/projects.js';
 import ProjectNav from '../projects/[id]/project-nav.js';
 
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata() {
   const { t } = await getI18n();
   return { title: `${t('requests.meta.title')} · CINEMATCH` };

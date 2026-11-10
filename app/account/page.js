@@ -5,6 +5,8 @@ import { isSupabase } from '../../lib/db/source.js';
 import { getI18n } from '../../lib/i18n/server.js';
 import AccountForm from './account-form.js';
 
+export const dynamic = 'force-dynamic';
+
 /** SC-08 My account (/account): signed-in users only; accounts live in Supabase Auth (FR-004, FR-005, BR-005). */
 export default async function AccountPage() {
   if (!isSupabase()) {

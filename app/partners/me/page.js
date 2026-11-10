@@ -6,6 +6,8 @@ import { getMyOrganisation } from '../../../lib/db/partners.js';
 import { getAllProvinces } from '../../../lib/db/locations.js';
 import OrgForm from './org-form.js';
 
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata() {
   const { t } = await getI18n();
   return { title: `${t('org.meta.title')} · CINEMATCH` };

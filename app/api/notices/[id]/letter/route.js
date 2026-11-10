@@ -4,6 +4,8 @@ import { validateRecipient } from '../../../../../lib/notices/input.js';
 import { removeDiacritics } from '../../../../../lib/db/search-core.js';
 import { projectError, fromProjectError, memberSession, isUuid } from '../../../../../lib/api/projects.js';
 
+export const dynamic = 'force-dynamic';
+
 const slug = (name) => removeDiacritics(String(name)).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'province';
 
 /** GET /api/notices/:id/letter?format=docx&recipient= — M7 BR-002, D7: the approved letter as Word; read-only. */

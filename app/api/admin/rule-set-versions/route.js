@@ -2,6 +2,8 @@ import { listVersions } from '../../../../lib/db/legal-rules.js';
 import { memberSession } from '../../../../lib/api/projects.js';
 import { checkError, fromCheckError } from '../../../../lib/api/checks.js';
 
+export const dynamic = 'force-dynamic';
+
 /** GET /api/admin/rule-set-versions — SC-37 #22: versions newest first with the codes signed and retired in each. */
 export async function GET(req) {
   const session = await memberSession(req);
