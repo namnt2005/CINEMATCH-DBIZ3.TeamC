@@ -112,7 +112,7 @@ CREATE TABLE public.segment_decision (
     CONSTRAINT ck_segment_decision_one_owner CHECK ((project_id IS NULL) <> (session_key IS NULL))
 );
 
--- MODERATION_ITEM: A partner's published content (profile text or location photo) waiting for, or carrying, VFDA staff's approve-or-hide decision. (owner M10; seed file 47_moderation_item.csv)
+-- MODERATION_ITEM: A partner's published content (profile text or location photo) waiting for, or carrying, VFDA staff's approve-or-hide decision. (owner M10; seed file 48_moderation_item.csv)
 CREATE TABLE public.moderation_item (
     content_id UUID NOT NULL,
     content_type VARCHAR(20),
@@ -135,7 +135,7 @@ CREATE TABLE public.moderation_item (
     CONSTRAINT ck_moderation_item_hidden_needs_reason CHECK (content_status <> 'hidden' OR reason IS NOT NULL)
 );
 
--- AUDIT_LOG: A permanent record of one administrative action: who did what to which record, and when. (owner M10; seed file 48_audit_log.csv)
+-- AUDIT_LOG: A permanent record of one administrative action: who did what to which record, and when. (owner M10; seed file 49_audit_log.csv)
 CREATE TABLE public.audit_log (
     audit_log_id UUID NOT NULL,
     action VARCHAR(60) NOT NULL,
@@ -145,7 +145,7 @@ CREATE TABLE public.audit_log (
     CONSTRAINT pk_audit_log PRIMARY KEY (audit_log_id)
 );
 
--- QUARTERLY_REPORT: A quarterly demand report with its bilingual commentary, reread by a staff member before it is exported. (owner M10; seed file 49_quarterly_report.csv)
+-- QUARTERLY_REPORT: A quarterly demand report with its bilingual commentary, reread by a staff member before it is exported. (owner M10; seed file 50_quarterly_report.csv)
 CREATE TABLE public.quarterly_report (
     report_id UUID NOT NULL,
     period_start DATE NOT NULL,
@@ -507,8 +507,12 @@ CREATE TABLE public.document_type (
     basis VARCHAR(20),
     template_url TEXT,
     segments JSONB NOT NULL,
+    requirement_code VARCHAR(40),
+    awaiting_confirmation BOOLEAN NOT NULL,
     CONSTRAINT pk_document_type PRIMARY KEY (doc_code),
-    CONSTRAINT ck_document_type_basis CHECK (basis IN ('law', 'common', 'location'))
+    CONSTRAINT ck_document_type_basis CHECK (basis IN ('law', 'common', 'location')),
+    -- M5 BR-004, D1 — a location-specific document comes from LOCATION_DOCUMENT_TYPE, not from a segment requirement
+    CONSTRAINT ck_document_type_location_no_requirement CHECK (basis <> 'location' OR requirement_code IS NULL)
 );
 
 -- DOCUMENT_SLOT: The place for one document type in one project, with its status. (owner M5; seed file 35_document_slot.csv)
@@ -534,7 +538,14 @@ CREATE TABLE public.document (
     CONSTRAINT ck_document_version_positive CHECK (version >= 1)
 );
 
--- BILINGUAL_DOCUMENT: A generated English–Vietnamese draft of one document of a project. (owner M5; seed file 40_bilingual_document.csv)
+-- LOCATION_DOCUMENT_TYPE: A location-specific document that one location needs. (owner M5; seed file 40_location_document_type.csv)
+CREATE TABLE public.location_document_type (
+    location_id UUID NOT NULL,
+    doc_code VARCHAR(40) NOT NULL,
+    CONSTRAINT pk_location_document_type PRIMARY KEY (location_id, doc_code)
+);
+
+-- BILINGUAL_DOCUMENT: A generated English–Vietnamese draft of one document of a project. (owner M5; seed file 41_bilingual_document.csv)
 CREATE TABLE public.bilingual_document (
     project_id UUID NOT NULL,
     doc_code VARCHAR(40) NOT NULL,
@@ -545,7 +556,7 @@ CREATE TABLE public.bilingual_document (
     CONSTRAINT pk_bilingual_document PRIMARY KEY (project_id, doc_code)
 );
 
--- BILINGUAL_PARAGRAPH: One aligned source/Vietnamese paragraph pair of a bilingual draft, with its proofreading status. (owner M5; seed file 41_bilingual_paragraph.csv)
+-- BILINGUAL_PARAGRAPH: One aligned source/Vietnamese paragraph pair of a bilingual draft, with its proofreading status. (owner M5; seed file 42_bilingual_paragraph.csv)
 CREATE TABLE public.bilingual_paragraph (
     project_id UUID NOT NULL,
     doc_code VARCHAR(40) NOT NULL,
@@ -562,7 +573,7 @@ CREATE TABLE public.bilingual_paragraph (
     CONSTRAINT ck_bilingual_paragraph_reviewer CHECK (status <> 'reviewed' OR reviewed_by IS NOT NULL)
 );
 
--- PROJECT_GLOSSARY: A project's agreed translation of one term, applied to every later draft of that project. (owner M5; seed file 42_project_glossary.csv)
+-- PROJECT_GLOSSARY: A project's agreed translation of one term, applied to every later draft of that project. (owner M5; seed file 43_project_glossary.csv)
 CREATE TABLE public.project_glossary (
     project_id UUID NOT NULL,
     term_en VARCHAR(120) NOT NULL,
@@ -570,7 +581,7 @@ CREATE TABLE public.project_glossary (
     CONSTRAINT pk_project_glossary PRIMARY KEY (project_id, term_en)
 );
 
--- PUBLIC_HOLIDAY: A public holiday period shown on the licensing timeline, official or expected. (owner M5; seed file 43_public_holiday.csv)
+-- PUBLIC_HOLIDAY: A public holiday period shown on the licensing timeline, official or expected. (owner M5; seed file 44_public_holiday.csv)
 CREATE TABLE public.public_holiday (
     name VARCHAR(120) NOT NULL,
     start_date DATE NOT NULL,
@@ -581,7 +592,7 @@ CREATE TABLE public.public_holiday (
     CONSTRAINT ck_public_holiday_dates CHECK (end_date >= start_date)
 );
 
--- LOCATION_INTEREST: A member's statement that a project is interested in a location. (owner M7; seed file 44_location_interest.csv)
+-- LOCATION_INTEREST: A member's statement that a project is interested in a location. (owner M7; seed file 45_location_interest.csv)
 CREATE TABLE public.location_interest (
     interest_id UUID NOT NULL,
     project_id UUID NOT NULL,
@@ -590,7 +601,7 @@ CREATE TABLE public.location_interest (
     CONSTRAINT pk_location_interest PRIMARY KEY (interest_id)
 );
 
--- PROVINCE_NOTICE: The notice VFDA sends a province about a project's interest, and the province's reply. (owner M7; seed file 45_province_notice.csv)
+-- PROVINCE_NOTICE: The notice VFDA sends a province about a project's interest, and the province's reply. (owner M7; seed file 46_province_notice.csv)
 CREATE TABLE public.province_notice (
     interest_id UUID NOT NULL,
     province_id INTEGER NOT NULL,
@@ -615,7 +626,7 @@ CREATE TABLE public.province_notice (
     CONSTRAINT ck_province_notice_response CHECK (response IN ('received', 'info_needed', 'cannot_support'))
 );
 
--- CONSULTATION_BOOKING: A member's booked consultation slot with a VFDA officer. (owner M7; seed file 46_consultation_booking.csv)
+-- CONSULTATION_BOOKING: A member's booked consultation slot with a VFDA officer. (owner M7; seed file 47_consultation_booking.csv)
 CREATE TABLE public.consultation_booking (
     booking_id UUID NOT NULL,
     member_id UUID NOT NULL,
@@ -753,6 +764,8 @@ ALTER TABLE public.document_slot ADD CONSTRAINT fk_document_slot_project_id FORE
 ALTER TABLE public.document_slot ADD CONSTRAINT fk_document_slot_doc_code FOREIGN KEY (doc_code) REFERENCES public.document_type (doc_code);
 ALTER TABLE public.document ADD CONSTRAINT fk_document_project_id_doc_code FOREIGN KEY (project_id, doc_code) REFERENCES public.document_slot (project_id, doc_code);
 ALTER TABLE public.document ADD CONSTRAINT fk_document_uploaded_by FOREIGN KEY (uploaded_by) REFERENCES public.user_account (user_id);
+ALTER TABLE public.location_document_type ADD CONSTRAINT fk_location_document_type_location_id FOREIGN KEY (location_id) REFERENCES public.location (location_id);
+ALTER TABLE public.location_document_type ADD CONSTRAINT fk_location_document_type_doc_code FOREIGN KEY (doc_code) REFERENCES public.document_type (doc_code);
 ALTER TABLE public.bilingual_document ADD CONSTRAINT fk_bilingual_document_project_id FOREIGN KEY (project_id) REFERENCES public.project (project_id);
 ALTER TABLE public.bilingual_document ADD CONSTRAINT fk_bilingual_document_doc_code FOREIGN KEY (doc_code) REFERENCES public.document_type (doc_code);
 ALTER TABLE public.bilingual_paragraph ADD CONSTRAINT fk_bilingual_paragraph_project_id_doc_code FOREIGN KEY (project_id, doc_code) REFERENCES public.bilingual_document (project_id, doc_code);

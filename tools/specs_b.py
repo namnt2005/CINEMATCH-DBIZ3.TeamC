@@ -506,7 +506,8 @@ MODULES.append(dict(
      ("BR-004", "The document list is generated from `segment_requirements` plus shortlisted locations; it is never hard-coded.", "VFDA must be able to change it."),
      ("BR-005", "The countdown uses the same calculation as M2 (F-M2-17) and the dashboard.", "One number everywhere."),
      ("BR-006", "Glossary terms a project adds (SC-28) are stored with the project (`project_glossary`) and applied to every later draft of that project.", "The same word must be translated the same way in every document of one dossier.")],
- entities=[("DocumentType", "doc_code, name_vi, name_en, basis, template_url, segments", "has many DocumentSlots"),
+ entities=[("DocumentType", "doc_code, name_vi, name_en, basis, template_url, segments, requirement_code, awaiting_confirmation", "has many DocumentSlots; brought into a kit by the SegmentRequirement of its requirement_code"),
+           ("LocationDocumentType", "location_id, doc_code", "belongs to Location (M3) and DocumentType: the location-specific document a shortlisted location needs"),
            ("DocumentSlot", "project_id, doc_code, state", "belongs to Project; has many Documents"),
            ("Document", "document_id, file_path, version, uploaded_by, uploaded_at", "belongs to DocumentSlot"),
            ("BilingualDocument", "project_id, doc_code, structure_version", "has many BilingualParagraphs"),
@@ -534,7 +535,9 @@ MODULES.append(dict(
         ("5.2 BR-002", "Cinema Law 2022, Article 13 clause 3 (script in Vietnamese)", "legal source"),
         ("7. Screens", "Screen List SC-26, SC-28, SC-29", "`docs/screen-list.md` §1")],
  recon=[("Document states", "missing / uploaded / replaced", "present / needs_fix / pending / missing (shared with SC-27)", "Changed — Confirmed by the Client"),
-        ("Proofreading", "Partner marks the whole document proofread", "Paragraph-level proofreading in the editor + partner confirmation", "Added — Confirmed by the Client")],
+        ("Proofreading", "Partner marks the whole document proofread", "Paragraph-level proofreading in the editor + partner confirmation", "Added — Confirmed by the Client"),
+        ("Kit source", "BR-004 names `segment_requirements` and shortlisted locations; no column links them to a document type", "`document_type.requirement_code` (the `segment_requirement` row that brings the document into a kit) and `location_document_type` (which location needs which location-specific document)", "Added — Group C decision 11/11/2026, VFDA to confirm"),
+        ("Segment C label", "Q1 minimum list awaiting VFDA confirmation; no field marks it", "`document_type.awaiting_confirmation`, shown as *awaiting VFDA confirmation*", "Added — Group C decision 11/11/2026, VFDA to confirm")],
 ))
 
 # =============================================================================  M7

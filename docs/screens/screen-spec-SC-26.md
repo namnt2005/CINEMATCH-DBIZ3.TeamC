@@ -45,7 +45,7 @@
 | 10 | Row action | Button / Link | View / Upload / Draft bilingual / View request | — | — |
 | 11 | *Differences by segment* block | Text | `segment_requirement.label_en` approved by VFDA | Yes | — |
 | 12 | Document kit progress | Text + bar | count of *Present* rows / total rows | Yes | — |
-| 13 | Drag-and-drop upload area | Input (file) | Supabase Storage, private bucket per project | — | PDF / DOCX, ≤ 25 MB; suggests item, user confirms |
+| 13 | Drag-and-drop upload area | Input (file) | Supabase Storage, one private bucket `project-documents` with a folder per project | — | PDF / DOCX, ≤ 25 MB; suggests item, user confirms |
 
 ## 4. States
 

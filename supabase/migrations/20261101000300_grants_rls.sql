@@ -401,18 +401,47 @@ CREATE POLICY rls_document_project_members ON public.document FOR SELECT TO auth
 CREATE POLICY rls_document_insert_member ON public.document FOR INSERT TO authenticated
   WITH CHECK (app.is_project_member(project_id) AND uploaded_by = auth.uid());
 
+-- location_document_type
+REVOKE ALL ON public.location_document_type FROM anon, authenticated;
+ALTER TABLE public.location_document_type ENABLE ROW LEVEL SECURITY;
+GRANT SELECT ON public.location_document_type TO authenticated;
+-- policy: location_document_type select signed_in
+CREATE POLICY rls_location_document_type_select_signed_in ON public.location_document_type FOR SELECT TO authenticated
+  USING (app.current_role() <> 'guest');
+
 -- bilingual_document
 REVOKE ALL ON public.bilingual_document FROM anon, authenticated;
 ALTER TABLE public.bilingual_document ENABLE ROW LEVEL SECURITY;
+GRANT SELECT ON public.bilingual_document TO authenticated;
+-- policy: bilingual_document select member
+CREATE POLICY rls_bilingual_document_select_member ON public.bilingual_document FOR SELECT TO authenticated
+  USING (app.is_project_member(project_id));
+-- policy: bilingual_document select partner
+CREATE POLICY rls_bilingual_document_partner ON public.bilingual_document FOR SELECT TO authenticated
+  USING (EXISTS (SELECT 1 FROM public.collab_request r JOIN public.organisation_user ou ON ou.org_id = r.org_id AND ou.user_id = auth.uid() WHERE r.project_id = bilingual_document.project_id AND r.status IN ('accepted', 'confirmed') AND EXISTS (SELECT 1 FROM public.nda_acceptance n WHERE n.request_id = r.request_id AND n.party = 'producer' AND n.accepted) AND EXISTS (SELECT 1 FROM public.nda_acceptance n WHERE n.request_id = r.request_id AND n.party = 'partner' AND n.accepted)) AND app.has_role('partner'));
 
 -- bilingual_paragraph
 REVOKE ALL ON public.bilingual_paragraph FROM anon, authenticated;
 ALTER TABLE public.bilingual_paragraph ENABLE ROW LEVEL SECURITY;
+GRANT SELECT ON public.bilingual_paragraph TO authenticated;
+-- policy: bilingual_paragraph select member
+CREATE POLICY rls_bilingual_paragraph_select_member ON public.bilingual_paragraph FOR SELECT TO authenticated
+  USING (app.is_project_member(project_id));
+-- policy: bilingual_paragraph select partner
+CREATE POLICY rls_bilingual_paragraph_partner ON public.bilingual_paragraph FOR SELECT TO authenticated
+  USING (EXISTS (SELECT 1 FROM public.collab_request r JOIN public.organisation_user ou ON ou.org_id = r.org_id AND ou.user_id = auth.uid() WHERE r.project_id = bilingual_paragraph.project_id AND r.status IN ('accepted', 'confirmed') AND EXISTS (SELECT 1 FROM public.nda_acceptance n WHERE n.request_id = r.request_id AND n.party = 'producer' AND n.accepted) AND EXISTS (SELECT 1 FROM public.nda_acceptance n WHERE n.request_id = r.request_id AND n.party = 'partner' AND n.accepted)) AND app.has_role('partner'));
 -- deferred: bilingual_paragraph update Partner OQ13
 
 -- project_glossary
 REVOKE ALL ON public.project_glossary FROM anon, authenticated;
 ALTER TABLE public.project_glossary ENABLE ROW LEVEL SECURITY;
+GRANT SELECT ON public.project_glossary TO authenticated;
+-- policy: project_glossary select member
+CREATE POLICY rls_project_glossary_select_member ON public.project_glossary FOR SELECT TO authenticated
+  USING (app.is_project_member(project_id));
+-- policy: project_glossary select partner
+CREATE POLICY rls_project_glossary_partner ON public.project_glossary FOR SELECT TO authenticated
+  USING (EXISTS (SELECT 1 FROM public.collab_request r JOIN public.organisation_user ou ON ou.org_id = r.org_id AND ou.user_id = auth.uid() WHERE r.project_id = project_glossary.project_id AND r.status IN ('accepted', 'confirmed') AND EXISTS (SELECT 1 FROM public.nda_acceptance n WHERE n.request_id = r.request_id AND n.party = 'producer' AND n.accepted) AND EXISTS (SELECT 1 FROM public.nda_acceptance n WHERE n.request_id = r.request_id AND n.party = 'partner' AND n.accepted)) AND app.has_role('partner'));
 
 -- public_holiday
 REVOKE ALL ON public.public_holiday FROM anon, authenticated;

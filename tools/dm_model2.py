@@ -103,6 +103,10 @@ R = [
   "Each document is viewed in zero or more access-log entries","Each access-log entry records exactly one document","DOCUMENT_ACCESS_LOG side","M4 §6 (\"belongs to Document (M5)\"); M4 §5.1 FR-018"),
  ("USER_ACCOUNT","||","..","o{","DOCUMENT_ACCESS_LOG","views",
   "Each user account views documents in zero or more access-log entries","Each access-log entry records exactly one viewer","DOCUMENT_ACCESS_LOG side","M4 §5.1 FR-018 viewer_id Req"),
+ ("LOCATION","||","--","o{","LOCATION_DOCUMENT_TYPE","requires",
+  "Each location requires zero or more location-specific documents","Each location-document row names exactly one location","LOCATION_DOCUMENT_TYPE side","M5 §5.2 BR-004; specs/009-m5-dossier decision D1 (11/11/2026)"),
+ ("DOCUMENT_TYPE","||","--","o{","LOCATION_DOCUMENT_TYPE","is required at",
+  "Each document type is required at zero or more locations","Each location-document row names exactly one document type","LOCATION_DOCUMENT_TYPE side","M5 §5.2 BR-004; specs/009-m5-dossier decision D1 (11/11/2026)"),
  ("DOCUMENT_TYPE","||","..","o{","DOCUMENT_SLOT","defines",
   "Each document type defines zero or more document slots","Each document slot is of exactly one document type","DOCUMENT_SLOT side","M5 §6 (\"has many DocumentSlots\")"),
  ("PROJECT","||","--","o{","DOCUMENT_SLOT","needs",
@@ -153,7 +157,7 @@ R = [
   "Each user account rereads zero or more quarterly reports","Each quarterly report is reread by zero or one user account (none until the reread is recorded)","both sides","M10 §6 (\"prepared by UserAccount\"); M10 §5.1 FR-007 reread_by; M10 §3 US-3 (draft not yet reread)"),
 ]
 UNLINKED = {  # stored entities with no citable relationship (open questions, per S3 instruction)
- "SEGMENT_REQUIREMENT":"belongs to a segment (M1 §6) — segment is an enum, not an entity; link to DOCUMENT_TYPE (M5 BR-004) not declared",
+ "SEGMENT_REQUIREMENT":"belongs to a segment (M1 §6) — segment is an enum, not an entity; DOCUMENT_TYPE.requirement_code names its code without a foreign key, because its key is segment + code (specs/009-m5-dossier decision D1 (11/11/2026))",
  "READINESS_SOURCE":"one row per counted gauge (M0 §3 edge case, decision H1) — a gauge is a fixed name, not an entity; read only by the readiness view",
  "PUBLIC_HOLIDAY":"\"used by the timeline\" (M5 §6) — the timeline is derived; no stored entity references it",
 }
@@ -164,7 +168,8 @@ OQ_03 = [
   "Resolved 01/10/2026 — zero or one: SYS §6.1 declares producer_org_id optional for accounts not created through sign-up (SYS BR-002); 03 and 04 corrected together."),
  ("[NEEDS CLARIFICATION: Is a province notice drafted at the moment the interest is saved (1:1), or can an interest exist without a notice?]","No","M7 owner","1:1, per M7 US-1","If notices are optional, PROVINCE_NOTICE side becomes zero-or-one."),
  ("[NEEDS CLARIFICATION: Is an email delivery linked to at most one notification, or can one digest email carry several?]","No","SYS owner","At most one","A digest would need an association entity."),
- ("[NEEDS CLARIFICATION: Which entity links SEGMENT_REQUIREMENT to DOCUMENT_TYPE (M5 BR-004 builds the kit from segment_requirements)?]","Yes","M1 + M5 owners","No link drawn","The document kit cannot be generated from data (M5 BR-004) without it."),
+ ("[NEEDS CLARIFICATION: Which entity links SEGMENT_REQUIREMENT to DOCUMENT_TYPE (M5 BR-004 builds the kit from segment_requirements)?]","Yes","M1 + M5 owners","No link drawn","The document kit cannot be generated from data (M5 BR-004) without it.",
+  "Resolved 11/11/2026 — specs/009-m5-dossier decision D1 (11/11/2026): DOCUMENT_TYPE.requirement_code names the SEGMENT_REQUIREMENT code; a document is in a kit when that requirement is `needed` for the project's segment; location-specific documents come from LOCATION_DOCUMENT_TYPE."),
 ]
 
 # ---------------------------------------------------------------- S4 logical columns
@@ -502,6 +507,12 @@ C["DOCUMENT_TYPE"] = [
  ("basis","ENUM(law, common, location)","system-set","","M5 §5.1 FR-001 (OUT); M5 §5.2 BR-003",None),
  ("template_url","TEXT","system-set","","M5 §5.1 FR-001 (OUT)",None),
  ("segments",ND,"not declared","","M5 §6",None),
+ ("requirement_code","VARCHAR(40)","Opt","","M5 §5.2 BR-004; specs/009-m5-dossier decision D1 (11/11/2026) (the segment_requirement row that brings the document into a kit; a logical link, the key of SEGMENT_REQUIREMENT is segment + code)",None),
+ ("awaiting_confirmation","BOOLEAN","Req","","M5 Clarifications Q1; specs/009-m5-dossier decision D1 (11/11/2026)",None),
+]
+C["LOCATION_DOCUMENT_TYPE"] = [
+ ("location_id","UUID","Req","PK, FK","M5 §5.2 BR-004; specs/009-m5-dossier decision D1 (11/11/2026)","LOCATION"),
+ ("doc_code","VARCHAR(40)","Req","PK, FK","M5 §5.2 BR-004; specs/009-m5-dossier decision D1 (11/11/2026) (a document type with basis location)","DOCUMENT_TYPE"),
 ]
 C["DOCUMENT_SLOT"] = [
  ("project_id","UUID","Req","PK, FK","M5 §5.1 FR-002; M5 §6","PROJECT"),
@@ -668,6 +679,7 @@ NATURAL_KEY = {
  "NDA_ACCEPTANCE":"request_id + party (+ nda_version).",
  "DOCUMENT_ACCESS_LOG":"None (append-only event, M4 BR-007).",
  "DOCUMENT_TYPE":"doc_code.",
+ "LOCATION_DOCUMENT_TYPE":"location_id + doc_code.",
  "DOCUMENT_SLOT":"project_id + doc_code.",
  "DOCUMENT":"project_id + doc_code + version.",
  "BILINGUAL_DOCUMENT":"project_id + doc_code.",
@@ -780,8 +792,10 @@ OQ_04 = [
   "Resolved 30/09/2026 — M4 §5.2 BR-008: deactivated, never deleted (`org_status = deactivated`, M4 §5.1 FR-001); open requests closed as `withdrawn`, producer notified, access log kept."),
  ("OQ-04-10","[NEEDS CLARIFICATION: Add `owner` to PROJECT_MEMBER.permission, and which function accepts an invitation?]","Yes","M0 owner","Owner stored as `edit` + flag not modelled; acceptance by sign-in with the invited email","\"Owner only\" rules (M0 FR-004) cannot be enforced in the database.",
   "Resolved 03/11/2026 — specs/005-m0-workspace plan D2: `owner` added to PROJECT_MEMBER.permission (one per project, the creator); D3: the invitee accepts on SC-10 after signing in with the invited email."),
- ("OQ-04-11","[NEEDS CLARIFICATION: Is DOCUMENT_SLOT.state stored, or derived from documents, proofreading and partner status each time?]","Yes","M5 + M2 owners","Stored, recomputed on each upload and status change","Stored state can disagree with the rules it summarises."),
- ("OQ-04-12","[NEEDS CLARIFICATION: Which function edits a paragraph (and so clears its proofread status)?]","No","M5 owner","Editing inside SC-28, not specified as a function","The reset in M5 US-2 has no function to hang on."),
+ ("OQ-04-11","[NEEDS CLARIFICATION: Is DOCUMENT_SLOT.state stored, or derived from documents, proofreading and partner status each time?]","Yes","M5 + M2 owners","Stored, recomputed on each upload and status change","Stored state can disagree with the rules it summarises.",
+  "Resolved 11/11/2026 — specs/009-m5-dossier research R2: stored, written by the M5 functions (upload, last proofread, edit); M2's `v_dossier_check` lowers a stored `present` for b and c from live data."),
+ ("OQ-04-12","[NEEDS CLARIFICATION: Which function edits a paragraph (and so clears its proofread status)?]","No","M5 owner","Editing inside SC-28, not specified as a function","The reset in M5 US-2 has no function to hang on.",
+  "Resolved 11/11/2026 — specs/009-m5-dossier data-model §6: `app_edit_paragraph` sets the text, `status = machine` and clears the reviewer (SC-28 SR-163)."),
  ("OQ-04-13","[NEEDS CLARIFICATION: Initial and cancelled values of CONSULTATION_BOOKING.booking_status?]","No","M7 owner","Status left empty until VFDA confirms; no cancellation (seed follows this)","Unconfirmed bookings are indistinguishable from confirmed ones; a member cannot cancel."),
  ("OQ-04-14","[NEEDS CLARIFICATION: After how many days does an unanswered collaboration request expire, and is `expired` a status?]","No","M4 owner","No expiry; member withdraws","Requests stay open forever and block a second request to the same partner."),
  ("OQ-04-15","[NEEDS CLARIFICATION: Value sets of PROJECT.stage, LOCATION.intake_status, LOCATION_IMAGE.status, consultation topic, the 12 service groups and scene types.]","Yes","Module owners + VFDA","Values used in the seed are proposals, listed in data/seed/README.md","Code and seed invent their own values; screens and filters disagree.",

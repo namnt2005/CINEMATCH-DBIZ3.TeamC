@@ -55,7 +55,7 @@ CITATION SCHEME = <MODULE> §<section> <ID>
 | `PROJECT_SHORTLIST` | A location a project has kept as its primary or backup choice. | THING | M3 | spec §6 — M3 §6; M3 §5.1 FR-018 | `project_shortlist` | `26_project_shortlist.csv` (9) |
 | `PROVINCE_READINESS` | A province's readiness index computed from platform data, with sample sizes. | DERIVED (computed on read, not stored) | M3 | spec §6 — M3 §6 ("derived from Locations, Organisations, Notices"); M3 §5.2 BR-007 | — | — |
 
-**Entities of other modules referenced here** (drawn without attributes in §5): `LOCATION_INTEREST` (M7), `MODERATION_ITEM` (M10), `ORGANISATION` (M4), `PROJECT` (M0), `PROJECT_PROVINCE` (M0), `PROVINCE_NOTICE` (M7), `USER_ACCOUNT` (SYS).
+**Entities of other modules referenced here** (drawn without attributes in §5): `LOCATION_DOCUMENT_TYPE` (M5), `LOCATION_INTEREST` (M7), `MODERATION_ITEM` (M10), `ORGANISATION` (M4), `PROJECT` (M0), `PROJECT_PROVINCE` (M0), `PROVINCE_NOTICE` (M7), `USER_ACCOUNT` (SYS).
 
 ## 3. Attributes (mandatory)
 
@@ -170,6 +170,7 @@ Each relationship is read in both directions; the citation is the spec line it c
 | `PROJECT` \|\|--o{ `PROJECT_SHORTLIST` | Each project keeps zero or more shortlist entries | Each shortlist entry belongs to exactly one project | PROJECT_SHORTLIST side | identifying (`--`) | M3 §6; M3 §5.1 FR-018 |
 | `LOCATION` \|\|..o{ `PROJECT_SHORTLIST` | Each location is kept in zero or more shortlist entries | Each shortlist entry keeps exactly one location | PROJECT_SHORTLIST side | non-identifying (`..`) | M3 §6 ("belongs to Project and Location") |
 | `PROVINCE` \|o..o{ `ORGANISATION` | Each province hosts the headquarters of zero or more organisations | Each organisation has its headquarters in zero or one province | both sides | non-identifying (`..`) | M4 §6 (hq_province); M4 §6.1 hq_province INTEGER No |
+| `LOCATION` \|\|--o{ `LOCATION_DOCUMENT_TYPE` | Each location requires zero or more location-specific documents | Each location-document row names exactly one location | LOCATION_DOCUMENT_TYPE side | identifying (`--`) | M5 §5.2 BR-004; specs/009-m5-dossier decision D1 (11/11/2026) |
 | `LOCATION` \|\|..o{ `LOCATION_INTEREST` | Each location attracts zero or more location interests | Each location interest concerns exactly one location | LOCATION_INTEREST side | non-identifying (`..`) | M7 §6; M7 §5.1 FR-001 location_id Req |
 | `PROVINCE` \|\|..o{ `PROVINCE_NOTICE` | Each province is addressed by zero or more province notices | Each province notice is addressed to exactly one province | PROVINCE_NOTICE side | non-identifying (`..`) | M7 §6 (province_id) |
 | `LOCATION_IMAGE` \|o..o{ `MODERATION_ITEM` | Each location image is reviewed through zero or more moderation items | Each moderation item concerns zero or one location image (exactly one of organisation or location image) | both sides | non-identifying (`..`) | M10 §6 ("refers to Organisation or LocationImage"); M10 §5.1 FR-001 (content type location_image) |
@@ -189,6 +190,7 @@ erDiagram
     PROJECT ||--o{ PROJECT_SHORTLIST : "keeps"
     LOCATION ||..o{ PROJECT_SHORTLIST : "is kept in"
     PROVINCE |o..o{ ORGANISATION : "hosts the headquarters of"
+    LOCATION ||--o{ LOCATION_DOCUMENT_TYPE : "requires"
     LOCATION ||..o{ LOCATION_INTEREST : "attracts"
     PROVINCE ||..o{ PROVINCE_NOTICE : "is addressed by"
     LOCATION_IMAGE |o..o{ MODERATION_ITEM : "is reviewed through"
@@ -268,7 +270,7 @@ Renders with mermaid-cli: **yes**.
 | Entities owned and stored (catalogue §2) | 6 | tables in `schema-M3.sql` | 6 | ✓ |
 | Attributes (§3) | 52 | columns in `schema-M3.sql` | 52 | ✓ |
 | Relationships with the child in this module (§4) | 7 | FOREIGN KEY constraints in `schema-M3.sql` | 7 | ✓ |
-| Relationships touching this module (§4) | 12 | relationship lines in the ERD (§5) | 12 | ✓ |
+| Relationships touching this module (§4) | 13 | relationship lines in the ERD (§5) | 13 | ✓ |
 | Seed files of this module (§9) | 6 | tables in `schema-M3.sql` | 6 | ✓ |
 
 ## 6. Normalization check (mandatory)
@@ -309,7 +311,7 @@ Kept as a JSON array (1NF exception): the whole list is what functions filter an
 | BR-007 | The provincial index uses only data generated on the platform and always shows its sample size. | VIEW (Plan step) | view `v_province_readiness` with sample sizes | `12_province.csv` — Hải Phòng · north — a province with no location: index shows *not enough data* |
 | BR-008 | Locations are unpublished, never deleted (`intake_status = unpublished`); shortlists and provincial notices that refer to an unpublished location keep it and show *No longer published*. | SCHEMA + SEED CHECK | `ck_location_intake_status`; seed_rules: an unpublished location is still shortlisted | `22_location.csv` — cua-van · unpublished · open — Cửa Vạn unpublished, never deleted<br>`26_project_shortlist.csv` — backup — still the backup of Quiet Harbour Blues |
 | BR-009 | Every confirmed scene search is stored as a location query without any personal data (description, attributes, month, and the project only when a member searches inside a project); it is used for the M10 demand index and never to train a model. | SCHEMA | LOCATION_QUERY has no user column; `project_id` optional | `25_location_query.csv` — Ruộng bậc thang mùa lúa chín, có sương · 9; Busy floating market at sunrise with d · 5 (+1) — guest queries with no project and no person |
-| BR-010 | Every published location carries an availability set by VFDA staff: `open`, `survey_in_progress` (another crew is scouting it) or `paused` (not receiving crews for now). A paused location stays published and visible with its label; availability is the sixth scoring criterion; every change is written to the audit log (M10 FR-008). | SCHEMA + TRIGGER (Plan step) | `ck_location_availability`; trigger `trg_location_availability_audit` | `22_location.csv` — phong-nha · published · paused — Phong Nha paused, still published<br>`48_audit_log.csv` — location.availability · 2026-09-25T15:05:00+07:00; location.availability · 2026-09-24T08:20:00+07:00 — every change audited |
+| BR-010 | Every published location carries an availability set by VFDA staff: `open`, `survey_in_progress` (another crew is scouting it) or `paused` (not receiving crews for now). A paused location stays published and visible with its label; availability is the sixth scoring criterion; every change is written to the audit log (M10 FR-008). | SCHEMA + TRIGGER (Plan step) | `ck_location_availability`; trigger `trg_location_availability_audit` | `22_location.csv` — phong-nha · published · paused — Phong Nha paused, still published<br>`49_audit_log.csv` — location.availability · 2026-09-25T15:05:00+07:00; location.availability · 2026-09-24T08:20:00+07:00 — every change audited |
 
 ## 8. Schema (mandatory)
 
@@ -325,7 +327,7 @@ Load test: `python3 data/schema/load_check.py` runs every schema file, then ever
 | Regenerate | `python3 data/seed/generate_seed.py && python3 data/seed/check_seed.py` (must print PASS; `git status` stays clean) |
 | Random seed | none — no randomness and no clock: keys are UUIDv5 of readable names (namespace `6f1c2a8e-3b4d-5e6f-8a9b-0c1d2e3f4a5b`), so every run is byte-identical |
 | Business-rule values | computed by the generator, never typed: attention level (M2 BR-004), quote span (M2 §6.1), latest readiness (M0 §9), is_active, published |
-| Files | 6 files of this module, 81 rows (product: 49 files, 458 rows) |
+| Files | 6 files of this module, 81 rows (product: 50 files, 463 rows) |
 
 **Rows per file and row kinds** (1 = ordinary rows in every file)
 
@@ -393,6 +395,7 @@ Computed from the seed files. (a) every enumerated value has a row; (b) empty st
 | `LOCATION` with no `LOCATION_IMAGE` (is shown in) | 3 row(s), e.g. ca-mau-cape · published · open |
 | `LOCATION` with no `PROJECT_SHORTLIST` (is kept in) | 3 row(s), e.g. dong-van · published · open |
 | `PROVINCE` with no `ORGANISATION` (hosts the headquarters of) | 28 row(s), e.g. Lai Châu · north |
+| `LOCATION` with no `LOCATION_DOCUMENT_TYPE` (requires) | 9 row(s), e.g. ca-mau-cape · published · open |
 | `LOCATION` with no `LOCATION_INTEREST` (attracts) | 5 row(s), e.g. ca-mau-cape · published · open |
 | `PROVINCE` with no `PROVINCE_NOTICE` (is addressed by) | 29 row(s), e.g. Hà Nội · north |
 | `LOCATION_IMAGE` with no `MODERATION_ITEM` (is reviewed through) | 8 row(s), e.g. https://storage.cinematch.exam · approved |

@@ -1394,13 +1394,16 @@
    "name_en",
    "basis",
    "template_url",
-   "segments"
+   "segments",
+   "requirement_code",
+   "awaiting_confirmation"
   ],
   "pk": [
    "doc_code"
   ],
   "required": [
-   "segments"
+   "segments",
+   "awaiting_confirmation"
   ],
   "fk": [],
   "enums": {
@@ -1620,6 +1623,38 @@
   "file": "39_partner_invitation.csv",
   "owner": "M4"
  },
+ "LOCATION_DOCUMENT_TYPE": {
+  "table": "location_document_type",
+  "columns": [
+   "location_id",
+   "doc_code"
+  ],
+  "pk": [
+   "location_id",
+   "doc_code"
+  ],
+  "required": [
+   "location_id",
+   "doc_code"
+  ],
+  "fk": [
+   {
+    "column": "location_id",
+    "references": "LOCATION",
+    "ref_column": "location_id"
+   },
+   {
+    "column": "doc_code",
+    "references": "DOCUMENT_TYPE",
+    "ref_column": "doc_code"
+   }
+  ],
+  "enums": {},
+  "array_enums": {},
+  "load_order": 40,
+  "file": "40_location_document_type.csv",
+  "owner": "M5"
+ },
  "BILINGUAL_DOCUMENT": {
   "table": "bilingual_document",
   "columns": [
@@ -1652,8 +1687,8 @@
   ],
   "enums": {},
   "array_enums": {},
-  "load_order": 40,
-  "file": "40_bilingual_document.csv",
+  "load_order": 41,
+  "file": "41_bilingual_document.csv",
   "owner": "M5"
  },
  "BILINGUAL_PARAGRAPH": {
@@ -1706,8 +1741,8 @@
    ]
   },
   "array_enums": {},
-  "load_order": 41,
-  "file": "41_bilingual_paragraph.csv",
+  "load_order": 42,
+  "file": "42_bilingual_paragraph.csv",
   "owner": "M5"
  },
  "PROJECT_GLOSSARY": {
@@ -1733,8 +1768,8 @@
   ],
   "enums": {},
   "array_enums": {},
-  "load_order": 42,
-  "file": "42_project_glossary.csv",
+  "load_order": 43,
+  "file": "43_project_glossary.csv",
   "owner": "M5"
  },
  "PUBLIC_HOLIDAY": {
@@ -1758,8 +1793,8 @@
   "fk": [],
   "enums": {},
   "array_enums": {},
-  "load_order": 43,
-  "file": "43_public_holiday.csv",
+  "load_order": 44,
+  "file": "44_public_holiday.csv",
   "owner": "M5"
  },
  "LOCATION_INTEREST": {
@@ -1792,8 +1827,8 @@
   ],
   "enums": {},
   "array_enums": {},
-  "load_order": 44,
-  "file": "44_location_interest.csv",
+  "load_order": 45,
+  "file": "45_location_interest.csv",
   "owner": "M7"
  },
  "PROVINCE_NOTICE": {
@@ -1873,8 +1908,8 @@
    ]
   },
   "array_enums": {},
-  "load_order": 45,
-  "file": "45_province_notice.csv",
+  "load_order": 46,
+  "file": "46_province_notice.csv",
   "owner": "M7"
  },
  "CONSULTATION_BOOKING": {
@@ -1926,8 +1961,8 @@
    ]
   },
   "array_enums": {},
-  "load_order": 46,
-  "file": "46_consultation_booking.csv",
+  "load_order": 47,
+  "file": "47_consultation_booking.csv",
   "owner": "M7"
  },
  "MODERATION_ITEM": {
@@ -1985,8 +2020,8 @@
    ]
   },
   "array_enums": {},
-  "load_order": 47,
-  "file": "47_moderation_item.csv",
+  "load_order": 48,
+  "file": "48_moderation_item.csv",
   "owner": "M10"
  },
  "AUDIT_LOG": {
@@ -2014,8 +2049,8 @@
   ],
   "enums": {},
   "array_enums": {},
-  "load_order": 48,
-  "file": "48_audit_log.csv",
+  "load_order": 49,
+  "file": "49_audit_log.csv",
   "owner": "M10"
  },
  "QUARTERLY_REPORT": {
@@ -2051,8 +2086,8 @@
   ],
   "enums": {},
   "array_enums": {},
-  "load_order": 49,
-  "file": "49_quarterly_report.csv",
+  "load_order": 50,
+  "file": "50_quarterly_report.csv",
   "owner": "M10"
  }
 }

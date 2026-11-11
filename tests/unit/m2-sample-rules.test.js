@@ -53,7 +53,8 @@ describe('Sample rules (T070)', () => {
     assert.equal(n, read(seedFile('legal_rule')).rows.length + read(SAMPLES).rows.length);
   });
 
-  test('D14: the samples do not change the 49 main seed files', () => {
-    assert.equal(fs.readdirSync('data/seed').filter(f => /^\d+_.+\.csv$/.test(f)).length, 49);
+  test('D14: the samples do not change the 50 main seed files', () => {
+    // 49 → 50 on 11/11/2026 (approved by Nam Tran): M5 D1 added the seed file of location_document_type
+    assert.equal(fs.readdirSync('data/seed').filter(f => /^\d+_.+\.csv$/.test(f)).length, 50);
   });
 });

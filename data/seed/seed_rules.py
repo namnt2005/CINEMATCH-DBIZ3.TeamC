@@ -321,11 +321,33 @@ def validate(S, T):
         ps = paras.get((r["project_id"], r["doc_code"]))
         if ps and r["state"] == "present" and any(p["status"] != "reviewed" for p in ps):
             err.append(f"DOCUMENT_SLOT {r['doc_code']}: present while a paragraph is not proofread (M5 BR-002)")
-    # M5 §9 test value: a partner proofreads only with an accepted or confirmed request for that project
-    req = {(r["project_id"], r["org_id"]): r["status"] for r in T["COLLAB_REQUEST"]}
+    # M5 §9 test value behind M4's NDA gate (specs/009-m5-dossier D4): a partner proofreads only with an accepted or
+    # confirmed request for that project and both NDA rows accepted
+    req = {(r["project_id"], r["org_id"]): r for r in T["COLLAB_REQUEST"]}
+    nda = {(n["request_id"], n["party"]) for n in T.get("NDA_ACCEPTANCE", []) if n["accepted"] == "true"}
     for p in T["BILINGUAL_PARAGRAPH"]:
-        if p["status"] == "reviewed" and p["reviewer_org_id"] and req.get((p["project_id"], p["reviewer_org_id"])) not in ("accepted", "confirmed"):
-            err.append(f"BILINGUAL_PARAGRAPH {p['idx']}: proofread by a partner without an accepted request (M5 §9)")
+        if p["status"] == "reviewed" and p["reviewer_org_id"]:
+            r = req.get((p["project_id"], p["reviewer_org_id"]))
+            if not r or r["status"] not in ("accepted", "confirmed") or not {(r["request_id"], "producer"), (r["request_id"], "partner")} <= nda:
+                err.append(f"BILINGUAL_PARAGRAPH {p['idx']}: proofread by a partner without an accepted request and both NDA rows (M5 §9, D4)")
+    # M5 BR-004, D1: the kit configuration agrees with segment_requirement; location documents come from location links
+    needed = {}
+    for r in T["SEGMENT_REQUIREMENT"]:
+        if r["needed"] == "true":
+            needed.setdefault(r["requirement_code"], set()).add(r["segment"])
+    basis = {t["doc_code"]: t["basis"] for t in T["DOCUMENT_TYPE"]}
+    for t in T["DOCUMENT_TYPE"]:
+        segs = set(json.loads(t["segments"]))
+        if t["requirement_code"]:
+            if t["basis"] == "location":
+                err.append(f"DOCUMENT_TYPE {t['doc_code']}: a location document with a requirement code (D1)")
+            if segs != needed.get(t["requirement_code"], set()):
+                err.append(f"DOCUMENT_TYPE {t['doc_code']}: segments differ from where {t['requirement_code']} is needed (D1)")
+        if (t["awaiting_confirmation"] == "true") != ("C" in segs):
+            err.append(f"DOCUMENT_TYPE {t['doc_code']}: awaiting_confirmation must mark the segment C items (M5 Q1)")
+    for l in T.get("LOCATION_DOCUMENT_TYPE", []):
+        if basis.get(l["doc_code"]) != "location":
+            err.append(f"LOCATION_DOCUMENT_TYPE {l['doc_code']}: not a location-specific document (D1)")
         if p["status"] == "reviewed" and not p["reviewed_by"]:
             err.append(f"BILINGUAL_PARAGRAPH {p['idx']}: reviewed without a reviewer (M5 FR-006)")
     # M10 BR-001/BR-002 modelling: exactly one target; hidden needs a reason

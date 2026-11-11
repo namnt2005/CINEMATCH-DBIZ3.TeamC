@@ -7,7 +7,7 @@
 | Module | M5 — Dossier kit, bilingual drafts and countdown |
 | Spec Document | `docs/spec/spec-M5.md` |
 | Schema | `data/schema/schema-M5.sql` |
-| Seed files | `34_document_type.csv`, `35_document_slot.csv`, `36_document.csv`, `40_bilingual_document.csv`, `41_bilingual_paragraph.csv`, `42_project_glossary.csv`, `43_public_holiday.csv` |
+| Seed files | `34_document_type.csv`, `40_location_document_type.csv`, `35_document_slot.csv`, `36_document.csv`, `41_bilingual_document.csv`, `42_bilingual_paragraph.csv`, `43_project_glossary.csv`, `44_public_holiday.csv` |
 | Version / date | v1.0 — 01/10/2026 |
 | Prepared by | Group C (draft by an AI agent, see `docs/ai-use-log.md`) |
 | Status | Ready for the human gates in section 13 |
@@ -43,19 +43,20 @@ CITATION SCHEME = <MODULE> §<section> <ID>
 
 ## 2. Entity catalogue (mandatory)
 
-7 entities owned by M5: 7 stored, 0 derived. Every entity is declared in §6 of the Spec Document (*discovered here* would mark one that is not). Each entity has exactly one owner module.
+8 entities owned by M5: 8 stored, 0 derived. Every entity is declared in §6 of the Spec Document (*discovered here* would mark one that is not). Each entity has exactly one owner module.
 
 | Entity | Definition (one sentence) | Kind | Owner | Source | Table | Seed file (rows) |
 |---|---|---|---|---|---|---|
-| `DOCUMENT_TYPE` | A kind of dossier document, with its legal basis and template. | THING | M5 | spec §6 — M5 §6; M5 §5.1 FR-001 | `document_type` | `34_document_type.csv` (8) |
+| `DOCUMENT_TYPE` | A kind of dossier document, with its legal basis and template. | THING | M5 | spec §6 — M5 §6; M5 §5.1 FR-001 | `document_type` | `34_document_type.csv` (11) |
+| `LOCATION_DOCUMENT_TYPE` | A location-specific document that one location needs. | THING | M5 | discovered here — specs/009-m5-dossier decision D1 (11/11/2026); M5 §5.2 BR-004 ("plus shortlisted locations"); M5 §3 US-1 Sc2 | `location_document_type` | `40_location_document_type.csv` (2) |
 | `DOCUMENT_SLOT` | The place for one document type in one project, with its status. | THING | M5 | spec §6 — M5 §6; M5 §5.1 FR-003 | `document_slot` | `35_document_slot.csv` (19) |
 | `DOCUMENT` | One uploaded file version in a project's document slot. | THING | M5 | spec §6 — M5 §6; M5 §5.1 FR-002 | `document` | `36_document.csv` (9) |
-| `BILINGUAL_DOCUMENT` | A generated English–Vietnamese draft of one document of a project. | THING | M5 | spec §6 — M5 §6; M5 §5.1 FR-004 | `bilingual_document` | `40_bilingual_document.csv` (3) |
-| `BILINGUAL_PARAGRAPH` | One aligned source/Vietnamese paragraph pair of a bilingual draft, with its proofreading status. | THING | M5 | spec §6 — M5 §6; M5 §5.1 FR-004, FR-006 | `bilingual_paragraph` | `41_bilingual_paragraph.csv` (16) |
-| `PROJECT_GLOSSARY` | A project's agreed translation of one term, applied to every later draft of that project. | THING | M5 | spec §6 — M5 §6; M5 §5.1 FR-004; M5 §5.2 BR-006 | `project_glossary` | `42_project_glossary.csv` (4) |
-| `PUBLIC_HOLIDAY` | A public holiday period shown on the licensing timeline, official or expected. | THING | M5 | spec §6 — M5 §6; M5 §5.1 FR-008 | `public_holiday` | `43_public_holiday.csv` (7) |
+| `BILINGUAL_DOCUMENT` | A generated English–Vietnamese draft of one document of a project. | THING | M5 | spec §6 — M5 §6; M5 §5.1 FR-004 | `bilingual_document` | `41_bilingual_document.csv` (3) |
+| `BILINGUAL_PARAGRAPH` | One aligned source/Vietnamese paragraph pair of a bilingual draft, with its proofreading status. | THING | M5 | spec §6 — M5 §6; M5 §5.1 FR-004, FR-006 | `bilingual_paragraph` | `42_bilingual_paragraph.csv` (16) |
+| `PROJECT_GLOSSARY` | A project's agreed translation of one term, applied to every later draft of that project. | THING | M5 | spec §6 — M5 §6; M5 §5.1 FR-004; M5 §5.2 BR-006 | `project_glossary` | `43_project_glossary.csv` (4) |
+| `PUBLIC_HOLIDAY` | A public holiday period shown on the licensing timeline, official or expected. | THING | M5 | spec §6 — M5 §6; M5 §5.1 FR-008 | `public_holiday` | `44_public_holiday.csv` (7) |
 
-**Entities of other modules referenced here** (drawn without attributes in §5): `DOCUMENT_ACCESS_LOG` (M4), `ORGANISATION` (M4), `PROJECT` (M0), `USER_ACCOUNT` (SYS).
+**Entities of other modules referenced here** (drawn without attributes in §5): `DOCUMENT_ACCESS_LOG` (M4), `LOCATION` (M3), `ORGANISATION` (M4), `PROJECT` (M0), `USER_ACCOUNT` (SYS).
 
 ## 3. Attributes (mandatory)
 
@@ -71,8 +72,19 @@ Every attribute traces to a §5.1 field, a §6.1 declared type, a key, or a deli
 | `basis` | `ENUM(law, common, location)` | system-set |  | §5.1 field | M5 §5.1 FR-001 (OUT); M5 §5.2 BR-003 |
 | `template_url` | `TEXT` | system-set |  | §5.1 field | M5 §5.1 FR-001 (OUT) |
 | `segments` | `ENUM(A, B, C)[]` | Req |  | §6.1 declared type | M5 §6; M5 §6.1 |
+| `requirement_code` | `VARCHAR(40)` | Opt |  | audit column | M5 §5.2 BR-004; specs/009-m5-dossier decision D1 (11/11/2026) (the segment_requirement row that brings the document into a kit; a logical link, the key of SEGMENT_REQUIREMENT is segment + code) |
+| `awaiting_confirmation` | `BOOLEAN` | Req |  | audit column | M5 Clarifications Q1; specs/009-m5-dossier decision D1 (11/11/2026) |
 
 **Natural key:** doc_code.
+
+### LOCATION_DOCUMENT_TYPE
+
+| Column | Type | Required | Key | Source kind | Citation |
+|---|---|---|---|---|---|
+| `location_id` | `UUID` | Req | PK, FK → `LOCATION` | key | M5 §5.2 BR-004; specs/009-m5-dossier decision D1 (11/11/2026) |
+| `doc_code` | `VARCHAR(40)` | Req | PK, FK → `DOCUMENT_TYPE` | key | M5 §5.2 BR-004; specs/009-m5-dossier decision D1 (11/11/2026) (a document type with basis location) |
+
+**Natural key:** location_id + doc_code.
 
 ### DOCUMENT_SLOT
 
@@ -155,6 +167,8 @@ Each relationship is read in both directions; the citation is the spec line it c
 | Relationship | Forward reading | Reverse reading | Side that may be zero | Type | Citation |
 |---|---|---|---|---|---|
 | `DOCUMENT` \|\|--o{ `DOCUMENT_ACCESS_LOG` | Each document is viewed in zero or more access-log entries | Each access-log entry records exactly one document | DOCUMENT_ACCESS_LOG side | identifying (`--`) | M4 §6 ("belongs to Document (M5)"); M4 §5.1 FR-018 |
+| `LOCATION` \|\|--o{ `LOCATION_DOCUMENT_TYPE` | Each location requires zero or more location-specific documents | Each location-document row names exactly one location | LOCATION_DOCUMENT_TYPE side | identifying (`--`) | M5 §5.2 BR-004; specs/009-m5-dossier decision D1 (11/11/2026) |
+| `DOCUMENT_TYPE` \|\|--o{ `LOCATION_DOCUMENT_TYPE` | Each document type is required at zero or more locations | Each location-document row names exactly one document type | LOCATION_DOCUMENT_TYPE side | identifying (`--`) | M5 §5.2 BR-004; specs/009-m5-dossier decision D1 (11/11/2026) |
 | `DOCUMENT_TYPE` \|\|..o{ `DOCUMENT_SLOT` | Each document type defines zero or more document slots | Each document slot is of exactly one document type | DOCUMENT_SLOT side | non-identifying (`..`) | M5 §6 ("has many DocumentSlots") |
 | `PROJECT` \|\|--o{ `DOCUMENT_SLOT` | Each project needs zero or more document slots | Each document slot belongs to exactly one project | DOCUMENT_SLOT side | identifying (`--`) | M5 §6 ("belongs to Project"); M5 §10 (document list for segment C open) |
 | `DOCUMENT_SLOT` \|\|--o{ `DOCUMENT` | Each document slot holds zero or more document versions | Each document is held by exactly one document slot | DOCUMENT side | identifying (`--`) | M5 §6 ("has many Documents"); M5 §5.1 FR-003 (state missing) |
@@ -173,6 +187,8 @@ Entities of M5 with their attributes; entities of other modules appear as names 
 ```mermaid
 erDiagram
     DOCUMENT ||--o{ DOCUMENT_ACCESS_LOG : "is viewed in"
+    LOCATION ||--o{ LOCATION_DOCUMENT_TYPE : "requires"
+    DOCUMENT_TYPE ||--o{ LOCATION_DOCUMENT_TYPE : "is required at"
     DOCUMENT_TYPE ||..o{ DOCUMENT_SLOT : "defines"
     PROJECT ||--o{ DOCUMENT_SLOT : "needs"
     DOCUMENT_SLOT ||--o{ DOCUMENT : "holds"
@@ -190,6 +206,12 @@ erDiagram
         enum basis
         string template_url
         string segments
+        string requirement_code
+        boolean awaiting_confirmation
+    }
+    LOCATION_DOCUMENT_TYPE {
+        uuid location_id PK,FK
+        string doc_code PK,FK
     }
     DOCUMENT_SLOT {
         uuid project_id PK,FK
@@ -243,18 +265,19 @@ Renders with mermaid-cli: **yes**.
 
 | Count | Value | Compared with | Value | Agree |
 |---|---|---|---|---|
-| Entities owned and stored (catalogue §2) | 7 | entity blocks in the ERD (§5) | 7 | ✓ |
-| Entities owned and stored (catalogue §2) | 7 | tables in `schema-M5.sql` | 7 | ✓ |
-| Attributes (§3) | 38 | columns in `schema-M5.sql` | 38 | ✓ |
-| Relationships with the child in this module (§4) | 10 | FOREIGN KEY constraints in `schema-M5.sql` | 10 | ✓ |
-| Relationships touching this module (§4) | 11 | relationship lines in the ERD (§5) | 11 | ✓ |
-| Seed files of this module (§9) | 7 | tables in `schema-M5.sql` | 7 | ✓ |
+| Entities owned and stored (catalogue §2) | 8 | entity blocks in the ERD (§5) | 8 | ✓ |
+| Entities owned and stored (catalogue §2) | 8 | tables in `schema-M5.sql` | 8 | ✓ |
+| Attributes (§3) | 42 | columns in `schema-M5.sql` | 42 | ✓ |
+| Relationships with the child in this module (§4) | 12 | FOREIGN KEY constraints in `schema-M5.sql` | 12 | ✓ |
+| Relationships touching this module (§4) | 13 | relationship lines in the ERD (§5) | 13 | ✓ |
+| Seed files of this module (§9) | 8 | tables in `schema-M5.sql` | 8 | ✓ |
 
 ## 6. Normalization check (mandatory)
 
 | Table | 1NF | 2NF | 3NF |
 |---|---|---|---|
 | `DOCUMENT_TYPE` | exception: `segments` (array) | ✓ single-column key | ✓ |
+| `LOCATION_DOCUMENT_TYPE` | ✓ | ✓ composite key (location_id, doc_code): every non-key column describes the whole key | ✓ |
 | `DOCUMENT_SLOT` | ✓ | ✓ composite key (project_id, doc_code): every non-key column describes the whole key | ✓ |
 | `DOCUMENT` | ✓ | ✓ single-column key | ✓ |
 | `BILINGUAL_DOCUMENT` | ✓ | ✓ composite key (project_id, doc_code): every non-key column describes the whole key | exception: `project_meta` |
@@ -277,16 +300,16 @@ Kept as a JSON array (1NF exception): the whole list is what functions filter an
 
 | Rule | Statement | Enforced in | Named object | Seed rows that show it |
 |---|---|---|---|---|
-| BR-001 | Every generated document is a draft: the PDF carries *DRAFT — REQUIRES PROOFREADING* on every page; CINEMATCH never submits anything. | NOT DATA | the PDF renderer stamps every page (column `watermark` dropped, 04 minimality) | `40_bilingual_document.csv` — A13_SCRIPT_VI · https://storage.cinematch.example/priv; A13_SCRIPT_VI · https://storage.cinematch.example/priv — drafts with a PDF |
-| BR-002 | Article 13 component b counts as present only when every paragraph of the Vietnamese version has been proofread by a person. | SEED CHECK + VIEW | seed_rules: component b is `present` only when every paragraph is reviewed | `41_bilingual_paragraph.csv` — 7 · machine; 8 · machine (+6) — 8 of 14 paragraphs not proofread<br>`35_document_slot.csv` — A13_SCRIPT_VI · needs_fix — so the script is *needs_fix* |
-| BR-003 | Each document item carries its basis: *Required by law*, *Commonly requested* or *Location-specific*; nothing is presented as mandatory without a legal basis. | SCHEMA | `ck_document_type_basis` (law, common, location) | `34_document_type.csv` — HERITAGE_SITE_PERMIT · location — a location-specific document |
-| BR-004 | The document list is generated from `segment_requirements` plus shortlisted locations; it is never hard-coded. | VIEW (Plan step) | kit = `segment_requirement` + shortlisted locations | `35_document_slot.csv` — HERITAGE_SITE_PERMIT · missing — heritage consent added because Tràng An is shortlisted |
+| BR-001 | Every generated document is a draft: the PDF carries *DRAFT — REQUIRES PROOFREADING* on every page; CINEMATCH never submits anything. | NOT DATA | the PDF renderer stamps every page (column `watermark` dropped, 04 minimality) | `41_bilingual_document.csv` — A13_SCRIPT_VI · https://storage.cinematch.example/priv; A13_SCRIPT_VI · https://storage.cinematch.example/priv — drafts with a PDF |
+| BR-002 | Article 13 component b counts as present only when every paragraph of the Vietnamese version has been proofread by a person. | SEED CHECK + VIEW | seed_rules: component b is `present` only when every paragraph is reviewed | `42_bilingual_paragraph.csv` — 7 · machine; 8 · machine (+6) — 8 of 14 paragraphs not proofread<br>`35_document_slot.csv` — A13_SCRIPT_VI · needs_fix — so the script is *needs_fix* |
+| BR-003 | Each document item carries its basis: *Required by law*, *Commonly requested* or *Location-specific*; nothing is presented as mandatory without a legal basis. | SCHEMA | `ck_document_type_basis` (law, common, location) | `34_document_type.csv` — HERITAGE_SITE_PERMIT · location; LOCAL_PERMIT_PUBLIC_C · location — a location-specific document<br>`34_document_type.csv` — CREW_PASSPORT_VISA_C · common; LOCAL_PERMIT_PUBLIC_C · location (+2) — segment C items awaiting VFDA confirmation (Q1) |
+| BR-004 | The document list is generated from `segment_requirements` plus shortlisted locations; it is never hard-coded. | DATA + APP | `document_type.requirement_code` → `segment_requirement` (needed) + `location_document_type` of shortlisted locations; computed by the kit function (specs/009-m5-dossier D1, R1); `ck_document_type_location_no_requirement` | `40_location_document_type.csv` — HERITAGE_SITE_PERMIT — Tràng An needs the heritage consent<br>`35_document_slot.csv` — HERITAGE_SITE_PERMIT · missing — heritage consent in the kit because Tràng An is shortlisted |
 | BR-005 | The countdown uses the same calculation as M2 (F-M2-17) and the dashboard. | VIEW (Plan step) | one view `v_licensing_timeline` used by M2, M5 and M0 | `09_project.csv` — The Last Ferry · A · preparing — same dates on SC-12, SC-27, SC-29 |
-| BR-006 | Glossary terms a project adds (SC-28) are stored with the project (`project_glossary`) and applied to every later draft of that project. | SCHEMA | `pk_project_glossary` (project_id, term_en) | `42_project_glossary.csv` — ferry · đò — ferry → đò, kept for every later draft |
+| BR-006 | Glossary terms a project adds (SC-28) are stored with the project (`project_glossary`) and applied to every later draft of that project. | SCHEMA | `pk_project_glossary` (project_id, term_en) | `43_project_glossary.csv` — ferry · đò — ferry → đò, kept for every later draft |
 
 ## 8. Schema (mandatory)
 
-`data/schema/schema-M5.sql` — 7 tables in load order: `document_type`, `document_slot`, `document`, `bilingual_document`, `bilingual_paragraph`, `project_glossary`, `public_holiday`; 10 foreign keys; 6 CHECK constraints. Portable SQL (SQLite 3 and PostgreSQL 14+).
+`data/schema/schema-M5.sql` — 8 tables in load order: `document_type`, `document_slot`, `document`, `location_document_type`, `bilingual_document`, `bilingual_paragraph`, `project_glossary`, `public_holiday`; 12 foreign keys; 7 CHECK constraints. Portable SQL (SQLite 3 and PostgreSQL 14+).
 
 Load test: `python3 data/schema/load_check.py` runs every schema file, then every seed file in filename order with foreign keys on — **PASS** (also on PostgreSQL 16 with `--postgres`).
 
@@ -298,19 +321,20 @@ Load test: `python3 data/schema/load_check.py` runs every schema file, then ever
 | Regenerate | `python3 data/seed/generate_seed.py && python3 data/seed/check_seed.py` (must print PASS; `git status` stays clean) |
 | Random seed | none — no randomness and no clock: keys are UUIDv5 of readable names (namespace `6f1c2a8e-3b4d-5e6f-8a9b-0c1d2e3f4a5b`), so every run is byte-identical |
 | Business-rule values | computed by the generator, never typed: attention level (M2 BR-004), quote span (M2 §6.1), latest readiness (M0 §9), is_active, published |
-| Files | 7 files of this module, 66 rows (product: 49 files, 458 rows) |
+| Files | 8 files of this module, 71 rows (product: 50 files, 463 rows) |
 
 **Rows per file and row kinds** (1 = ordinary rows in every file)
 
 | File | Rows | (2) Boundary | (3) Empty case | (4) Exceptional state |
 |---|---|---|---|---|
-| `34_document_type.csv` | 8 | 76-character Vietnamese name | `PROVINCIAL_NOTICE_COPY`: no slot | segment C only type |
+| `34_document_type.csv` | 11 | 76-character Vietnamese name | `PROVINCIAL_NOTICE_COPY`: no slot | segment C only type |
+| `40_location_document_type.csv` | 2 | — | — | — |
 | `35_document_slot.csv` | 19 | — | slots with no document (`missing`) | `needs_fix`, `pending` |
 | `36_document.csv` | 9 | version 2 | — | version 1 replaced by version 2 |
-| `40_bilingual_document.csv` | 3 | — | `Rice and Salt`: no PDF yet | — (no status column) |
-| `41_bilingual_paragraph.csv` | 16 | 14 paragraphs in one draft | — | `Rice and Salt` paragraph: translation failed (empty target) |
-| `42_project_glossary.csv` | 4 | — | projects with no glossary | — (no status column) |
-| `43_public_holiday.csv` | 7 | 2023 (far past) | — | `is_expected = true` (Tết 2027, 05–10/02 as on SC-29) |
+| `41_bilingual_document.csv` | 3 | — | `Rice and Salt`: no PDF yet | — (no status column) |
+| `42_bilingual_paragraph.csv` | 16 | 14 paragraphs in one draft | — | `Rice and Salt` paragraph: translation failed (empty target) |
+| `43_project_glossary.csv` | 4 | — | projects with no glossary | — (no status column) |
+| `44_public_holiday.csv` | 7 | 2023 (far past) | — | `is_expected = true` (Tết 2027, 05–10/02 as on SC-29) |
 
 ## 10. Edge case register (mandatory)
 
@@ -321,11 +345,11 @@ Computed from the seed files. (a) every enumerated value has a row; (b) empty st
 | Column | Value | Seed rows |
 |---|---|---|
 | `DOCUMENT_TYPE.basis` | `law` | 4 row(s), e.g. A13_APPLICATION · law |
-| `DOCUMENT_TYPE.basis` | `common` | 3 row(s), e.g. FOREIGN_CREW_LIST · common |
-| `DOCUMENT_TYPE.basis` | `location` | 1 row(s), e.g. HERITAGE_SITE_PERMIT · location |
+| `DOCUMENT_TYPE.basis` | `common` | 5 row(s), e.g. CREW_PASSPORT_VISA_C · common |
+| `DOCUMENT_TYPE.basis` | `location` | 2 row(s), e.g. HERITAGE_SITE_PERMIT · location |
 | `DOCUMENT_TYPE.segments` | `A` | 7 row(s), e.g. A13_APPLICATION · law |
 | `DOCUMENT_TYPE.segments` | `B` | 7 row(s), e.g. A13_APPLICATION · law |
-| `DOCUMENT_TYPE.segments` | `C` | 1 row(s), e.g. SERVICE_CONTRACT_C · common |
+| `DOCUMENT_TYPE.segments` | `C` | 4 row(s), e.g. CREW_PASSPORT_VISA_C · common |
 | `DOCUMENT_SLOT.state` | `present` | 7 row(s), e.g. A13_APPLICATION · present |
 | `DOCUMENT_SLOT.state` | `needs_fix` | 2 row(s), e.g. A13_APPLICATION · needs_fix |
 | `DOCUMENT_SLOT.state` | `pending` | 1 row(s), e.g. A13_SERVICE_AGREEMENT · pending |
@@ -338,17 +362,18 @@ Computed from the seed files. (a) every enumerated value has a row; (b) empty st
 | Empty case | Seed rows |
 |---|---|
 | `DOCUMENT` with no `DOCUMENT_ACCESS_LOG` (is viewed in) | 5 row(s), e.g. private/projects/blues/a13_ser · 1 |
-| `DOCUMENT_TYPE` with no `DOCUMENT_SLOT` (defines) | 1 row(s), e.g. PROVINCIAL_NOTICE_COPY · common |
+| `DOCUMENT_TYPE` with no `LOCATION_DOCUMENT_TYPE` (is required at) | 9 row(s), e.g. A13_APPLICATION · law |
+| `DOCUMENT_TYPE` with no `DOCUMENT_SLOT` (defines) | 4 row(s), e.g. CREW_PASSPORT_VISA_C · common |
 | `DOCUMENT_SLOT` with no `DOCUMENT` (holds) | 1 row(s), e.g. SERVICE_CONTRACT_C · missing |
-| `DOCUMENT_TYPE` with no `BILINGUAL_DOCUMENT` (is drafted as) | 7 row(s), e.g. A13_APPLICATION · law |
+| `DOCUMENT_TYPE` with no `BILINGUAL_DOCUMENT` (is drafted as) | 10 row(s), e.g. A13_APPLICATION · law |
 
 **(c) Boundaries of numeric and date rules**
 
 | Rule | Seed row |
 |---|---|
 | Document versions from 1 (M5 §6.1) | `36_document.csv` — private/projects/ferry/a13_application · 2 — version 2 replaces version 1, both kept |
-| Holiday far in the past (M5 §6.1) | `43_public_holiday.csv` — Tết Nguyên đán 2023 · false — Tết 2023 |
-| Expected, not yet official holiday (M5 §3 US-3) | `43_public_holiday.csv` — Giỗ Tổ Hùng Vương 2027 · true; Quốc khánh 2027 · true (+1) — expected dates |
+| Holiday far in the past (M5 §6.1) | `44_public_holiday.csv` — Tết Nguyên đán 2023 · false — Tết 2023 |
+| Expected, not yet official holiday (M5 §3 US-3) | `44_public_holiday.csv` — Giỗ Tổ Hùng Vương 2027 · true; Quốc khánh 2027 · true (+1) — expected dates |
 
 **(d) Business rules** — 6 of 6 rules have their rows named in section 7.
 
@@ -371,12 +396,12 @@ Data questions raised in `data/01`–`04` whose owner includes M5. All other ope
 
 | Question | Blocking? | Owner | Status |
 |---|---|---|---|
-| [NEEDS CLARIFICATION: Which function creates DOCUMENT_SLOT rows, and which sets their state?] | Yes | M5 owner | Open |
+| [NEEDS CLARIFICATION: Which function creates DOCUMENT_SLOT rows, and which sets their state?] | Yes | M5 owner | Resolved 11/11/2026 — specs/009-m5-dossier research R2: the first upload (F-M5-02, `app_record_document`) creates the slot as `present`; proofreading the last paragraph (F-M5-06) sets the script slot `present`, editing a proofread paragraph lowers it to `needs_fix`; no row means *missing*. |
 | [NEEDS CLARIFICATION: Is PROJECT_GLOSSARY in scope? No function writes or reads it.] | No | M5 owner | Resolved 30/09/2026 — in scope: F-M5-04 stores and applies the project's glossary (M5 §5.1 FR-004 glossary; M5 §5.2 BR-006). |
-| [NEEDS CLARIFICATION: Which entity links SEGMENT_REQUIREMENT to DOCUMENT_TYPE (M5 BR-004 builds the kit from segment_requirements)?] | Yes | M1 + M5 owners | Open |
+| [NEEDS CLARIFICATION: Which entity links SEGMENT_REQUIREMENT to DOCUMENT_TYPE (M5 BR-004 builds the kit from segment_requirements)?] | Yes | M1 + M5 owners | Resolved 11/11/2026 — specs/009-m5-dossier decision D1 (11/11/2026): DOCUMENT_TYPE.requirement_code names the SEGMENT_REQUIREMENT code; a document is in a kit when that requirement is `needed` for the project's segment; location-specific documents come from LOCATION_DOCUMENT_TYPE. |
 | [NEEDS CLARIFICATION: Does a bilingual draft refresh its project_meta when the project changes?] | No | M5 owner | Open |
-| [NEEDS CLARIFICATION: Is DOCUMENT_SLOT.state stored, or derived from documents, proofreading and partner status each time?] | Yes | M5 + M2 owners | Open |
-| [NEEDS CLARIFICATION: Which function edits a paragraph (and so clears its proofread status)?] | No | M5 owner | Open |
+| [NEEDS CLARIFICATION: Is DOCUMENT_SLOT.state stored, or derived from documents, proofreading and partner status each time?] | Yes | M5 + M2 owners | Resolved 11/11/2026 — specs/009-m5-dossier research R2: stored, written by the M5 functions (upload, last proofread, edit); M2's `v_dossier_check` lowers a stored `present` for b and c from live data. |
+| [NEEDS CLARIFICATION: Which function edits a paragraph (and so clears its proofread status)?] | No | M5 owner | Resolved 11/11/2026 — specs/009-m5-dossier data-model §6: `app_edit_paragraph` sets the text, `status = machine` and clears the reviewer (SC-28 SR-163). |
 | [NEEDS CLARIFICATION: Drop derivable columns (PROVINCE_NOTICE.province_id, LEGAL_RULE.is_active, BILINGUAL_DOCUMENT.watermark)?] | No | M7, M2, M5 owners | Resolved 01/10/2026 — watermark dropped; is_active kept with CHECK `ck_legal_rule_active_matches_status`; province_id kept as the province the notice was addressed to (M7 §6.1). See Structural findings, minimality. |
 
 ## 13. Human gates and sign-off

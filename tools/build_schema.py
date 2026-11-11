@@ -52,6 +52,7 @@ ROW_RULES = [
  ("PARTNER_INVITATION", "ck_partner_invitation_expiry", "expires_at > invited_at", "M4 BR-003 — an invitation ends after it is sent (D2)"),
  ("PARTNER_INVITATION", "ck_partner_invitation_accepted", "(accepted_at IS NULL) = (accepted_by IS NULL)", "M4 BR-003 — an acceptance names its account (D2)"),
  ("DOCUMENT", "ck_document_version_positive", "version >= 1", "M5 §6.1 — versions count from 1"),
+ ("DOCUMENT_TYPE", "ck_document_type_location_no_requirement", "basis <> 'location' OR requirement_code IS NULL", "M5 BR-004, D1 — a location-specific document comes from LOCATION_DOCUMENT_TYPE, not from a segment requirement"),
  ("BILINGUAL_PARAGRAPH", "ck_bilingual_paragraph_reviewer", "status <> 'reviewed' OR reviewed_by IS NOT NULL", "M5 BR-002, FR-006 — a proofread paragraph names its proofreader"),
  ("PUBLIC_HOLIDAY", "ck_public_holiday_dates", "end_date >= start_date", "M5 §6.1 — a holiday ends on or after its first day"),
  ("MODERATION_ITEM", "ck_moderation_item_one_target", "(organisation_id IS NULL) <> (location_image_id IS NULL)", "M10 §6 — exactly one target (04 Structural findings)"),

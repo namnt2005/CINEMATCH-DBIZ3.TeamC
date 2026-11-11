@@ -273,6 +273,19 @@ did and what the humans decided.
 | Spec issues found | Rows 69–84 |
 | Commit | not committed yet |
 
+### Entry 20: 11/11/2026 Nam Tran
+
+| Field | Value |
+|---|---|
+| Path and agent | Claude Code (VS Code extension); the three checks below were run by the agent for Nam Tran (Nguyễn Trần Nam) in the session; nothing run online by the agent |
+| Command and argument | Close-out of the M5 slice US-1..US-3 (prompt of Nam Tran, 11/11/2026): `npm test`, `npm run build`, `uv run tools/start_feature.py --check`; task review of `specs/009-m5-dossier/tasks.md` |
+| Feature and tasks | `specs/009-m5-dossier`, US-1 (document kit, SC-26), US-2 (Vietnamese draft and proofreading, SC-28), US-3 (countdown: M2's SC-29 and the M5 route); 48 of 53 tasks done. Open, all needing the browser or a reported online result, due by Nam Tran: T027, T047, T050 (quickstart slices 1–3, step 6b included), T051 (360 / 768 px layout; the text checks pass), T052 (online part: `npm run test:rls` result with the M5 tests, `npm run check:supabase`). `npm run test:rls` was run by Nam Tran and showed the M2 `p_lang` calls (fixed in `1bb9133`); its result after the fix is not reported yet |
+| What the agent produced | No code in this run. Files of the slice: Entry 19 (data D1 through the generators, migration `20261111000100_m5_dossier.sql`, `lib/documents/`, `lib/drafts/`, `lib/pdf/`, `lib/storage/project-documents.js`, `lib/db/{documents,drafts,glossary}.js` with both sources, 14 routes, screens SC-26 and SC-28, i18n, 21 test files) |
+| Human review | Not yet reviewed by a person (reviewer cell left empty). Decisions D1–D4 and the analysis fixes by Nam Tran are recorded in Entry 19 and `plan.md`; Nam Tran committed the RLS call fix and Entry 19 (`1bb9133`) |
+| Tests | `npm test`: `1123 tests, 213 suites, 1123 passed, 0 failed, 0 skipped`. `npm run build`: compiled successfully. `uv run tools/start_feature.py --check`: `OK: specs/009-m5-dossier/spec.md matches docs/spec/spec-M5.md`. Not run by the agent: online checks (see open tasks) |
+| Spec issues found | none new (rows 69–84 from Entry 19 stand) |
+| Commit | `1bb9133` (RLS call fix and Entry 19, by Nam Tran); the rest of the slice is not committed yet |
+
 ## 3. Spec issues found while building
 
 Every gap the build uncovers goes back to `docs/spec/` as an open question or a spec change. It

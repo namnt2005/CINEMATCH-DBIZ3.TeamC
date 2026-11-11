@@ -8,7 +8,7 @@ sources: FUNCTIONS, FIELDS, ENTITIES, RULES, SCENARIOS, FLOWS, SCREENS, BOUNDARY
 
 # Logical Data Model — CINEMATCH
 
-49 tables, 341 columns. Every column is **copied** from a FIELDS row (section 5.1) or an ENTITIES attribute (section 6), with its declared type and Req / Opt flag. *system-set* = an output field (the system fills it); *not declared* = no flag in the input.
+50 tables, 345 columns. Every column is **copied** from a FIELDS row (section 5.1) or an ENTITIES attribute (section 6), with its declared type and Req / Opt flag. *system-set* = an output field (the system fills it); *not declared* = no flag in the input.
 
 **Every column has a declared type** — the types of the section 6 attributes that no 5.1 field declares come from section 6.1 of the owning Spec Document (cited as `<MODULE> §6.1`). Technical columns (`created_at`, `updated_at`) appear only where the spec declares them. The physical schema built from this model is in `data/schema/schema-<MODULE>.sql`; one readable view per module is in `data/data-model-<MODULE>.md`.
 
@@ -601,8 +601,21 @@ Tables are grouped by owning module, in the order SYS → M1 → M0 → M2 → M
 | `basis` | `ENUM(law, common, location)` | system-set |  | M5 §5.1 FR-001 (OUT); M5 §5.2 BR-003 |
 | `template_url` | `TEXT` | system-set |  | M5 §5.1 FR-001 (OUT) |
 | `segments` | `ENUM(A, B, C)[]` | Req |  | M5 §6; M5 §6.1 |
+| `requirement_code` | `VARCHAR(40)` | Opt |  | M5 §5.2 BR-004; specs/009-m5-dossier decision D1 (11/11/2026) (the segment_requirement row that brings the document into a kit; a logical link, the key of SEGMENT_REQUIREMENT is segment + code) |
+| `awaiting_confirmation` | `BOOLEAN` | Req |  | M5 Clarifications Q1; specs/009-m5-dossier decision D1 (11/11/2026) |
 
 **Natural key:** doc_code.
+
+## LOCATION_DOCUMENT_TYPE
+
+*A location-specific document that one location needs.* Owner: M5. THING.
+
+| Column | Type (as declared) | Required | Key | Citation |
+|---|---|---|---|---|
+| `location_id` | `UUID` | Req | PK, FK → `LOCATION` | M5 §5.2 BR-004; specs/009-m5-dossier decision D1 (11/11/2026) |
+| `doc_code` | `VARCHAR(40)` | Req | PK, FK → `DOCUMENT_TYPE` | M5 §5.2 BR-004; specs/009-m5-dossier decision D1 (11/11/2026) (a document type with basis location) |
+
+**Natural key:** location_id + doc_code.
 
 ## DOCUMENT_SLOT
 
@@ -912,6 +925,8 @@ erDiagram
     COLLAB_REQUEST ||--o{ NDA_ACCEPTANCE : "is protected by"
     DOCUMENT ||--o{ DOCUMENT_ACCESS_LOG : "is viewed in"
     USER_ACCOUNT ||..o{ DOCUMENT_ACCESS_LOG : "views"
+    LOCATION ||--o{ LOCATION_DOCUMENT_TYPE : "requires"
+    DOCUMENT_TYPE ||--o{ LOCATION_DOCUMENT_TYPE : "is required at"
     DOCUMENT_TYPE ||..o{ DOCUMENT_SLOT : "defines"
     PROJECT ||--o{ DOCUMENT_SLOT : "needs"
     DOCUMENT_SLOT ||--o{ DOCUMENT : "holds"
@@ -1269,6 +1284,12 @@ erDiagram
         enum basis "M5 s5.1 FR-001 (OUT); M5 s5.2 BR-003"
         string template_url "M5 s5.1 FR-001 (OUT)"
         string segments "declared ENUM(A, B, C)[] - M5 s6; M5 s6.1"
+        string requirement_code "M5 s5.2 BR-004; specs/009-m5-dossier decision D1 (11/11/2026) (the segment_requirement row that brings the document into a kit; a logical link, the ke"
+        boolean awaiting_confirmation "M5 Clarifications Q1; specs/009-m5-dossier decision D1 (11/11/2026)"
+    }
+    LOCATION_DOCUMENT_TYPE {
+        uuid location_id PK,FK "M5 s5.2 BR-004; specs/009-m5-dossier decision D1 (11/11/2026)"
+        string doc_code PK,FK "M5 s5.2 BR-004; specs/009-m5-dossier decision D1 (11/11/2026) (a document type with basis location)"
     }
     DOCUMENT_SLOT {
         uuid project_id PK,FK "M5 s5.1 FR-002; M5 s6"
@@ -1394,8 +1415,8 @@ erDiagram
 | OQ-04-8 | [NEEDS CLARIFICATION: Does unpublishing a location remove it from shortlists and open notices?] | No | M3 owner | No; it is shown as *no longer published* | Producers lose a shortlisted place without notice. | Resolved 30/09/2026 — M3 §5.2 BR-008: `intake_status = unpublished` (M3 §5.1 FR-002); shortlists and notices keep the location and show *No longer published*. |
 | OQ-04-9 | [NEEDS CLARIFICATION: Can an organisation be removed from the directory, and what happens to its open requests?] | No | M4 owner | No removal; badge expiry only | A closed company keeps receiving requests. | Resolved 30/09/2026 — M4 §5.2 BR-008: deactivated, never deleted (`org_status = deactivated`, M4 §5.1 FR-001); open requests closed as `withdrawn`, producer notified, access log kept. |
 | OQ-04-10 | [NEEDS CLARIFICATION: Add `owner` to PROJECT_MEMBER.permission, and which function accepts an invitation?] | Yes | M0 owner | Owner stored as `edit` + flag not modelled; acceptance by sign-in with the invited email | "Owner only" rules (M0 FR-004) cannot be enforced in the database. | Resolved 03/11/2026 — specs/005-m0-workspace plan D2: `owner` added to PROJECT_MEMBER.permission (one per project, the creator); D3: the invitee accepts on SC-10 after signing in with the invited email. |
-| OQ-04-11 | [NEEDS CLARIFICATION: Is DOCUMENT_SLOT.state stored, or derived from documents, proofreading and partner status each time?] | Yes | M5 + M2 owners | Stored, recomputed on each upload and status change | Stored state can disagree with the rules it summarises. | Open |
-| OQ-04-12 | [NEEDS CLARIFICATION: Which function edits a paragraph (and so clears its proofread status)?] | No | M5 owner | Editing inside SC-28, not specified as a function | The reset in M5 US-2 has no function to hang on. | Open |
+| OQ-04-11 | [NEEDS CLARIFICATION: Is DOCUMENT_SLOT.state stored, or derived from documents, proofreading and partner status each time?] | Yes | M5 + M2 owners | Stored, recomputed on each upload and status change | Stored state can disagree with the rules it summarises. | Resolved 11/11/2026 — specs/009-m5-dossier research R2: stored, written by the M5 functions (upload, last proofread, edit); M2's `v_dossier_check` lowers a stored `present` for b and c from live data. |
+| OQ-04-12 | [NEEDS CLARIFICATION: Which function edits a paragraph (and so clears its proofread status)?] | No | M5 owner | Editing inside SC-28, not specified as a function | The reset in M5 US-2 has no function to hang on. | Resolved 11/11/2026 — specs/009-m5-dossier data-model §6: `app_edit_paragraph` sets the text, `status = machine` and clears the reviewer (SC-28 SR-163). |
 | OQ-04-13 | [NEEDS CLARIFICATION: Initial and cancelled values of CONSULTATION_BOOKING.booking_status?] | No | M7 owner | Status left empty until VFDA confirms; no cancellation (seed follows this) | Unconfirmed bookings are indistinguishable from confirmed ones; a member cannot cancel. | Open |
 | OQ-04-14 | [NEEDS CLARIFICATION: After how many days does an unanswered collaboration request expire, and is `expired` a status?] | No | M4 owner | No expiry; member withdraws | Requests stay open forever and block a second request to the same partner. | Open |
 | OQ-04-15 | [NEEDS CLARIFICATION: Value sets of PROJECT.stage, LOCATION.intake_status, LOCATION_IMAGE.status, consultation topic, the 12 service groups and scene types.] | Yes | Module owners + VFDA | Values used in the seed are proposals, listed in data/seed/README.md | Code and seed invent their own values; screens and filters disagree. | Resolved 30/09/2026 — declared in §5.1: M0 FR-002 (stage), M3 FR-002 (intake_status, scene_types), M3 FR-003 / M10 FR-002 (image status — see Type conflicts), M7 FR-005 (topic), M4 FR-001 (service groups), M3 FR-007 (region), M2 FR-001/002 (rule topic). |

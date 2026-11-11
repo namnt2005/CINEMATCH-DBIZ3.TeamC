@@ -187,7 +187,8 @@ Types and required flags come from `docs/function-list.md` (columns *Input — t
 
 | Entity | Attributes (from Input/Output fields) | Relationships |
 |---|---|---|
-| DocumentType | doc_code, name_vi, name_en, basis, template_url, segments | has many DocumentSlots |
+| DocumentType | doc_code, name_vi, name_en, basis, template_url, segments, requirement_code, awaiting_confirmation | has many DocumentSlots; brought into a kit by the SegmentRequirement of its requirement_code |
+| LocationDocumentType | location_id, doc_code | belongs to Location (M3) and DocumentType: the location-specific document a shortlisted location needs |
 | DocumentSlot | project_id, doc_code, state | belongs to Project; has many Documents |
 | Document | document_id, file_path, version, uploaded_by, uploaded_at | belongs to DocumentSlot |
 | BilingualDocument | project_id, doc_code, structure_version | has many BilingualParagraphs |
@@ -202,6 +203,10 @@ Types and required flags of the attributes above that no field in 5.1 declares (
 | Entity | Attribute | Type | Required | Notes |
 |---|---|---|---|---|
 | DocumentType | `segments` | `ENUM(A, B, C)[]` | Yes | segments that need this document |
+| DocumentType | `requirement_code` | `VARCHAR(40)` | No | the `segment_requirement.requirement_code` that brings the document into a kit (BR-004); empty for common and location-specific documents |
+| DocumentType | `awaiting_confirmation` | `BOOLEAN` | Yes | true → *awaiting VFDA confirmation* (Clarifications Q1) |
+| LocationDocumentType | `location_id` | `UUID` | Yes | a location that needs the document |
+| LocationDocumentType | `doc_code` | `VARCHAR(40)` | Yes | a document type with basis *location* |
 | Document | `file_path` | `TEXT` | Yes | path in private storage; replaces `file BYTEA` of FR-002 (the file itself is not stored in a table) |
 | Document | `version` | `INTEGER` | Yes | 1, 2, … — previous versions are kept (FR-002) |
 | Document | `uploaded_by` | `UUID` | Yes |  |
@@ -265,6 +270,8 @@ Where the 20-screen design or this spec differs from the DBIZ2 Function List, th
 |---|---|---|---|
 | Document states | missing / uploaded / replaced | present / needs_fix / pending / missing (shared with SC-27) | Changed — Confirmed by the Client |
 | Proofreading | Partner marks the whole document proofread | Paragraph-level proofreading in the editor + partner confirmation | Added — Confirmed by the Client |
+| Kit source | BR-004 names `segment_requirements` and shortlisted locations; no column links them to a document type | `document_type.requirement_code` (the `segment_requirement` row that brings the document into a kit) and `location_document_type` (which location needs which location-specific document) | Added — Group C decision 11/11/2026, VFDA to confirm |
+| Segment C label | Q1 minimum list awaiting VFDA confirmation; no field marks it | `document_type.awaiting_confirmation`, shown as *awaiting VFDA confirmation* | Added — Group C decision 11/11/2026, VFDA to confirm |
 
 ## Completion checklist
 

@@ -86,6 +86,7 @@ HYP = {
  ("1","COLLAB_MESSAGE"):"Surplus entity for this release (no screen shows messages).",
  ("1","DOCUMENT_TYPE"):"Missing function — VFDA maintains the document catalogue; belongs to M10, whose Spec Document has no such function yet.",
  ("1","DOCUMENT_SLOT"):"Missing function — slots must be created when the kit opens (02 OQ 5).",
+ ("1","LOCATION_DOCUMENT_TYPE"):"Missing function — VFDA staff record which location needs which location-specific document (specs/009-m5-dossier D1, Known limitation 2); belongs to M10 or the SC-35 location editor, whose Spec Documents have no such function yet.",
  ("1","PROJECT_GLOSSARY"):"Surplus entity for this release.",
  ("1","READINESS_SOURCE"):"Missing function — VFDA or the team sets a module's flag to false when it fails to report (M0 §3 edge case, decision H1 of 05/11/2026); belongs to M10, whose Spec Document has no such function yet.",
  ("1","ORGANISATION_USER"):"Missing function — the row is written when an invited partner accepts the VFDA invitation (M4 BR-003; specs/007-m4-partners decisions D1, D2 of 06/11/2026); the Function List has no subfunction for it.",

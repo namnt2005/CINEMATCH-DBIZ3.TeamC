@@ -491,17 +491,26 @@ for k, org, email, by, inv, exp, acc_by, acc in INV:
         add("ORGANISATION_USER", org_id=OID[org], user_id=UID[acc_by], added_at=acc + ":00+07:00")
 
 # ------------------------------------------------------------------ M5 dossier kit
-DT = [("A13_APPLICATION","Văn bản đề nghị cấp giấy phép theo mẫu","Application form (prescribed template)","law","A,B"),
-      ("A13_SCRIPT_VI","Kịch bản tóm tắt và kịch bản chi tiết phần quay tại Việt Nam bằng tiếng Việt","Synopsis and Vietnam-scene script in Vietnamese","law","A,B"),
-      ("A13_SERVICE_AGREEMENT","Thỏa thuận hoặc hợp đồng với tổ chức Việt Nam cung cấp dịch vụ","Agreement or contract with the Vietnamese service provider","law","A,B"),
-      ("A13_ART9_COMMITMENT","Văn bản cam kết không vi phạm Điều 9","Undertaking not to breach Article 9","law","A,B"),
-      ("FOREIGN_CREW_LIST","Danh sách đoàn làm phim nước ngoài","Foreign crew list","common","A,B"),
-      ("PROVINCIAL_NOTICE_COPY","Bản sao thông báo gửi địa phương","Copy of the provincial notice","common","A,B"),
-      ("HERITAGE_SITE_PERMIT","Văn bản đồng ý của ban quản lý di sản","Heritage-site management board consent","location","A,B"),
-      ("SERVICE_CONTRACT_C","Hợp đồng dịch vụ (phân khúc C)","Service contract (segment C)","common","C")]
-for code, vi, en, basis, segs in DT:
+# requirement_code: the segment_requirement row that brings the document into a kit (specs/009-m5-dossier D1);
+# the segment C items are the provisional minimum list of M5 Clarifications Q1, awaiting VFDA confirmation.
+DT = [("A13_APPLICATION","Văn bản đề nghị cấp giấy phép theo mẫu","Application form (prescribed template)","law","A,B","ART13_LICENCE"),
+      ("A13_SCRIPT_VI","Kịch bản tóm tắt và kịch bản chi tiết phần quay tại Việt Nam bằng tiếng Việt","Synopsis and Vietnam-scene script in Vietnamese","law","A,B","ART13_LICENCE"),
+      ("A13_SERVICE_AGREEMENT","Thỏa thuận hoặc hợp đồng với tổ chức Việt Nam cung cấp dịch vụ","Agreement or contract with the Vietnamese service provider","law","A,B","VN_SERVICE_AGREEMENT"),
+      ("A13_ART9_COMMITMENT","Văn bản cam kết không vi phạm Điều 9","Undertaking not to breach Article 9","law","A,B","ART13_LICENCE"),
+      ("FOREIGN_CREW_LIST","Danh sách đoàn làm phim nước ngoài","Foreign crew list","common","A,B",""),
+      ("PROVINCIAL_NOTICE_COPY","Bản sao thông báo gửi địa phương","Copy of the provincial notice","common","A,B",""),
+      ("HERITAGE_SITE_PERMIT","Văn bản đồng ý của ban quản lý di sản","Heritage-site management board consent","location","A,B",""),
+      ("SERVICE_CONTRACT_C","Hợp đồng dịch vụ (phân khúc C)","Service contract (segment C)","common","C","SERVICE_CONTRACT"),
+      ("CREW_PASSPORT_VISA_C","Hộ chiếu và thị thực của đoàn (phân khúc C)","Crew passports and visas (segment C)","common","C","CREW_VISA"),
+      ("SHOOTING_SCHEDULE_C","Lịch quay kèm địa điểm (phân khúc C)","Shooting schedule with locations (segment C)","common","C",""),
+      ("LOCAL_PERMIT_PUBLIC_C","Giấy phép của địa phương khi quay tại nơi công cộng (phân khúc C)","Local permit for shooting in a public place (segment C)","location","C","")]
+for code, vi, en, basis, segs, req in DT:
     add("DOCUMENT_TYPE", doc_code=code, name_vi=vi, name_en=en, basis=basis,
-        template_url=f"https://storage.cinematch.example/templates/{code.lower()}.docx", segments=J(segs.split(",")))
+        template_url=f"https://storage.cinematch.example/templates/{code.lower()}.docx", segments=J(segs.split(",")),
+        requirement_code=req, awaiting_confirmation="true" if segs == "C" else "false")
+# which location needs which location-specific document (D1); the public-place link is used only by tests
+for loc, code in [("trang-an", "HERITAGE_SITE_PERMIT"), ("hoi-an", "LOCAL_PERMIT_PUBLIC_C")]:
+    add("LOCATION_DOCUMENT_TYPE", location_id=LID[loc], doc_code=code)
 SLOTS = {"ferry": [("A13_APPLICATION","present"),("A13_SCRIPT_VI","needs_fix"),("A13_SERVICE_AGREEMENT","pending"),
                    ("A13_ART9_COMMITMENT","missing"),("FOREIGN_CREW_LIST","present"),("HERITAGE_SITE_PERMIT","missing")],
          "rice": [("A13_APPLICATION","present"),("A13_SCRIPT_VI","missing"),("A13_SERVICE_AGREEMENT","missing"),("A13_ART9_COMMITMENT","missing")],

@@ -66,7 +66,7 @@ The 104 functional requirements are in §5 of the module files (table in section
 
 ### 5.1 Entities
 
-The entities of CINEMATCH, with the canonical names used by the Session 5 data model (`data/01-entity-dictionary.md`). 54 entities: 49 are stored as tables (one CSV each in `data/seed/`) and 5 are *derived* — computed on read, never stored.
+The entities of CINEMATCH, with the canonical names used by the Session 5 data model (`data/01-entity-dictionary.md`). 55 entities: 50 are stored as tables (one CSV each in `data/seed/`) and 5 are *derived* — computed on read, never stored.
 
 | # | Entity | Definition | Kind | Owner module |
 |---|---|---|---|---|
@@ -111,19 +111,20 @@ The entities of CINEMATCH, with the canonical names used by the Session 5 data m
 | 39 | `ORGANISATION_USER` | A partner account that acts for one organisation. | THING | M4 |
 | 40 | `PARTNER_INVITATION` | VFDA's one-time invitation for a person to become the partner account of an organisation. | EVENT | M4 |
 | 41 | `DOCUMENT_TYPE` | A kind of dossier document, with its legal basis and template. | THING | M5 |
-| 42 | `DOCUMENT_SLOT` | The place for one document type in one project, with its status. | THING | M5 |
-| 43 | `DOCUMENT` | One uploaded file version in a project's document slot. | THING | M5 |
-| 44 | `BILINGUAL_DOCUMENT` | A generated English–Vietnamese draft of one document of a project. | THING | M5 |
-| 45 | `BILINGUAL_PARAGRAPH` | One aligned source/Vietnamese paragraph pair of a bilingual draft, with its proofreading status. | THING | M5 |
-| 46 | `PROJECT_GLOSSARY` | A project's agreed translation of one term, applied to every later draft of that project. | THING | M5 |
-| 47 | `PUBLIC_HOLIDAY` | A public holiday period shown on the licensing timeline, official or expected. | THING | M5 |
-| 48 | `LOCATION_INTEREST` | A member's statement that a project is interested in a location. | EVENT | M7 |
-| 49 | `PROVINCE_NOTICE` | The notice VFDA sends a province about a project's interest, and the province's reply. | EVENT | M7 |
-| 50 | `CONSULTATION_BOOKING` | A member's booked consultation slot with a VFDA officer. | EVENT | M7 |
-| 51 | `MODERATION_ITEM` | A partner's published content (profile text or location photo) waiting for, or carrying, VFDA staff's approve-or-hide decision. | EVENT | M10 |
-| 52 | `AUDIT_LOG` | A permanent record of one administrative action: who did what to which record, and when. | EVENT | M10 |
-| 53 | `DEMAND_INDEX` | The six demand indicators of a reporting period, each with its sample size, computed from platform data. | DERIVED (computed on read) | M10 |
-| 54 | `QUARTERLY_REPORT` | A quarterly demand report with its bilingual commentary, reread by a staff member before it is exported. | THING | M10 |
+| 42 | `LOCATION_DOCUMENT_TYPE` | A location-specific document that one location needs. | THING | M5 |
+| 43 | `DOCUMENT_SLOT` | The place for one document type in one project, with its status. | THING | M5 |
+| 44 | `DOCUMENT` | One uploaded file version in a project's document slot. | THING | M5 |
+| 45 | `BILINGUAL_DOCUMENT` | A generated English–Vietnamese draft of one document of a project. | THING | M5 |
+| 46 | `BILINGUAL_PARAGRAPH` | One aligned source/Vietnamese paragraph pair of a bilingual draft, with its proofreading status. | THING | M5 |
+| 47 | `PROJECT_GLOSSARY` | A project's agreed translation of one term, applied to every later draft of that project. | THING | M5 |
+| 48 | `PUBLIC_HOLIDAY` | A public holiday period shown on the licensing timeline, official or expected. | THING | M5 |
+| 49 | `LOCATION_INTEREST` | A member's statement that a project is interested in a location. | EVENT | M7 |
+| 50 | `PROVINCE_NOTICE` | The notice VFDA sends a province about a project's interest, and the province's reply. | EVENT | M7 |
+| 51 | `CONSULTATION_BOOKING` | A member's booked consultation slot with a VFDA officer. | EVENT | M7 |
+| 52 | `MODERATION_ITEM` | A partner's published content (profile text or location photo) waiting for, or carrying, VFDA staff's approve-or-hide decision. | EVENT | M10 |
+| 53 | `AUDIT_LOG` | A permanent record of one administrative action: who did what to which record, and when. | EVENT | M10 |
+| 54 | `DEMAND_INDEX` | The six demand indicators of a reporting period, each with its sample size, computed from platform data. | DERIVED (computed on read) | M10 |
+| 55 | `QUARTERLY_REPORT` | A quarterly demand report with its bilingual commentary, reread by a staff member before it is exported. | THING | M10 |
 
 Columns, keys and relationships: `data/04-data-model.md`. Diagram: `data/03-erd.mmd`.
 

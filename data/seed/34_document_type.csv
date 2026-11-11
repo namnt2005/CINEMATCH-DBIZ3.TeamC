@@ -1,9 +1,12 @@
-doc_code,name_vi,name_en,basis,template_url,segments
-A13_APPLICATION,Văn bản đề nghị cấp giấy phép theo mẫu,Application form (prescribed template),law,https://storage.cinematch.example/templates/a13_application.docx,"[""A"",""B""]"
-A13_ART9_COMMITMENT,Văn bản cam kết không vi phạm Điều 9,Undertaking not to breach Article 9,law,https://storage.cinematch.example/templates/a13_art9_commitment.docx,"[""A"",""B""]"
-A13_SCRIPT_VI,Kịch bản tóm tắt và kịch bản chi tiết phần quay tại Việt Nam bằng tiếng Việt,Synopsis and Vietnam-scene script in Vietnamese,law,https://storage.cinematch.example/templates/a13_script_vi.docx,"[""A"",""B""]"
-A13_SERVICE_AGREEMENT,Thỏa thuận hoặc hợp đồng với tổ chức Việt Nam cung cấp dịch vụ,Agreement or contract with the Vietnamese service provider,law,https://storage.cinematch.example/templates/a13_service_agreement.docx,"[""A"",""B""]"
-FOREIGN_CREW_LIST,Danh sách đoàn làm phim nước ngoài,Foreign crew list,common,https://storage.cinematch.example/templates/foreign_crew_list.docx,"[""A"",""B""]"
-HERITAGE_SITE_PERMIT,Văn bản đồng ý của ban quản lý di sản,Heritage-site management board consent,location,https://storage.cinematch.example/templates/heritage_site_permit.docx,"[""A"",""B""]"
-PROVINCIAL_NOTICE_COPY,Bản sao thông báo gửi địa phương,Copy of the provincial notice,common,https://storage.cinematch.example/templates/provincial_notice_copy.docx,"[""A"",""B""]"
-SERVICE_CONTRACT_C,Hợp đồng dịch vụ (phân khúc C),Service contract (segment C),common,https://storage.cinematch.example/templates/service_contract_c.docx,"[""C""]"
+doc_code,name_vi,name_en,basis,template_url,segments,requirement_code,awaiting_confirmation
+A13_APPLICATION,Văn bản đề nghị cấp giấy phép theo mẫu,Application form (prescribed template),law,https://storage.cinematch.example/templates/a13_application.docx,"[""A"",""B""]",ART13_LICENCE,false
+A13_ART9_COMMITMENT,Văn bản cam kết không vi phạm Điều 9,Undertaking not to breach Article 9,law,https://storage.cinematch.example/templates/a13_art9_commitment.docx,"[""A"",""B""]",ART13_LICENCE,false
+A13_SCRIPT_VI,Kịch bản tóm tắt và kịch bản chi tiết phần quay tại Việt Nam bằng tiếng Việt,Synopsis and Vietnam-scene script in Vietnamese,law,https://storage.cinematch.example/templates/a13_script_vi.docx,"[""A"",""B""]",ART13_LICENCE,false
+A13_SERVICE_AGREEMENT,Thỏa thuận hoặc hợp đồng với tổ chức Việt Nam cung cấp dịch vụ,Agreement or contract with the Vietnamese service provider,law,https://storage.cinematch.example/templates/a13_service_agreement.docx,"[""A"",""B""]",VN_SERVICE_AGREEMENT,false
+CREW_PASSPORT_VISA_C,Hộ chiếu và thị thực của đoàn (phân khúc C),Crew passports and visas (segment C),common,https://storage.cinematch.example/templates/crew_passport_visa_c.docx,"[""C""]",CREW_VISA,true
+FOREIGN_CREW_LIST,Danh sách đoàn làm phim nước ngoài,Foreign crew list,common,https://storage.cinematch.example/templates/foreign_crew_list.docx,"[""A"",""B""]",,false
+HERITAGE_SITE_PERMIT,Văn bản đồng ý của ban quản lý di sản,Heritage-site management board consent,location,https://storage.cinematch.example/templates/heritage_site_permit.docx,"[""A"",""B""]",,false
+LOCAL_PERMIT_PUBLIC_C,Giấy phép của địa phương khi quay tại nơi công cộng (phân khúc C),Local permit for shooting in a public place (segment C),location,https://storage.cinematch.example/templates/local_permit_public_c.docx,"[""C""]",,true
+PROVINCIAL_NOTICE_COPY,Bản sao thông báo gửi địa phương,Copy of the provincial notice,common,https://storage.cinematch.example/templates/provincial_notice_copy.docx,"[""A"",""B""]",,false
+SERVICE_CONTRACT_C,Hợp đồng dịch vụ (phân khúc C),Service contract (segment C),common,https://storage.cinematch.example/templates/service_contract_c.docx,"[""C""]",SERVICE_CONTRACT,true
+SHOOTING_SCHEDULE_C,Lịch quay kèm địa điểm (phân khúc C),Shooting schedule with locations (segment C),common,https://storage.cinematch.example/templates/shooting_schedule_c.docx,"[""C""]",,true

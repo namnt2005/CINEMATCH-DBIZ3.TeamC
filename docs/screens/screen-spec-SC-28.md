@@ -39,11 +39,11 @@
 | 4 | Proofreading progress | Text + bar | count of `bilingual_paragraph.reviewed_by IS NOT NULL` | Yes | — |
 | 5 | Source column | Text | `bilingual_paragraph.source_text` | Yes | read-only |
 | 6 | Vietnamese column | Input (textarea per paragraph) | `bilingual_paragraph.target_text` | Yes | must not be empty; editing a proofread paragraph resets it to *not proofread* |
-| 7 | Paragraph status | Text | `machine` / `reviewed` + proofreader's name | Yes | always has text |
-| 8 | *✓ Proofread* button | Button | writes `reviewed_by`, `reviewed_at` | — | only shown on paragraphs not yet proofread |
+| 7 | Paragraph status | Text | `machine` / `reviewed` + proofreader's name; *Not translated yet* while the Vietnamese is empty | Yes | always has text |
+| 8 | *✓ Proofread* button | Button | writes `reviewed_by`, `reviewed_at`; a partner whose request is confirmed (both NDA rows accepted) also sees *Confirm whole document* | — | only shown on non-empty paragraphs not yet proofread |
 | 9 | Project glossary | List | `project_glossary` | No | one translation per source term |
 | 10 | *DRAFT* warning strip | Text | static + number of paragraphs not proofread | Yes | hidden once 100% proofread |
-| 11 | *Export two-column PDF* button | Button | generated with `@react-pdf/renderer` | — | every page watermarked *DRAFT — REQUIRES PROOFREADING* (F-M5-05); unreviewed paragraphs also flagged |
+| 11 | *Export two-column PDF* button | Button | generated with `@react-pdf/renderer` | — | every page watermarked *DRAFT — REQUIRES PROOFREADING · BẢN NHÁP — CẦN HIỆU ĐÍNH* (F-M5-05); unreviewed paragraphs also flagged |
 | 12 | *Save* button | Button | static; autosave enabled | — | — |
 | 13 | Sync scroll switch | Toggle | UI preference | — | on by default |
 
@@ -52,7 +52,7 @@
 | State | What the user sees | Trigger |
 |---|---|---|
 | Default | Two columns aligned by paragraph: source on the left (read-only), Vietnamese on the right (editable), each paragraph with a status. | Open a document that has a source |
-| Empty (no data) | No source yet: *Upload the English script to get started* + upload area. Source present but not translated: *Create Vietnamese draft* button. | No source / not translated |
+| Empty (no data) | No source yet: *Upload the English script to get started* — paste the text or choose a `.docx` (up to 4 MB). A box *Send the text to the paid AI translation service* appears only when the paid plan is configured (M5 Q3), unticked. Source present but not translated: *Create Vietnamese draft* button. | No source / not translated |
 | Loading | Creating the draft: paragraphs appear one by one with *Translating paragraph 4 / 14*. | Calls `F-M5-04` |
 | Error | One paragraph fails to translate: it is left empty with *Could not translate — retry this paragraph*; other paragraphs remain usable. Save error: *Not saved — your text is still on screen*. | Translation error / save error |
 | Success / confirmation | All 14/14 paragraphs: the warning strip is replaced by a green strip *Fully proofread. Item b has been updated in the dossier check.* | Fully proofread |
@@ -64,9 +64,10 @@
 | 1 | Document picker | tap | Open another document | stays |
 | 2 | Vietnamese field | type | Autosaves after 2 seconds of inactivity; if the paragraph was proofread → back to *not proofread* | stays |
 | 3 | *✓ Proofread* button | tap | Records who proofread and when | stays |
-| 4 | *+ Add term* | tap | Adds to the glossary; highlights paragraphs where the term was translated differently | stays |
-| 5 | *Export two-column PDF* button | tap | Download PDF | stays |
-| 6 | When 14/14 paragraphs are done | — | Updates item b | SC-27 |
+| 4 | *Confirm whole document* | tap | A confirmed partner (both NDA rows accepted) marks every remaining paragraph proofread in their name | stays |
+| 5 | *+ Add term* | tap | Adds to the glossary; highlights paragraphs where the term was translated differently | stays |
+| 6 | *Export two-column PDF* button | tap | Download PDF | stays |
+| 7 | When 14/14 paragraphs are done | — | Updates item b | SC-27 |
 
 ## 6. Screen-level rules
 

@@ -27,6 +27,16 @@ def org_user(org_col):
             f"AND app.has_role('partner')")
 
 
+def draft_partner(project_col):
+    """M5 D4 (specs/009-m5-dossier): a partner reads a project's drafts only behind M4's NDA gate — a request for the
+    project that is accepted or confirmed, with both NDA rows accepted (inline, as org_user)."""
+    return (f"EXISTS (SELECT 1 FROM public.collab_request r JOIN public.organisation_user ou ON ou.org_id = r.org_id "
+            f"AND ou.user_id = auth.uid() WHERE r.project_id = {project_col} AND r.status IN ('accepted', 'confirmed') "
+            "AND EXISTS (SELECT 1 FROM public.nda_acceptance n WHERE n.request_id = r.request_id AND n.party = 'producer' AND n.accepted) "
+            "AND EXISTS (SELECT 1 FROM public.nda_acceptance n WHERE n.request_id = r.request_id AND n.party = 'partner' AND n.accepted)) "
+            "AND app.has_role('partner')")
+
+
 def published(location_col):
     return (f"EXISTS (SELECT 1 FROM public.location l WHERE l.location_id = {location_col} "
             f"AND l.intake_status = 'published' AND l.published)")
@@ -141,6 +151,15 @@ POLICIES = [
     dict(table='document', op='select', roles=['member'], using=member_of(), name='rls_document_project_members'),
     dict(table='document', op='insert', roles=['member'], check=f"{member_of()} AND uploaded_by = auth.uid()"),
     dict(table='public_holiday', op='select', roles=['signed_in'], using=SIGNED_IN),
+    # specs/009-m5-dossier D1, D4: the kit configuration is readable when signed in; drafts and the glossary by project
+    # members and, behind the NDA gate, by the project's partner (writes only through the M5 functions)
+    dict(table='location_document_type', op='select', roles=['signed_in'], using=SIGNED_IN),
+    dict(table='bilingual_document', op='select', roles=['member'], using=member_of()),
+    dict(table='bilingual_document', op='select', roles=['partner'], using=draft_partner('bilingual_document.project_id'), name='rls_bilingual_document_partner'),
+    dict(table='bilingual_paragraph', op='select', roles=['member'], using=member_of()),
+    dict(table='bilingual_paragraph', op='select', roles=['partner'], using=draft_partner('bilingual_paragraph.project_id'), name='rls_bilingual_paragraph_partner'),
+    dict(table='project_glossary', op='select', roles=['member'], using=member_of()),
+    dict(table='project_glossary', op='select', roles=['partner'], using=draft_partner('project_glossary.project_id'), name='rls_project_glossary_partner'),
 
     # ---- M7 ----------------------------------------------------------------------------------
     dict(table='location_interest', op='select', roles=['member'], using=member_of()),
@@ -165,7 +184,7 @@ POLICIES = [
 # M4 partner writes stay here on purpose: since specs/007-m4-partners they go only through the SECURITY DEFINER
 # functions of supabase/migrations/20261106000200_m4_partners.sql (no direct write policy, research R4).
 DEFERRED = [
-    ('bilingual_paragraph', 'update', 'Partner', 13),
+    ('bilingual_paragraph', 'update', 'Partner', 13),   # served by app_review_paragraph / app_confirm_bilingual (specs/009-m5-dossier)
     ('collab_message', 'insert', 'Partner', 13),
     ('collab_request', 'update', 'Partner', 13),
     ('moderation_item', 'insert', 'Partner', 13),
