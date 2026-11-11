@@ -8,7 +8,7 @@ sources: FUNCTIONS, FIELDS, ENTITIES, RULES, SCENARIOS, FLOWS, SCREENS, BOUNDARY
 
 # CRUD Matrix — CINEMATCH
 
-Long form: one row per (function, entity) pair that interacts — 170 rows over 96 of the 104 functions. Function IDs are the DBIZ2 Subfunction IDs; `F-M3-08` is `FR-008` in `docs/spec/spec-M3.md`. Each row was decided from the function description and its I/O row, not from the entity name.
+Long form: one row per (function, entity) pair that interacts — 171 rows over 96 of the 104 functions. Function IDs are the DBIZ2 Subfunction IDs; `F-M3-08` is `FR-008` in `docs/spec/spec-M3.md`. Each row was decided from the function description and its I/O row, not from the entity name.
 
 ## Interactions
 
@@ -142,6 +142,7 @@ Long form: one row per (function, entity) pair that interacts — 170 rows over 
 | F-M5-01 | `DOCUMENT_TYPE` | R | M5 §5.1 FR-001 |
 | F-M5-01 | `SEGMENT_REQUIREMENT` | R | M5 §5.2 BR-004 |
 | F-M5-01 | `PROJECT_SHORTLIST` | R | M5 §5.2 BR-004 ("plus shortlisted locations") |
+| F-M5-01 | `LOCATION_DOCUMENT_TYPE` | R | M5 §5.2 BR-004; specs/009-m5-dossier decision D1 (11/11/2026) |
 | F-M5-02 | `DOCUMENT` | C | M5 §5.1 FR-002 ("upload and replace"; previous versions kept) |
 | F-M5-03 | `DOCUMENT_SLOT` | R | M5 §5.1 FR-003 |
 | F-M5-04 | `BILINGUAL_DOCUMENT` | C | M5 §5.1 FR-004 (structure_version) |
@@ -230,6 +231,7 @@ Long form: one row per (function, entity) pair that interacts — 170 rows over 
 | `ORGANISATION_USER` | — | F-M4-01 | — | — |
 | `PARTNER_INVITATION` | — | — | — | — |
 | `DOCUMENT_TYPE` | — | F-M5-01 | — | — |
+| `LOCATION_DOCUMENT_TYPE` | — | F-M5-01 | — | — |
 | `DOCUMENT_SLOT` | — | F-M2-08, F-M2-09, F-M5-03 | — | — |
 | `DOCUMENT` | F-M5-02 | F-M4-18 | — | — |
 | `BILINGUAL_DOCUMENT` | F-M5-04 | — | — | — |
@@ -267,6 +269,7 @@ Reported only — no function or entity was added to make the matrix look comple
 | 1 — no C | `PARTNER_INVITATION` | Missing function — VFDA staff or an admin invite a supplier (M4 BR-003, SR-125; SYS BR-002 as changed 06/11/2026; specs/007-m4-partners decision D2); the Function List has no subfunction for it. | |
 | 5 — no function touches it | `PARTNER_INVITATION` | Missing function — VFDA staff or an admin invite a supplier (M4 BR-003, SR-125; SYS BR-002 as changed 06/11/2026; specs/007-m4-partners decision D2); the Function List has no subfunction for it. | |
 | 1 — no C | `DOCUMENT_TYPE` | Missing function — VFDA maintains the document catalogue; belongs to M10, whose Spec Document has no such function yet. | |
+| 1 — no C | `LOCATION_DOCUMENT_TYPE` | Missing function — VFDA staff record which location needs which location-specific document (specs/009-m5-dossier D1, Known limitation 2); belongs to M10 or the SC-35 location editor, whose Spec Documents have no such function yet. | |
 | 1 — no C | `DOCUMENT_SLOT` | Missing function — slots must be created when the kit opens (02 OQ 5). | |
 | 2 — C but no R | `BILINGUAL_DOCUMENT` | Missing function — SC-28 opens a draft; only its paragraphs are read. | |
 | 1 — no C | `PUBLIC_HOLIDAY` | Missing function — someone must enter official and expected holiday dates (M5 §10). | |
@@ -287,7 +290,7 @@ Reported only — no function or entity was added to make the matrix look comple
 | 2 | [NEEDS CLARIFICATION: Is LOCATION_QUERY stored (F-M3-10/11), and for how long?] | No | M3 owner | Not stored; entity kept as declared, no rows written | If stored, it holds user text (privacy) and becomes a demand signal for M10. | Resolved 30/09/2026 — stored by F-M3-11 without personal data and used for the M10 demand index (M3 §5.2 BR-009; M3 §5.1 FR-011 query_id). How long it is kept is still not stated. |
 | 3 | [NEEDS CLARIFICATION: Does F-M2-12 verify findings for both the guest pre-check and the project check?] | No | M2 owner | Yes, both | If only the pre-check, project findings would be shown unverified — breaks M2 BR-001. | Open |
 | 4 | [NEEDS CLARIFICATION: Who loads SEGMENT_RULE, SEGMENT_REQUIREMENT, DOCUMENT_TYPE, PROVINCE and PUBLIC_HOLIDAY? No function creates them — M10's Spec Document has none either.] | Yes | Nam + VFDA | Loaded by seed script; VFDA edits through the database until a function exists | The M1 decision table and the M5 kit are VFDA-approved content; without an edit function every change needs a developer. | Open |
-| 5 | [NEEDS CLARIFICATION: Which function creates DOCUMENT_SLOT rows, and which sets their state?] | Yes | M5 owner | F-M5-01 creates one slot per required document type when the kit first opens; state derived by rules | Without slots, F-M2-08 has nothing to count and component status cannot be stored. | Open |
+| 5 | [NEEDS CLARIFICATION: Which function creates DOCUMENT_SLOT rows, and which sets their state?] | Yes | M5 owner | F-M5-01 creates one slot per required document type when the kit first opens; state derived by rules | Without slots, F-M2-08 has nothing to count and component status cannot be stored. | Resolved 11/11/2026 — specs/009-m5-dossier research R2: the first upload (F-M5-02, `app_record_document`) creates the slot as `present`; proofreading the last paragraph (F-M5-06) sets the script slot `present`, editing a proofread paragraph lowers it to `needs_fix`; no row means *missing*. |
 | 6 | [NEEDS CLARIFICATION: Is COLLAB_MESSAGE in scope? No function writes or reads messages (SC-25 shows none).] | No | M4 owner | Out of scope; entity left unused | If in scope, a send/read function and a Screen Spec section are missing. | Resolved 30/09/2026 — in scope: F-M4-14 stores every response note and reply as a message (M4 §5.1 FR-014 message_id; M4 §5.2 BR-009). No function reads messages yet (02 anomaly kind 2). |
 | 7 | [NEEDS CLARIFICATION: Is PROJECT_GLOSSARY in scope? No function writes or reads it.] | No | M5 owner | Out of scope; entity left unused | Translation consistency across paragraphs (SC-28) would rely on the model alone. | Resolved 30/09/2026 — in scope: F-M5-04 stores and applies the project's glossary (M5 §5.1 FR-004 glossary; M5 §5.2 BR-006). |
 | 8 | [NEEDS CLARIFICATION: Who reads CONSENT, RULE_SET_VERSION and EMAIL_DELIVERY? Each is written but never read by a function. (SEGMENT_DECISION and PROJECT_PROVINCE are now read by F-M10-03.)] | No | Owners of SYS, M2 | Kept for audit | Write-only data costs storage and privacy review without a user. | Open |

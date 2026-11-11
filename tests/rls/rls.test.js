@@ -51,6 +51,12 @@ describe('Row Level Security on cinematch-dev (npm run test:rls)', () => {
   after(async () => {
     // Test fixtures only: the app never deletes a project (M0 BR-005); the secret key removes what this run made
     for (const id of createdProjects) {
+      // M5: the fixture's documents, slots, drafts and glossary
+      await admin.from('document').delete().eq('project_id', id);
+      await admin.from('document_slot').delete().eq('project_id', id);
+      await admin.from('bilingual_paragraph').delete().eq('project_id', id);
+      await admin.from('bilingual_document').delete().eq('project_id', id);
+      await admin.from('project_glossary').delete().eq('project_id', id);
       // M2: the fixture's content checks (runs, findings) and pre-check runs
       const { data: m2runs } = await admin.from('compliance_run').select('run_id').eq('project_id', id);
       for (const { run_id } of m2runs || []) await admin.from('compliance_finding').delete().eq('run_id', run_id);
@@ -343,7 +349,7 @@ describe('Row Level Security on cinematch-dev (npm run test:rls)', () => {
     assert.equal(ruleError, null, ruleError?.message);
     const { data: version } = await ownerClient.from('rule_set_version').select('rule_version').order('rule_version', { ascending: false }).limit(1).single();
     const text = 'Two soldiers row a lantern boat to the river bank at dawn while the street watches from the old bridge in silence.';
-    const { error } = await ownerClient.rpc('app_save_content_check', { p_project_id: projectId, p_rule_version: version.rule_version, p_text: text,
+    const { error } = await ownerClient.rpc('app_save_content_check', { p_project_id: projectId, p_rule_version: version.rule_version, p_lang: 'en', p_text: text,
       p_findings: [{ rule_id: rule.rule_id, quoted_text: 'Two soldiers' }] });
     assert.equal(error, null, error?.message);
     const { data: own } = await ownerClient.from('compliance_run').select('run_id').eq('project_id', projectId);
@@ -363,7 +369,7 @@ describe('Row Level Security on cinematch-dev (npm run test:rls)', () => {
     const { ownerClient, projectId } = await createTestProject();
     const { data: rule } = await ownerClient.from('legal_rule').select('rule_id').eq('rule_code', 'A9-MIL').eq('status', 'approved').single();
     const { data: version } = await ownerClient.from('rule_set_version').select('rule_version').order('rule_version', { ascending: false }).limit(1).single();
-    const { error } = await ownerClient.rpc('app_save_content_check', { p_project_id: projectId, p_rule_version: version.rule_version,
+    const { error } = await ownerClient.rpc('app_save_content_check', { p_project_id: projectId, p_rule_version: version.rule_version, p_lang: 'en',
       p_text: 'A quiet story about noodles in Đà Lạt with nothing else in it at all.', p_findings: [{ rule_id: rule.rule_id, quoted_text: 'soldiers' }] });
     assert.match(error?.message ?? '', /VALIDATION_ERROR/);
     const { error: record } = await ownerClient.rpc('app_record_precheck', { p_hash: 'x', p_lang: 'en', p_flags: null, p_country: null,
@@ -386,5 +392,54 @@ describe('Row Level Security on cinematch-dev (npm run test:rls)', () => {
     assert.ok(versions.length > 0);
     const { data: anonVersions, error: anonErr } = await anon.from('rule_set_version').select('rule_version');
     assert.ok(anonErr || (anonVersions || []).length === 0, 'anon reads no version row');
+  });
+  // M5 (specs/009-m5-dossier T019, R12, SR-154): member fixtures only.
+  test('M5 RLS: a member reads the slots and documents of their project and none of another; direct writes refused; the kit links are signed-in only', async () => {
+    const { ownerClient, projectId } = await createTestProject();
+    const path = `${projectId}/A13_ART9_COMMITMENT/${randomUUID()}.pdf`;
+    const { error } = await ownerClient.rpc('app_record_document', { p_project_id: projectId, p_doc_code: 'A13_ART9_COMMITMENT', p_file_path: path });
+    assert.equal(error, null, error?.message);
+    const { data: slots } = await ownerClient.from('document_slot').select('state').eq('project_id', projectId);
+    assert.deepEqual((slots || []).map(r => r.state), ['present']);
+    const { data: docs } = await ownerClient.from('document').select('version').eq('project_id', projectId);
+    assert.deepEqual((docs || []).map(r => r.version), [1]);
+    const outsider = await signedInClient(await createTestAccount(SIGNUP_METADATA));
+    for (const t of ['document_slot', 'document']) {
+      const { data } = await outsider.from(t).select('project_id').eq('project_id', projectId);
+      assert.equal((data || []).length, 0, `${t} of another project`);
+    }
+    const { error: ins } = await ownerClient.from('document').insert({ document_id: randomUUID(), project_id: projectId, doc_code: 'A13_ART9_COMMITMENT', file_path: path, version: 9, uploaded_by: randomUUID(), uploaded_at: new Date().toISOString() });
+    assert.ok(ins, 'a direct insert into document is refused');
+    const { error: slotIns } = await ownerClient.from('document_slot').insert({ project_id: projectId, doc_code: 'FOREIGN_CREW_LIST', state: 'present' });
+    assert.ok(slotIns, 'a direct insert into document_slot is refused');
+    const { data: links, error: linkErr } = await ownerClient.from('location_document_type').select('doc_code');
+    assert.equal(linkErr, null, linkErr?.message);
+    assert.ok((links || []).length > 0);
+    const { data: anonLinks, error: anonErr } = await anon.from('location_document_type').select('doc_code');
+    assert.ok(anonErr || (anonLinks || []).length === 0, 'anon reads no kit link');
+    const { data: listed } = await ownerClient.storage.from('project-documents').list(projectId);
+    assert.equal((listed || []).length, 0, 'the member client lists nothing in the private bucket');
+  });
+  // M5 US-2 (T037, R12, D4): member fixtures only; the NDA-gated partner case is checked offline and by hand (quickstart 6b).
+  test('M5 RLS: a member reads the draft, paragraphs and glossary of their project and none of another; direct writes refused', async () => {
+    const { ownerClient, projectId } = await createTestProject();
+    const { error } = await ownerClient.rpc('app_create_bilingual', { p_project_id: projectId, p_doc_code: 'A13_SCRIPT_VI', p_synopsis_en: 'An invented line.', p_paragraphs: ['An invented line.'] });
+    assert.equal(error, null, error?.message);
+    const { error: termError } = await ownerClient.rpc('app_save_glossary_term', { p_project_id: projectId, p_term_en: 'ferry', p_term_vi: 'đò' });
+    assert.equal(termError, null, termError?.message);
+    for (const t of ['bilingual_document', 'bilingual_paragraph', 'project_glossary']) {
+      const { data } = await ownerClient.from(t).select('project_id').eq('project_id', projectId);
+      assert.equal((data || []).length, 1, `${t} of the member's project`);
+    }
+    const outsider = await signedInClient(await createTestAccount(SIGNUP_METADATA));
+    for (const t of ['bilingual_document', 'bilingual_paragraph', 'project_glossary']) {
+      const { data } = await outsider.from(t).select('project_id').eq('project_id', projectId);
+      assert.equal((data || []).length, 0, `${t} of another project`);
+    }
+    await ownerClient.from('bilingual_paragraph').update({ status: 'reviewed' }).eq('project_id', projectId);
+    const { data: after } = await admin.from('bilingual_paragraph').select('status').eq('project_id', projectId).single();
+    assert.equal(after.status, 'machine', 'a direct update is refused');
+    const { error: ins } = await ownerClient.from('project_glossary').insert({ project_id: projectId, term_en: 'karst', term_vi: 'đá vôi' });
+    assert.ok(ins, 'a direct insert into project_glossary is refused');
   });
 });

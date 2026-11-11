@@ -204,7 +204,7 @@ Load test: `python3 data/schema/load_check.py` runs every schema file, then ever
 | Regenerate | `python3 data/seed/generate_seed.py && python3 data/seed/check_seed.py` (must print PASS; `git status` stays clean) |
 | Random seed | none — no randomness and no clock: keys are UUIDv5 of readable names (namespace `6f1c2a8e-3b4d-5e6f-8a9b-0c1d2e3f4a5b`), so every run is byte-identical |
 | Business-rule values | computed by the generator, never typed: attention level (M2 BR-004), quote span (M2 §6.1), latest readiness (M0 §9), is_active, published |
-| Files | 3 files of this module, 45 rows (product: 49 files, 458 rows) |
+| Files | 3 files of this module, 45 rows (product: 50 files, 463 rows) |
 
 **Rows per file and row kinds** (1 = ordinary rows in every file)
 
@@ -286,7 +286,7 @@ Data questions raised in `data/01`–`04` whose owner includes M1. All other ope
 | Question | Blocking? | Owner | Status |
 |---|---|---|---|
 | [NEEDS CLARIFICATION: Does F-M1-01 read segment labels from the display dictionary (F-SYS-06) or from SEGMENT_REQUIREMENT?] | No | M1 owner | Open |
-| [NEEDS CLARIFICATION: Which entity links SEGMENT_REQUIREMENT to DOCUMENT_TYPE (M5 BR-004 builds the kit from segment_requirements)?] | Yes | M1 + M5 owners | Open |
+| [NEEDS CLARIFICATION: Which entity links SEGMENT_REQUIREMENT to DOCUMENT_TYPE (M5 BR-004 builds the kit from segment_requirements)?] | Yes | M1 + M5 owners | Resolved 11/11/2026 — specs/009-m5-dossier decision D1 (11/11/2026): DOCUMENT_TYPE.requirement_code names the SEGMENT_REQUIREMENT code; a document is in a kit when that requirement is `needed` for the project's segment; location-specific documents come from LOCATION_DOCUMENT_TYPE. |
 | [NEEDS CLARIFICATION: Should a segment decision record the decision-table version used?] | No | M1 owner | Open |
 | [NEEDS CLARIFICATION: Declare identifiers for EMAIL_DELIVERY and SEGMENT_DECISION (none in the spec; LOCATION_QUERY now has query_id, M3 FR-011).] | No | SYS, M1 owners | Resolved 01/10/2026 — email_delivery_id UUID (SYS §6.1) and segment_decision_id UUID (M1 §6.1). |
 

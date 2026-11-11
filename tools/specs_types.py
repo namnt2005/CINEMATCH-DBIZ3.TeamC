@@ -68,6 +68,10 @@ ATTR_TYPES = {
  ],
  "M5": [
   ("DocumentType", "segments", "ENUM(A, B, C)[]", "Yes", "segments that need this document"),
+  ("DocumentType", "requirement_code", "VARCHAR(40)", "No", "the `segment_requirement.requirement_code` that brings the document into a kit (BR-004); empty for common and location-specific documents"),
+  ("DocumentType", "awaiting_confirmation", "BOOLEAN", "Yes", "true → *awaiting VFDA confirmation* (Clarifications Q1)"),
+  ("LocationDocumentType", "location_id", "UUID", "Yes", "a location that needs the document"),
+  ("LocationDocumentType", "doc_code", "VARCHAR(40)", "Yes", "a document type with basis *location*"),
   ("Document", "file_path", "TEXT", "Yes", "path in private storage; replaces `file BYTEA` of FR-002 (the file itself is not stored in a table)"),
   ("Document", "version", "INTEGER", "Yes", "1, 2, … — previous versions are kept (FR-002)"),
   ("Document", "uploaded_by", "UUID", "Yes", ""),

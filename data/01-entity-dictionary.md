@@ -37,7 +37,7 @@ CITATION SCHEME = <MODULE> §<section> <ID>
   e.g. "M3 §5.1 FR-008" (field row of F-M3-08) | "M3 §5.2 BR-004" | "M3 §3 US-2" | "M3 §6"
 ```
 
-**Count:** 54 declared in the specs' section 6 — 49 stored (27 THING, 22 EVENT) and 5 that the specs themselves define as *derived* (computed, not stored). Derived entities stay in this dictionary so that nothing declared disappears, but they are not drawn in the ERD (open question 2).
+**Count:** 55 declared in the specs' section 6 — 50 stored (28 THING, 22 EVENT) and 5 that the specs themselves define as *derived* (computed, not stored). Derived entities stay in this dictionary so that nothing declared disappears, but they are not drawn in the ERD (open question 2).
 
 ## Entities
 
@@ -84,6 +84,7 @@ CITATION SCHEME = <MODULE> §<section> <ID>
 | `ORGANISATION_USER` | A partner account that acts for one organisation. | THING | M4 | OrganisationUser; organisation_user; partner account of an organisation | specs/007-m4-partners decision D1 (06/11/2026); M4 §5.1 FR-001 ("a partner … edit its organisation profile") |
 | `PARTNER_INVITATION` | VFDA's one-time invitation for a person to become the partner account of an organisation. | EVENT | M4 | PartnerInvitation; partner_invitation; invitation | specs/007-m4-partners decision D2 (06/11/2026); M4 §5.2 BR-003; SYS BR-002 |
 | `DOCUMENT_TYPE` | A kind of dossier document, with its legal basis and template. | THING | M5 | DocumentType; doc_code; required_documents | M5 §6; M5 §5.1 FR-001 |
+| `LOCATION_DOCUMENT_TYPE` | A location-specific document that one location needs. | THING | M5 | LocationDocumentType; location_document_type | specs/009-m5-dossier decision D1 (11/11/2026); M5 §5.2 BR-004 ("plus shortlisted locations"); M5 §3 US-1 Sc2 |
 | `DOCUMENT_SLOT` | The place for one document type in one project, with its status. | THING | M5 | DocumentSlot; doc_status; missing_documents | M5 §6; M5 §5.1 FR-003 |
 | `DOCUMENT` | One uploaded file version in a project's document slot. | THING | M5 | Document; file | M5 §6; M5 §5.1 FR-002 |
 | `BILINGUAL_DOCUMENT` | A generated English–Vietnamese draft of one document of a project. | THING | M5 | BilingualDocument; bilingual draft | M5 §6; M5 §5.1 FR-004 |

@@ -36,10 +36,10 @@
   "checks": 10
  },
  "M5": {
-  "tables": 7,
-  "columns": 38,
-  "fks": 10,
-  "checks": 6
+  "tables": 8,
+  "columns": 42,
+  "fks": 12,
+  "checks": 7
  },
  "M7": {
   "tables": 3,

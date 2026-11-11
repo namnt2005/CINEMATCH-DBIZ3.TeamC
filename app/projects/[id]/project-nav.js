@@ -1,4 +1,4 @@
-// Project sidebar of SC-12, SC-13, SC-25, SC-32 and the M2 screens (#2): Overview, Content check, Partners, Provinces, Settings.
+// Project sidebar of SC-12, SC-13, SC-25, SC-32 and the M2 and M5 screens (#2): Overview, Content check, Dossier, Document kit, Bilingual drafts, Countdown, Partners, Provinces, Settings.
 export default function ProjectNav({ t, projectId, current }) {
   const item = (href, key, name) => (
     <li><a href={href} aria-current={current === name ? 'page' : undefined}
@@ -11,6 +11,8 @@ export default function ProjectNav({ t, projectId, current }) {
         {item(`/projects/${projectId}`, 'dashboard.nav.overview', 'overview')}
         {item(`/projects/${projectId}/content`, 'dashboard.nav.content', 'content')}
         {item(`/projects/${projectId}/dossier`, 'dashboard.nav.dossier', 'dossier')}
+        {item(`/projects/${projectId}/documents`, 'dashboard.nav.documents', 'documents')}
+        {item(`/projects/${projectId}/bilingual/A13_SCRIPT_VI`, 'dashboard.nav.drafts', 'drafts')}
         {item(`/projects/${projectId}/timeline`, 'dashboard.nav.timeline', 'timeline')}
         {item(`/requests?project=${projectId}`, 'dashboard.nav.partners', 'partners')}
         {item(`/projects/${projectId}/provinces`, 'notices.nav', 'provinces')}

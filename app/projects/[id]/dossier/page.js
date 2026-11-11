@@ -30,7 +30,10 @@ export default async function DossierPage({ params }) {
   const project = await getProject(session, params.id).catch(() => null);
   if (!project) return <main style={{ maxWidth: '720px', margin: '3rem auto', padding: '0 1rem' }}><p role="alert">{t('dashboard.not_found')}</p><a href="/projects">{t('dashboard.nav.back')}</a></main>;
   const d = await getDossier(session, params.id).catch(() => null);
-  const href = (c) => (c.action === 'dossier.action.view_request' ? `/requests?project=${params.id}` : c.action === 'dossier.action.template' && c.template_url ? c.template_url : null);
+  // M5: a file is viewed and uploaded on SC-26 (T026); the Vietnamese version is drafted on SC-28 (T046)
+  const href = (c) => (c.action === 'dossier.action.view_request' ? `/requests?project=${params.id}`
+    : c.action === 'dossier.action.draft_vi' ? `/projects/${params.id}/bilingual/A13_SCRIPT_VI`
+    : ['dossier.action.view_file', 'dossier.action.template'].includes(c.action) ? `/projects/${params.id}/documents#${c.doc_code}` : null);
   return (
     <div style={{ maxWidth: '1200px', margin: '2rem auto', padding: '0 1rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 14rem), 1fr))', gap: '1.5rem', alignItems: 'start' }}>
       <style>{CSS}</style>
